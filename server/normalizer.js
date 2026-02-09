@@ -68,6 +68,27 @@ function dateToQuarter(dateStr) {
   return `Q4 ${year}`;
 }
 
+/**
+ * Map a quarter_end date to the calendar quarter that the quarter's activity
+ * mostly falls within. A fiscal quarter ending on Nov 1 covers Aug–Oct activity,
+ * which is calendar Q3. We subtract 6 weeks from the end date to find the
+ * midpoint of the ~3-month period.
+ */
+function dateToCalendarQuarter(dateStr) {
+  if (!dateStr) return null;
+  const m = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  const endDate = new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]));
+  // Subtract 6 weeks (42 days) to approximate the midpoint of the quarter
+  const midDate = new Date(endDate.getTime() - 42 * 24 * 60 * 60 * 1000);
+  const midMonth = midDate.getMonth() + 1; // 1-based
+  const midYear = midDate.getFullYear();
+  if (midMonth <= 3) return `Q1 ${midYear}`;
+  if (midMonth <= 6) return `Q2 ${midYear}`;
+  if (midMonth <= 9) return `Q3 ${midYear}`;
+  return `Q4 ${midYear}`;
+}
+
 // ── Main Normalizer ──────────────────────────────────────────────────────────
 
 function normalizeCompany(raw) {
@@ -285,11 +306,15 @@ function extractQuarterlyHistory(q) {
   if (!Array.isArray(hist) || hist.length === 0) return [];
 
   return hist.map(entry => {
-    const quarter = entry.quarter || dateToQuarter(entry.date) || 'Unknown';
+    const quarterEnd = entry.quarter_end || entry.quarter_end_date || entry.date || null;
+    const quarter = entry.quarter || dateToQuarter(entry.date) || dateToQuarter(quarterEnd) || 'Unknown';
+    const calendarQuarter = quarterEnd ? dateToCalendarQuarter(quarterEnd) : null;
     const revRaw = entry.revenue;
     const revMil = toMillions(revRaw);
     return {
       quarter,
+      calendarQuarter,
+      quarterEnd,
       revenueMil: revMil,
       revenueYoyPct: safeNum(entry.revenue_yoy_pct ?? entry.yoy_growth),
       revenueQoqPct: safeNum(entry.revenue_qoq_pct ?? entry.qoq_growth),
@@ -482,4 +507,4 @@ function extractProfitableStatus(qual) {
   return null;
 }
 
-module.exports = { normalizeCompany, safeNum, toMillions };
+module.exports = { normalizeCompany, safeNum, toMillions, dateToCalendarQuarter };

@@ -46,6 +46,9 @@ const LineChart = {
         }),
         plugins: {
           legend: { display: datasets.length > 1, position: 'top' },
+          tooltip: {
+            itemSort: (a, b) => (b.parsed.y ?? -Infinity) - (a.parsed.y ?? -Infinity),
+          },
         },
       },
     };

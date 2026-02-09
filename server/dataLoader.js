@@ -8,7 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { normalizeCompany } = require('./normalizer');
+const { normalizeCompany, dateToCalendarQuarter } = require('./normalizer');
 const { parseMarkdown } = require('./markdownParser');
 const { enrichCompanies } = require('./calculator');
 const { computeSaulSummary } = require('./saulUtils');
@@ -89,6 +89,58 @@ function findLatestMarkdown(dirPath, ticker) {
   return mdFiles.length > 0 ? path.join(dirPath, mdFiles[0]) : null;
 }
 
+/**
+ * If the primary JSON source (dashboard_metrics) lacks quarter_end dates,
+ * load the company_data.json as a fallback to get quarter_end dates and
+ * compute calendarQuarter for fiscal-year companies.
+ */
+function backfillQuarterEndDates(normalized, dirPath, ticker, primaryJsonPath) {
+  const hist = normalized.quarterlyHistory;
+  if (!hist || hist.length === 0) return;
+
+  // Check if any entries already have calendarQuarter — if so, nothing to do
+  if (hist.some(q => q.calendarQuarter)) return;
+
+  // Check if any quarter labels suggest a fiscal year (contain "FY")
+  const hasFiscalQuarters = hist.some(q => q.quarter && q.quarter.includes('FY'));
+  if (!hasFiscalQuarters) return;
+
+  // Try to find the company_data.json as a secondary source
+  const tickerLower = ticker.toLowerCase();
+  const companyDataPath = path.join(dirPath, `${tickerLower}_company_data.json`);
+  if (companyDataPath === primaryJsonPath || !fs.existsSync(companyDataPath)) return;
+
+  try {
+    const raw = JSON.parse(fs.readFileSync(companyDataPath, 'utf-8'));
+    const cdHist = raw.quantitative?.quarterly_history;
+    if (!Array.isArray(cdHist)) return;
+
+    // Build a map of quarter label → quarter_end date
+    const endDateMap = {};
+    cdHist.forEach(entry => {
+      const label = entry.quarter;
+      const endDate = entry.quarter_end || entry.quarter_end_date;
+      if (label && endDate) endDateMap[label] = endDate;
+    });
+
+    // Backfill into normalized data
+    let backfilled = 0;
+    hist.forEach(q => {
+      if (!q.calendarQuarter && endDateMap[q.quarter]) {
+        q.quarterEnd = endDateMap[q.quarter];
+        q.calendarQuarter = dateToCalendarQuarter(endDateMap[q.quarter]);
+        backfilled++;
+      }
+    });
+
+    if (backfilled > 0) {
+      console.log(`[dataLoader] ${ticker}: Backfilled ${backfilled} quarter_end dates from company_data.json`);
+    }
+  } catch (err) {
+    // Silently skip — company_data is optional for this
+  }
+}
+
 function loadCompany(dirPath, ticker) {
   const result = {
     ticker: ticker.toUpperCase(),
@@ -107,6 +159,9 @@ function loadCompany(dirPath, ticker) {
       const raw = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
       result.normalized = normalizeCompany(raw);
       result.hasJson = true;
+
+      // If dashboard_metrics was used (no quarter_end dates), backfill from company_data
+      backfillQuarterEndDates(result.normalized, dirPath, ticker, jsonPath);
     } catch (err) {
       result.errors.push(`JSON parse error: ${err.message}`);
       console.warn(`[dataLoader] ${ticker}: JSON error — ${err.message}`);
@@ -176,6 +231,8 @@ function mergeMarkdownIntoNormalized(norm, analysis) {
       norm.revenueYoyPct !== null && norm.revenueYoyPct !== undefined) {
     norm.quarterlyHistory = [{
       quarter: norm.revenueRecentLabel || 'Latest',
+      calendarQuarter: null,
+      quarterEnd: null,
       revenueMil: norm.revenueRecentMil,
       revenueYoyPct: norm.revenueYoyPct,
       revenueQoqPct: norm.revenueQoqPct,

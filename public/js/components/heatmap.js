@@ -5,20 +5,22 @@ const Heatmap = {
   /**
    * @param {HTMLElement} container
    * @param {Array<Object>} companies - Normalized company objects
+   * @param {Object} [opts]
+   * @param {boolean} [opts.useCalendarQuarters=false] - Use calendar quarters instead of fiscal
    */
-  render(container, companies) {
+  render(container, companies, opts = {}) {
+    const useCalendar = opts.useCalendarQuarters || false;
+
     // Collect all unique quarters across all companies
     const quarterSet = new Set();
     companies.forEach(c => {
-      (c.quarterlyHistory || []).forEach(q => quarterSet.add(q.quarter));
+      (c.quarterlyHistory || []).forEach(q => {
+        quarterSet.add(heatmapQuarterLabel(q, useCalendar));
+      });
     });
 
     // Sort quarters chronologically
-    const quarters = [...quarterSet].sort((a, b) => {
-      const [qa, ya] = a.replace('Q', '').split(' ');
-      const [qb, yb] = b.replace('Q', '').split(' ');
-      return (ya + qa).localeCompare(yb + qb);
-    });
+    const quarters = [...quarterSet].sort(quarterSort);
 
     if (quarters.length === 0) {
       container.innerHTML = '<div class="empty-state">No quarterly history data available</div>';
@@ -40,7 +42,7 @@ const Heatmap = {
     companies.forEach(company => {
       const histMap = {};
       (company.quarterlyHistory || []).forEach(q => {
-        histMap[q.quarter] = q.revenueYoyPct;
+        histMap[heatmapQuarterLabel(q, useCalendar)] = q.revenueYoyPct;
       });
 
       let row = `<div class="heatmap-cell heatmap-ticker">${company.ticker}</div>`;
@@ -64,5 +66,23 @@ const Heatmap = {
     container.appendChild(wrapper);
   },
 };
+
+function heatmapQuarterLabel(q, useCalendar) {
+  if (useCalendar) return (q.calendarQuarter || q.quarter).replace(' FY', ' ');
+  return q.quarter.replace(' FY', ' ');
+}
+
+function quarterSort(a, b) {
+  const pa = parseQuarterLabel(a);
+  const pb = parseQuarterLabel(b);
+  if (pa.year !== pb.year) return pa.year - pb.year;
+  return pa.q - pb.q;
+}
+
+function parseQuarterLabel(label) {
+  const m = label.match(/Q(\d)\s+(\d{4})/);
+  if (m) return { q: parseInt(m[1]), year: parseInt(m[2]) };
+  return { q: 0, year: 0 };
+}
 
 window.Heatmap = Heatmap;

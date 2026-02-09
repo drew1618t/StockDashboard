@@ -17,19 +17,13 @@ const GrowthDashboard = {
     filterBar.className = 'filter-bar';
     filterBar.innerHTML = `
       <label class="filter-item">
-        <span>Min Growth:</span>
-        <select id="growth-filter-min">
-          <option value="0">All</option>
-          <option value="25">≥25%</option>
-          <option value="35">≥35%</option>
-          <option value="50">≥50%</option>
-        </select>
-      </label>
-      <label class="filter-item">
         <input type="checkbox" id="growth-filter-accel"> Accelerating only
       </label>
       <label class="filter-item">
         <input type="checkbox" id="growth-filter-profit"> Profitable only
+      </label>
+      <label class="filter-item">
+        <input type="checkbox" id="growth-filter-calendar" checked> Calendar quarters
       </label>
     `;
     section.appendChild(filterBar);
@@ -44,29 +38,28 @@ const GrowthDashboard = {
     // Apply filters and render
     const self = this;
     function applyFilters() {
-      const minGrowth = parseInt(document.getElementById('growth-filter-min')?.value || '0');
       const accelOnly = document.getElementById('growth-filter-accel')?.checked || false;
       const profitOnly = document.getElementById('growth-filter-profit')?.checked || false;
+      const useCalendarQuarters = document.getElementById('growth-filter-calendar')?.checked || false;
 
       let filtered = companies.filter(c => {
-        if (c.revenueYoyPct !== null && c.revenueYoyPct < minGrowth) return false;
         if (accelOnly && c.calculated?.momentum?.trend !== 'accelerating') return false;
         if (profitOnly && c.currentlyProfitable !== true) return false;
         return true;
       });
 
-      self._renderData(dataContainer, filtered, companies);
+      self._renderData(dataContainer, filtered, companies, useCalendarQuarters);
     }
 
     // Bind filter events
-    document.getElementById('growth-filter-min')?.addEventListener('change', applyFilters);
     document.getElementById('growth-filter-accel')?.addEventListener('change', applyFilters);
     document.getElementById('growth-filter-profit')?.addEventListener('change', applyFilters);
+    document.getElementById('growth-filter-calendar')?.addEventListener('change', applyFilters);
 
     applyFilters();
   },
 
-  _renderData(container, filtered, allCompanies) {
+  _renderData(container, filtered, allCompanies, useCalendarQuarters) {
     container.innerHTML = '';
     this.destroy();
 
@@ -74,7 +67,7 @@ const GrowthDashboard = {
     const heatSection = document.createElement('div');
     heatSection.className = 'section';
     heatSection.innerHTML = '<h2 class="section-title">Revenue Growth Heatmap (YoY %)</h2>';
-    Heatmap.render(heatSection, filtered);
+    Heatmap.render(heatSection, filtered, { useCalendarQuarters });
     container.appendChild(heatSection);
 
     // ── Revenue Growth Trend Lines ──
@@ -88,18 +81,20 @@ const GrowthDashboard = {
 
     // Build datasets for line chart
     const quarterSet = new Set();
-    filtered.forEach(c => (c.quarterlyHistory || []).forEach(q => quarterSet.add(q.quarter)));
-    const quarters = [...quarterSet].sort((a, b) => {
-      const [qa, ya] = a.replace('Q', '').split(' ');
-      const [qb, yb] = b.replace('Q', '').split(' ');
-      return (ya + qa).localeCompare(yb + qb);
-    });
+    filtered.forEach(c => (c.quarterlyHistory || []).forEach(q => {
+      const label = quarterLabel(q, useCalendarQuarters);
+      quarterSet.add(label);
+    }));
+    const quarters = [...quarterSet].sort(quarterSort);
 
     const datasets = filtered
       .filter(c => (c.quarterlyHistory || []).length >= 2)
       .map((company, i) => {
         const histMap = {};
-        (company.quarterlyHistory || []).forEach(q => { histMap[q.quarter] = q.revenueYoyPct; });
+        (company.quarterlyHistory || []).forEach(q => {
+          const label = quarterLabel(q, useCalendarQuarters);
+          histMap[label] = q.revenueYoyPct;
+        });
         return {
           label: company.ticker,
           data: quarters.map(q => histMap[q] ?? null),
@@ -147,5 +142,28 @@ const GrowthDashboard = {
     LineChart.destroyAll();
   },
 };
+
+/**
+ * Get the display label for a quarter entry.
+ * Calendar mode: use calendarQuarter (fallback to fiscal stripped of "FY").
+ * Fiscal mode: strip "FY" so "Q1 FY2025" becomes "Q1 2025" to merge with calendar-year companies.
+ */
+function quarterLabel(q, useCalendar) {
+  if (useCalendar) return (q.calendarQuarter || q.quarter).replace(' FY', ' ');
+  return q.quarter.replace(' FY', ' ');
+}
+
+function quarterSort(a, b) {
+  const pa = parseQuarterLabel(a);
+  const pb = parseQuarterLabel(b);
+  if (pa.year !== pb.year) return pa.year - pb.year;
+  return pa.q - pb.q;
+}
+
+function parseQuarterLabel(label) {
+  const m = label.match(/Q(\d)\s+(\d{4})/);
+  if (m) return { q: parseInt(m[1]), year: parseInt(m[2]) };
+  return { q: 0, year: 0 };
+}
 
 window.GrowthDashboard = GrowthDashboard;
