@@ -1,0 +1,210 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODERN MINIMALIST — Clean, spacious, card-based. Cobalt blue accent.
+   Generous whitespace. Stripe-dashboard aesthetic.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.theme-minimalist {
+  --bg-primary: #fafaf9;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f3f4f6;
+  --bg-card: #ffffff;
+  --bg-hover: rgba(37, 99, 235, 0.03);
+
+  --text-primary: #18181b;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+
+  --color-accent: #2563eb;
+  --color-positive: #16a34a;
+  --color-negative: #dc2626;
+  --color-warning: #d97706;
+
+  --heatmap-100: #15803d;
+  --heatmap-50: #22c55e;
+  --heatmap-35: #86efac;
+  --heatmap-25: #fde047;
+  --heatmap-10: #fbbf24;
+  --heatmap-0: #fb923c;
+  --heatmap-neg: #f87171;
+  --heatmap-text-light: #ffffff;
+  --heatmap-text-dark: #1a1a1a;
+
+  --chart-grid: rgba(0, 0, 0, 0.05);
+
+  --font-heading: 'DM Sans', 'Avenir', system-ui, sans-serif;
+  --font-body: 'DM Sans', 'Avenir', system-ui, sans-serif;
+  --font-mono: 'DM Sans', system-ui, sans-serif;
+  --font-numbers: 'DM Sans', system-ui, sans-serif;
+
+  --border-color: #e4e4e7;
+  --border-radius: 12px;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --gap: 16px;
+  --gap-sm: 8px;
+  --gap-lg: 28px;
+}
+
+/* Light header */
+.theme-minimalist #app-header {
+  height: 56px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.theme-minimalist .app-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.theme-minimalist .nav-link {
+  padding: 16px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+}
+
+.theme-minimalist .nav-link.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+.theme-minimalist .nav-link:hover {
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.theme-minimalist #dashboard-content {
+  padding: var(--gap-lg) 40px;
+  max-width: 1200px;
+}
+
+.theme-minimalist .section-title {
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.theme-minimalist .metric-card {
+  border: none;
+  box-shadow: var(--card-shadow);
+  border-radius: var(--border-radius);
+  padding: 20px;
+}
+
+.theme-minimalist .metric-value {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.theme-minimalist .metric-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+}
+
+.theme-minimalist .sortable-table-wrapper {
+  box-shadow: var(--card-shadow);
+  border: none;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.theme-minimalist .thead .th {
+  background: var(--bg-tertiary);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.theme-minimalist .tbody .td {
+  font-size: 13px;
+  padding: 12px 14px;
+  font-family: var(--font-body);
+}
+
+.theme-minimalist .tbody .td:first-child {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.theme-minimalist .chart-container {
+  height: 300px;
+  border: none;
+  box-shadow: var(--card-shadow);
+  border-radius: var(--border-radius);
+  padding: 20px;
+}
+
+.theme-minimalist .chart-container.chart-tall {
+  height: 380px;
+}
+
+/* Card hover effect */
+.theme-minimalist .metric-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.theme-minimalist .filter-bar {
+  border: none;
+  box-shadow: var(--card-shadow);
+  border-radius: var(--border-radius);
+  padding: 12px 20px;
+}
+
+.theme-minimalist #theme-selector,
+.theme-minimalist #refresh-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+}
+
+.theme-minimalist .verdict-pass { background: rgba(22, 163, 74, 0.08); }
+.theme-minimalist .verdict-caution { background: rgba(217, 119, 6, 0.08); }
+.theme-minimalist .verdict-fail { background: rgba(220, 38, 38, 0.08); }
+
+.theme-minimalist .pe-compression-wrapper,
+.theme-minimalist .saul-grid-wrapper {
+  border: none;
+  box-shadow: var(--card-shadow);
+}
+
+.theme-minimalist .thesis-card {
+  border: none;
+  box-shadow: var(--card-shadow);
+}
+
+.theme-minimalist .mini-table-card {
+  border: none;
+  box-shadow: var(--card-shadow);
+}
+
+.theme-minimalist .mini-row span:first-child {
+  color: var(--color-accent);
+}
+
+.theme-minimalist .heatmap-wrapper {
+  border: none;
+  box-shadow: var(--card-shadow);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}

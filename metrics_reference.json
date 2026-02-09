@@ -1,0 +1,352 @@
+{
+  "_description": "Complete metrics reference for StockDashboard. Feed this to your data collection program so it knows what fields to populate.",
+  "_notes": {
+    "units": "All monetary values should be in raw dollars (normalizer auto-converts to millions). Percentages as plain numbers (e.g. 63.0 not 0.63). P/E ratios as plain numbers (e.g. 75.55).",
+    "null_handling": "Use null or omit fields when data is unavailable. 'N/A' strings are auto-converted to null.",
+    "market_cap": "Can be raw number (dollars), number in millions, or string like '$3.4B' — all handled.",
+    "revenue": "Values >100,000 assumed raw dollars and auto-divided by 1M. Values <=100,000 assumed already in millions."
+  },
+
+  "json_structure": {
+    "_description": "Top-level structure of {TICKER}_company_data.json files",
+    "ticker": { "type": "string", "example": "CRDO", "required": true },
+    "company_name": { "type": "string", "example": "Credo Technology Group" },
+    "fetch_date": { "type": "string", "example": "2025-01-15", "format": "YYYY-MM-DD" },
+
+    "quantitative": {
+      "_description": "All numerical/financial data goes here",
+
+      "price_and_valuation": {
+        "current_price": { "type": "number", "unit": "dollars", "example": 85.42 },
+        "market_cap": { "type": "number|string", "unit": "dollars or string", "example": 3400000000, "alt_formats": ["$3.4B", "3400"] },
+        "market_cap_millions": { "type": "number", "unit": "millions", "example": 3400, "note": "Alternative to market_cap — already in millions" },
+        "market_cap_billions": { "type": "number", "unit": "billions", "example": 3.4, "note": "Alternative — auto-multiplied by 1000" },
+        "trailing_pe": { "type": "number", "example": 114.59, "note": "Trailing 12-month P/E ratio" },
+        "run_rate_pe": { "type": "number", "example": 75.55, "note": "Annualized from most recent quarter — PREFERRED for valuation" },
+        "forward_pe": { "type": "number", "example": 45.0, "note": "Based on forward earnings estimates" },
+        "normalized_pe_ratio": { "type": "number", "example": 14.27, "note": "Cycle-adjusted P/E — fallback when others unavailable" },
+        "price_to_sales_ratio": { "type": "number", "example": 25.3, "alt_keys": ["price_to_sales", "price_to_sales_ttm"] },
+        "52_week_high": { "type": "number", "unit": "dollars", "example": 95.00 },
+        "52_week_low": { "type": "number", "unit": "dollars", "example": 28.50 },
+        "shares_yoy_change_pct": { "type": "number", "unit": "percent", "example": 2.5, "note": "Positive = dilution, negative = buybacks" }
+      },
+
+      "income_statement": {
+        "revenue_recent_quarterly": { "type": "number", "unit": "dollars", "example": 268027000, "alt_keys": ["revenue_recent_quarter"] },
+        "revenue_recent_quarter_period": { "type": "string", "example": "Q3 FY2025", "note": "Label for the quarter — NOT a number" },
+        "revenue_yoy_pct": { "type": "number", "unit": "percent", "example": 63.0, "alt_keys": ["revenue_yoy_growth_pct"] },
+        "revenue_qoq_pct": { "type": "number", "unit": "percent", "example": 14.4, "alt_keys": ["revenue_qoq_growth_pct"] },
+        "gross_margin_pct": { "type": "number", "unit": "percent", "example": 76.4 },
+        "net_income_recent": { "type": "number", "unit": "dollars", "example": 56000000 },
+        "net_income_yoy_pct": { "type": "number", "unit": "percent", "example": 120.0 },
+        "eps_diluted": { "type": "number", "unit": "dollars", "example": 0.32 }
+      },
+
+      "profitability_and_ebitda": {
+        "ebitda_recent": { "type": "number", "unit": "dollars", "example": 85000000, "alt_keys": ["adj_ebitda_recent"] },
+        "ebitda_yoy_pct": { "type": "number", "unit": "percent", "example": 450.0, "alt_keys": ["adj_ebitda_yoy_percent"] },
+        "ebitda_margin_pct": { "type": "number", "unit": "percent", "example": 31.7 }
+      },
+
+      "cash_flow": {
+        "operating_cash_flow": { "type": "number", "unit": "dollars", "example": 92000000, "alt_keys": ["operating_cash_flow_recent"] },
+        "capital_expenditure": { "type": "number", "unit": "dollars", "example": 15000000 },
+        "free_cash_flow": { "type": "number", "unit": "dollars", "example": 77000000 },
+        "capex_to_ocf_ratio": { "type": "number", "unit": "percent", "example": 16.3, "alt_keys": ["capex_to_ocf_ratio_percent"] }
+      },
+
+      "balance_sheet": {
+        "cash_and_equivalents": { "type": "number", "unit": "dollars", "example": 500000000, "alt_keys": ["total_cash"] },
+        "total_debt": { "type": "number", "unit": "dollars", "example": 0 },
+        "debt_level": { "type": "string", "enum": ["none", "low", "moderate", "high"], "note": "If provided as string, used directly. Otherwise computed from debt vs cash ratio." }
+      },
+
+      "quarterly_history": {
+        "_description": "Array of quarterly data points, newest first. This is the MOST IMPORTANT field for the growth heatmap dashboard.",
+        "_type": "array",
+        "_minimum_quarters": 3,
+        "_ideal_quarters": "6-8",
+        "items": {
+          "quarter": { "type": "string", "example": "Q3 FY2025", "alt_keys": ["date"], "note": "Date format 'YYYY-MM-DD' also accepted and auto-converted" },
+          "revenue": { "type": "number", "unit": "dollars", "example": 268027000 },
+          "revenue_yoy_pct": { "type": "number", "unit": "percent", "example": 63.0, "alt_keys": ["yoy_growth"] },
+          "revenue_qoq_pct": { "type": "number", "unit": "percent", "example": 14.4, "alt_keys": ["qoq_growth"] },
+          "ebitda": { "type": "number", "unit": "dollars", "example": 85000000 },
+          "ebitda_margin_pct": { "type": "number", "unit": "percent", "example": 31.7 },
+          "gross_margin_pct": { "type": "number", "unit": "percent", "example": 76.4 },
+          "notes": { "type": "string", "example": "Beat estimates by 15%" }
+        }
+      },
+
+      "forward_estimates": {
+        "_description": "Analyst consensus forward estimates. Optional but useful for P/E compression visualization.",
+        "fy2025_revenue": { "type": "number", "unit": "dollars", "example": 1000000000 },
+        "fy2025_eps": { "type": "number", "unit": "dollars", "example": 1.20 },
+        "fy2026_revenue": { "type": "number", "unit": "dollars", "example": 1500000000 },
+        "fy2026_eps": { "type": "number", "unit": "dollars", "example": 2.10 },
+        "fy2026_revenue_growth_pct": { "type": "number", "unit": "percent", "example": 50.0 },
+        "estimated_eps_2025": { "type": "number", "unit": "dollars", "note": "DAVE-style alternative key" },
+        "estimated_eps_2026_growth_pct": { "type": "number", "unit": "percent", "note": "DAVE-style alternative key" }
+      },
+
+      "full_year_results": {
+        "_description": "Historical full-year summaries keyed by fiscal year. Optional.",
+        "_type": "object with year keys",
+        "_example_key": "FY2024",
+        "items": {
+          "revenue": { "type": "number", "unit": "dollars" },
+          "revenue_yoy_pct": { "type": "number", "unit": "percent" },
+          "ebitda": { "type": "number", "unit": "dollars" },
+          "ebitda_yoy_pct": { "type": "number", "unit": "percent" },
+          "net_income": { "type": "number", "unit": "dollars" }
+        }
+      },
+
+      "pe_compression_analysis": {
+        "_description": "Pre-computed P/E compression data. Optional — auto-computed from trailing/run_rate/forward_pe if omitted.",
+        "trailing_pe": { "type": "number" },
+        "run_rate_pe": { "type": "number" },
+        "forward_pe": { "type": "number" },
+        "trailing_to_run_rate_compression": { "type": "number" },
+        "run_rate_to_forward_compression": { "type": "number" },
+        "total_compression": { "type": "number" },
+        "interpretation": { "type": "string" }
+      }
+    },
+
+    "qualitative": {
+      "_description": "Non-numerical company analysis data",
+
+      "business_model": {
+        "_description": "Can be a plain string OR an object with these fields",
+        "_type": "string | object",
+        "description": { "type": "string", "example": "High-performance connectivity solutions for data centers" },
+        "summary": { "type": "string", "note": "Alternative to description" },
+        "revenue_model": { "type": "string", "example": "Hardware sales + licensing" },
+        "products": { "type": "array of strings", "example": ["SerDes IP", "Active Electrical Cables"] },
+        "key_products": { "type": "array of strings", "note": "Alternative to products" },
+        "is_capital_intensive": { "type": "boolean", "example": false }
+      },
+
+      "market": {
+        "tam_estimate": { "type": "string", "example": "$15B by 2028", "alt_keys": ["tam_description", "tam_size", "tam_current"] },
+        "market_share_estimate": { "type": "string", "example": "~15% of high-speed connectivity", "alt_keys": ["market_share_metrics", "current_market_share"] },
+        "competitive_moat": { "type": "string", "example": "Proprietary SerDes technology with 3-year design-in cycles", "alt_keys": ["competitive_position"] },
+        "competitors": { "type": "array of strings", "example": ["Marvell", "Broadcom", "Alphawave"] }
+      },
+
+      "geography": {
+        "headquarters": { "type": "string", "example": "San Jose, CA", "alt_keys": ["headquarters_address"] }
+      },
+
+      "management": {
+        "ceo": { "type": "string | object", "example": { "name": "Bill Brennan", "title": "CEO" } },
+        "key_executives": { "type": "array of objects", "note": "Alternative to ceo — first entry treated as CEO" },
+        "insider_ownership": { "type": "number|string", "unit": "percent", "example": 8.5, "alt_keys": ["insider_ownership_pct", "total_insider_ownership_pct"] },
+        "recent_insider_buying": { "type": "boolean", "example": true },
+        "recent_insider_selling": { "type": "boolean", "example": false }
+      },
+
+      "growth_drivers": {
+        "_description": "Can be a plain array of strings OR an object with primary_drivers[]",
+        "_type": "array of strings | object",
+        "primary_drivers": { "type": "array of strings", "example": ["AI/ML data center buildout", "800G/1.6T Ethernet transition"] }
+      },
+
+      "recent_developments": {
+        "latest_quarter_highlights": { "type": "array of strings", "example": ["Revenue beat by 15%", "Raised full-year guidance"] },
+        "guidance": { "type": "string", "example": "FY2026 revenue guidance of $1.2B+", "alt_keys": ["forward_guidance.fy_2026_outlook", "forward_guidance"] },
+        "recent_news": { "type": "array of strings" },
+        "red_flags": { "type": "array of strings", "example": ["Customer concentration >40%"] }
+      },
+
+      "risk_factors": {
+        "_description": "Can be array of strings OR array of objects with category/description/severity",
+        "_type": "array",
+        "items_simple": { "type": "string", "example": "Customer concentration risk" },
+        "items_detailed": {
+          "category": { "type": "string", "example": "Concentration" },
+          "description": { "type": "string", "example": "Top customer represents 40%+ of revenue" },
+          "severity": { "type": "string", "enum": ["Low", "Medium", "High"] }
+        }
+      },
+
+      "path_to_profitability": {
+        "currently_profitable": { "type": "boolean", "example": true },
+        "current_status": { "type": "string", "note": "Alternative — parsed for 'profitable' keyword" },
+        "notes": { "type": "string", "example": "GAAP profitable since Q2 2024" },
+        "profitability_drivers": { "type": "string", "note": "Alternative to notes" }
+      },
+
+      "valuation_context": { "type": "string|object", "example": "Premium justified by 60%+ growth and expanding margins" },
+
+      "revenue_streams": {
+        "_description": "DAVE-style alternative to business_model.products",
+        "_type": "array of objects",
+        "items": {
+          "stream": { "type": "string" },
+          "name": { "type": "string", "note": "Alternative to stream" },
+          "description": { "type": "string" }
+        }
+      },
+
+      "risks_and_concerns": {
+        "_description": "AMD-style alternative to risk_factors — simple string array",
+        "_type": "array of strings"
+      }
+    }
+  },
+
+  "calculated_metrics": {
+    "_description": "These are auto-computed by the server from the fields above. You do NOT need to provide these.",
+    "momentum": {
+      "description": "Sequential momentum — compares current QoQ to prior QoQ growth",
+      "inputs": ["quarterly_history[0].revenue_qoq_pct", "quarterly_history[1].revenue_qoq_pct"],
+      "requires": "At least 3 quarters of history",
+      "output": {
+        "currentQoq": "number",
+        "priorQoq": "number",
+        "delta": "number",
+        "trend": "accelerating | stable | decelerating"
+      }
+    },
+    "gav": {
+      "description": "Growth-Adjusted Valuation (PEG-like) — P/E ÷ Revenue YoY Growth%",
+      "inputs": ["run_rate_pe (or trailing_pe, or normalized_pe)", "revenue_yoy_pct"],
+      "formula": "effectivePE / revenueYoyPct",
+      "interpretation": "Lower = cheaper relative to growth. <1.0 is attractive."
+    },
+    "operatingLeverage": {
+      "description": "EBITDA growth ÷ Revenue growth — measures margin expansion",
+      "inputs": ["ebitda_yoy_pct", "revenue_yoy_pct"],
+      "formula": "ebitdaYoyPct / revenueYoyPct",
+      "interpretation": ">1.0 means margins expanding (EBITDA growing faster than revenue)"
+    },
+    "distanceFromHigh": {
+      "description": "How far below 52-week high",
+      "inputs": ["current_price", "52_week_high"],
+      "formula": "((price - high) / high) * 100",
+      "unit": "percent (negative = below high)"
+    },
+    "peCompression": {
+      "description": "P/E ratio compression from trailing → run rate → forward",
+      "inputs": ["trailing_pe", "run_rate_pe", "forward_pe"],
+      "output": {
+        "trailingToRunRate": "trailing - runRate (positive = compression)",
+        "runRateToForward": "runRate - forward (positive = compression)",
+        "totalCompression": "trailing - forward"
+      }
+    }
+  },
+
+  "markdown_extracted_fields": {
+    "_description": "Fields extracted from {TICKER}_{DATE}.md markdown analysis files. These supplement/override JSON data.",
+    "verdict": { "values": ["PASS", "CAUTION", "DISQUALIFIED", "FAIL", "STRONG PASS", "WATCH"] },
+    "conviction_score": { "range": "1-10" },
+    "pe_values": ["trailing_pe", "run_rate_pe", "forward_pe", "normalized_pe", "price_to_sales"],
+    "financials": ["revenue (with YoY/QoQ)", "gross_margin_pct", "ebitda_margin_pct", "net_profit_margin_pct", "operating_leverage", "free_cash_flow", "dilution_pct", "fcf_margin_pct"],
+    "quarterly_history": "Parsed from '**Quarterly Revenue History:**' section if present",
+    "saul_rules": "R_001 through R_024 with PASS/FAIL/WARNING/CAUTION status",
+    "bull_case": "Array of bullet points from **Bull Case:** section",
+    "bear_case": "Array of bullet points from **Bear Case:** section",
+    "unit_economics": ["CAC", "ARPU", "ARPU-to-CAC ratio"]
+  },
+
+  "priority_fields": {
+    "_description": "Fields ranked by impact on dashboard visualizations. Focus your data collection here first.",
+    "critical": [
+      "quantitative.price_and_valuation.current_price",
+      "quantitative.price_and_valuation.run_rate_pe",
+      "quantitative.price_and_valuation.trailing_pe",
+      "quantitative.income_statement.revenue_recent_quarterly",
+      "quantitative.income_statement.revenue_yoy_pct",
+      "quantitative.income_statement.revenue_qoq_pct",
+      "quantitative.quarterly_history (minimum 3 quarters)",
+      "quantitative.price_and_valuation.market_cap"
+    ],
+    "high": [
+      "quantitative.income_statement.gross_margin_pct",
+      "quantitative.profitability_and_ebitda.ebitda_margin_pct",
+      "quantitative.profitability_and_ebitda.ebitda_yoy_pct",
+      "quantitative.price_and_valuation.forward_pe",
+      "quantitative.price_and_valuation.52_week_high",
+      "quantitative.price_and_valuation.52_week_low",
+      "quantitative.cash_flow.free_cash_flow",
+      "quantitative.balance_sheet.debt_level"
+    ],
+    "medium": [
+      "quantitative.income_statement.net_income_recent",
+      "quantitative.income_statement.eps_diluted",
+      "quantitative.cash_flow.operating_cash_flow",
+      "quantitative.forward_estimates",
+      "quantitative.price_and_valuation.shares_yoy_change_pct",
+      "qualitative.management.insider_ownership",
+      "qualitative.growth_drivers"
+    ],
+    "nice_to_have": [
+      "quantitative.full_year_results",
+      "quantitative.pe_compression_analysis",
+      "qualitative.market.tam_estimate",
+      "qualitative.market.competitors",
+      "qualitative.path_to_profitability",
+      "qualitative.valuation_context"
+    ]
+  },
+
+  "example_minimal_json": {
+    "_description": "Minimum viable JSON file that populates all 5 dashboards",
+    "ticker": "CRDO",
+    "company_name": "Credo Technology Group",
+    "fetch_date": "2025-01-15",
+    "quantitative": {
+      "price": 85.42,
+      "market_cap": 14200000000,
+      "trailing_pe": 114.59,
+      "run_rate_pe": 75.55,
+      "forward_pe": 45.0,
+      "revenue_recent_quarterly": 268027000,
+      "revenue_yoy_pct": 63.0,
+      "revenue_qoq_pct": 14.4,
+      "gross_margin_pct": 76.4,
+      "ebitda_margin_pct": 31.7,
+      "ebitda_yoy_pct": 450.0,
+      "free_cash_flow": 77000000,
+      "52_week_high": 95.0,
+      "52_week_low": 28.5,
+      "debt_level": "none",
+      "quarterly_history": [
+        { "quarter": "Q3 FY2025", "revenue": 268027000, "revenue_yoy_pct": 63.0, "revenue_qoq_pct": 14.4 },
+        { "quarter": "Q2 FY2025", "revenue": 234500000, "revenue_yoy_pct": 55.0, "revenue_qoq_pct": 12.0 },
+        { "quarter": "Q1 FY2025", "revenue": 209400000, "revenue_yoy_pct": 48.0, "revenue_qoq_pct": 10.0 },
+        { "quarter": "Q4 FY2024", "revenue": 190300000, "revenue_yoy_pct": 40.0, "revenue_qoq_pct": 8.0 }
+      ]
+    },
+    "qualitative": {
+      "business_model": {
+        "description": "High-performance connectivity solutions for data centers",
+        "revenue_model": "Hardware sales + IP licensing",
+        "products": ["SerDes IP", "Active Electrical Cables", "Line Card Retimers"]
+      },
+      "growth_drivers": {
+        "primary_drivers": ["AI/ML data center buildout", "800G/1.6T Ethernet transition"]
+      },
+      "management": {
+        "ceo": { "name": "Bill Brennan", "title": "CEO" },
+        "insider_ownership": 8.5,
+        "recent_insider_buying": false,
+        "recent_insider_selling": false
+      },
+      "market": {
+        "tam_estimate": "$15B by 2028",
+        "competitors": ["Marvell", "Broadcom", "Alphawave"]
+      },
+      "path_to_profitability": {
+        "currently_profitable": true,
+        "notes": "GAAP profitable, expanding margins"
+      },
+      "risk_factors": [
+        { "category": "Concentration", "description": "Top customer >40% of revenue", "severity": "High" }
+      ]
+    }
+  }
+}

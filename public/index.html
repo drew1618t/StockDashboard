@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Dashboard</title>
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link id="theme-stylesheet" rel="stylesheet" href="/css/themes/bloomberg.css">
+  <script src="/vendor/chart.umd.min.js"></script>
+</head>
+<body class="theme-bloomberg">
+
+  <!-- Top Navigation Bar -->
+  <header id="app-header">
+    <div class="header-left">
+      <h1 class="app-title">PORTFOLIO VIZ</h1>
+      <span class="header-meta" id="header-count"></span>
+    </div>
+    <nav class="header-nav" id="main-nav">
+      <a href="#summary" class="nav-link active" data-dashboard="summary">Summary</a>
+      <a href="#growth" class="nav-link" data-dashboard="growth">Growth</a>
+      <a href="#valuation" class="nav-link" data-dashboard="valuation">Valuation</a>
+      <a href="#profitability" class="nav-link" data-dashboard="profitability">Profitability</a>
+      <a href="#deepdive" class="nav-link" data-dashboard="deepdive">Deep Dive</a>
+    </nav>
+    <div class="header-right">
+      <select id="theme-selector" title="Switch theme">
+        <option value="bloomberg">Bloomberg</option>
+        <option value="minimalist">Minimalist</option>
+        <option value="terminal">Terminal</option>
+        <option value="colorful">Colorful</option>
+        <option value="newspaper">Newspaper</option>
+      </select>
+      <button id="refresh-btn" title="Refresh data">&#8635;</button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main id="dashboard-content">
+    <div class="loading-state" id="loading-indicator">
+      <div class="loading-spinner"></div>
+      <p>Loading portfolio data...</p>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="/js/utils/formatters.js"></script>
+  <script src="/js/utils/colors.js"></script>
+  <script src="/js/utils/chartDefaults.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/themeManager.js"></script>
+  <script src="/js/components/metricCard.js"></script>
+  <script src="/js/components/sortableTable.js"></script>
+  <script src="/js/components/barChart.js"></script>
+  <script src="/js/components/lineChart.js"></script>
+  <script src="/js/components/heatmap.js"></script>
+  <script src="/js/components/scatterPlot.js"></script>
+  <script src="/js/components/peCompression.js"></script>
+  <script src="/js/components/saulGrid.js"></script>
+  <script src="/js/dashboards/summary.js"></script>
+  <script src="/js/dashboards/growth.js"></script>
+  <script src="/js/dashboards/valuation.js"></script>
+  <script src="/js/dashboards/profitability.js"></script>
+  <script src="/js/dashboards/deepDive.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

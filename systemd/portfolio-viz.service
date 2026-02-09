@@ -1,0 +1,19 @@
+[Unit]
+Description=Portfolio Visualization Dashboard
+After=network.target
+
+[Service]
+Type=simple
+User=andrew
+WorkingDirectory=/home/andrew/StockDashboard
+ExecStart=/usr/bin/node --max-old-space-size=64 server/index.js
+Environment=NODE_ENV=production
+Environment=PORT=3000
+Environment=DATA_DIR=/home/andrew/SaulInvesting/reports
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

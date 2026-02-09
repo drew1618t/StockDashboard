@@ -1,0 +1,318 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   NEWSPAPER / PRINT — WSJ / Financial Times editorial aesthetic.
+   Serif headlines, cream paper, red accent for tickers. Column layout.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.theme-newspaper {
+  --bg-primary: #fdf6e3;
+  --bg-secondary: #faf0d4;
+  --bg-tertiary: #f5eac8;
+  --bg-card: #fffdf5;
+  --bg-hover: rgba(192, 57, 43, 0.03);
+
+  --text-primary: #1a1a1a;
+  --text-secondary: #3d3d3d;
+  --text-muted: #8a8578;
+
+  --color-accent: #c0392b;
+  --color-positive: #1a7a4c;
+  --color-negative: #b91c1c;
+  --color-warning: #a16207;
+
+  --heatmap-100: #166534;
+  --heatmap-50: #15803d;
+  --heatmap-35: #4ade80;
+  --heatmap-25: #eab308;
+  --heatmap-10: #ca8a04;
+  --heatmap-0: #c2410c;
+  --heatmap-neg: #b91c1c;
+  --heatmap-text-light: #ffffff;
+  --heatmap-text-dark: #1a1a1a;
+
+  --chart-grid: rgba(0, 0, 0, 0.08);
+
+  --font-heading: 'Playfair Display', 'Georgia', serif;
+  --font-body: 'Source Serif 4', 'Georgia', serif;
+  --font-mono: 'Source Serif 4', 'Georgia', serif;
+  --font-numbers: 'Source Serif 4', 'Georgia', serif;
+
+  --border-color: #d4c9a8;
+  --border-radius: 0px;
+  --card-shadow: none;
+  --gap: 16px;
+  --gap-sm: 8px;
+  --gap-lg: 24px;
+}
+
+/* Masthead-style header */
+.theme-newspaper #app-header {
+  height: auto;
+  padding: 8px var(--gap-lg);
+  background: var(--bg-primary);
+  border-bottom: 3px double var(--text-primary);
+  flex-direction: column;
+  gap: 0;
+}
+
+.theme-newspaper .header-left {
+  width: 100%;
+  justify-content: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 4px;
+}
+
+.theme-newspaper .app-title {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
+.theme-newspaper .header-meta {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.theme-newspaper .header-nav {
+  width: 100%;
+  justify-content: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.theme-newspaper .nav-link {
+  padding: 8px 20px;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+  border-bottom: none;
+}
+
+.theme-newspaper .nav-link.active {
+  color: var(--color-accent);
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.theme-newspaper .nav-link:hover {
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.theme-newspaper .header-right {
+  position: absolute;
+  right: var(--gap-lg);
+  top: 8px;
+}
+
+.theme-newspaper #dashboard-content {
+  padding: var(--gap-lg) 48px;
+  max-width: 1100px;
+}
+
+.theme-newspaper .section-title {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--text-primary);
+  padding-bottom: 4px;
+}
+
+.theme-newspaper .section-subtitle {
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.theme-newspaper .metric-card {
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  background: transparent;
+  padding: 12px 0;
+  border-radius: 0;
+}
+
+.theme-newspaper .metric-value {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.theme-newspaper .metric-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.theme-newspaper .sortable-table-wrapper {
+  border: none;
+  border-top: 2px solid var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  background: transparent;
+}
+
+.theme-newspaper .thead .th {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: transparent;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--text-primary);
+  padding: 8px 10px;
+}
+
+.theme-newspaper .tbody .td {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.theme-newspaper .tbody .td:first-child {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 13px;
+}
+
+.theme-newspaper .chart-container {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  height: 280px;
+}
+
+.theme-newspaper .filter-bar {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  font-family: var(--font-body);
+}
+
+.theme-newspaper #theme-selector {
+  font-family: var(--font-body);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.theme-newspaper #refresh-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.theme-newspaper .verdict {
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.theme-newspaper .verdict-pass {
+  background: rgba(26, 122, 76, 0.08);
+  color: var(--color-positive);
+}
+
+.theme-newspaper .verdict-caution {
+  background: rgba(161, 98, 7, 0.08);
+  color: var(--color-warning);
+}
+
+.theme-newspaper .verdict-fail {
+  background: rgba(185, 28, 28, 0.08);
+  color: var(--color-negative);
+}
+
+/* Red accent for tickers throughout */
+.theme-newspaper .mini-row span:first-child,
+.theme-newspaper .alert-ticker {
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.theme-newspaper .heatmap-wrapper {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.theme-newspaper .heatmap-corner,
+.theme-newspaper .heatmap-header {
+  background: var(--bg-tertiary);
+}
+
+.theme-newspaper .heatmap-ticker {
+  background: var(--bg-tertiary);
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+}
+
+.theme-newspaper .heatmap-cell {
+  font-family: var(--font-body);
+  border-color: var(--bg-primary);
+}
+
+.theme-newspaper .pe-compression-wrapper,
+.theme-newspaper .saul-grid-wrapper {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.theme-newspaper .thesis-card {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.theme-newspaper .thesis-card h3 {
+  font-family: var(--font-heading);
+}
+
+.theme-newspaper .mini-table-card {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.theme-newspaper .mini-table-title {
+  font-family: var(--font-heading);
+  font-size: 13px;
+}
+
+.theme-newspaper .saul-rule {
+  font-family: var(--font-body);
+}
+
+.theme-newspaper .alert {
+  font-family: var(--font-body);
+  border-radius: 0;
+}
+
+.theme-newspaper .business-desc {
+  font-family: var(--font-body);
+  text-align: justify;
+  line-height: 1.8;
+}
+
+/* Drop cap on first paragraph (business overview) */
+.theme-newspaper .business-desc::first-letter {
+  font-family: var(--font-heading);
+  font-size: 48px;
+  font-weight: 800;
+  float: left;
+  line-height: 0.8;
+  margin-right: 6px;
+  margin-top: 4px;
+  color: var(--color-accent);
+}

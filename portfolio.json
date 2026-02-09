@@ -1,0 +1,7 @@
+{
+  "holdings": [
+    "ALAB", "APP", "IREN", "ELVA", "SEI", "MU",
+    "DAVE", "CRDO", "UPST", "PTRN", "FIGR"
+  ],
+  "_comment": "Edit this list to add/remove portfolio holdings. Only these tickers appear in dashboards."
+}

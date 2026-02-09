@@ -1,0 +1,131 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   BLOOMBERG TERMINAL — Professional financial terminal aesthetic.
+   Dense, dark, monospaced, high information density. Orange accent.
+   Inspired by Bloomberg Terminal / professional trading platforms.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.theme-bloomberg {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #0d1220;
+  --bg-tertiary: #131926;
+  --bg-card: #111827;
+  --bg-hover: rgba(255, 102, 0, 0.04);
+
+  --text-primary: #c8d0e0;
+  --text-secondary: #8892a8;
+  --text-muted: #5a6478;
+
+  --color-accent: #ff6600;
+  --color-positive: #00d775;
+  --color-negative: #ff3b5c;
+  --color-warning: #ffaa00;
+
+  --heatmap-100: #00875a;
+  --heatmap-50: #00a86b;
+  --heatmap-35: #3ecf8e;
+  --heatmap-25: #e6a817;
+  --heatmap-10: #cc8800;
+  --heatmap-0: #cc5500;
+  --heatmap-neg: #cc2244;
+
+  --chart-grid: rgba(255, 255, 255, 0.04);
+
+  --font-heading: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+  --font-body: 'JetBrains Mono', 'Consolas', monospace;
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+  --font-numbers: 'JetBrains Mono', 'Consolas', monospace;
+
+  --border-color: #1e2a40;
+  --border-radius: 0px;
+  --card-shadow: none;
+  --gap: 8px;
+  --gap-sm: 4px;
+  --gap-lg: 12px;
+}
+
+/* Dense Layout Overrides */
+.theme-bloomberg #app-header {
+  height: 36px;
+  border-bottom: 2px solid var(--color-accent);
+}
+
+.theme-bloomberg .app-title {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+
+.theme-bloomberg .nav-link {
+  padding: 8px 12px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.theme-bloomberg #dashboard-content {
+  padding: var(--gap-lg);
+}
+
+.theme-bloomberg .section-title {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+  border-bottom-width: 1px;
+}
+
+.theme-bloomberg .metric-card {
+  border: 1px solid var(--border-color);
+  border-top: 2px solid var(--color-accent);
+  padding: 8px 10px;
+}
+
+.theme-bloomberg .metric-value {
+  font-size: 18px;
+}
+
+.theme-bloomberg .metric-label {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+}
+
+.theme-bloomberg .thead .th {
+  font-size: 9px;
+  padding: 6px 8px;
+  letter-spacing: 0.08em;
+  background: #0d1220;
+}
+
+.theme-bloomberg .tbody .td {
+  font-size: 11px;
+  padding: 5px 8px;
+  font-family: var(--font-mono);
+}
+
+.theme-bloomberg .chart-container {
+  height: 240px;
+  border: 1px solid var(--border-color);
+  padding: 8px;
+}
+
+.theme-bloomberg .chart-container.chart-tall {
+  height: 300px;
+}
+
+/* Subtle flicker animation on active elements */
+.theme-bloomberg .nav-link.active {
+  text-shadow: 0 0 6px rgba(255, 102, 0, 0.4);
+}
+
+.theme-bloomberg .heatmap-cell {
+  font-size: 10px;
+  padding: 4px 6px;
+}
+
+.theme-bloomberg .filter-bar {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+.theme-bloomberg .alert {
+  font-size: 11px;
+  padding: 5px 8px;
+}

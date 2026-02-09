@@ -1,0 +1,227 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   COLORFUL DASHBOARD — Vibrant, bold, glassmorphism. Gradient dark background.
+   Modern analytics aesthetic. Multiple accent colors.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.theme-colorful {
+  --bg-primary: #0f0c29;
+  --bg-secondary: #1a1640;
+  --bg-tertiary: #231f50;
+  --bg-card: rgba(255, 255, 255, 0.06);
+  --bg-hover: rgba(168, 85, 247, 0.08);
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #c4b5e0;
+  --text-muted: #7c6fa0;
+
+  --color-accent: #a855f7;
+  --color-positive: #4ade80;
+  --color-negative: #f43f5e;
+  --color-warning: #fbbf24;
+
+  --heatmap-100: #059669;
+  --heatmap-50: #10b981;
+  --heatmap-35: #6ee7b7;
+  --heatmap-25: #facc15;
+  --heatmap-10: #fb923c;
+  --heatmap-0: #f97316;
+  --heatmap-neg: #f43f5e;
+  --heatmap-text-light: #ffffff;
+  --heatmap-text-dark: #1a1a1a;
+
+  --chart-grid: rgba(168, 85, 247, 0.08);
+
+  --font-heading: 'Outfit', system-ui, sans-serif;
+  --font-body: 'Outfit', system-ui, sans-serif;
+  --font-mono: 'Outfit', system-ui, sans-serif;
+  --font-numbers: 'Outfit', system-ui, sans-serif;
+
+  --border-color: rgba(168, 85, 247, 0.15);
+  --border-radius: 16px;
+  --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --gap: 16px;
+  --gap-sm: 8px;
+  --gap-lg: 24px;
+}
+
+/* Gradient background */
+.theme-colorful {
+  background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  background-attachment: fixed;
+}
+
+/* Glassmorphism cards */
+.theme-colorful .metric-card,
+.theme-colorful .sortable-table-wrapper,
+.theme-colorful .chart-container,
+.theme-colorful .filter-bar,
+.theme-colorful .pe-compression-wrapper,
+.theme-colorful .saul-grid-wrapper,
+.theme-colorful .thesis-card,
+.theme-colorful .mini-table-card,
+.theme-colorful .heatmap-wrapper,
+.theme-colorful .selector-bar {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.theme-colorful #app-header {
+  height: 52px;
+  background: rgba(15, 12, 41, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.theme-colorful .app-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, #a855f7, #ec4899, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.theme-colorful .nav-link {
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  border-radius: 8px 8px 0 0;
+}
+
+.theme-colorful .nav-link.active {
+  color: #e9d5ff;
+  border-bottom-color: var(--color-accent);
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.theme-colorful .nav-link:hover {
+  color: var(--text-primary);
+  background: rgba(168, 85, 247, 0.06);
+}
+
+.theme-colorful .section-title {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  color: #e9d5ff;
+  border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.theme-colorful .metric-value {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #f1f5f9, #e9d5ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.theme-colorful .metric-card.positive .metric-value {
+  background: linear-gradient(135deg, #4ade80, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.theme-colorful .metric-card.negative .metric-value {
+  background: linear-gradient(135deg, #f43f5e, #fb923c);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.theme-colorful .metric-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.theme-colorful .thead .th {
+  background: rgba(168, 85, 247, 0.08);
+  font-size: 10px;
+  font-weight: 700;
+  color: #c4b5e0;
+  border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+}
+
+.theme-colorful .tbody .td {
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.theme-colorful .tbody .td:first-child {
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+.theme-colorful .tbody .tr:hover .td {
+  background: rgba(168, 85, 247, 0.06);
+}
+
+.theme-colorful .chart-container {
+  height: 300px;
+  padding: 16px;
+}
+
+.theme-colorful #theme-selector {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--text-secondary);
+}
+
+.theme-colorful #refresh-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--text-secondary);
+}
+
+.theme-colorful .verdict {
+  border-radius: 20px;
+  padding: 3px 12px;
+}
+
+.theme-colorful .verdict-pass {
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+}
+
+.theme-colorful .verdict-caution {
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.theme-colorful .verdict-fail {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+
+/* Subtle hover glow */
+.theme-colorful .metric-card:hover {
+  border-color: rgba(168, 85, 247, 0.3);
+  box-shadow: 0 4px 24px rgba(168, 85, 247, 0.1);
+  transition: all 0.2s ease;
+}
+
+.theme-colorful .mini-row span:first-child {
+  color: var(--color-accent);
+}
+
+.theme-colorful .heatmap-cell {
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.theme-colorful .alert {
+  border-radius: 12px;
+}

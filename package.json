@@ -1,0 +1,14 @@
+{
+  "name": "portfolio-viz",
+  "version": "1.0.0",
+  "description": "Lightweight portfolio visualization dashboard for growth investing",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node --max-old-space-size=64 server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "compression": "^1.7.4"
+  }
+}
