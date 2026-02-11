@@ -75,7 +75,7 @@ const GrowthDashboard = {
     chartSection.className = 'section';
     chartSection.innerHTML = `
       <h2 class="section-title">YoY Revenue Growth Trends</h2>
-      <div class="chart-container"><canvas id="growth-trend-chart"></canvas></div>
+      <div class="chart-container chart-xl"><canvas id="growth-trend-chart"></canvas></div>
     `;
     container.appendChild(chartSection);
 
@@ -107,6 +107,20 @@ const GrowthDashboard = {
         labels: quarters,
         datasets,
         yLabel: 'YoY Growth %',
+        yScale: {
+          ticks: {
+            font: { size: 13, weight: 'bold' },
+            callback: v => v + '%',
+          },
+        },
+        yRight: {
+          position: 'right',
+          grid: { drawOnChartArea: false },
+          ticks: {
+            font: { size: 13, weight: 'bold' },
+            callback: v => v + '%',
+          },
+        },
       });
     }
 

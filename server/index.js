@@ -9,6 +9,7 @@ const express = require('express');
 const compression = require('compression');
 const path = require('path');
 const dataLoader = require('./dataLoader');
+const sheetsPoller = require('./sheetsPoller');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -53,6 +54,21 @@ app.get('/api/refresh', (req, res) => {
   });
 });
 
+// Get live portfolio data from Google Sheets
+app.get('/api/live-portfolio', (req, res) => {
+  res.json(sheetsPoller.getLiveData());
+});
+
+// Force refresh live portfolio data
+app.get('/api/live-portfolio/refresh', async (req, res) => {
+  try {
+    const data = await sheetsPoller.forceRefresh();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -74,6 +90,9 @@ app.get('*', (req, res) => {
 
 console.log('[server] Loading data...');
 dataLoader.loadAll();
+
+console.log('[server] Starting Google Sheets polling...');
+sheetsPoller.startPolling();
 
 app.listen(PORT, () => {
   console.log(`[server] Portfolio dashboard running at http://localhost:${PORT}`);

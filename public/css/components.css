@@ -540,3 +540,24 @@
 }
 
 .clickable { cursor: pointer; }
+
+/* ── Live Section ───────────────────────────────────────────────────── */
+.live-section {
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: var(--gap-lg);
+  margin-bottom: var(--gap-lg);
+}
+
+.live-section-header .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+}
+
+.live-freshness {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: normal;
+}

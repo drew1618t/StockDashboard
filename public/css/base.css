@@ -240,6 +240,7 @@ body {
 }
 
 .chart-container.chart-tall { height: 360px; }
+.chart-container.chart-xl  { height: 480px; }
 
 .chart-row {
   display: grid;

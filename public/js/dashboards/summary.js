@@ -9,7 +9,14 @@ const SummaryDashboard = {
     const section = document.createElement('div');
     section.className = 'dashboard summary-dashboard';
 
-    // ── Overview Metrics Bar ──
+    // ── Live Portfolio Section (from Google Sheets) ──
+    try {
+      await LiveSection.render(section);
+    } catch (err) {
+      console.warn('[Summary] Live section skipped:', err.message);
+    }
+
+    // ── Fundamentals Metrics Bar ──
     const profitable = companies.filter(c => c.currentlyProfitable === true);
     const withGrowth = companies.filter(c => c.revenueYoyPct !== null);
     const avgGrowth = withGrowth.length > 0
@@ -26,9 +33,8 @@ const SummaryDashboard = {
     const metricsRow = document.createElement('div');
     metricsRow.className = 'section';
     MetricCard.renderRow(metricsRow, [
-      { label: 'Holdings', value: companies.length, subtext: 'active positions' },
-      { label: 'Total Market Cap', value: Fmt.millions(totalMarketCap) },
       { label: 'Avg Revenue Growth', value: Fmt.pct(avgGrowth), subtext: 'YoY unweighted', colorClass: avgGrowth > 35 ? 'positive' : 'neutral' },
+      { label: 'Total Market Cap', value: Fmt.millions(totalMarketCap) },
       { label: 'Profitable', value: `${profitable.length}/${companies.length}`, subtext: 'EBITDA positive' },
       { label: 'Verdicts', value: `${verdicts.PASS}P / ${verdicts.CAUTION}C / ${verdicts.DISQUALIFIED + verdicts.FAIL}F` },
     ]);
@@ -80,31 +86,6 @@ const SummaryDashboard = {
 
     topSection.appendChild(topGrid);
     section.appendChild(topSection);
-
-    // ── Full Portfolio Table ──
-    const tableSection = document.createElement('div');
-    tableSection.className = 'section';
-    tableSection.innerHTML = '<h2 class="section-title">All Holdings</h2>';
-
-    SortableTable.render(tableSection, {
-      columns: [
-        { key: 'ticker', label: 'Ticker', width: '70px' },
-        { key: 'price', label: 'Price', format: v => Fmt.price(v), align: 'right', width: '80px' },
-        { key: 'marketCapMil', label: 'Mkt Cap', format: v => Fmt.millions(v), align: 'right', width: '80px' },
-        { key: 'revenueYoyPct', label: 'Rev YoY%', format: v => Fmt.pct(v, true), align: 'right', width: '80px' },
-        { key: 'revenueQoqPct', label: 'Rev QoQ%', format: v => Fmt.pct(v, true), align: 'right', width: '80px' },
-        { key: 'grossMarginPct', label: 'GM%', format: v => Fmt.pct(v), align: 'right', width: '60px' },
-        { key: '_pe', label: 'P/E', format: (_, r) => { const pe = _ePe(r); return pe ? pe.toFixed(1) + 'x' : 'N/A'; }, align: 'right', width: '60px' },
-        { key: 'verdict', label: 'Verdict', format: v => Fmt.verdict(v), width: '100px' },
-      ],
-      data: companies,
-      defaultSort: 'revenueYoyPct',
-      onRowClick: (row) => {
-        window.location.hash = `#deepdive?ticker=${row.ticker}`;
-      },
-    });
-
-    section.appendChild(tableSection);
 
     // ── Alerts Panel ──
     const alertSection = document.createElement('div');
@@ -184,7 +165,7 @@ const SummaryDashboard = {
   },
 
   destroy() {
-    // No charts to clean up
+    LiveSection.stopAutoRefresh();
   },
 };
 

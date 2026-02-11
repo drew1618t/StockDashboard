@@ -238,10 +238,7 @@ function extractMarketCap(q, raw) {
   if (mc === null) return null;
 
   if (typeof mc === 'number') {
-    // Raw number: if > 1B assume raw dollars
-    if (mc > 1_000_000_000) return mc / 1_000_000;
-    if (mc > 1_000_000) return mc; // already in millions
-    return mc;
+    return toMillions(mc);
   }
 
   // String parsing

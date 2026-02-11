@@ -36,18 +36,28 @@ const ChartDefaults = {
     const gridColor = styles.getPropertyValue('--chart-grid').trim() || 'rgba(255,255,255,0.08)';
     const textColor = styles.getPropertyValue('--text-secondary').trim() || '#666';
 
-    return {
-      x: {
-        grid: { color: gridColor, drawBorder: false },
-        ticks: { color: textColor, font: { size: 10 } },
-        ...opts.x,
-      },
-      y: {
-        grid: { color: gridColor, drawBorder: false },
-        ticks: { color: textColor, font: { size: 10 } },
-        ...opts.y,
-      },
+    const merge = (val) => {
+      const { grid: g, ticks: t, ...rest } = val || {};
+      return {
+        ...rest,
+        grid: { color: gridColor, drawBorder: false, ...g },
+        ticks: { color: textColor, font: { size: 10 }, ...t },
+      };
     };
+
+    const base = {
+      x: merge(opts.x),
+      y: merge(opts.y),
+    };
+
+    // Apply theme defaults to any extra axes (e.g. yRight)
+    for (const [key, val] of Object.entries(opts)) {
+      if (key !== 'x' && key !== 'y' && val && typeof val === 'object') {
+        base[key] = merge(val);
+      }
+    }
+
+    return base;
   },
 };
 

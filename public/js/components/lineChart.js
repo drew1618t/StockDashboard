@@ -42,7 +42,11 @@ const LineChart = {
         maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         scales: ChartDefaults.scales({
-          y: opts.yLabel ? { title: { display: true, text: opts.yLabel } } : {},
+          y: {
+            ...(opts.yLabel ? { title: { display: true, text: opts.yLabel } } : {}),
+            ...opts.yScale,
+          },
+          ...(opts.yRight ? { yRight: opts.yRight } : {}),
         }),
         plugins: {
           legend: { display: datasets.length > 1, position: 'top' },
