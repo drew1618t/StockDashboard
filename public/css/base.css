@@ -314,7 +314,7 @@ body {
 }
 
 @media (max-width: 768px) {
-  #app-header { flex-wrap: wrap; height: auto; padding: var(--gap-sm); }
+  #app-header { flex-wrap: wrap; height: auto !important; padding: var(--gap-sm); }
   .header-nav { order: 3; width: 100%; overflow-x: auto; }
   .nav-link { padding: 8px 12px; font-size: 11px; }
   #dashboard-content { padding: var(--gap); }
