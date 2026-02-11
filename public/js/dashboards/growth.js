@@ -81,11 +81,15 @@ const GrowthDashboard = {
 
     // Build datasets for line chart
     const quarterSet = new Set();
+    const quarterCounts = {};
     filtered.forEach(c => (c.quarterlyHistory || []).forEach(q => {
       const label = quarterLabel(q, useCalendarQuarters);
       quarterSet.add(label);
+      if (q.revenueYoyPct != null) quarterCounts[label] = (quarterCounts[label] || 0) + 1;
     }));
-    const quarters = [...quarterSet].sort(quarterSort);
+    const quarters = [...quarterSet]
+      .filter(q => (quarterCounts[q] || 0) >= 2)
+      .sort(quarterSort);
 
     const datasets = filtered
       .filter(c => (c.quarterlyHistory || []).length >= 2)

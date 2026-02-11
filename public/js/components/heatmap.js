@@ -13,14 +13,19 @@ const Heatmap = {
 
     // Collect all unique quarters across all companies
     const quarterSet = new Set();
+    const quarterCounts = {};
     companies.forEach(c => {
       (c.quarterlyHistory || []).forEach(q => {
-        quarterSet.add(heatmapQuarterLabel(q, useCalendar));
+        const label = heatmapQuarterLabel(q, useCalendar);
+        quarterSet.add(label);
+        if (q.revenueYoyPct != null) quarterCounts[label] = (quarterCounts[label] || 0) + 1;
       });
     });
 
-    // Sort quarters chronologically
-    const quarters = [...quarterSet].sort(quarterSort);
+    // Sort quarters chronologically, filtering out sparse quarters (< 2 companies)
+    const quarters = [...quarterSet]
+      .filter(q => (quarterCounts[q] || 0) >= 2)
+      .sort(quarterSort);
 
     if (quarters.length === 0) {
       container.innerHTML = '<div class="empty-state">No quarterly history data available</div>';
