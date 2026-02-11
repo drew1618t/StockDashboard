@@ -120,6 +120,10 @@ const GrowthDashboard = {
             font: { size: 13, weight: 'bold' },
             callback: v => v + '%',
           },
+          afterDataLimits(axis) {
+            const yLeft = axis.chart.scales.y;
+            if (yLeft) { axis.min = yLeft.min; axis.max = yLeft.max; }
+          },
         },
       });
     }
