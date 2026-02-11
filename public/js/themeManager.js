@@ -8,7 +8,9 @@ const ThemeManager = {
   init() {
     const saved = localStorage.getItem('portfolio-theme');
     if (saved && this.themes.includes(saved)) {
+      this._initializing = true;
       this.apply(saved);
+      this._initializing = false;
     }
 
     const selector = document.getElementById('theme-selector');
@@ -41,7 +43,7 @@ const ThemeManager = {
       requestAnimationFrame(() => {
         ChartDefaults.applyTheme(themeName);
         // Re-render active dashboard to pick up new colors
-        if (window.App && window.App.currentDashboard) {
+        if (window.App && window.App.currentDashboard && !this._initializing) {
           window.App.renderDashboard(window.App.currentDashboard);
         }
       });
