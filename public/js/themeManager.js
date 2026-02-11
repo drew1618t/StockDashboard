@@ -2,7 +2,7 @@
  * themeManager.js — Theme switching with localStorage persistence.
  */
 const ThemeManager = {
-  current: 'bloomberg',
+  current: 'colorful',
   themes: ['bloomberg', 'minimalist', 'terminal', 'colorful', 'newspaper'],
 
   init() {

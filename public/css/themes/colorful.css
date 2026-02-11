@@ -225,3 +225,10 @@
 .theme-colorful .alert {
   border-radius: 12px;
 }
+
+@media (max-width: 768px) {
+  .theme-colorful #app-header {
+    background: rgb(15, 12, 41);
+    backdrop-filter: none;
+  }
+}
