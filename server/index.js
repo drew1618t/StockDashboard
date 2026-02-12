@@ -14,6 +14,80 @@ const sheetsPoller = require('./sheetsPoller');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ── Live Price Overlay ──────────────────────────────────────────────────────
+
+function buildLivePriceMap() {
+  const live = sheetsPoller.getLiveData();
+  if (!live || !live.stocks) return {};
+  const map = {};
+  live.stocks.forEach(s => { if (s.currentPrice) map[s.ticker] = s.currentPrice; });
+  return map;
+}
+
+function round2(n) { return Math.round(n * 100) / 100; }
+
+function overlayLivePrice(company, livePrice) {
+  const reportPrice = company.price;
+  if (!reportPrice || reportPrice <= 0) {
+    return { ...company, price: livePrice, priceSource: 'live' };
+  }
+
+  const ratio = livePrice / reportPrice;
+  const c = {
+    ...company,
+    price: livePrice,
+    priceSource: 'live',
+    marketCapMil: company.marketCapMil ? round2(company.marketCapMil * ratio) : null,
+    priceToSales: company.priceToSales ? round2(company.priceToSales * ratio) : null,
+  };
+
+  // Recalculate P/E variants: back-derive EPS, then recompute with live price
+  ['trailingPe', 'runRatePe', 'forwardPe', 'normalizedPe'].forEach(key => {
+    if (company[key] && reportPrice) {
+      const eps = reportPrice / company[key];
+      c[key] = round2(livePrice / eps);
+    }
+  });
+
+  // Recalculate derived metrics that depend on price
+  const calc = { ...company.calculated };
+
+  // Distance from 52-week high
+  if (company.fiftyTwoWeekHigh) {
+    calc.distanceFromHigh = round2(((livePrice - company.fiftyTwoWeekHigh) / company.fiftyTwoWeekHigh) * 100);
+  }
+
+  // GAV: effective P/E ÷ revenue growth
+  const pe = c.runRatePe || c.trailingPe || c.normalizedPe;
+  if (pe && company.revenueYoyPct && company.revenueYoyPct > 0) {
+    calc.gav = round2(pe / company.revenueYoyPct);
+  }
+
+  // P/E compression
+  if (c.trailingPe !== null || c.runRatePe !== null || c.forwardPe !== null) {
+    calc.peCompression = {
+      trailingPe: c.trailingPe,
+      runRatePe: c.runRatePe,
+      forwardPe: c.forwardPe,
+      trailingToRunRate: (c.trailingPe != null && c.runRatePe != null) ? round2(c.trailingPe - c.runRatePe) : null,
+      runRateToForward: (c.runRatePe != null && c.forwardPe != null) ? round2(c.runRatePe - c.forwardPe) : null,
+      totalCompression: (c.trailingPe != null && c.forwardPe != null) ? round2(c.trailingPe - c.forwardPe) : null,
+    };
+  }
+
+  c.calculated = calc;
+  return c;
+}
+
+function overlayLivePrices(companies) {
+  const priceMap = buildLivePriceMap();
+  return companies.map(company => {
+    const livePrice = priceMap[company.ticker];
+    if (livePrice) return overlayLivePrice(company, livePrice);
+    return { ...company, priceSource: 'report' };
+  });
+}
+
 // ── Middleware ────────────────────────────────────────────────────────────────
 
 app.use(compression());
@@ -26,7 +100,7 @@ app.use(express.static(path.join(__dirname, '..', 'public'), {
 
 // Get all portfolio companies with calculated metrics
 app.get('/api/portfolio', (req, res) => {
-  const companies = dataLoader.getCompanies();
+  const companies = overlayLivePrices(dataLoader.getCompanies());
   res.json({
     companies,
     count: companies.length,
@@ -41,7 +115,8 @@ app.get('/api/stock/:ticker', (req, res) => {
   if (!company) {
     return res.status(404).json({ error: `Ticker ${req.params.ticker} not found` });
   }
-  res.json({ company, analysis, rawMarkdown });
+  const [overlaid] = overlayLivePrices([company]);
+  res.json({ company: overlaid, analysis, rawMarkdown });
 });
 
 // Force reload all data from disk
@@ -78,6 +153,12 @@ app.get('/api/health', (req, res) => {
     companiesLoaded: dataLoader.getCompanies().length,
     lastUpdated: dataLoader.getLastLoadTime(),
   });
+});
+
+// ── Privacy policy (required for Facebook auth) ─────────────────────────────
+
+app.get('/privacy', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'privacy.html'));
 });
 
 // ── SPA fallback: serve index.html for any non-API, non-static route ─────────
