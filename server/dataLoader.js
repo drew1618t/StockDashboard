@@ -296,6 +296,27 @@ function buildFromMarkdownOnly(analysis, ticker) {
   };
 }
 
+// ── Periodic refresh ─────────────────────────────────────────────────────────
+
+const REFRESH_INTERVAL_MS = parseInt(process.env.DATA_REFRESH_INTERVAL_MS, 10) || 60 * 60 * 1000; // 1 hour
+
+let refreshTimer = null;
+
+function startAutoRefresh() {
+  if (refreshTimer) return;
+  refreshTimer = setInterval(() => {
+    console.log('[dataLoader] Auto-refreshing company data from disk...');
+    try {
+      loadAll();
+      console.log(`[dataLoader] Auto-refresh complete — ${cachedCompanies.length} companies loaded`);
+    } catch (err) {
+      console.error('[dataLoader] Auto-refresh failed:', err.message);
+    }
+  }, REFRESH_INTERVAL_MS);
+  refreshTimer.unref(); // don't keep process alive just for this timer
+  console.log(`[dataLoader] Auto-refresh scheduled every ${REFRESH_INTERVAL_MS / 60000} minutes`);
+}
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
 function loadAll() {
@@ -339,6 +360,7 @@ function loadAll() {
   lastLoadTime = new Date().toISOString();
 
   console.log(`[dataLoader] Loaded ${cachedCompanies.length} companies, ${Object.keys(analyses).length} analyses`);
+  startAutoRefresh();
   return cachedCompanies;
 }
 
