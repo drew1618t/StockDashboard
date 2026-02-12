@@ -77,9 +77,11 @@ const DeepDiveDashboard = {
     const metricsSection = document.createElement('div');
     metricsSection.className = 'section';
     const distHigh = company.calculated?.distanceFromHigh;
+    const isStale = company.priceSource === 'report';
+    const staleOpts = isStale ? { colorClass: 'stale', subtext: `from report${company.fetchDate ? ' (' + company.fetchDate + ')' : ''}` } : {};
     MetricCard.renderRow(metricsSection, [
-      { label: 'Price', value: Fmt.price(company.price) },
-      { label: 'Market Cap', value: Fmt.millions(company.marketCapMil) },
+      { label: 'Price', value: Fmt.price(company.price), ...staleOpts },
+      { label: 'Market Cap', value: Fmt.millions(company.marketCapMil), ...staleOpts },
       { label: 'Revenue YoY', value: Fmt.pct(company.revenueYoyPct, true), colorClass: (company.revenueYoyPct || 0) >= 35 ? 'positive' : 'neutral' },
       { label: 'Revenue QoQ', value: Fmt.pct(company.revenueQoqPct, true) },
     ]);

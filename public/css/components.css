@@ -22,6 +22,10 @@
 .metric-card.positive .metric-value { color: var(--color-positive); }
 .metric-card.negative .metric-value { color: var(--color-negative); }
 .metric-card.neutral .metric-value { color: var(--text-primary); }
+.metric-card.stale .metric-value {
+  color: var(--color-warning);
+  text-decoration: underline dashed;
+}
 
 .metric-label {
   font-size: 10px;
