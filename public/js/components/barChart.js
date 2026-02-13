@@ -40,7 +40,10 @@ const BarChart = {
         responsive: true,
         maintainAspectRatio: false,
         scales: ChartDefaults.scales({
-          y: opts.yLabel ? { title: { display: true, text: opts.yLabel } } : {},
+          y: {
+            ...(opts.yLabel ? { title: { display: true, text: opts.yLabel } } : {}),
+            ...opts.yScale,
+          },
         }),
         plugins: {
           legend: { display: datasets.length > 1 },
@@ -49,6 +52,7 @@ const BarChart = {
           } : {},
         },
       },
+      plugins: opts.plugins || [],
     };
 
     const chart = new Chart(ctx, config);

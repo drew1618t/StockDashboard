@@ -142,22 +142,29 @@ const DeepDiveDashboard = {
         });
 
         // Growth lines
+        const growthDatasets = [
+          {
+            label: 'YoY %',
+            data: hist.map(q => q.revenueYoyPct),
+            color: Colors.chartPalette[1],
+          },
+          {
+            label: 'QoQ %',
+            data: hist.map(q => q.revenueQoqPct),
+            color: Colors.chartPalette[2],
+            dashed: true,
+          },
+        ];
+        const growthOutlier = OutlierScale.buildYScale(growthDatasets);
+
         LineChart.render('dd-growth-chart', {
           labels,
-          datasets: [
-            {
-              label: 'YoY %',
-              data: hist.map(q => q.revenueYoyPct),
-              color: Colors.chartPalette[1],
-            },
-            {
-              label: 'QoQ %',
-              data: hist.map(q => q.revenueQoqPct),
-              color: Colors.chartPalette[2],
-              dashed: true,
-            },
-          ],
+          datasets: growthDatasets,
           yLabel: 'Growth %',
+          yScale: growthOutlier?.yScale || undefined,
+          plugins: growthOutlier
+            ? [OutlierScale.annotationPlugin(growthOutlier.outlierInfo, growthDatasets.map(ds => [...ds.data]))]
+            : [],
         });
       }, 50);
     }

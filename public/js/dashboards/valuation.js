@@ -45,12 +45,17 @@ const ValuationDashboard = {
         size: Math.max(4, Math.min(12, (c.marketCapMil || 1000) / 1000)),
       }));
 
+    // Check for outliers on both axes
+    const scatterScales = OutlierScale.buildScatterScales(points);
+
     // Render after DOM is ready
     setTimeout(() => {
       ScatterPlot.render('val-scatter-chart', {
         points,
         xLabel: 'Revenue YoY Growth %',
         yLabel: 'Run-Rate P/E',
+        xScale: scatterScales?.xScale || undefined,
+        yScale: scatterScales?.yScale || undefined,
       });
     }, 50);
 

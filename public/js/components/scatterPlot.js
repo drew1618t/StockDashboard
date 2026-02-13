@@ -37,8 +37,8 @@ const ScatterPlot = {
         responsive: true,
         maintainAspectRatio: false,
         scales: ChartDefaults.scales({
-          x: { title: { display: true, text: opts.xLabel } },
-          y: { title: { display: true, text: opts.yLabel } },
+          x: { title: { display: true, text: opts.xLabel }, ...opts.xScale },
+          y: { title: { display: true, text: opts.yLabel }, ...opts.yScale },
         }),
         plugins: {
           legend: { display: false },
@@ -70,7 +70,7 @@ const ScatterPlot = {
             }
           });
         },
-      }],
+      }, ...(opts.plugins || [])],
     };
 
     const chart = new Chart(ctx, config);

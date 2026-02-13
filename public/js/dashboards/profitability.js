@@ -87,21 +87,48 @@ const ProfitabilityDashboard = {
     ).sort((a, b) => (b.revenueYoyPct || 0) - (a.revenueYoyPct || 0));
 
     setTimeout(() => {
+      const revEbitdaDatasets = [
+        {
+          label: 'Revenue YoY %',
+          data: withBoth.map(c => c.revenueYoyPct),
+          color: Colors.chartPalette[0],
+        },
+        {
+          label: 'EBITDA YoY %',
+          data: withBoth.map(c => c.ebitdaYoyPct),
+          color: Colors.chartPalette[1],
+        },
+      ];
+
+      // Detect and handle outliers
+      const outlierResult = OutlierScale.buildYScale(revEbitdaDatasets);
+      const originalData = revEbitdaDatasets.map(ds => [...ds.data]);
+
+      // Cap data values so bars stop at the axis limit
+      if (outlierResult) {
+        revEbitdaDatasets.forEach(ds => {
+          ds.data = ds.data.map(v => {
+            if (v === null) return null;
+            if (outlierResult.outlierInfo.cap !== null && v > outlierResult.outlierInfo.cap) return outlierResult.outlierInfo.cap;
+            if (outlierResult.outlierInfo.floor !== null && v < outlierResult.outlierInfo.floor) return outlierResult.outlierInfo.floor;
+            return v;
+          });
+        });
+      }
+
       BarChart.render('prof-rev-ebitda-chart', {
         labels: withBoth.map(c => c.ticker),
-        datasets: [
-          {
-            label: 'Revenue YoY %',
-            data: withBoth.map(c => c.revenueYoyPct),
-            color: Colors.chartPalette[0],
-          },
-          {
-            label: 'EBITDA YoY %',
-            data: withBoth.map(c => c.ebitdaYoyPct),
-            color: Colors.chartPalette[1],
-          },
-        ],
+        datasets: revEbitdaDatasets,
         yLabel: 'Growth %',
+        yScale: outlierResult?.yScale,
+        plugins: outlierResult
+          ? [OutlierScale.annotationPlugin(outlierResult.outlierInfo, originalData)]
+          : [],
+        tooltipFormat: outlierResult ? (context) => {
+          const orig = originalData[context.datasetIndex]?.[context.dataIndex];
+          const display = orig !== null && orig !== undefined ? orig.toFixed(1) + '%' : 'N/A';
+          return `${context.dataset.label}: ${display}`;
+        } : undefined,
       });
     }, 50);
 

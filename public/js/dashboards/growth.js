@@ -107,6 +107,9 @@ const GrowthDashboard = {
       });
 
     if (quarters.length > 0 && datasets.length > 0) {
+      const outlierResult = OutlierScale.buildYScale(datasets);
+      const originalData = datasets.map(ds => [...ds.data]);
+
       LineChart.render('growth-trend-chart', {
         labels: quarters,
         datasets,
@@ -116,6 +119,7 @@ const GrowthDashboard = {
             font: { size: 13, weight: 'bold' },
             callback: v => v + '%',
           },
+          ...(outlierResult?.yScale || {}),
         },
         yRight: {
           position: 'right',
@@ -124,11 +128,15 @@ const GrowthDashboard = {
             font: { size: 13, weight: 'bold' },
             callback: v => v + '%',
           },
+          ...(outlierResult?.yScale || {}),
           afterDataLimits(axis) {
             const yLeft = axis.chart.scales.y;
             if (yLeft) { axis.min = yLeft.min; axis.max = yLeft.max; }
           },
         },
+        plugins: outlierResult
+          ? [OutlierScale.annotationPlugin(outlierResult.outlierInfo, originalData)]
+          : [],
       });
     }
 

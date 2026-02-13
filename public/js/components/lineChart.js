@@ -55,6 +55,7 @@ const LineChart = {
           },
         },
       },
+      plugins: opts.plugins || [],
     };
 
     const chart = new Chart(ctx, config);
