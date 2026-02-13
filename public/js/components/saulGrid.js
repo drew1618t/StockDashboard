@@ -15,6 +15,7 @@ const SaulGrid = {
 
     const ruleLabels = {
       R_001: 'Growth Guidance + QoQ',
+      R_001A: 'Organic Growth',
       R_002: 'Management Credibility',
       R_003: 'Revenue Growth \u226535%',
       R_004: 'Not Defensive',
@@ -43,6 +44,8 @@ const SaulGrid = {
     const statusIcons = {
       PASS: { icon: '\u2713', cls: 'saul-pass' },
       FAIL: { icon: '\u2717', cls: 'saul-fail' },
+      DISQUALIFIED: { icon: '\u2717', cls: 'saul-fail' },
+      DISQ: { icon: '\u2717', cls: 'saul-fail' },
       WARNING: { icon: '\u26A0', cls: 'saul-warning' },
       CAUTION: { icon: '\u26A0', cls: 'saul-warning' },
       'N/A': { icon: '\u2014', cls: 'saul-na' },
@@ -51,9 +54,10 @@ const SaulGrid = {
     };
 
     const tiers = [
-      { label: 'Tier 1: Critical Checks', rules: ['R_001', 'R_002', 'R_003', 'R_004', 'R_005', 'R_006', 'R_007', 'R_008', 'R_009'] },
-      { label: 'Tier 2: Positive Signals', rules: ['R_010', 'R_011', 'R_012', 'R_013', 'R_014', 'R_015', 'R_016', 'R_017'] },
-      { label: 'Tier 3: Warnings & Context', rules: ['R_018', 'R_019', 'R_020', 'R_021', 'R_022', 'R_023', 'R_024'] },
+      { label: 'Tier 1: Hard Disqualifiers', rules: ['R_001', 'R_001A', 'R_003', 'R_006'] },
+      { label: 'Tier 2: Weighted Factors', rules: ['R_002', 'R_004', 'R_005', 'R_007', 'R_008', 'R_009'] },
+      { label: 'Tier 3: Strength Signals', rules: ['R_010', 'R_011', 'R_012', 'R_013', 'R_014', 'R_015', 'R_016', 'R_017'] },
+      { label: 'Tier 4: Warnings & Context', rules: ['R_018', 'R_019', 'R_020', 'R_021', 'R_022', 'R_023', 'R_024'] },
     ];
 
     const wrapper = document.createElement('div');
@@ -63,12 +67,15 @@ const SaulGrid = {
 
     // Summary bar
     if (summary) {
+      const scoreCls = summary.score >= 70 ? 'score-high' :
+                       summary.score >= 40 ? 'score-mid' : 'score-low';
+      const convCls = summary.conviction === 'High' ? 'conviction-high' :
+                      summary.conviction === 'Medium' ? 'conviction-mid' : 'conviction-low';
       html += `
         <div class="saul-summary">
-          <span>Grade: ${Fmt.saulGrade(summary.overallGrade)}</span>
-          <span>T1: ${summary.tier1Passes}/${summary.tier1Total} pass</span>
-          <span>T2: ${summary.tier2Passes} pass, ${summary.tier2Fails} fail</span>
-          <span>Score: ${summary.score}</span>
+          <span class="saul-score ${scoreCls}">Score: ${summary.score}/100</span>
+          <span class="saul-conviction ${convCls}">Conviction: ${summary.conviction}</span>
+          <span class="saul-detail">Base: ${summary.baseScore} + Bonus: ${summary.tier2Bonus} \u2212 Penalty: ${summary.warningPenalty}</span>
         </div>
       `;
     }

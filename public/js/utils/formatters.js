@@ -67,15 +67,18 @@ const Fmt = {
     return `<span class="verdict ${cls}">${v}</span>`;
   },
 
-  /** Saul grade badge */
-  saulGrade(grade) {
-    if (!grade) return '<span class="saul-grade grade-unknown">N/A</span>';
-    const cls = {
-      STRONG: 'grade-strong', PASS: 'grade-pass',
-      WEAK_PASS: 'grade-weak', FAIL: 'grade-fail',
-      INCOMPLETE: 'grade-unknown',
-    }[grade] || 'grade-unknown';
-    return `<span class="saul-grade ${cls}">${grade}</span>`;
+  /** Saul score badge (0-100) */
+  saulScore(score) {
+    if (score === null || score === undefined) return '<span class="saul-score score-low">N/A</span>';
+    const cls = score >= 70 ? 'score-high' : score >= 40 ? 'score-mid' : 'score-low';
+    return `<span class="saul-score ${cls}">${score}/100</span>`;
+  },
+
+  /** Conviction level badge */
+  conviction(level) {
+    if (!level) return '<span class="saul-conviction conviction-low">N/A</span>';
+    const cls = { High: 'conviction-high', Medium: 'conviction-mid', Low: 'conviction-low' }[level] || 'conviction-low';
+    return `<span class="saul-conviction ${cls}">${level}</span>`;
   },
 
   /** Format delta with color class */
