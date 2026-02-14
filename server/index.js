@@ -119,6 +119,11 @@ app.get('/api/stock/:ticker', (req, res) => {
   res.json({ company: overlaid, analysis, rawMarkdown });
 });
 
+// Get all available tickers (portfolio + non-portfolio for comparisons)
+app.get('/api/available-tickers', (req, res) => {
+  res.json(dataLoader.getAvailableTickers());
+});
+
 // Force reload all data from disk
 app.get('/api/refresh', (req, res) => {
   const companies = dataLoader.refresh();

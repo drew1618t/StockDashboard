@@ -33,6 +33,15 @@ const API = {
     return data;
   },
 
+  async getAvailableTickers() {
+    if (this._cache.availableTickers) return this._cache.availableTickers;
+    const res = await fetch('/api/available-tickers');
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    const data = await res.json();
+    this._cache.availableTickers = data;
+    return data;
+  },
+
   async refresh() {
     this._cache = {};
     const res = await fetch('/api/refresh');

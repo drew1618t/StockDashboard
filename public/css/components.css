@@ -570,3 +570,143 @@
   text-transform: none;
   letter-spacing: normal;
 }
+
+/* ── Company Selector Bar ──────────────────────────────────────────── */
+.company-selector-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-lg);
+  padding: 10px var(--gap);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--gap);
+  align-items: flex-start;
+}
+
+.selector-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.selector-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.selector-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.selector-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.selector-checkbox input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--color-accent);
+}
+
+.selector-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.selector-ticker-input {
+  width: 70px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  outline: none;
+}
+
+.selector-ticker-input:focus {
+  border-color: var(--color-accent);
+}
+
+.selector-add-btn {
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.selector-add-btn:hover {
+  background: var(--color-accent);
+  color: var(--bg-primary);
+}
+
+.selector-error {
+  font-size: 10px;
+  color: var(--color-negative);
+  font-weight: 600;
+}
+
+.selector-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.comparison-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  font-style: italic;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.tag-remove:hover {
+  color: var(--color-negative);
+}
+
+/* ── Comparison Ticker Styling (heatmap + tables) ──────────────────── */
+.comparison-ticker {
+  color: var(--text-muted) !important;
+  font-style: italic;
+}

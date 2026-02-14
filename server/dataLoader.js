@@ -3,7 +3,8 @@
  * normalizes them, enriches with calculations, and caches in memory.
  *
  * Data is loaded once at startup and can be refreshed on demand via refresh().
- * Only companies listed in portfolio.json are included in API responses.
+ * Portfolio companies (from portfolio.json) are the primary dataset.
+ * Non-portfolio companies are also loaded for use as comparison benchmarks.
  */
 
 const fs = require('fs');
@@ -20,7 +21,8 @@ const PORTFOLIO_PATH = path.join(__dirname, '..', 'portfolio.json');
 
 // ── In-memory cache ──────────────────────────────────────────────────────────
 
-let cachedCompanies = [];        // Normalized + enriched company objects
+let cachedCompanies = [];        // Normalized + enriched portfolio company objects
+let cachedNonPortfolio = {};     // Non-portfolio companies keyed by ticker (for comparisons)
 let cachedAnalyses = {};         // Parsed markdown analyses keyed by ticker
 let cachedRawMarkdown = {};      // Raw markdown text keyed by ticker
 let lastLoadTime = null;
@@ -324,42 +326,43 @@ function loadAll() {
   loadPortfolioConfig();
 
   const companyDirs = scanReportsDirectory();
-  const allCompanies = [];
+  const allPortfolio = [];
+  const allNonPortfolio = [];
   const analyses = {};
   const rawMarkdowns = {};
 
   for (const dirName of companyDirs) {
     const ticker = dirName.toUpperCase();
-
-    // Filter by portfolio holdings (if list is non-empty)
-    if (portfolioHoldings.length > 0 && !portfolioHoldings.includes(ticker)) {
-      continue;
-    }
-
     const dirPath = path.join(REPORTS_DIR, dirName);
     const result = loadCompany(dirPath, ticker);
 
+    if (result.analysis) analyses[ticker] = result.analysis;
+    if (result.rawMarkdown) rawMarkdowns[ticker] = result.rawMarkdown;
+
     if (result.normalized) {
-      allCompanies.push(result.normalized);
-    }
-    if (result.analysis) {
-      analyses[ticker] = result.analysis;
-    }
-    if (result.rawMarkdown) {
-      rawMarkdowns[ticker] = result.rawMarkdown;
+      const isPortfolio = portfolioHoldings.length === 0 || portfolioHoldings.includes(ticker);
+      if (isPortfolio) {
+        allPortfolio.push(result.normalized);
+      } else {
+        allNonPortfolio.push(result.normalized);
+      }
     }
   }
 
-  // Sort by ticker
-  allCompanies.sort((a, b) => a.ticker.localeCompare(b.ticker));
+  // Sort and enrich portfolio companies
+  allPortfolio.sort((a, b) => a.ticker.localeCompare(b.ticker));
+  cachedCompanies = enrichCompanies(allPortfolio);
 
-  // Enrich with calculated metrics
-  cachedCompanies = enrichCompanies(allCompanies);
+  // Enrich and cache non-portfolio companies for comparison use
+  const enrichedNonPortfolio = enrichCompanies(allNonPortfolio);
+  cachedNonPortfolio = {};
+  enrichedNonPortfolio.forEach(c => { cachedNonPortfolio[c.ticker] = c; });
+
   cachedAnalyses = analyses;
   cachedRawMarkdown = rawMarkdowns;
   lastLoadTime = new Date().toISOString();
 
-  console.log(`[dataLoader] Loaded ${cachedCompanies.length} companies, ${Object.keys(analyses).length} analyses`);
+  console.log(`[dataLoader] Loaded ${cachedCompanies.length} portfolio + ${Object.keys(cachedNonPortfolio).length} non-portfolio companies`);
   startAutoRefresh();
   return cachedCompanies;
 }
@@ -372,9 +375,10 @@ function getCompanies() {
 function getCompany(ticker) {
   const t = ticker.toUpperCase();
   const companies = getCompanies();
-  const company = companies.find(c => c.ticker === t);
+  let company = companies.find(c => c.ticker === t);
+  if (!company) company = cachedNonPortfolio[t] || null;
   return {
-    company: company || null,
+    company,
     analysis: cachedAnalyses[t] || null,
     rawMarkdown: cachedRawMarkdown[t] || null,
   };
@@ -382,6 +386,7 @@ function getCompany(ticker) {
 
 function refresh() {
   cachedCompanies = [];
+  cachedNonPortfolio = {};
   cachedAnalyses = {};
   cachedRawMarkdown = {};
   return loadAll();
@@ -395,6 +400,13 @@ function getPortfolioHoldings() {
   return portfolioHoldings;
 }
 
+function getAvailableTickers() {
+  return {
+    portfolio: cachedCompanies.map(c => c.ticker),
+    available: Object.keys(cachedNonPortfolio).sort(),
+  };
+}
+
 module.exports = {
   loadAll,
   getCompanies,
@@ -402,4 +414,5 @@ module.exports = {
   refresh,
   getLastLoadTime,
   getPortfolioHoldings,
+  getAvailableTickers,
 };

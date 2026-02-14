@@ -50,7 +50,8 @@ const Heatmap = {
         histMap[heatmapQuarterLabel(q, useCalendar)] = q.revenueYoyPct;
       });
 
-      let row = `<div class="heatmap-cell heatmap-ticker">${company.ticker}</div>`;
+      const tickerCls = company._isComparison ? 'heatmap-cell heatmap-ticker comparison-ticker' : 'heatmap-cell heatmap-ticker';
+      let row = `<div class="${tickerCls}">${company.ticker}</div>`;
       quarters.forEach(q => {
         const val = histMap[q];
         const bgColor = Colors.heatmapColor(val);

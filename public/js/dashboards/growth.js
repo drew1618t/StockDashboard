@@ -63,6 +63,8 @@ const GrowthDashboard = {
     container.innerHTML = '';
     this.destroy();
 
+    const colorMap = Colors.buildColorMap(filtered);
+
     // ── Revenue Growth Heatmap ──
     const heatSection = document.createElement('div');
     heatSection.className = 'section';
@@ -102,7 +104,7 @@ const GrowthDashboard = {
         return {
           label: company.ticker,
           data: quarters.map(q => histMap[q] ?? null),
-          color: Colors.chartColor(i),
+          color: colorMap[company.ticker],
         };
       });
 

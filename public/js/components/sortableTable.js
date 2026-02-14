@@ -51,11 +51,14 @@ const SortableTable = {
       }).join('');
 
       const rowsHtml = sortedData.map((row, i) => {
+        const isComp = row._isComparison;
         const cells = columns.map(col => {
           let val = row[col.key];
           if (col.format) val = col.format(val, row);
           else if (val === null || val === undefined) val = 'N/A';
-          const cls = col.align === 'right' ? 'text-right' : '';
+          const clsList = [col.align === 'right' ? 'text-right' : ''];
+          if (isComp && col.key === 'ticker') clsList.push('comparison-ticker');
+          const cls = clsList.filter(Boolean).join(' ');
           return `<div class="td ${cls}">${val}</div>`;
         }).join('');
         return `<div class="tr" data-index="${i}" data-ticker="${row.ticker || ''}">${cells}</div>`;

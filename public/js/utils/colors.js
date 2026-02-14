@@ -45,6 +45,29 @@ const Colors = {
   chartColor(index) {
     return Colors.chartPalette[index % Colors.chartPalette.length];
   },
+
+  /** Muted gray palette for comparison (non-portfolio) companies */
+  comparisonPalette: [
+    '#9ca3af', '#6b7280', '#a1a1aa', '#78716c', '#737373',
+    '#8b8b8b', '#a3a3a3', '#7c7c7c', '#999999', '#858585',
+  ],
+
+  /** Get comparison color by index */
+  comparisonColor(index) {
+    return Colors.comparisonPalette[index % Colors.comparisonPalette.length];
+  },
+
+  /** Build a ticker→color map for a mixed list of portfolio + comparison companies */
+  buildColorMap(companies) {
+    const map = {};
+    let portIdx = 0, compIdx = 0;
+    companies.forEach(c => {
+      map[c.ticker] = c._isComparison
+        ? Colors.comparisonColor(compIdx++)
+        : Colors.chartColor(portIdx++);
+    });
+    return map;
+  },
 };
 
 window.Colors = Colors;

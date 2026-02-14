@@ -24,6 +24,7 @@ const ValuationDashboard = {
     section.className = 'dashboard valuation-dashboard';
 
     const self = this;
+    const colorMap = Colors.buildColorMap(companies);
 
     // ── Scatter Plot: Growth vs P/E ──
     const scatterSection = document.createElement('div');
@@ -41,7 +42,7 @@ const ValuationDashboard = {
         x: c.revenueYoyPct,
         y: self._effectivePe(c),
         label: c.ticker,
-        color: Colors.verdictColor(c.verdict),
+        color: c._isComparison ? colorMap[c.ticker] : Colors.verdictColor(c.verdict),
         size: Math.max(4, Math.min(12, (c.marketCapMil || 1000) / 1000)),
       }));
 
@@ -80,6 +81,7 @@ const ValuationDashboard = {
           label: 'GAV (P/E \u00F7 Growth%)',
           data: withGav.map(c => c.calculated.gav),
           colors: withGav.map((c) => {
+            if (c._isComparison) return colorMap[c.ticker];
             const median = withGav[Math.floor(withGav.length / 2)]?.calculated?.gav || 1;
             return c.calculated.gav <= median ? 'var(--color-positive)' : 'var(--color-warning)';
           }),
@@ -108,6 +110,7 @@ const ValuationDashboard = {
           label: 'P/E Ratio',
           data: withPE.map(c => self._effectivePe(c)),
           colors: withPE.map(c => {
+            if (c._isComparison) return colorMap[c.ticker];
             const pe = self._effectivePe(c);
             return pe < 30 ? 'var(--color-positive)' :
                    pe < 80 ? 'var(--color-warning)' :

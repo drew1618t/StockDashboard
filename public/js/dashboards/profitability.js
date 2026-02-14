@@ -10,6 +10,8 @@ const ProfitabilityDashboard = {
     const section = document.createElement('div');
     section.className = 'dashboard profitability-dashboard';
 
+    const colorMap = Colors.buildColorMap(companies);
+
     // ── Margin Comparison: Grouped Bars ──
     const marginSection = document.createElement('div');
     marginSection.className = 'section';
@@ -62,11 +64,12 @@ const ProfitabilityDashboard = {
         datasets: [{
           label: 'Op. Leverage Ratio',
           data: withLeverage.map(c => c.calculated.operatingLeverage),
-          colors: withLeverage.map(c =>
-            c.calculated.operatingLeverage > 0.5 ? 'var(--color-positive)' :
-            c.calculated.operatingLeverage > 0.2 ? 'var(--color-warning)' :
-            'var(--color-negative)'
-          ),
+          colors: withLeverage.map(c => {
+            if (c._isComparison) return colorMap[c.ticker];
+            return c.calculated.operatingLeverage > 0.5 ? 'var(--color-positive)' :
+                   c.calculated.operatingLeverage > 0.2 ? 'var(--color-warning)' :
+                   'var(--color-negative)';
+          }),
         }],
         horizontal: true,
         yLabel: 'Leverage Ratio',
