@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparison Requests</title>
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/themes/bloomberg.css">
+  <style>
+    body { padding: 40px; max-width: 600px; margin: 0 auto; }
+    h1 { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+    .subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 24px; }
+    .back-link { font-size: 12px; color: var(--color-accent); text-decoration: none; margin-bottom: 16px; display: inline-block; }
+    .back-link:hover { text-decoration: underline; }
+    .requests-table {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+    }
+    .requests-table th, .requests-table td {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .requests-table th {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      background: var(--bg-secondary);
+    }
+    .requests-table td:first-child {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+    .requests-table td:last-child { color: var(--text-muted); }
+    .requests-table tr:last-child td { border-bottom: none; }
+    .empty-state {
+      padding: 32px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .refresh-btn {
+      margin-top: 16px;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .refresh-btn:hover { background: var(--color-accent); color: var(--bg-primary); }
+  </style>
+</head>
+<body class="theme-bloomberg">
+  <a href="/" class="back-link">&larr; Back to Dashboard</a>
+  <h1>COMPARISON REQUESTS</h1>
+  <p class="subtitle">Tickers requested for comparison that don't have data yet.</p>
+  <div id="content"></div>
+  <button class="refresh-btn" onclick="loadRequests()">&#8635; Refresh</button>
+
+  <script>
+    async function loadRequests() {
+      const el = document.getElementById('content');
+      try {
+        const res = await fetch('/api/requests');
+        const requests = await res.json();
+        if (requests.length === 0) {
+          el.innerHTML = '<div class="empty-state">No pending requests.</div>';
+          return;
+        }
+        let rows = requests.map(r => {
+          const d = new Date(r.requestedAt);
+          const date = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+          return '<tr><td>' + r.ticker + '</td><td>' + date + '</td></tr>';
+        }).join('');
+        el.innerHTML = '<table class="requests-table"><thead><tr><th>Ticker</th><th>Requested</th></tr></thead><tbody>' + rows + '</tbody></table>';
+      } catch (err) {
+        el.innerHTML = '<div class="empty-state">Failed to load requests.</div>';
+      }
+    }
+    loadRequests();
+  </script>
+</body>
+</html>

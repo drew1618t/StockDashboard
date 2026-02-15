@@ -42,6 +42,16 @@ const API = {
     return data;
   },
 
+  async requestComparison(ticker) {
+    const res = await fetch('/api/requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ticker }),
+    });
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+    return res.json();
+  },
+
   async refresh() {
     this._cache = {};
     const res = await fetch('/api/refresh');

@@ -10,6 +10,7 @@ const compression = require('compression');
 const path = require('path');
 const dataLoader = require('./dataLoader');
 const sheetsPoller = require('./sheetsPoller');
+const requestTracker = require('./requestTracker');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -91,6 +92,7 @@ function overlayLivePrices(companies) {
 // ── Middleware ────────────────────────────────────────────────────────────────
 
 app.use(compression());
+app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public'), {
   maxAge: '1h',
   etag: true,
@@ -149,6 +151,18 @@ app.get('/api/live-portfolio/refresh', async (req, res) => {
   }
 });
 
+// Comparison requests — track tickers without data
+app.get('/api/requests', (req, res) => {
+  res.json(requestTracker.getRequests());
+});
+
+app.post('/api/requests', (req, res) => {
+  const ticker = (req.body.ticker || '').trim().toUpperCase();
+  if (!ticker) return res.status(400).json({ error: 'Ticker required' });
+  const result = requestTracker.addRequest(ticker);
+  res.json(result);
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -164,6 +178,12 @@ app.get('/api/health', (req, res) => {
 
 app.get('/privacy', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'privacy.html'));
+});
+
+// ── Requests page ────────────────────────────────────────────────────────────
+
+app.get('/requests', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'requests.html'));
 });
 
 // ── SPA fallback: serve index.html for any non-API, non-static route ─────────

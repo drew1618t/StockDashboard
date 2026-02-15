@@ -81,9 +81,14 @@ const CompanySelector = {
         return;
       }
 
-      // Check availability
+      // Check availability — if missing, log a request
       if (!opts.availableTickers.includes(ticker)) {
         errorMsg.textContent = `No data for ${ticker}`;
+        API.requestComparison(ticker).then(result => {
+          errorMsg.textContent = result.alreadyRequested
+            ? `No data for ${ticker} \u2014 already requested`
+            : `No data for ${ticker} \u2014 requested`;
+        }).catch(() => {});
         return;
       }
 

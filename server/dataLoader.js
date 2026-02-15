@@ -13,6 +13,7 @@ const { normalizeCompany, dateToCalendarQuarter } = require('./normalizer');
 const { parseMarkdown } = require('./markdownParser');
 const { enrichCompanies } = require('./calculator');
 const { computeSaulSummary } = require('./saulUtils');
+const requestTracker = require('./requestTracker');
 
 const REPORTS_DIR = process.env.DATA_DIR ||
   path.join(__dirname, '..', '..', 'SaulInvesting', 'reports');
@@ -363,6 +364,11 @@ function loadAll() {
   lastLoadTime = new Date().toISOString();
 
   console.log(`[dataLoader] Loaded ${cachedCompanies.length} portfolio + ${Object.keys(cachedNonPortfolio).length} non-portfolio companies`);
+
+  // Remove any comparison requests for tickers that now have data
+  const allTickers = [...cachedCompanies.map(c => c.ticker), ...Object.keys(cachedNonPortfolio)];
+  requestTracker.pruneAvailable(allTickers);
+
   startAutoRefresh();
   return cachedCompanies;
 }
