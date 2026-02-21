@@ -13,6 +13,7 @@ const sheetsPoller = require('./sheetsPoller');
 const requestTracker = require('./requestTracker');
 
 const app = express();
+app.disable('x-powered-by');
 const PORT = process.env.PORT || 3000;
 
 // ── Live Price Overlay ──────────────────────────────────────────────────────
@@ -93,6 +94,16 @@ function overlayLivePrices(companies) {
 
 app.use(compression());
 app.use(express.json());
+
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'");
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
 app.use(express.static(path.join(__dirname, '..', 'public'), {
   maxAge: '1h',
   etag: true,
@@ -147,7 +158,7 @@ app.get('/api/live-portfolio/refresh', async (req, res) => {
     const data = await sheetsPoller.forceRefresh();
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to refresh live data' });
   }
 });
 
@@ -159,6 +170,7 @@ app.get('/api/requests', (req, res) => {
 app.post('/api/requests', (req, res) => {
   const ticker = (req.body.ticker || '').trim().toUpperCase();
   if (!ticker) return res.status(400).json({ error: 'Ticker required' });
+  if (!/^[A-Z]{1,6}$/.test(ticker)) return res.status(400).json({ error: 'Invalid ticker format' });
   const result = requestTracker.addRequest(ticker);
   res.json(result);
 });

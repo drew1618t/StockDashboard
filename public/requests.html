@@ -70,6 +70,11 @@
   <button class="refresh-btn" onclick="loadRequests()">&#8635; Refresh</button>
 
   <script>
+    function esc(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
     async function loadRequests() {
       const el = document.getElementById('content');
       try {
@@ -82,7 +87,7 @@
         let rows = requests.map(r => {
           const d = new Date(r.requestedAt);
           const date = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-          return '<tr><td>' + r.ticker + '</td><td>' + date + '</td></tr>';
+          return '<tr><td>' + esc(r.ticker) + '</td><td>' + esc(date) + '</td></tr>';
         }).join('');
         el.innerHTML = '<table class="requests-table"><thead><tr><th>Ticker</th><th>Requested</th></tr></thead><tbody>' + rows + '</tbody></table>';
       } catch (err) {
