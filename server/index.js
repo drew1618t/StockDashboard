@@ -198,10 +198,14 @@ app.get('/requests', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'requests.html'));
 });
 
-// ── SPA fallback: serve index.html for any non-API, non-static route ─────────
+// ── Dashboard route (existing SPA) ──────────────────────────────────────────
+
+app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html')));
+
+// ── SPA fallback ────────────────────────────────────────────────────────────
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'));
 });
 
 // ── Startup ──────────────────────────────────────────────────────────────────
