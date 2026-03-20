@@ -4,11 +4,39 @@
 const API = {
   _cache: {},
 
+  async _requestJson(url, options = {}) {
+    const res = await fetch(url, options);
+    let payload = null;
+
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      payload = await res.json();
+    } else {
+      const text = await res.text();
+      payload = text ? { error: text } : null;
+    }
+
+    if (!res.ok) {
+      const message = payload && payload.error ? payload.error : `API error: ${res.status}`;
+      const err = new Error(message);
+      err.status = res.status;
+      err.payload = payload;
+      throw err;
+    }
+
+    return payload;
+  },
+
+  async getMe(forceRefresh = false) {
+    if (!forceRefresh && this._cache.me) return this._cache.me;
+    const data = await this._requestJson('/api/me');
+    this._cache.me = data;
+    return data;
+  },
+
   async getPortfolio(forceRefresh = false) {
     if (!forceRefresh && this._cache.portfolio) return this._cache.portfolio;
-    const res = await fetch('/api/portfolio');
-    if (!res.ok) throw new Error(`API error: ${res.status}`);
-    const data = await res.json();
+    const data = await this._requestJson('/api/portfolio');
     this._cache.portfolio = data;
     return data;
   },
@@ -16,9 +44,7 @@ const API = {
   async getStock(ticker) {
     const key = `stock_${ticker.toUpperCase()}`;
     if (this._cache[key]) return this._cache[key];
-    const res = await fetch(`/api/stock/${ticker}`);
-    if (!res.ok) throw new Error(`API error: ${res.status} for ${ticker}`);
-    const data = await res.json();
+    const data = await this._requestJson(`/api/stock/${ticker}`);
     this._cache[key] = data;
     return data;
   },
@@ -26,37 +52,29 @@ const API = {
   async getLivePortfolio(forceRefresh = false) {
     const key = 'live_portfolio';
     if (!forceRefresh && this._cache[key]) return this._cache[key];
-    const res = await fetch('/api/live-portfolio');
-    if (!res.ok) throw new Error(`Live portfolio fetch failed: ${res.status}`);
-    const data = await res.json();
+    const data = await this._requestJson('/api/live-portfolio');
     this._cache[key] = data;
     return data;
   },
 
   async getAvailableTickers() {
     if (this._cache.availableTickers) return this._cache.availableTickers;
-    const res = await fetch('/api/available-tickers');
-    if (!res.ok) throw new Error(`API error: ${res.status}`);
-    const data = await res.json();
+    const data = await this._requestJson('/api/available-tickers');
     this._cache.availableTickers = data;
     return data;
   },
 
   async requestComparison(ticker) {
-    const res = await fetch('/api/requests', {
+    return this._requestJson('/api/requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ticker }),
     });
-    if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-    return res.json();
   },
 
   async refresh() {
     this._cache = {};
-    const res = await fetch('/api/refresh');
-    if (!res.ok) throw new Error(`Refresh failed: ${res.status}`);
-    return res.json();
+    return this._requestJson('/api/refresh');
   },
 
   clearCache() {

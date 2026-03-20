@@ -131,6 +131,13 @@ body {
   font-family: var(--font-mono);
 }
 
+.header-meta.role-chip {
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+}
+
 .header-nav {
   display: flex;
   gap: 2px;
@@ -155,6 +162,14 @@ body {
 .nav-link.active {
   color: var(--color-accent);
   border-bottom-color: var(--color-accent);
+}
+
+.nav-link.nav-link-external {
+  border-bottom-color: transparent;
+}
+
+.nav-link[hidden] {
+  display: none !important;
 }
 
 .header-right {
@@ -244,6 +259,11 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .error-state { color: var(--color-negative); }
+
+.error-state a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}
 
 /* ── Chart Containers ────────────────────────────────────────────────── */
 .chart-container {

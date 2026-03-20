@@ -7,9 +7,11 @@ Type=simple
 User=andrew
 WorkingDirectory=/home/andrew/StockDashboard
 ExecStart=/usr/bin/node --max-old-space-size=64 server/index.js
+EnvironmentFile=-/home/andrew/StockDashboard/.env.production
 Environment=NODE_ENV=production
 Environment=PORT=3000
 Environment=DATA_DIR=/home/andrew/SaulInvesting/reports
+# DEV_ACCESS_EMAIL is intentionally unsupported in production.
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal

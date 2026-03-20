@@ -1,4 +1,22 @@
-<!DOCTYPE html>
+function renderHomePage(user) {
+  const roleLabel = user && user.role === 'family' ? 'Family' : 'General';
+  const familyCard = user && user.role === 'family'
+    ? `
+      <article class="card card--primary" onclick="window.location.href='/family'">
+        <div class="card-corner"></div>
+        <div class="card-shimmer"></div>
+        <div class="card-stamp">Family</div>
+        <h2 class="card-title">Family Hub</h2>
+        <div class="card-line"></div>
+        <p class="card-desc">Protected routes for medical information, shared household tasks, and security camera access.</p>
+        <a href="/family" class="card-cta">Open</a>
+        <a href="/family" class="card-link">
+          Open Family Hub <i class="arrow">&rarr;</i>
+        </a>
+      </article>`
+    : '';
+
+  return `<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
@@ -7,7 +25,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <!-- Prevent flash of wrong theme -->
   <script>
     (function() {
       var t = localStorage.getItem('homepage-theme');
@@ -16,11 +33,6 @@
   </script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    /* ══════════════════════════════════════
-       DARK THEME (Art Deco / Gatsby) — default
-       ══════════════════════════════════════ */
-
     :root {
       --bg: #1a1a1a;
       --bg-card: #222222;
@@ -31,7 +43,6 @@
       --accent-dim: rgba(224, 184, 74, 0.3);
       --border: rgba(224, 184, 74, 0.3);
       --border-light: rgba(224, 184, 74, 0.1);
-
       --font-heading: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
       --font-body: 'Cormorant Garamond', Georgia, serif;
       --font-body-weight: 400;
@@ -40,25 +51,16 @@
       --heading-spacing: 0.15em;
       --heading-size: clamp(2rem, 5vw, 3.2rem);
       --heading-line-height: 1.2;
-
       --tagline-style: italic;
       --tagline-weight: 400;
       --tagline-spacing: 0.08em;
-
       --card-text-align: center;
       --card-padding: 44px 36px 40px;
       --card-radius: 0px;
-
       --page-max-width: 900px;
       --page-padding-top: 140px;
-
       --transition-speed: 0.4s;
     }
-
-    /* ══════════════════════════════════════
-       LIGHT THEME (Analog Letterpress)
-       ══════════════════════════════════════ */
-
     [data-theme="light"] {
       --bg: #f5f0e8;
       --bg-card: #faf6ee;
@@ -69,32 +71,18 @@
       --accent-dim: rgba(196, 69, 54, 0.3);
       --border: #d4c9b8;
       --border-light: #e8e0d0;
-
       --font-heading: 'Fraunces', Georgia, serif;
       --font-body: 'Inter', Georgia, serif;
-      --font-body-weight: 400;
-      --heading-weight: 900;
       --heading-transform: none;
       --heading-spacing: -0.02em;
       --heading-size: 3.8rem;
       --heading-line-height: 1.05;
-
-      --tagline-style: italic;
-      --tagline-weight: 400;
       --tagline-spacing: 0.01em;
-
       --card-text-align: left;
       --card-padding: 36px 32px 32px;
-      --card-radius: 0px;
-
       --page-max-width: 800px;
       --page-padding-top: 100px;
     }
-
-    /* ══════════════════════════════════════
-       BASE STYLES
-       ══════════════════════════════════════ */
-
     body {
       background: var(--bg);
       color: var(--text);
@@ -105,9 +93,6 @@
       -webkit-font-smoothing: antialiased;
       transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
     }
-
-    /* ── Dark: gold viewport frame ───────── */
-
     body::before {
       content: '';
       position: fixed;
@@ -118,7 +103,6 @@
       opacity: 1;
       transition: opacity var(--transition-speed) ease;
     }
-
     body::after {
       content: '';
       position: fixed;
@@ -129,9 +113,6 @@
       opacity: 1;
       transition: opacity var(--transition-speed) ease;
     }
-
-    /* ── Light: paper texture (replaces frame) */
-
     [data-theme="light"] body::before {
       inset: 0;
       border: none;
@@ -140,11 +121,7 @@
       background-size: 256px 256px;
       z-index: 1000;
     }
-
-    [data-theme="light"] body::after {
-      opacity: 0;
-    }
-
+    [data-theme="light"] body::after { opacity: 0; }
     .page {
       max-width: var(--page-max-width);
       margin: 0 auto;
@@ -152,11 +129,6 @@
       position: relative;
       transition: max-width var(--transition-speed) ease, padding var(--transition-speed) ease;
     }
-
-    /* ══════════════════════════════════════
-       THEME TOGGLE
-       ══════════════════════════════════════ */
-
     .theme-toggle {
       position: fixed;
       top: 28px;
@@ -176,61 +148,22 @@
       transition: border-color 0.3s, color 0.3s, background 0.3s, transform 0.3s;
       line-height: 1;
     }
-
     .theme-toggle:hover {
       border-color: var(--accent);
       background: rgba(224, 184, 74, 0.08);
       transform: scale(1.08);
     }
-
-    [data-theme="light"] .theme-toggle:hover {
-      background: rgba(196, 69, 54, 0.06);
-    }
-
+    [data-theme="light"] .theme-toggle:hover { background: rgba(196, 69, 54, 0.06); }
     .theme-toggle .icon-sun,
-    .theme-toggle .icon-moon {
-      position: absolute;
-      transition: opacity 0.3s, transform 0.3s;
-    }
-
-    /* Dark mode: show sun (to switch to light) */
+    .theme-toggle .icon-moon { position: absolute; transition: opacity 0.3s, transform 0.3s; }
     .theme-toggle .icon-sun { opacity: 1; transform: rotate(0deg); }
     .theme-toggle .icon-moon { opacity: 0; transform: rotate(-90deg); }
-
-    /* Light mode: show moon (to switch to dark) */
     [data-theme="light"] .theme-toggle .icon-sun { opacity: 0; transform: rotate(90deg); }
     [data-theme="light"] .theme-toggle .icon-moon { opacity: 1; transform: rotate(0deg); }
-
-    /* ══════════════════════════════════════
-       DARK-ONLY ELEMENTS
-       ══════════════════════════════════════ */
-
-    .dark-only {
-      display: block;
-      opacity: 1;
-      transition: opacity var(--transition-speed) ease;
-    }
-
-    [data-theme="light"] .dark-only {
-      display: none !important;
-    }
-
-    /* ══════════════════════════════════════
-       LIGHT-ONLY ELEMENTS
-       ══════════════════════════════════════ */
-
-    .light-only {
-      display: none !important;
-    }
-
-    [data-theme="light"] .light-only {
-      display: block !important;
-    }
-
-    /* ══════════════════════════════════════
-       SUNBURST (dark only)
-       ══════════════════════════════════════ */
-
+    .dark-only { display: block; opacity: 1; transition: opacity var(--transition-speed) ease; }
+    [data-theme="light"] .dark-only { display: none !important; }
+    .light-only { display: none !important; }
+    [data-theme="light"] .light-only { display: block !important; }
     .sunburst {
       display: flex;
       justify-content: center;
@@ -238,13 +171,7 @@
       opacity: 0;
       animation: fadeIn 1s ease-out 0.1s forwards;
     }
-
-    .sunburst-inner {
-      position: relative;
-      width: 60px;
-      height: 60px;
-    }
-
+    .sunburst-inner { position: relative; width: 60px; height: 60px; }
     .sunburst-ray {
       position: absolute;
       width: 1.5px;
@@ -255,7 +182,6 @@
       transform-origin: bottom center;
       opacity: 0.5;
     }
-
     .sunburst-ray:nth-child(1)  { transform: translateX(-50%) translateY(-100%) rotate(0deg); }
     .sunburst-ray:nth-child(2)  { transform: translateX(-50%) translateY(-100%) rotate(30deg); }
     .sunburst-ray:nth-child(3)  { transform: translateX(-50%) translateY(-100%) rotate(60deg); }
@@ -268,7 +194,6 @@
     .sunburst-ray:nth-child(10) { transform: translateX(-50%) translateY(-100%) rotate(270deg); }
     .sunburst-ray:nth-child(11) { transform: translateX(-50%) translateY(-100%) rotate(300deg); }
     .sunburst-ray:nth-child(12) { transform: translateX(-50%) translateY(-100%) rotate(330deg); }
-
     .sunburst-center {
       position: absolute;
       width: 8px;
@@ -278,22 +203,13 @@
       top: 50%;
       transform: translate(-50%, -50%) rotate(45deg);
     }
-
-    /* ══════════════════════════════════════
-       HERO
-       ══════════════════════════════════════ */
-
     .hero {
       text-align: center;
       margin-bottom: 64px;
       opacity: 0;
       animation: fadeIn 0.9s ease-out 0.3s forwards;
     }
-
-    [data-theme="light"] .hero {
-      margin-bottom: 80px;
-    }
-
+    [data-theme="light"] .hero { margin-bottom: 80px; }
     .hero h1 {
       font-family: var(--font-heading);
       font-weight: var(--heading-weight);
@@ -305,26 +221,15 @@
       margin-bottom: 16px;
       transition: color var(--transition-speed) ease;
     }
-
-    [data-theme="light"] .hero h1 {
-      color: var(--text);
-    }
-
+    [data-theme="light"] .hero h1 { color: var(--text); }
     .hero .tagline {
       font-family: var(--font-heading);
-      font-weight: var(--tagline-weight);
       font-style: var(--tagline-style);
       font-size: 1.15rem;
       color: var(--text-muted);
       letter-spacing: var(--tagline-spacing);
       transition: color var(--transition-speed) ease;
     }
-
-    /* ══════════════════════════════════════
-       DIVIDERS
-       ══════════════════════════════════════ */
-
-    /* Dark: diamond divider */
     .divider {
       display: flex;
       align-items: center;
@@ -333,7 +238,6 @@
       margin: 48px auto;
       max-width: 400px;
     }
-
     .divider::before,
     .divider::after {
       content: '';
@@ -341,7 +245,6 @@
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
     }
-
     .divider .diamond {
       width: 8px;
       height: 8px;
@@ -349,8 +252,6 @@
       transform: rotate(45deg);
       flex-shrink: 0;
     }
-
-    /* Light: star ornament rule */
     .rule-light {
       display: flex;
       align-items: center;
@@ -358,7 +259,6 @@
       margin: 32px auto 0;
       max-width: 320px;
     }
-
     .rule-light::before,
     .rule-light::after {
       content: '';
@@ -366,14 +266,11 @@
       height: 1px;
       background: var(--border);
     }
-
     .rule-light .ornament {
       font-size: 1.2rem;
       color: var(--accent);
       line-height: 1;
     }
-
-    /* Section label (dark only) */
     .section-label {
       text-align: center;
       font-family: var(--font-body);
@@ -384,31 +281,17 @@
       color: var(--accent-dim);
       margin-bottom: 40px;
     }
-
-    /* ══════════════════════════════════════
-       CARDS
-       ══════════════════════════════════════ */
-
     .cards {
       display: grid;
       grid-template-columns: 1fr;
       gap: 28px;
       margin-bottom: 64px;
     }
-
-    [data-theme="light"] .cards {
-      margin-bottom: 80px;
-    }
-
+    [data-theme="light"] .cards { margin-bottom: 80px; }
     @media (min-width: 640px) {
-      .cards {
-        grid-template-columns: 1fr 1fr;
-      }
-      .cards .card:first-child {
-        grid-column: 1 / -1;
-      }
+      .cards { grid-template-columns: 1fr 1fr; }
+      .cards .card:first-child { grid-column: 1 / -1; }
     }
-
     .card {
       position: relative;
       background: var(--bg-card);
@@ -419,102 +302,47 @@
       overflow: hidden;
       opacity: 0;
       transform: scale(0.97);
-      transition: background var(--transition-speed) ease,
-                  border-color var(--transition-speed) ease,
-                  box-shadow 0.3s ease;
+      transition: background var(--transition-speed) ease, border-color var(--transition-speed) ease, box-shadow 0.3s ease;
     }
-
     .card.visible {
       opacity: 1;
       transform: scale(1);
-      transition: opacity 0.7s ease-out, transform 0.7s ease-out,
-                  background var(--transition-speed) ease,
-                  border-color var(--transition-speed) ease;
+      transition: opacity 0.7s ease-out, transform 0.7s ease-out, background var(--transition-speed) ease, border-color var(--transition-speed) ease;
     }
-
-    /* ── Dark card styles ────────────────── */
-
     .card--primary {
       border-width: 2px;
       border-color: var(--accent);
       cursor: pointer;
     }
-
-    .card--primary:hover {
-      box-shadow: 0 0 40px rgba(224, 184, 74, 0.08);
-    }
-
-    .card--placeholder {
-      opacity: 0;
-    }
-
-    .card--placeholder.visible {
-      opacity: 0.6;
-    }
-
-    .card--placeholder:hover {
-      opacity: 0.8;
-    }
-
-    .card[hidden] {
-      display: none !important;
-    }
-
-    /* ── Light card overrides ────────────── */
-
+    .card--primary:hover { box-shadow: 0 0 40px rgba(224, 184, 74, 0.08); }
+    .card--placeholder { opacity: 0; }
+    .card--placeholder.visible { opacity: 0.6; }
+    .card--placeholder:hover { opacity: 0.8; }
     [data-theme="light"] .card {
       border: 2px solid var(--border);
       outline: 3px solid var(--border-light);
       outline-offset: -6px;
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.7),
-        inset 0 -1px 2px rgba(0,0,0,0.05),
-        0 2px 8px rgba(0,0,0,0.04);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -1px 2px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04);
       transform: translateY(20px);
     }
-
-    [data-theme="light"] .card.visible {
-      transform: translateY(0);
-    }
-
+    [data-theme="light"] .card.visible { transform: translateY(0); }
     [data-theme="light"] .card:hover {
       transform: translateY(-3px);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.7),
-        inset 0 -1px 2px rgba(0,0,0,0.05),
-        0 8px 24px rgba(0,0,0,0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), inset 0 -1px 2px rgba(0,0,0,0.05), 0 8px 24px rgba(0,0,0,0.08);
     }
-
     [data-theme="light"] .card--primary {
       border-top: 4px solid var(--accent);
       border-left: 2px solid var(--border);
       border-right: 2px solid var(--border);
       border-bottom: 2px solid var(--border);
     }
-
-    [data-theme="light"] .card--primary:hover {
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.7),
-        inset 0 -1px 2px rgba(0,0,0,0.05),
-        0 8px 24px rgba(0,0,0,0.08);
-    }
-
-    [data-theme="light"] .card--placeholder.visible {
-      opacity: 0.75;
-    }
-
-    [data-theme="light"] .card--placeholder:hover {
-      opacity: 0.9;
-    }
-
-    /* ── Dark: card corner pieces ─────────── */
-
+    [data-theme="light"] .card--placeholder.visible { opacity: 0.75; }
+    [data-theme="light"] .card--placeholder:hover { opacity: 0.9; }
     .card-corner {
       position: absolute;
       inset: 0;
       pointer-events: none;
     }
-
     .card::before,
     .card::after {
       content: '';
@@ -526,21 +354,18 @@
       border-width: 0;
       transition: opacity var(--transition-speed) ease;
     }
-
     .card::before {
       top: 8px;
       left: 8px;
       border-top-width: 1px;
       border-left-width: 1px;
     }
-
     .card::after {
       top: 8px;
       right: 8px;
       border-top-width: 1px;
       border-right-width: 1px;
     }
-
     .card-corner::before,
     .card-corner::after {
       content: '';
@@ -552,31 +377,22 @@
       border-width: 0;
       transition: opacity var(--transition-speed) ease;
     }
-
     .card-corner::before {
       bottom: 8px;
       left: 8px;
       border-bottom-width: 1px;
       border-left-width: 1px;
     }
-
     .card-corner::after {
       bottom: 8px;
       right: 8px;
       border-bottom-width: 1px;
       border-right-width: 1px;
     }
-
-    /* Hide corner pieces in light mode */
     [data-theme="light"] .card::before,
     [data-theme="light"] .card::after,
     [data-theme="light"] .card-corner::before,
-    [data-theme="light"] .card-corner::after {
-      opacity: 0;
-    }
-
-    /* ── Dark: card shimmer sweep ─────────── */
-
+    [data-theme="light"] .card-corner::after { opacity: 0; }
     .card-shimmer {
       position: absolute;
       inset: 0;
@@ -585,17 +401,8 @@
       transition: transform 0.7s ease;
       pointer-events: none;
     }
-
-    .card:hover .card-shimmer {
-      transform: translateX(100%);
-    }
-
-    [data-theme="light"] .card-shimmer {
-      display: none;
-    }
-
-    /* ── Card content ────────────────────── */
-
+    .card:hover .card-shimmer { transform: translateX(100%); }
+    [data-theme="light"] .card-shimmer { display: none; }
     .card-title {
       font-family: var(--font-heading);
       font-weight: 700;
@@ -607,14 +414,11 @@
       position: relative;
       transition: color var(--transition-speed) ease;
     }
-
     [data-theme="light"] .card-title {
       font-size: 1.35rem;
       letter-spacing: 0.04em;
       color: var(--text);
     }
-
-    /* Dark: thin gold line under title */
     .card-line {
       width: 40px;
       height: 1px;
@@ -622,14 +426,9 @@
       margin: 14px auto;
       transition: opacity var(--transition-speed) ease;
     }
-
-    [data-theme="light"] .card-line {
-      display: none;
-    }
-
+    [data-theme="light"] .card-line { display: none; }
     .card-desc {
       font-family: var(--font-body);
-      font-weight: 400;
       font-size: 0.95rem;
       color: var(--text-muted);
       line-height: 1.65;
@@ -637,18 +436,11 @@
       position: relative;
       transition: color var(--transition-speed) ease;
     }
-
     [data-theme="light"] .card-desc {
       font-size: 0.88rem;
       line-height: 1.55;
     }
-
-    [data-theme="light"] .card--primary .card-desc {
-      margin: 0;
-    }
-
-    /* ── Dark: CTA button ────────────────── */
-
+    [data-theme="light"] .card--primary .card-desc { margin: 0; }
     .card-cta {
       display: inline-block;
       margin-top: 22px;
@@ -665,22 +457,12 @@
       transition: background 0.3s, color 0.3s;
       position: relative;
     }
-
     .card-cta:hover {
       background: var(--accent);
       color: var(--bg);
     }
-
-    [data-theme="light"] .card-cta {
-      display: none;
-    }
-
-    /* ── Light: arrow link ───────────────── */
-
-    .card-link {
-      display: none;
-    }
-
+    [data-theme="light"] .card-cta { display: none; }
+    .card-link { display: none; }
     [data-theme="light"] .card-link {
       display: inline-flex;
       align-items: center;
@@ -695,22 +477,9 @@
       text-decoration: none;
       transition: gap 0.3s ease;
     }
-
-    [data-theme="light"] .card-link:hover {
-      gap: 14px;
-    }
-
-    .card-link .arrow {
-      font-style: normal;
-      transition: transform 0.3s ease;
-    }
-
-    [data-theme="light"] .card-link:hover .arrow {
-      transform: translateX(2px);
-    }
-
-    /* ── Dark: forthcoming label ──────────── */
-
+    [data-theme="light"] .card-link:hover { gap: 14px; }
+    .card-link .arrow { font-style: normal; transition: transform 0.3s ease; }
+    [data-theme="light"] .card-link:hover .arrow { transform: translateX(2px); }
     .card-forthcoming {
       display: inline-block;
       margin-top: 18px;
@@ -722,17 +491,8 @@
       color: var(--accent-dim);
       position: relative;
     }
-
-    [data-theme="light"] .card-forthcoming {
-      display: none;
-    }
-
-    /* ── Light: stamp badges ─────────────── */
-
-    .card-stamp {
-      display: none;
-    }
-
+    [data-theme="light"] .card-forthcoming { display: none; }
+    .card-stamp { display: none; }
     [data-theme="light"] .card-stamp {
       display: block;
       position: absolute;
@@ -750,19 +510,8 @@
       border: 1.5px dashed rgba(255,255,255,0.4);
       transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-
-    [data-theme="light"] .card:hover .card-stamp {
-      transform: rotate(-1deg);
-    }
-
-    [data-theme="light"] .card-stamp--muted {
-      background: var(--text-muted);
-    }
-
-    /* ══════════════════════════════════════
-       BOTTOM RULE (light only)
-       ══════════════════════════════════════ */
-
+    [data-theme="light"] .card:hover .card-stamp { transform: rotate(-1deg); }
+    [data-theme="light"] .card-stamp--muted { background: var(--text-muted); }
     .bottom-rule {
       display: flex;
       align-items: center;
@@ -772,7 +521,6 @@
       margin-left: auto;
       margin-right: auto;
     }
-
     .bottom-rule::before,
     .bottom-rule::after {
       content: '';
@@ -780,12 +528,7 @@
       height: 1px;
       background: var(--border);
     }
-
-    .bottom-rule .ornament {
-      font-size: 0.7rem;
-      color: var(--border);
-    }
-
+    .bottom-rule .ornament { font-size: 0.7rem; color: var(--border); }
     .access-badge {
       display: inline-flex;
       align-items: center;
@@ -799,37 +542,19 @@
       text-transform: uppercase;
       background: rgba(255, 255, 255, 0.02);
     }
-
-    .access-badge strong {
-      color: var(--accent);
-      font-weight: 700;
-    }
-
+    .access-badge strong { color: var(--accent); font-weight: 700; }
     [data-theme="light"] .access-badge {
       background: rgba(255, 255, 255, 0.8);
       border-color: var(--border);
       color: var(--text-muted);
     }
-
-    [data-theme="light"] .access-badge strong {
-      color: var(--accent);
-    }
-
-    /* ══════════════════════════════════════
-       FOOTER
-       ══════════════════════════════════════ */
-
-    .footer-divider {
-      margin-bottom: 32px;
-    }
-
+    .footer-divider { margin-bottom: 32px; }
     footer {
       text-align: center;
       padding-bottom: 60px;
       opacity: 0;
       animation: fadeIn 0.8s ease-out 0.9s forwards;
     }
-
     footer p {
       font-family: var(--font-body);
       font-weight: 500;
@@ -839,7 +564,6 @@
       color: var(--accent-dim);
       transition: color var(--transition-speed) ease;
     }
-
     [data-theme="light"] footer p {
       font-family: 'Inter', sans-serif;
       font-size: 0.75rem;
@@ -847,40 +571,17 @@
       text-transform: none;
       color: var(--text-muted);
     }
-
-    footer a {
-      color: var(--accent-dim);
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-
-    footer a:hover {
-      color: var(--accent);
-    }
-
+    footer a { color: var(--accent-dim); text-decoration: none; transition: color 0.3s; }
+    footer a:hover { color: var(--accent); }
     [data-theme="light"] footer a {
       color: var(--text-muted);
       text-decoration: underline;
       text-underline-offset: 2px;
     }
-
-    [data-theme="light"] footer a:hover {
-      color: var(--accent);
-    }
-
-    /* ══════════════════════════════════════
-       ANIMATIONS
-       ══════════════════════════════════════ */
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
-    /* ══════════════════════════════════════
-       RESPONSIVE
-       ══════════════════════════════════════ */
-
     @media (max-width: 768px) {
       body::before { inset: 10px; }
       body::after { inset: 6px; }
@@ -890,17 +591,14 @@
       .sunburst-ray { height: 18px; }
       .card { padding: 32px 24px 28px; }
       .theme-toggle { top: 16px; right: 16px; width: 38px; height: 38px; font-size: 1rem; }
-
       [data-theme="light"] .page { padding: 64px 20px 40px; }
       [data-theme="light"] .hero h1 { font-size: 2.6rem; letter-spacing: -0.02em; }
       [data-theme="light"] .card { padding: 28px 24px 24px; }
     }
-
     @media (max-width: 480px) {
       .hero h1 { font-size: 1.5rem; }
       .hero .tagline { font-size: 0.95rem; }
       .card-title { font-size: 0.95rem; letter-spacing: 0.08em; }
-
       [data-theme="light"] .hero h1 { font-size: 2.1rem; }
       [data-theme="light"] .hero .tagline { font-size: 1rem; }
       [data-theme="light"] .card-title { font-size: 1.2rem; letter-spacing: 0.04em; }
@@ -908,54 +606,31 @@
   </style>
 </head>
 <body>
-  <!-- Theme toggle -->
   <button class="theme-toggle" aria-label="Toggle theme" title="Switch theme">
     <span class="icon-sun">&#9788;</span>
     <span class="icon-moon">&#9790;</span>
   </button>
-
   <div class="page">
-    <!-- Dark only: sunburst ornament -->
     <div class="sunburst dark-only">
       <div class="sunburst-inner">
-        <div class="sunburst-ray"></div>
-        <div class="sunburst-ray"></div>
-        <div class="sunburst-ray"></div>
-        <div class="sunburst-ray"></div>
-        <div class="sunburst-ray"></div>
-        <div class="sunburst-ray"></div>
-        <div class="sunburst-ray"></div>
-        <div class="sunburst-ray"></div>
-        <div class="sunburst-ray"></div>
-        <div class="sunburst-ray"></div>
-        <div class="sunburst-ray"></div>
-        <div class="sunburst-ray"></div>
+        <div class="sunburst-ray"></div><div class="sunburst-ray"></div><div class="sunburst-ray"></div><div class="sunburst-ray"></div>
+        <div class="sunburst-ray"></div><div class="sunburst-ray"></div><div class="sunburst-ray"></div><div class="sunburst-ray"></div>
+        <div class="sunburst-ray"></div><div class="sunburst-ray"></div><div class="sunburst-ray"></div><div class="sunburst-ray"></div>
         <div class="sunburst-center"></div>
       </div>
     </div>
-
-    <!-- Hero -->
     <header class="hero">
       <h1>Andrew Taylor</h1>
       <p class="tagline">Builder &middot; Investor &middot; Explorer</p>
-      <p class="access-badge" id="access-badge" hidden>
-        Access Tier <strong id="access-role">General</strong>
-      </p>
-      <!-- Light only: star ornament -->
+      <p class="access-badge">Access Tier <strong>${roleLabel}</strong></p>
       <div class="rule-light light-only">
         <span class="ornament">&#10043;</span>
       </div>
     </header>
-
-    <!-- Dark only: diamond divider -->
     <div class="divider dark-only">
       <span class="diamond"></span>
     </div>
-
-    <!-- Dark only: section label -->
     <p class="section-label dark-only">Explore</p>
-
-    <!-- Cards -->
     <section class="cards">
       <article class="card card--primary" onclick="window.location.href='/dashboard'">
         <div class="card-corner"></div>
@@ -969,7 +644,7 @@
           Open Dashboard <i class="arrow">&rarr;</i>
         </a>
       </article>
-
+      ${familyCard}
       <article class="card card--placeholder">
         <div class="card-corner"></div>
         <div class="card-shimmer"></div>
@@ -979,7 +654,6 @@
         <p class="card-desc">Code, experiments, and things being built.</p>
         <span class="card-forthcoming">Forthcoming</span>
       </article>
-
       <article class="card card--placeholder">
         <div class="card-corner"></div>
         <div class="card-shimmer"></div>
@@ -990,35 +664,25 @@
         <span class="card-forthcoming">Forthcoming</span>
       </article>
     </section>
-
-    <!-- Light only: bottom rule -->
     <div class="bottom-rule light-only">
       <span class="ornament">&#9670;</span>
     </div>
-
-    <!-- Dark only: footer divider -->
     <div class="divider footer-divider dark-only">
       <span class="diamond"></span>
     </div>
-
     <footer>
       <p>&copy; 2026 Andrew Taylor &middot; <a href="/privacy">Privacy</a></p>
     </footer>
   </div>
-
   <script>
-    // Theme toggle
     const toggle = document.querySelector('.theme-toggle');
     const html = document.documentElement;
-
     toggle.addEventListener('click', () => {
       const current = html.getAttribute('data-theme');
       const next = current === 'dark' ? 'light' : 'dark';
       html.setAttribute('data-theme', next);
       localStorage.setItem('homepage-theme', next);
     });
-
-    // Intersection Observer for card reveal
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -1030,9 +694,12 @@
         }
       });
     }, { threshold: 0.12 });
-
     document.querySelectorAll('.card').forEach(card => observer.observe(card));
-
   </script>
 </body>
-</html>
+</html>`;
+}
+
+module.exports = {
+  renderHomePage,
+};

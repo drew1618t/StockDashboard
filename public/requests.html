@@ -79,6 +79,15 @@
       const el = document.getElementById('content');
       try {
         const res = await fetch('/api/requests');
+        if (!res.ok) {
+          if (res.status === 401) {
+            throw new Error('Authentication expired. Sign in through Cloudflare Access and try again.');
+          }
+          if (res.status === 403) {
+            throw new Error('Your account is not allowed to view comparison requests.');
+          }
+          throw new Error('Failed to load requests.');
+        }
         const requests = await res.json();
         if (requests.length === 0) {
           el.innerHTML = '<div class="empty-state">No pending requests.</div>';
@@ -91,7 +100,7 @@
         }).join('');
         el.innerHTML = '<table class="requests-table"><thead><tr><th>Ticker</th><th>Requested</th></tr></thead><tbody>' + rows + '</tbody></table>';
       } catch (err) {
-        el.innerHTML = '<div class="empty-state">Failed to load requests.</div>';
+        el.innerHTML = '<div class="empty-state">' + esc(err.message || 'Failed to load requests.') + '</div>';
       }
     }
     loadRequests();

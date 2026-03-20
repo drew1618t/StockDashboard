@@ -1,5 +1,5 @@
 /**
- * server/index.js — Express server for the portfolio visualization dashboard.
+ * server/index.js - Express server for the portfolio visualization dashboard.
  *
  * Serves static files from /public and provides JSON API endpoints.
  * All data is loaded into memory at startup from the reports directory.
@@ -11,22 +11,27 @@ const path = require('path');
 const dataLoader = require('./dataLoader');
 const sheetsPoller = require('./sheetsPoller');
 const requestTracker = require('./requestTracker');
+const { createAccessAuth } = require('./auth/accessAuth');
+const { authErrorHandler, requireAuth, requireRole } = require('./auth/authorize');
+const { renderFamilyHubPage, renderFamilySectionPage } = require('./familyPages');
+const { renderHomePage } = require('./homePage');
 
-const app = express();
-app.disable('x-powered-by');
 const PORT = process.env.PORT || 3000;
-
-// ── Live Price Overlay ──────────────────────────────────────────────────────
+const accessAuth = createAccessAuth();
 
 function buildLivePriceMap() {
   const live = sheetsPoller.getLiveData();
   if (!live || !live.stocks) return {};
   const map = {};
-  live.stocks.forEach(s => { if (s.currentPrice) map[s.ticker] = s.currentPrice; });
+  live.stocks.forEach(stock => {
+    if (stock.currentPrice) map[stock.ticker] = stock.currentPrice;
+  });
   return map;
 }
 
-function round2(n) { return Math.round(n * 100) / 100; }
+function round2(n) {
+  return Math.round(n * 100) / 100;
+}
 
 function overlayLivePrice(company, livePrice) {
   const reportPrice = company.price;
@@ -35,7 +40,7 @@ function overlayLivePrice(company, livePrice) {
   }
 
   const ratio = livePrice / reportPrice;
-  const c = {
+  const nextCompany = {
     ...company,
     price: livePrice,
     priceSource: 'live',
@@ -43,42 +48,46 @@ function overlayLivePrice(company, livePrice) {
     priceToSales: company.priceToSales ? round2(company.priceToSales * ratio) : null,
   };
 
-  // Recalculate P/E variants: back-derive EPS, then recompute with live price
   ['trailingPe', 'runRatePe', 'forwardPe', 'normalizedPe'].forEach(key => {
     if (company[key] && reportPrice) {
       const eps = reportPrice / company[key];
-      c[key] = round2(livePrice / eps);
+      nextCompany[key] = round2(livePrice / eps);
     }
   });
 
-  // Recalculate derived metrics that depend on price
   const calc = { ...company.calculated };
 
-  // Distance from 52-week high
   if (company.fiftyTwoWeekHigh) {
     calc.distanceFromHigh = round2(((livePrice - company.fiftyTwoWeekHigh) / company.fiftyTwoWeekHigh) * 100);
   }
 
-  // GAV: effective P/E ÷ revenue growth
-  const pe = c.runRatePe || c.trailingPe || c.normalizedPe;
+  const pe = nextCompany.runRatePe || nextCompany.trailingPe || nextCompany.normalizedPe;
   if (pe && company.revenueYoyPct && company.revenueYoyPct > 0) {
     calc.gav = round2(pe / company.revenueYoyPct);
   }
 
-  // P/E compression
-  if (c.trailingPe !== null || c.runRatePe !== null || c.forwardPe !== null) {
+  if (nextCompany.trailingPe !== null || nextCompany.runRatePe !== null || nextCompany.forwardPe !== null) {
     calc.peCompression = {
-      trailingPe: c.trailingPe,
-      runRatePe: c.runRatePe,
-      forwardPe: c.forwardPe,
-      trailingToRunRate: (c.trailingPe != null && c.runRatePe != null) ? round2(c.trailingPe - c.runRatePe) : null,
-      runRateToForward: (c.runRatePe != null && c.forwardPe != null) ? round2(c.runRatePe - c.forwardPe) : null,
-      totalCompression: (c.trailingPe != null && c.forwardPe != null) ? round2(c.trailingPe - c.forwardPe) : null,
+      trailingPe: nextCompany.trailingPe,
+      runRatePe: nextCompany.runRatePe,
+      forwardPe: nextCompany.forwardPe,
+      trailingToRunRate:
+        nextCompany.trailingPe != null && nextCompany.runRatePe != null
+          ? round2(nextCompany.trailingPe - nextCompany.runRatePe)
+          : null,
+      runRateToForward:
+        nextCompany.runRatePe != null && nextCompany.forwardPe != null
+          ? round2(nextCompany.runRatePe - nextCompany.forwardPe)
+          : null,
+      totalCompression:
+        nextCompany.trailingPe != null && nextCompany.forwardPe != null
+          ? round2(nextCompany.trailingPe - nextCompany.forwardPe)
+          : null,
     };
   }
 
-  c.calculated = calc;
-  return c;
+  nextCompany.calculated = calc;
+  return nextCompany;
 }
 
 function overlayLivePrices(companies) {
@@ -90,125 +99,201 @@ function overlayLivePrices(companies) {
   });
 }
 
-// ── Middleware ────────────────────────────────────────────────────────────────
+function createApp() {
+  const app = express();
+  app.disable('x-powered-by');
 
-app.use(compression());
-app.use(express.json());
+  app.use(compression());
+  app.use(express.json());
 
-// Security headers
-app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'");
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  next();
-});
-app.use(express.static(path.join(__dirname, '..', 'public'), {
-  maxAge: '1h',
-  etag: true,
-}));
-
-// ── API Routes ───────────────────────────────────────────────────────────────
-
-// Get all portfolio companies with calculated metrics
-app.get('/api/portfolio', (req, res) => {
-  const companies = overlayLivePrices(dataLoader.getCompanies());
-  res.json({
-    companies,
-    count: companies.length,
-    holdings: dataLoader.getPortfolioHoldings(),
-    lastUpdated: dataLoader.getLastLoadTime(),
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'"
+    );
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    next();
   });
-});
 
-// Get a single company with full analysis data
-app.get('/api/stock/:ticker', (req, res) => {
-  const { company, analysis, rawMarkdown } = dataLoader.getCompany(req.params.ticker);
-  if (!company) {
-    return res.status(404).json({ error: `Ticker ${req.params.ticker} not found` });
-  }
-  const [overlaid] = overlayLivePrices([company]);
-  res.json({ company: overlaid, analysis, rawMarkdown });
-});
+  app.use(accessAuth);
+  app.use(authErrorHandler);
+  app.use(requireAuth);
 
-// Get all available tickers (portfolio + non-portfolio for comparisons)
-app.get('/api/available-tickers', (req, res) => {
-  res.json(dataLoader.getAvailableTickers());
-});
-
-// Force reload all data from disk
-app.get('/api/refresh', (req, res) => {
-  const companies = dataLoader.refresh();
-  res.json({
-    message: 'Data refreshed',
-    count: companies.length,
-    lastUpdated: dataLoader.getLastLoadTime(),
+  app.get('/', (req, res) => {
+    res.type('html').send(renderHomePage(req.user));
   });
-});
 
-// Get live portfolio data from Google Sheets
-app.get('/api/live-portfolio', (req, res) => {
-  res.json(sheetsPoller.getLiveData());
-});
+  app.use(
+    express.static(path.join(__dirname, '..', 'public'), {
+      maxAge: '1h',
+      etag: true,
+    })
+  );
 
-// Force refresh live portfolio data
-app.get('/api/live-portfolio/refresh', async (req, res) => {
-  try {
-    const data = await sheetsPoller.forceRefresh();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to refresh live data' });
-  }
-});
-
-// Comparison requests — track tickers without data
-app.get('/api/requests', (req, res) => {
-  res.json(requestTracker.getRequests());
-});
-
-app.post('/api/requests', (req, res) => {
-  const ticker = (req.body.ticker || '').trim().toUpperCase();
-  if (!ticker) return res.status(400).json({ error: 'Ticker required' });
-  if (!/^[A-Z]{1,6}$/.test(ticker)) return res.status(400).json({ error: 'Invalid ticker format' });
-  const result = requestTracker.addRequest(ticker);
-  res.json(result);
-});
-
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    uptime: process.uptime(),
-    memoryMB: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-    companiesLoaded: dataLoader.getCompanies().length,
-    lastUpdated: dataLoader.getLastLoadTime(),
+  app.get('/api/me', (req, res) => {
+    res.json({
+      authenticated: true,
+      email: req.user.email,
+      role: req.user.role,
+    });
   });
-});
 
-// ── Privacy policy (required for Facebook auth) ─────────────────────────────
+  app.get('/api/portfolio', (req, res) => {
+    const companies = overlayLivePrices(dataLoader.getCompanies());
+    res.json({
+      companies,
+      count: companies.length,
+      holdings: dataLoader.getPortfolioHoldings(),
+      lastUpdated: dataLoader.getLastLoadTime(),
+    });
+  });
 
-app.get('/privacy', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'privacy.html'));
-});
+  app.get('/api/stock/:ticker', (req, res) => {
+    const { company, analysis, rawMarkdown } = dataLoader.getCompany(req.params.ticker);
+    if (!company) {
+      return res.status(404).json({ error: `Ticker ${req.params.ticker} not found` });
+    }
+    const [overlaid] = overlayLivePrices([company]);
+    return res.json({ company: overlaid, analysis, rawMarkdown });
+  });
 
-// ── Requests page ────────────────────────────────────────────────────────────
+  app.get('/api/available-tickers', (req, res) => {
+    res.json(dataLoader.getAvailableTickers());
+  });
 
-app.get('/requests', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'requests.html'));
-});
+  app.get('/api/refresh', (req, res) => {
+    const companies = dataLoader.refresh();
+    res.json({
+      message: 'Data refreshed',
+      count: companies.length,
+      lastUpdated: dataLoader.getLastLoadTime(),
+    });
+  });
 
-// ── Dashboard route (existing SPA) ──────────────────────────────────────────
+  app.get('/api/live-portfolio', (req, res) => {
+    res.json(sheetsPoller.getLiveData());
+  });
 
-app.get('/dashboard', (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html')));
+  app.get('/api/live-portfolio/refresh', async (req, res) => {
+    try {
+      const data = await sheetsPoller.forceRefresh();
+      res.json(data);
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to refresh live data' });
+    }
+  });
 
-// ── SPA fallback ────────────────────────────────────────────────────────────
+  app.get('/api/requests', (req, res) => {
+    res.json(requestTracker.getRequests());
+  });
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'));
-});
+  app.post('/api/requests', (req, res) => {
+    const ticker = (req.body.ticker || '').trim().toUpperCase();
+    if (!ticker) return res.status(400).json({ error: 'Ticker required' });
+    if (!/^[A-Z]{1,6}$/.test(ticker)) return res.status(400).json({ error: 'Invalid ticker format' });
+    const result = requestTracker.addRequest(ticker);
+    return res.json(result);
+  });
 
-// ── Startup ──────────────────────────────────────────────────────────────────
+  app.use('/api/family', requireRole('family'));
+
+  app.get('/api/family/medical/summary', (req, res) => {
+    res.status(501).json({
+      error: 'Medical summary is not implemented yet',
+      section: 'medical',
+      role: req.user.role,
+    });
+  });
+
+  app.get('/api/family/todos', (req, res) => {
+    res.status(501).json({
+      error: 'Family todo APIs are not implemented yet',
+      section: 'todos',
+      role: req.user.role,
+    });
+  });
+
+  app.get('/api/family/cameras', (req, res) => {
+    res.status(501).json({
+      error: 'Camera APIs are not implemented yet',
+      section: 'cameras',
+      role: req.user.role,
+    });
+  });
+
+  app.get('/api/health', (req, res) => {
+    res.json({
+      status: 'ok',
+      uptime: process.uptime(),
+      memoryMB: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+      companiesLoaded: dataLoader.getCompanies().length,
+      lastUpdated: dataLoader.getLastLoadTime(),
+    });
+  });
+
+  app.get('/privacy', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'privacy.html'));
+  });
+
+  app.get('/requests', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'requests.html'));
+  });
+
+  app.use('/family', requireRole('family'));
+
+  app.get('/family', requireRole('family'), (req, res) => {
+    res.type('html').send(renderFamilyHubPage());
+  });
+
+  app.get('/family/medical', requireRole('family'), (req, res) => {
+    res.type('html').send(
+      renderFamilySectionPage(
+        'Medical Vault',
+        'Protected placeholder for family medical notes, appointment tracking, and reference documents.'
+      )
+    );
+  });
+
+  app.get('/family/todos', requireRole('family'), (req, res) => {
+    res.type('html').send(
+      renderFamilySectionPage(
+        'Shared ToDos',
+        'Protected placeholder for shared task lists, routines, and household follow-up items.'
+      )
+    );
+  });
+
+  app.get('/family/cameras', requireRole('family'), (req, res) => {
+    res.type('html').send(
+      renderFamilySectionPage(
+        'Camera Monitor',
+        'Protected placeholder for security camera dashboards, snapshots, and future live feeds.'
+      )
+    );
+  });
+
+  app.get('/family/*', (req, res) => {
+    res.status(404).type('html').send(
+      renderFamilySectionPage(
+        'Family Page Not Found',
+        'This protected family route does not exist yet. The authorization boundary is still being enforced correctly.'
+      )
+    );
+  });
+
+  app.get('/dashboard', (req, res) =>
+    res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'))
+  );
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'));
+  });
+
+  return app;
+}
 
 console.log('[server] Loading data...');
 dataLoader.loadAll();
@@ -216,7 +301,16 @@ dataLoader.loadAll();
 console.log('[server] Starting Google Sheets polling...');
 sheetsPoller.startPolling();
 
-app.listen(PORT, () => {
-  console.log(`[server] Portfolio dashboard running at http://localhost:${PORT}`);
-  console.log(`[server] Memory usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`);
-});
+const app = createApp();
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`[server] Portfolio dashboard running at http://localhost:${PORT}`);
+    console.log(`[server] Memory usage: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)}MB`);
+  });
+}
+
+module.exports = {
+  app,
+  createApp,
+};

@@ -5,7 +5,8 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node --max-old-space-size=64 server/index.js",
-    "dev": "node --watch server/index.js"
+    "dev": "node --watch server/index.js",
+    "test": "node --test"
   },
   "dependencies": {
     "express": "^4.21.0",

@@ -9,6 +9,7 @@ const App = {
   comparisonCompanies: [],
   deselectedTickers: new Set(),
   availableTickers: { portfolio: [], available: [] },
+  user: null,
   dashboards: {
     summary: SummaryDashboard,
     growth: GrowthDashboard,
@@ -27,15 +28,16 @@ const App = {
   },
 
   async init() {
-    // Load data
     try {
+      this.user = await API.getMe();
+      this._applyUserContext();
+
       const data = await API.getPortfolio();
       this.companies = (data.companies || []).map(c => ({ ...c, _isComparison: false }));
       document.getElementById('header-count').textContent =
         `${this.companies.length} holdings`;
     } catch (err) {
-      document.getElementById('dashboard-content').innerHTML =
-        `<div class="error-state">Failed to load data: ${err.message}</div>`;
+      this._renderInitError(err);
       return;
     }
 
@@ -124,8 +126,37 @@ const App = {
       await dashboard.render(dashContainer, companies);
     } catch (err) {
       console.error(`Error rendering ${name}:`, err);
-      container.innerHTML = `<div class="error-state">Error: ${err.message}</div>`;
+      container.innerHTML = `<div class="error-state">Error: ${this._formatError(err)}</div>`;
     }
+  },
+
+  _applyUserContext() {
+    const userEl = document.getElementById('header-user');
+    const familyLink = document.getElementById('family-nav-link');
+    if (userEl && this.user) {
+      userEl.hidden = false;
+      userEl.textContent = `${this.user.role.toUpperCase()} • ${this.user.email}`;
+    }
+    if (familyLink) {
+      familyLink.hidden = !this.user || this.user.role !== 'family';
+    }
+  },
+
+  _formatError(err) {
+    if (!err) return 'Unknown error';
+    if (err.status === 401) {
+      return 'Authentication failed. Refresh the page and sign in through Cloudflare Access again.';
+    }
+    if (err.status === 403) {
+      return 'Your account is authenticated, but this page is not available for your role.';
+    }
+    return err.message || 'Unknown error';
+  },
+
+  _renderInitError(err) {
+    const message = this._formatError(err);
+    document.getElementById('dashboard-content').innerHTML =
+      `<div class="error-state">${message} <a href="/">Return home</a></div>`;
   },
 
   _togglePortfolio(ticker, checked) {
