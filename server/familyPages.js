@@ -332,7 +332,7 @@ function renderFamilyHubPage() {
       font-size: 11px;
       color: var(--b-accent);
       transition: all 0.15s ease;
-      margin-top: 1px;
+      margin-top: 2px;
     }
     .todo-item.done .todo-check { background: rgba(var(--b-accent-rgb),0.2); border-color: var(--b-accent); }
     .todo-item.done .todo-text { text-decoration: line-through; opacity: 0.5; }
@@ -349,7 +349,6 @@ function renderFamilyHubPage() {
       margin-top: 2px;
     }
     .todo-assignee {
-      margin-left: auto;
       font-size: 10px;
       font-weight: 700;
       width: 22px;
@@ -363,8 +362,8 @@ function renderFamilyHubPage() {
     .todo-assignee.assignee-a { background: var(--b-accent); color: var(--b-bg); }
     .todo-assignee.assignee-k { background: var(--b-secondary); color: var(--b-bg); }
     .todo-delete {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border: none;
       background: transparent;
       color: var(--b-muted);
@@ -378,7 +377,7 @@ function renderFamilyHubPage() {
       transition: opacity 0.15s, color 0.15s;
       flex-shrink: 0;
     }
-    .todo-item:hover .todo-delete { opacity: 1; }
+    .todo-item:hover .todo-delete { opacity: 0.7; }
     .todo-delete:hover { color: #ef4444; }
 
     /* Project expand/collapse */
@@ -548,15 +547,16 @@ function renderFamilyHubPage() {
     }
     .add-cat-btn:hover { background: rgba(var(--b-accent-rgb),0.2); border-color: rgba(var(--b-accent-rgb),0.35); }
 
-    /* Make project button */
-    .todo-make-project {
-      width: 20px; height: 20px; border: none; background: transparent;
+    /* Action button (make project / expand project) */
+    .todo-action-btn {
+      width: 22px; height: 22px; border: none; background: transparent;
       color: var(--b-muted); font-size: 13px; cursor: pointer;
       border-radius: 4px; display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity 0.15s, color 0.15s; flex-shrink: 0;
+      opacity: 0; transition: opacity 0.15s, color 0.15s;
+      flex-shrink: 0;
     }
-    .todo-item:hover .todo-make-project { opacity: 1; }
-    .todo-make-project:hover { color: var(--b-secondary); }
+    .todo-item:hover .todo-action-btn { opacity: 0.7; }
+    .todo-action-btn:hover { color: var(--b-secondary); opacity: 1 !important; }
 
     /* Project setup modal */
     .project-modal-overlay {
@@ -963,18 +963,21 @@ function renderFamilyHubPage() {
         completed = '<div class="todo-completed-date">completed ' + d.toLocaleDateString() + '</div>';
       }
       var projectHtml = t.project ? renderProject(t) : '';
-      var makeProjectBtn = !t.project && !t.done
-        ? '<button class="todo-make-project" onclick="event.stopPropagation();showProjectModal(' + Q + t.id + Q + ',' + Q + esc(t.text) + Q + ')" title="Make project">&#9776;</button>'
-        : '';
-      return '<li class="' + cls + '" data-id="' + t.id + '" style="flex-wrap:wrap;">'
+      var actionBtn = '';
+      if (t.project) {
+        actionBtn = '<button class="todo-action-btn" onclick="event.stopPropagation();toggleExpand(' + Q + t.id + Q + ')" title="Expand project">&#9776;</button>';
+      } else {
+        actionBtn = '<button class="todo-action-btn" onclick="event.stopPropagation();showProjectModal(' + Q + t.id + Q + ',' + Q + esc(t.text) + Q + ')" title="Make project">&#9776;</button>';
+      }
+      return '<li class="' + cls + '" data-id="' + t.id + '">'
         + '<span class="todo-check" onclick="toggleTodo(' + Q + t.id + Q + ')">' + check + '</span>'
-        + '<div class="todo-content" style="' + (t.project ? '' : 'cursor:pointer') + '"' + (t.project ? '' : ' onclick="toggleTodo(' + Q + t.id + Q + ')"') + '>'
-        + '<span class="todo-text">' + esc(t.text) + '</span>'
+        + '<div class="todo-content">'
+        + '<span class="todo-text" style="' + (t.project ? '' : 'cursor:pointer') + '"' + (t.project ? '' : ' onclick="toggleTodo(' + Q + t.id + Q + ')"') + '>' + esc(t.text) + '</span>'
         + projectNote + note + completed
         + projectHtml
         + '</div>'
         + assignee
-        + makeProjectBtn
+        + actionBtn
         + '<button class="todo-delete" onclick="deleteTodo(' + Q + t.id + Q + ')" title="Delete">&times;</button>'
         + '</li>';
     }
