@@ -1,44 +1,252 @@
-[
-  {
-    "id": "seed01",
-    "text": "Grocery run — Costco list on fridge",
-    "done": false,
-    "assignee": "K",
-    "createdAt": "2026-03-21T12:00:00.000Z"
-  },
-  {
-    "id": "seed02",
-    "text": "Schedule vet appointment for Luna",
-    "done": false,
-    "assignee": "A",
-    "createdAt": "2026-03-21T12:00:00.000Z"
-  },
-  {
-    "id": "seed05",
-    "text": "Order new air filters",
-    "done": false,
-    "assignee": "A",
-    "createdAt": "2026-03-19T12:00:00.000Z"
-  },
-  {
-    "id": "seed06",
-    "text": "Book anniversary dinner",
-    "done": true,
-    "assignee": "K",
-    "createdAt": "2026-03-18T12:00:00.000Z"
-  },
-  {
-    "id": "seed07",
-    "text": "Renew car registration",
-    "done": false,
-    "assignee": "A",
-    "createdAt": "2026-03-18T12:00:00.000Z"
-  },
-  {
-    "id": "mn0fu0daqt2y",
-    "text": "Test todo",
-    "done": false,
-    "assignee": "A",
-    "createdAt": "2026-03-21T14:43:18.238Z"
-  }
-]
+{
+  "sections": [
+    {
+      "name": "Short Term",
+      "items": [
+        {
+          "id": "st01",
+          "text": "Email accountant",
+          "done": false,
+          "assignee": "A",
+          "note": null,
+          "createdAt": "2026-03-21T12:00:00.000Z",
+          "completedAt": null
+        },
+        {
+          "id": "st02",
+          "text": "Email SSDI",
+          "done": false,
+          "assignee": "A",
+          "note": null,
+          "createdAt": "2026-03-21T12:00:00.000Z",
+          "completedAt": null
+        },
+        {
+          "id": "st03",
+          "text": "Review Chapter 8",
+          "done": false,
+          "assignee": "A",
+          "note": null,
+          "createdAt": "2026-03-21T12:00:00.000Z",
+          "completedAt": null
+        },
+        {
+          "id": "st04",
+          "text": "Apply ant poison",
+          "done": false,
+          "assignee": "A",
+          "note": null,
+          "createdAt": "2026-03-21T12:00:00.000Z",
+          "completedAt": null
+        },
+        {
+          "id": "st05",
+          "text": "Put brighter light at gate",
+          "done": false,
+          "assignee": "A",
+          "note": null,
+          "createdAt": "2026-03-21T12:00:00.000Z",
+          "completedAt": null
+        }
+      ]
+    },
+    {
+      "name": "Recently Completed",
+      "items": []
+    },
+    {
+      "name": "Long Term",
+      "categories": [
+        {
+          "name": "Housing",
+          "items": [
+            {
+              "id": "lt01",
+              "text": "Battery",
+              "done": false,
+              "assignee": "A",
+              "note": null,
+              "createdAt": "2026-03-21T12:00:00.000Z",
+              "completedAt": null
+            },
+            {
+              "id": "lt02",
+              "text": "Well pump / filtration",
+              "done": false,
+              "assignee": "A",
+              "note": null,
+              "createdAt": "2026-03-21T12:00:00.000Z",
+              "completedAt": null
+            },
+            {
+              "id": "lt03",
+              "text": "Kitchen remodel",
+              "done": false,
+              "assignee": "A",
+              "note": null,
+              "createdAt": "2026-03-21T12:00:00.000Z",
+              "completedAt": null
+            },
+            {
+              "id": "lt04",
+              "text": "Floor (computer room)",
+              "done": false,
+              "assignee": "A",
+              "note": null,
+              "createdAt": "2026-03-21T12:00:00.000Z",
+              "completedAt": null
+            },
+            {
+              "id": "lt05",
+              "text": "Bird space on deck",
+              "done": false,
+              "assignee": "A",
+              "note": null,
+              "createdAt": "2026-03-21T12:00:00.000Z",
+              "completedAt": null
+            },
+            {
+              "id": "lt06",
+              "text": "Security cameras",
+              "done": false,
+              "assignee": "A",
+              "note": "Next: Define coverage zones (front door, driveway, backyard, garage)",
+              "createdAt": "2026-03-21T12:00:00.000Z",
+              "completedAt": null,
+              "project": {
+                "goal": "Full perimeter camera coverage with local NVR recording and remote viewing",
+                "phases": [
+                  {
+                    "name": "Planning",
+                    "items": [
+                      {
+                        "id": "sc01",
+                        "text": "Define coverage zones (front door, driveway, backyard, garage)",
+                        "done": false
+                      },
+                      {
+                        "id": "sc02",
+                        "text": "Choose recording platform (NVR vs Blue Iris vs Frigate)",
+                        "done": false
+                      },
+                      {
+                        "id": "sc03",
+                        "text": "Decide PoE vs WiFi cameras",
+                        "done": false
+                      },
+                      {
+                        "id": "sc04",
+                        "text": "Set budget",
+                        "done": false
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Purchase & Install",
+                    "items": [
+                      {
+                        "id": "sc05",
+                        "text": "Order cameras and NVR/server",
+                        "done": false
+                      },
+                      {
+                        "id": "sc06",
+                        "text": "Run ethernet cables to mount points",
+                        "done": false
+                      },
+                      {
+                        "id": "sc07",
+                        "text": "Mount cameras",
+                        "done": false
+                      },
+                      {
+                        "id": "sc08",
+                        "text": "Configure recording software",
+                        "done": false
+                      }
+                    ]
+                  },
+                  {
+                    "name": "Integration",
+                    "items": [
+                      {
+                        "id": "sc09",
+                        "text": "Set up remote viewing (app/web)",
+                        "done": false
+                      },
+                      {
+                        "id": "sc10",
+                        "text": "Configure motion alerts",
+                        "done": false
+                      },
+                      {
+                        "id": "sc11",
+                        "text": "Add camera feeds to Family Hub",
+                        "done": false
+                      }
+                    ]
+                  }
+                ],
+                "decisionLog": [
+                  {
+                    "date": "2026-03-21",
+                    "entry": "Started planning — researching PoE vs WiFi options"
+                  }
+                ],
+                "ongoing": [
+                  {
+                    "id": "sc12",
+                    "text": "Monitor storage usage and adjust retention",
+                    "done": false
+                  },
+                  {
+                    "id": "sc13",
+                    "text": "Check camera angles seasonally (tree growth)",
+                    "done": false
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Network",
+          "items": [
+            {
+              "id": "lt08",
+              "text": "Storage",
+              "done": false,
+              "assignee": "A",
+              "note": null,
+              "createdAt": "2026-03-21T12:00:00.000Z",
+              "completedAt": null
+            },
+            {
+              "id": "lt09",
+              "text": "Mini PC",
+              "done": false,
+              "assignee": "A",
+              "note": null,
+              "createdAt": "2026-03-21T12:00:00.000Z",
+              "completedAt": null
+            }
+          ]
+        },
+        {
+          "name": "Health / Data",
+          "items": [
+            {
+              "id": "lt10",
+              "text": "Medical records portal (SQL + private website access)",
+              "done": false,
+              "assignee": "A",
+              "note": "Next: define data model + auth approach for you and your wife only",
+              "createdAt": "2026-03-21T12:00:00.000Z",
+              "completedAt": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

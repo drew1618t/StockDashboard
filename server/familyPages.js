@@ -286,12 +286,34 @@ function renderFamilyHubPage() {
     /* ============================
        TODOS
        ============================ */
+    .todo-sections { display: flex; flex-direction: column; gap: 20px; }
+    .todo-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--b-accent);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(var(--b-accent-rgb),0.15);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .todo-section-title.completed-title { color: var(--b-dim); opacity: 0.7; }
+    .todo-category-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--b-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 10px 0 4px 2px;
+    }
     .todo-list { list-style: none; }
     .todo-item {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 10px;
-      padding: 10px 12px;
+      padding: 8px 12px;
       border-radius: 10px;
       font-size: 13px;
       cursor: pointer;
@@ -310,9 +332,22 @@ function renderFamilyHubPage() {
       font-size: 11px;
       color: var(--b-accent);
       transition: all 0.15s ease;
+      margin-top: 1px;
     }
     .todo-item.done .todo-check { background: rgba(var(--b-accent-rgb),0.2); border-color: var(--b-accent); }
     .todo-item.done .todo-text { text-decoration: line-through; opacity: 0.5; }
+    .todo-content { flex: 1; min-width: 0; }
+    .todo-note {
+      font-size: 11px;
+      color: var(--b-muted);
+      margin-top: 2px;
+      font-style: italic;
+    }
+    .todo-completed-date {
+      font-size: 10px;
+      color: var(--b-muted);
+      margin-top: 2px;
+    }
     .todo-assignee {
       margin-left: auto;
       font-size: 10px;
@@ -346,15 +381,251 @@ function renderFamilyHubPage() {
     .todo-item:hover .todo-delete { opacity: 1; }
     .todo-delete:hover { color: #ef4444; }
 
+    /* Project expand/collapse */
+    .todo-project-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--b-secondary);
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(var(--b-accent-rgb),0.08);
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      margin-top: 4px;
+      transition: background 0.15s;
+    }
+    .todo-project-toggle:hover { background: rgba(var(--b-accent-rgb),0.15); }
+    .todo-project-toggle .arrow { transition: transform 0.2s; display: inline-block; }
+    .todo-project-toggle .arrow.open { transform: rotate(90deg); }
+
+    .todo-project-body {
+      margin: 8px 0 4px 28px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(var(--b-accent-rgb),0.04);
+      border: 1px solid rgba(var(--b-accent-rgb),0.08);
+      display: none;
+    }
+    .todo-project-body.open { display: block; }
+
+    .project-goal {
+      font-size: 12px;
+      color: var(--b-dim);
+      font-style: italic;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(var(--b-accent-rgb),0.08);
+    }
+
+    .project-phase {
+      margin-bottom: 12px;
+    }
+    .project-phase-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--b-accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .project-phase-progress {
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--b-muted);
+      margin-left: 6px;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .sub-task-list { list-style: none; }
+    .sub-task-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .sub-task-item:hover { background: rgba(var(--b-accent-rgb),0.06); }
+    .sub-check {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      border: 2px solid rgba(var(--b-accent-rgb),0.3);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: var(--b-accent);
+    }
+    .sub-task-item.done .sub-check { background: rgba(var(--b-accent-rgb),0.2); border-color: var(--b-accent); }
+    .sub-task-item.done .sub-text { text-decoration: line-through; opacity: 0.5; }
+    .sub-delete {
+      width: 16px; height: 16px; border: none; background: transparent;
+      color: var(--b-muted); font-size: 12px; cursor: pointer;
+      border-radius: 3px; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.15s; margin-left: auto;
+    }
+    .sub-task-item:hover .sub-delete { opacity: 1; }
+    .sub-delete:hover { color: #ef4444; }
+
+    .sub-add-row {
+      display: flex; gap: 6px; margin-top: 6px; align-items: center;
+    }
+    .sub-add-row input {
+      flex: 1; padding: 5px 10px; border-radius: 8px;
+      border: 1px solid rgba(var(--b-accent-rgb),0.15);
+      background: rgba(var(--b-accent-rgb),0.03);
+      color: var(--b-text); font-family: 'DM Sans', sans-serif;
+      font-size: 11px; outline: none;
+    }
+    .sub-add-row input::placeholder { color: var(--b-muted); }
+    .sub-add-row button {
+      padding: 5px 10px; border-radius: 8px; border: none;
+      background: rgba(var(--b-accent-rgb),0.15); color: var(--b-accent);
+      font-family: 'DM Sans', sans-serif; font-size: 11px; cursor: pointer;
+    }
+    .sub-add-row button:hover { background: rgba(var(--b-accent-rgb),0.25); }
+
+    .project-section-label {
+      font-size: 10px; font-weight: 700; color: var(--b-dim);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      margin: 10px 0 4px;
+    }
+
+    .decision-log { margin-top: 8px; }
+    .decision-entry {
+      font-size: 11px; color: var(--b-dim); padding: 3px 0;
+      display: flex; gap: 8px;
+    }
+    .decision-date { color: var(--b-muted); flex-shrink: 0; font-size: 10px; }
+    .decision-add-row {
+      display: flex; gap: 6px; margin-top: 6px; align-items: center;
+    }
+    .decision-add-row input {
+      flex: 1; padding: 5px 10px; border-radius: 8px;
+      border: 1px solid rgba(var(--b-accent-rgb),0.15);
+      background: rgba(var(--b-accent-rgb),0.03);
+      color: var(--b-text); font-family: 'DM Sans', sans-serif;
+      font-size: 11px; outline: none;
+    }
+    .decision-add-row input::placeholder { color: var(--b-muted); }
+    .decision-add-row button {
+      padding: 5px 10px; border-radius: 8px; border: none;
+      background: rgba(var(--b-accent-rgb),0.15); color: var(--b-accent);
+      font-family: 'DM Sans', sans-serif; font-size: 11px; cursor: pointer;
+    }
+
+    /* Add category inline */
+    .add-cat-row {
+      display: inline-flex; gap: 6px; align-items: center; margin-left: 12px;
+    }
+    .add-cat-row input {
+      width: 120px; padding: 4px 8px; border-radius: 8px;
+      border: 1px solid rgba(var(--b-accent-rgb),0.2);
+      background: rgba(var(--b-accent-rgb),0.04);
+      color: var(--b-text); font-family: 'DM Sans', sans-serif;
+      font-size: 11px; outline: none;
+    }
+    .add-cat-row button {
+      padding: 4px 10px; border-radius: 8px; border: none;
+      background: rgba(var(--b-accent-rgb),0.15); color: var(--b-accent);
+      font-family: 'DM Sans', sans-serif; font-size: 11px; cursor: pointer;
+    }
+    .add-cat-btn {
+      font-size: 11px; color: var(--b-accent); cursor: pointer;
+      background: rgba(var(--b-accent-rgb),0.1); border: 1px solid rgba(var(--b-accent-rgb),0.2);
+      font-family: 'DM Sans', sans-serif;
+      margin-left: 8px; padding: 3px 10px; border-radius: 8px;
+      transition: background 0.15s, border-color 0.15s;
+      font-weight: 600;
+    }
+    .add-cat-btn:hover { background: rgba(var(--b-accent-rgb),0.2); border-color: rgba(var(--b-accent-rgb),0.35); }
+
+    /* Make project button */
+    .todo-make-project {
+      width: 20px; height: 20px; border: none; background: transparent;
+      color: var(--b-muted); font-size: 13px; cursor: pointer;
+      border-radius: 4px; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.15s, color 0.15s; flex-shrink: 0;
+    }
+    .todo-item:hover .todo-make-project { opacity: 1; }
+    .todo-make-project:hover { color: var(--b-secondary); }
+
+    /* Project setup modal */
+    .project-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      z-index: 2000; display: flex; align-items: center; justify-content: center;
+    }
+    .project-modal {
+      background: var(--b-tile); border-radius: 20px; padding: 28px;
+      width: min(500px, 90vw); max-height: 80vh; overflow-y: auto;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+      border: 1px solid rgba(var(--b-accent-rgb),0.15);
+    }
+    .project-modal h3 {
+      font-size: 16px; font-weight: 700; color: var(--b-accent); margin-bottom: 16px;
+    }
+    .project-modal label {
+      display: block; font-size: 11px; font-weight: 700; color: var(--b-dim);
+      text-transform: uppercase; letter-spacing: 0.06em; margin: 12px 0 4px;
+    }
+    .project-modal input, .project-modal textarea {
+      width: 100%; padding: 8px 12px; border-radius: 10px;
+      border: 1px solid rgba(var(--b-accent-rgb),0.2);
+      background: rgba(var(--b-accent-rgb),0.04);
+      color: var(--b-text); font-family: 'DM Sans', sans-serif; font-size: 13px;
+      outline: none; resize: vertical;
+    }
+    .project-modal textarea { min-height: 60px; }
+    .project-modal .phase-row {
+      display: flex; gap: 6px; align-items: center; margin: 4px 0;
+    }
+    .project-modal .phase-row input { flex: 1; }
+    .project-modal .phase-remove {
+      background: none; border: none; color: var(--b-muted); cursor: pointer;
+      font-size: 16px; padding: 4px;
+    }
+    .project-modal .phase-remove:hover { color: #ef4444; }
+    .project-modal .add-phase-btn {
+      font-size: 12px; color: var(--b-accent); cursor: pointer;
+      background: rgba(var(--b-accent-rgb),0.1); border: 1px solid rgba(var(--b-accent-rgb),0.2);
+      font-family: 'DM Sans', sans-serif; padding: 4px 12px; border-radius: 8px;
+      margin-top: 6px;
+    }
+    .project-modal-actions {
+      display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;
+    }
+    .project-modal-actions button {
+      padding: 8px 18px; border-radius: 10px; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+      cursor: pointer;
+    }
+    .project-modal-actions .cancel-btn {
+      background: transparent; color: var(--b-muted);
+      border: 1px solid rgba(var(--b-accent-rgb),0.2);
+    }
+    .project-modal-actions .create-btn {
+      background: var(--b-accent); color: var(--b-bg);
+    }
+
     /* Add todo form */
     .todo-add {
       display: flex;
       gap: 8px;
-      margin-top: 10px;
+      margin-top: 12px;
       align-items: center;
+      flex-wrap: wrap;
     }
     .todo-add input[type="text"] {
       flex: 1;
+      min-width: 150px;
       padding: 9px 14px;
       border-radius: 10px;
       border: 1px solid rgba(var(--b-accent-rgb),0.2);
@@ -507,9 +778,15 @@ function renderFamilyHubPage() {
       <!-- TODOS -->
       <section class="hub-todos panel">
         <div class="panel-label">Todos <span style="opacity:0.4; font-weight:400; margin-left:8px; font-size:10px;" id="todo-count"></span></div>
-        <ul class="todo-list" id="todo-list"></ul>
+        <div class="todo-sections" id="todo-sections"></div>
         <div class="todo-add">
           <input type="text" id="todo-input" placeholder="Add a task..." />
+          <select id="todo-section">
+            <option value="Short Term">Short Term</option>
+            <option value="Long Term">Long Term</option>
+          </select>
+          <select id="todo-category" style="display:none;">
+          </select>
           <select id="todo-assignee">
             <option value="">--</option>
             <option value="A">A</option>
@@ -580,40 +857,196 @@ function renderFamilyHubPage() {
     })();
 
     /* ------ Todo API ------ */
-    function escapeHtml(s) {
+    var Q = String.fromCharCode(39);
+    var todoData = null;
+    var expandedProjects = {};
+
+    function esc(s) {
       var d = document.createElement('div');
       d.textContent = s;
       return d.innerHTML;
     }
 
-    function renderTodos(todos) {
-      var list = document.getElementById('todo-list');
-      var done = 0;
-      var q = String.fromCharCode(39);
-      list.innerHTML = todos.map(function(t) {
-        if (t.done) done++;
-        var cls = t.done ? 'todo-item done' : 'todo-item';
-        var check = t.done ? '&#10003;' : '';
-        var assignee = t.assignee
-          ? '<span class="todo-assignee assignee-' + t.assignee.toLowerCase() + '">' + escapeHtml(t.assignee) + '</span>'
-          : '';
-        return '<li class="' + cls + '" data-id="' + t.id + '">'
-          + '<span class="todo-check" onclick="toggleTodo(' + q + t.id + q + ')">' + check + '</span>'
-          + '<span class="todo-text" onclick="toggleTodo(' + q + t.id + q + ')">' + escapeHtml(t.text) + '</span>'
-          + assignee
-          + '<button class="todo-delete" onclick="deleteTodo(' + q + t.id + q + ')" title="Delete">&times;</button>'
-          + '</li>';
-      }).join('');
+    function renderSubTask(sub, parentId) {
+      var cls = sub.done ? 'sub-task-item done' : 'sub-task-item';
+      var check = sub.done ? '&#10003;' : '';
+      return '<li class="' + cls + '">'
+        + '<span class="sub-check" onclick="toggleTodo(' + Q + sub.id + Q + ')">' + check + '</span>'
+        + '<span class="sub-text" onclick="toggleTodo(' + Q + sub.id + Q + ')">' + esc(sub.text) + '</span>'
+        + '<button class="sub-delete" onclick="deleteTodo(' + Q + sub.id + Q + ')" title="Delete">&times;</button>'
+        + '</li>';
+    }
+
+    function renderProject(t) {
+      var p = t.project;
+      var isOpen = expandedProjects[t.id];
+      var arrowCls = isOpen ? 'arrow open' : 'arrow';
+      var bodyCls = isOpen ? 'todo-project-body open' : 'todo-project-body';
+
+      var html = '<button class="todo-project-toggle" onclick="toggleExpand(' + Q + t.id + Q + ')">'
+        + '<span class="' + arrowCls + '">&#9654;</span> Project'
+        + '</button>';
+      html += '<div class="' + bodyCls + '" id="project-' + t.id + '">';
+
+      if (p.goal) {
+        html += '<div class="project-goal">' + esc(p.goal) + '</div>';
+      }
+
+      // Phases
+      (p.phases || []).forEach(function(phase) {
+        var items = phase.items || [];
+        var doneCount = items.filter(function(s) { return s.done; }).length;
+        html += '<div class="project-phase">';
+        html += '<div class="project-phase-name">' + esc(phase.name)
+          + '<span class="project-phase-progress">' + doneCount + '/' + items.length + '</span></div>';
+        html += '<ul class="sub-task-list">';
+        items.forEach(function(sub) {
+          html += renderSubTask(sub, t.id);
+        });
+        html += '</ul>';
+        html += '<div class="sub-add-row">'
+          + '<input type="text" placeholder="Add sub-task..." id="sub-input-' + t.id + '-' + esc(phase.name) + '" '
+          + 'onkeydown="if(event.key===(' + Q + 'Enter' + Q + '))addSubTask(' + Q + t.id + Q + ',' + Q + esc(phase.name) + Q + ')" />'
+          + '<button onclick="addSubTask(' + Q + t.id + Q + ',' + Q + esc(phase.name) + Q + ')">+</button>'
+          + '</div>';
+        html += '</div>';
+      });
+
+      // Ongoing
+      if (p.ongoing && p.ongoing.length > 0) {
+        html += '<div class="project-section-label">Ongoing</div>';
+        html += '<ul class="sub-task-list">';
+        p.ongoing.forEach(function(sub) {
+          html += renderSubTask(sub, t.id);
+        });
+        html += '</ul>';
+      }
+      html += '<div class="sub-add-row">'
+        + '<input type="text" placeholder="Add ongoing task..." id="sub-input-' + t.id + '-__ongoing" '
+        + 'onkeydown="if(event.key===(' + Q + 'Enter' + Q + '))addSubTask(' + Q + t.id + Q + ',' + Q + '__ongoing' + Q + ')" />'
+        + '<button onclick="addSubTask(' + Q + t.id + Q + ',' + Q + '__ongoing' + Q + ')">+</button>'
+        + '</div>';
+
+      // Decision Log
+      if (p.decisionLog && p.decisionLog.length > 0) {
+        html += '<div class="project-section-label">Decision Log</div>';
+        html += '<div class="decision-log">';
+        p.decisionLog.forEach(function(entry) {
+          html += '<div class="decision-entry">'
+            + '<span class="decision-date">' + esc(entry.date) + '</span>'
+            + '<span>' + esc(entry.entry) + '</span>'
+            + '</div>';
+        });
+        html += '</div>';
+      }
+      html += '<div class="decision-add-row">'
+        + '<input type="text" placeholder="Add decision note..." id="decision-input-' + t.id + '" '
+        + 'onkeydown="if(event.key===(' + Q + 'Enter' + Q + '))addDecision(' + Q + t.id + Q + ')" />'
+        + '<button onclick="addDecision(' + Q + t.id + Q + ')">+</button>'
+        + '</div>';
+
+      html += '</div>';
+      return html;
+    }
+
+    function renderItem(t) {
+      var cls = t.done ? 'todo-item done' : 'todo-item';
+      var check = t.done ? '&#10003;' : '';
+      var assignee = t.assignee
+        ? '<span class="todo-assignee assignee-' + t.assignee.toLowerCase() + '">' + esc(t.assignee) + '</span>'
+        : '';
+      var note = (t.note && !t.project) ? '<div class="todo-note">' + esc(t.note) + '</div>' : '';
+      var projectNote = (t.note && t.project) ? '<div class="todo-note">' + esc(t.note) + '</div>' : '';
+      var completed = '';
+      if (t.done && t.completedAt) {
+        var d = new Date(t.completedAt);
+        completed = '<div class="todo-completed-date">completed ' + d.toLocaleDateString() + '</div>';
+      }
+      var projectHtml = t.project ? renderProject(t) : '';
+      var makeProjectBtn = !t.project && !t.done
+        ? '<button class="todo-make-project" onclick="event.stopPropagation();showProjectModal(' + Q + t.id + Q + ',' + Q + esc(t.text) + Q + ')" title="Make project">&#9776;</button>'
+        : '';
+      return '<li class="' + cls + '" data-id="' + t.id + '" style="flex-wrap:wrap;">'
+        + '<span class="todo-check" onclick="toggleTodo(' + Q + t.id + Q + ')">' + check + '</span>'
+        + '<div class="todo-content" style="' + (t.project ? '' : 'cursor:pointer') + '"' + (t.project ? '' : ' onclick="toggleTodo(' + Q + t.id + Q + ')"') + '>'
+        + '<span class="todo-text">' + esc(t.text) + '</span>'
+        + projectNote + note + completed
+        + projectHtml
+        + '</div>'
+        + assignee
+        + makeProjectBtn
+        + '<button class="todo-delete" onclick="deleteTodo(' + Q + t.id + Q + ')" title="Delete">&times;</button>'
+        + '</li>';
+    }
+
+    function renderAllSections(data) {
+      todoData = data;
+      var container = document.getElementById('todo-sections');
+      var html = '';
+      var totalItems = 0;
+      var totalDone = 0;
+
+      (data.sections || []).forEach(function(section) {
+        if (section.name === 'Long Term') {
+          html += '<div class="todo-section-title">' + esc(section.name)
+            + '<button class="add-cat-btn" onclick="showAddCategory()" title="Add category">+ Category</button>'
+            + '<span class="add-cat-row" id="add-cat-row" style="display:none;">'
+            + '<input type="text" id="new-cat-input" placeholder="Category name..." onkeydown="if(event.key===(' + Q + 'Enter' + Q + '))addCategory()" />'
+            + '<button onclick="addCategory()">Add</button>'
+            + '</span>'
+            + '</div>';
+          (section.categories || []).forEach(function(cat) {
+            if (!cat.items || cat.items.length === 0) return;
+            html += '<div class="todo-category-title">' + esc(cat.name) + '</div>';
+            html += '<ul class="todo-list">';
+            cat.items.forEach(function(t) {
+              totalItems++;
+              if (t.done) totalDone++;
+              html += renderItem(t);
+            });
+            html += '</ul>';
+          });
+        } else {
+          if (section.name === 'Recently Completed' && (!section.items || section.items.length === 0)) return;
+          var titleCls = section.name === 'Recently Completed' ? 'todo-section-title completed-title' : 'todo-section-title';
+          html += '<div class="' + titleCls + '">' + esc(section.name) + '</div>';
+          html += '<ul class="todo-list">';
+          (section.items || []).forEach(function(t) {
+            totalItems++;
+            if (t.done) totalDone++;
+            html += renderItem(t);
+          });
+          html += '</ul>';
+        }
+      });
+
+      container.innerHTML = html;
       var countEl = document.getElementById('todo-count');
-      if (countEl) countEl.textContent = done + '/' + todos.length + ' done';
+      if (countEl) countEl.textContent = totalDone + '/' + totalItems + ' done';
+      updateCategoryDropdown();
+    }
+
+    function updateCategoryDropdown() {
+      var sectionSel = document.getElementById('todo-section');
+      var catSel = document.getElementById('todo-category');
+      if (sectionSel.value === 'Long Term' && todoData) {
+        var lt = todoData.sections.find(function(s) { return s.name === 'Long Term'; });
+        var cats = (lt && lt.categories) || [];
+        catSel.innerHTML = cats.map(function(c) {
+          return '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>';
+        }).join('');
+        catSel.style.display = '';
+      } else {
+        catSel.style.display = 'none';
+      }
     }
 
     function loadTodos() {
       fetch('/api/family/todos')
         .then(function(r) { return r.json(); })
-        .then(renderTodos)
+        .then(renderAllSections)
         .catch(function() {
-          document.getElementById('todo-list').innerHTML = '<li style="padding:12px;opacity:0.5;">Could not load todos</li>';
+          document.getElementById('todo-sections').innerHTML = '<p style="padding:12px;opacity:0.5;">Could not load todos</p>';
         });
     }
 
@@ -629,19 +1062,174 @@ function renderFamilyHubPage() {
 
     function addTodo() {
       var input = document.getElementById('todo-input');
-      var select = document.getElementById('todo-assignee');
+      var assigneeSel = document.getElementById('todo-assignee');
+      var sectionSel = document.getElementById('todo-section');
+      var catSel = document.getElementById('todo-category');
       var text = input.value.trim();
       if (!text) return;
+      var body = {
+        text: text,
+        assignee: assigneeSel.value || null,
+        section: sectionSel.value
+      };
+      if (sectionSel.value === 'Long Term' && catSel.value) {
+        body.category = catSel.value;
+      }
       fetch('/api/family/todos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text, assignee: select.value || null })
+        body: JSON.stringify(body)
       }).then(function() {
         input.value = '';
-        select.value = '';
+        assigneeSel.value = '';
         loadTodos();
       });
     }
+
+    function toggleExpand(id) {
+      expandedProjects[id] = !expandedProjects[id];
+      var body = document.getElementById('project-' + id);
+      var btn = body ? body.previousElementSibling : null;
+      if (body) body.classList.toggle('open');
+      if (btn) {
+        var arrow = btn.querySelector('.arrow');
+        if (arrow) arrow.classList.toggle('open');
+      }
+    }
+
+    function addSubTask(parentId, phaseName) {
+      var input = document.getElementById('sub-input-' + parentId + '-' + phaseName);
+      if (!input) return;
+      var text = input.value.trim();
+      if (!text) return;
+      fetch('/api/family/todos/' + parentId + '/subtask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phase: phaseName, text: text })
+      }).then(function() {
+        input.value = '';
+        loadTodos();
+      });
+    }
+
+    function addDecision(parentId) {
+      var input = document.getElementById('decision-input-' + parentId);
+      if (!input) return;
+      var entry = input.value.trim();
+      if (!entry) return;
+      fetch('/api/family/todos/' + parentId + '/decision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entry: entry })
+      }).then(function() {
+        input.value = '';
+        loadTodos();
+      });
+    }
+
+    /* ------ Project Modal ------ */
+    var projectModalPhases = ['Phase 1'];
+
+    function showProjectModal(id, name) {
+      projectModalPhases = ['Phase 1'];
+      var overlay = document.createElement('div');
+      overlay.className = 'project-modal-overlay';
+      overlay.id = 'project-modal-overlay';
+      overlay.onclick = function(e) { if (e.target === overlay) closeProjectModal(); };
+      overlay.innerHTML = '<div class="project-modal">'
+        + '<h3>Make "' + esc(name) + '" a Project</h3>'
+        + '<label>Goal</label>'
+        + '<input type="text" id="pm-goal" placeholder="What is the end goal?" />'
+        + '<label>Phases</label>'
+        + '<div id="pm-phases"></div>'
+        + '<button class="add-phase-btn" onclick="addModalPhase()">+ Add Phase</button>'
+        + '<div class="project-modal-actions">'
+        + '<button class="cancel-btn" onclick="closeProjectModal()">Cancel</button>'
+        + '<button class="create-btn" onclick="createProject(' + Q + id + Q + ')">Create Project</button>'
+        + '</div>'
+        + '</div>';
+      document.body.appendChild(overlay);
+      renderModalPhases();
+      document.getElementById('pm-goal').focus();
+    }
+
+    function renderModalPhases() {
+      var container = document.getElementById('pm-phases');
+      if (!container) return;
+      container.innerHTML = projectModalPhases.map(function(p, i) {
+        return '<div class="phase-row">'
+          + '<input type="text" class="pm-phase-input" value="' + esc(p) + '" '
+          + 'oninput="projectModalPhases[' + i + ']=this.value" '
+          + 'placeholder="Phase name..." />'
+          + (projectModalPhases.length > 1
+            ? '<button class="phase-remove" onclick="removeModalPhase(' + i + ')">&times;</button>'
+            : '')
+          + '</div>';
+      }).join('');
+    }
+
+    function addModalPhase() {
+      projectModalPhases.push('Phase ' + (projectModalPhases.length + 1));
+      renderModalPhases();
+    }
+
+    function removeModalPhase(i) {
+      projectModalPhases.splice(i, 1);
+      renderModalPhases();
+    }
+
+    function closeProjectModal() {
+      var overlay = document.getElementById('project-modal-overlay');
+      if (overlay) overlay.remove();
+    }
+
+    function createProject(id) {
+      var goal = document.getElementById('pm-goal').value.trim();
+      var phases = projectModalPhases
+        .map(function(p) { return p.trim(); })
+        .filter(function(p) { return p.length > 0; })
+        .map(function(p) { return { name: p, items: [] }; });
+      if (phases.length === 0) phases = [{ name: 'Phase 1', items: [] }];
+      fetch('/api/family/todos/' + id + '/project', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goal: goal, phases: phases, ongoing: [], decisionLog: [] })
+      }).then(function() {
+        closeProjectModal();
+        expandedProjects[id] = true;
+        loadTodos();
+      });
+    }
+
+    function showAddCategory() {
+      var row = document.getElementById('add-cat-row');
+      if (row) {
+        row.style.display = row.style.display === 'none' ? 'inline-flex' : 'none';
+        if (row.style.display !== 'none') {
+          var inp = document.getElementById('new-cat-input');
+          if (inp) inp.focus();
+        }
+      }
+    }
+
+    function addCategory() {
+      var input = document.getElementById('new-cat-input');
+      if (!input) return;
+      var name = input.value.trim();
+      if (!name) return;
+      fetch('/api/family/todos/category', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name })
+      }).then(function() {
+        input.value = '';
+        document.getElementById('add-cat-row').style.display = 'none';
+        loadTodos();
+      });
+    }
+
+    // Show/hide category dropdown based on section selection
+    document.getElementById('todo-section').addEventListener('change', updateCategoryDropdown);
 
     // Submit on Enter key
     document.getElementById('todo-input').addEventListener('keydown', function(e) {

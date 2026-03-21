@@ -214,10 +214,16 @@ function createApp() {
   });
 
   app.post('/api/family/todos', (req, res) => {
-    const { text, assignee } = req.body;
-    const todo = todoStore.addTodo(text, assignee);
+    const { text, assignee, note, section, category } = req.body;
+    const todo = todoStore.addTodo(text, { assignee, note, section, category });
     if (!todo) return res.status(400).json({ error: 'Text is required' });
     res.status(201).json(todo);
+  });
+
+  app.post('/api/family/todos/category', (req, res) => {
+    const cat = todoStore.addCategory(req.body.name);
+    if (!cat) return res.status(400).json({ error: 'Category name is required' });
+    res.status(201).json(cat);
   });
 
   app.patch('/api/family/todos/:id/toggle', (req, res) => {
@@ -236,6 +242,25 @@ function createApp() {
     const ok = todoStore.deleteTodo(req.params.id);
     if (!ok) return res.status(404).json({ error: 'Todo not found' });
     res.json({ deleted: true });
+  });
+
+  app.post('/api/family/todos/:id/project', (req, res) => {
+    const item = todoStore.makeProject(req.params.id, req.body);
+    if (!item) return res.status(404).json({ error: 'Todo not found or invalid' });
+    res.json(item);
+  });
+
+  app.post('/api/family/todos/:id/subtask', (req, res) => {
+    const { phase, text } = req.body;
+    const sub = todoStore.addSubTask(req.params.id, phase, text);
+    if (!sub) return res.status(400).json({ error: 'Could not add sub-task' });
+    res.status(201).json(sub);
+  });
+
+  app.post('/api/family/todos/:id/decision', (req, res) => {
+    const entry = todoStore.addDecisionLogEntry(req.params.id, req.body.entry);
+    if (!entry) return res.status(400).json({ error: 'Could not add decision log entry' });
+    res.status(201).json(entry);
   });
 
   app.get('/api/family/cameras', (req, res) => {
