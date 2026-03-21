@@ -13,7 +13,12 @@ const sheetsPoller = require('./sheetsPoller');
 const requestTracker = require('./requestTracker');
 const { createAccessAuth } = require('./auth/accessAuth');
 const { authErrorHandler, requireAuth, requireRole } = require('./auth/authorize');
-const { renderFamilyHubPage, renderFamilySectionPage } = require('./familyPages');
+const {
+  renderFamilyHubPage,
+  renderFamilySectionPage,
+  renderFamilyHealthChooserPage,
+  renderPersonHealthPage,
+} = require('./familyPages');
 const todoStore = require('./todoStore');
 const { renderHomePage } = require('./homePage');
 
@@ -295,13 +300,20 @@ function createApp() {
     res.type('html').send(renderFamilyHubPage());
   });
 
+  app.get('/family/health', requireRole('family'), (req, res) => {
+    res.type('html').send(renderFamilyHealthChooserPage());
+  });
+
+  app.get('/family/health/andrew', requireRole('family'), (req, res) => {
+    res.type('html').send(renderPersonHealthPage('Andrew'));
+  });
+
+  app.get('/family/health/kaili', requireRole('family'), (req, res) => {
+    res.type('html').send(renderPersonHealthPage('Kaili'));
+  });
+
   app.get('/family/medical', requireRole('family'), (req, res) => {
-    res.type('html').send(
-      renderFamilySectionPage(
-        'Medical Vault',
-        'Protected placeholder for family medical notes, appointment tracking, and reference documents.'
-      )
-    );
+    res.redirect('/family/health');
   });
 
   app.get('/family/todos', requireRole('family'), (req, res) => {

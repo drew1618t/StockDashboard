@@ -1,5 +1,9 @@
 const express = require('express');
-const { renderFamilyHubPage } = require('./server/familyPages');
+const {
+  renderFamilyHubPage,
+  renderFamilyHealthChooserPage,
+  renderPersonHealthPage,
+} = require('./server/familyPages');
 const todoStore = require('./server/todoStore');
 
 const app = express();
@@ -8,6 +12,10 @@ app.use(express.static('public'));
 
 // Family hub page
 app.get('/family', (req, res) => res.send(renderFamilyHubPage()));
+app.get('/family/health', (req, res) => res.send(renderFamilyHealthChooserPage()));
+app.get('/family/health/andrew', (req, res) => res.send(renderPersonHealthPage('Andrew')));
+app.get('/family/health/kaili', (req, res) => res.send(renderPersonHealthPage('Kaili')));
+app.get('/family/medical', (req, res) => res.redirect('/family/health'));
 app.get('/', (req, res) => res.redirect('/family'));
 
 // Todo API (mirrors the real server routes)

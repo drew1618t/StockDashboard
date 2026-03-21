@@ -248,9 +248,19 @@ function renderFamilyHubPage() {
        ============================ */
     .health-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .health-person {
+      display: block;
       padding: 14px;
       border-radius: 14px;
       background: rgba(var(--b-accent-rgb),0.06);
+      color: inherit;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .health-person:hover {
+      transform: translateY(-2px);
+      border-color: rgba(var(--b-accent-rgb),0.28);
+      background: rgba(var(--b-accent-rgb),0.1);
     }
     .health-person .person-name {
       font-size: 13px;
@@ -282,6 +292,14 @@ function renderFamilyHubPage() {
       color: var(--b-dim);
     }
     .health-row span:last-child { font-weight: 600; }
+    .health-cta {
+      margin-top: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--b-accent);
+    }
 
     /* ============================
        TODOS
@@ -756,22 +774,24 @@ function renderFamilyHubPage() {
       <section class="hub-health panel">
         <div class="panel-label">Health</div>
         <div class="health-grid">
-          <div class="health-person">
+          <a class="health-person" href="/family/health/andrew">
             <div class="person-name">
               <span class="person-initial">A</span> Andrew
             </div>
             <div class="health-row"><span>Status</span><span>All good</span></div>
             <div class="health-row"><span>Next Appt</span><span>Apr 12</span></div>
             <div class="health-row"><span>Last Check</span><span>Feb 8</span></div>
-          </div>
-          <div class="health-person">
+            <div class="health-cta">Open Andrew's Health</div>
+          </a>
+          <a class="health-person" href="/family/health/kaili">
             <div class="person-name">
               <span class="person-initial">K</span> Kaili
             </div>
             <div class="health-row"><span>Status</span><span>All good</span></div>
             <div class="health-row"><span>Next Appt</span><span>Mar 28</span></div>
             <div class="health-row"><span>Last Check</span><span>Jan 15</span></div>
-          </div>
+            <div class="health-cta">Open Kaili's Health</div>
+          </a>
         </div>
       </section>
 
@@ -1247,10 +1267,10 @@ function renderFamilyHubPage() {
 
 function renderFamilyLayout(title, description, cards = []) {
   const cardMarkup = cards.map(card => `
-      <article class="card">
+      <${card.href ? 'a' : 'article'} class="card"${card.href ? ` href="${card.href}" style="text-decoration:none; color:inherit;"` : ''}>
         <h2>${card.title}</h2>
         <p>${card.description}</p>
-      </article>`).join('');
+      </${card.href ? 'a' : 'article'}>`).join('');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -1363,7 +1383,7 @@ function renderFamilyLayout(title, description, cards = []) {
     <p class="lead">${description}</p>
     <div class="links">
       <a class="primary" href="/family">Family Hub</a>
-      <a href="/family/medical">Medical</a>
+      <a href="/family/health">Health</a>
       <a href="/family/todos">ToDos</a>
       <a href="/family/cameras">Cameras</a>
       <a href="/dashboard">Dashboard</a>
@@ -1383,7 +1403,37 @@ function renderFamilySectionPage(title, description) {
   ]);
 }
 
+function renderFamilyHealthChooserPage() {
+  return renderFamilyLayout('Family Health', 'Choose whose health dashboard you want to open.', [
+    {
+      title: 'Andrew',
+      description: 'Open Andrew health notes, appointments, and reference documents.',
+      href: '/family/health/andrew',
+    },
+    {
+      title: 'Kaili',
+      description: 'Open Kaili health notes, appointments, and reference documents.',
+      href: '/family/health/kaili',
+    },
+  ]);
+}
+
+function renderPersonHealthPage(personName) {
+  return renderFamilyLayout(
+    `${personName} Health`,
+    `Protected placeholder for ${personName}'s health records, appointments, and medical references.`,
+    [
+      {
+        title: 'Protected Placeholder',
+        description: `${personName}'s health page is routed and protected. This is ready for real health content.`,
+      },
+    ]
+  );
+}
+
 module.exports = {
   renderFamilyHubPage,
   renderFamilySectionPage,
+  renderFamilyHealthChooserPage,
+  renderPersonHealthPage,
 };
