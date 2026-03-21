@@ -5,6 +5,7 @@ const {
   renderPersonHealthPage,
 } = require('./server/familyPages');
 const todoStore = require('./server/todoStore');
+const pinboardStore = require('./server/pinboardStore');
 
 const app = express();
 app.use(express.json());
@@ -20,6 +21,22 @@ app.get('/', (req, res) => res.redirect('/family'));
 
 // Todo API (mirrors the real server routes)
 app.get('/api/family/todos', (req, res) => res.json(todoStore.getTodos()));
+app.get('/api/family/pinboard', (req, res) => res.json(pinboardStore.getNotes()));
+app.post('/api/family/pinboard', (req, res) => {
+  const note = pinboardStore.addNote(req.body.text, req.body.author);
+  if (!note) return res.status(400).json({ error: 'Text is required' });
+  res.status(201).json(note);
+});
+app.patch('/api/family/pinboard/:id', (req, res) => {
+  const note = pinboardStore.updateNote(req.params.id, req.body);
+  if (!note) return res.status(404).json({ error: 'Not found' });
+  res.json(note);
+});
+app.delete('/api/family/pinboard/:id', (req, res) => {
+  const ok = pinboardStore.deleteNote(req.params.id);
+  if (!ok) return res.status(404).json({ error: 'Not found' });
+  res.json({ deleted: true });
+});
 app.post('/api/family/todos', (req, res) => {
   const { text, assignee, note, section, category } = req.body;
   const todo = todoStore.addTodo(text, { assignee, note, section, category });

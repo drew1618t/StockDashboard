@@ -684,23 +684,148 @@ function renderFamilyHubPage() {
     /* ============================
        NOTES
        ============================ */
-    .notes-list { display: flex; flex-direction: column; gap: 10px; }
-    .note-item {
-      padding: 12px 14px;
+    .notes-list { display: flex; flex-direction: column; gap: 12px; }
+    .notes-empty {
+      padding: 14px;
       border-radius: 14px;
+      background: rgba(var(--b-accent-rgb),0.04);
+      color: var(--b-muted);
       font-size: 13px;
-      line-height: 1.5;
-      background: rgba(var(--b-accent-rgb),0.06);
+    }
+    .note-item {
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.55;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .note-head {
+      display: grid;
+      gap: 12px;
+    }
+    .note-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
     .note-meta {
       font-size: 10px;
-      margin-bottom: 6px;
+      margin-bottom: 0;
       opacity: 0.6;
       text-transform: uppercase;
       letter-spacing: 0.06em;
     }
     .note-from-a .note-meta { color: var(--b-accent); }
     .note-from-k .note-meta { color: var(--b-secondary); }
+    .note-text {
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--b-text);
+    }
+    .note-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .note-btn {
+      border: 1px solid rgba(var(--b-accent-rgb),0.2);
+      background: transparent;
+      color: var(--b-dim);
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    }
+    .note-btn:hover {
+      color: var(--b-text);
+      border-color: rgba(var(--b-accent-rgb),0.45);
+      background: rgba(var(--b-accent-rgb),0.08);
+    }
+    .note-btn.note-delete-btn:hover {
+      color: #fecaca;
+      border-color: rgba(239,68,68,0.45);
+      background: rgba(239,68,68,0.12);
+    }
+    .note-add { display: grid; gap: 10px; margin-top: 14px; }
+    .note-add-controls {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .note-add textarea,
+    .note-edit textarea,
+    .note-add select,
+    .note-edit select {
+      width: 100%;
+      border: 1px solid rgba(var(--b-accent-rgb),0.18);
+      background: rgba(19,19,34,0.92);
+      color: var(--b-text);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font: inherit;
+      resize: vertical;
+      min-height: 44px;
+    }
+    .note-add select option,
+    .note-edit select option {
+      background: #1f2034;
+      color: #f0ede8;
+    }
+    .note-add textarea,
+    .note-edit textarea {
+      min-height: 72px;
+    }
+    .note-add textarea:focus,
+    .note-edit textarea:focus,
+    .note-add select:focus,
+    .note-edit select:focus {
+      outline: none;
+      border-color: rgba(var(--b-accent-rgb),0.5);
+    }
+    .note-add button,
+    .note-edit-actions button {
+      border: none;
+      border-radius: 12px;
+      background: var(--b-accent);
+      color: var(--b-bg);
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0 14px;
+      transition: opacity 0.15s;
+    }
+    .note-add select,
+    .note-add button { min-height: 44px; }
+    .note-add button { min-width: 110px; }
+    .note-add button:hover,
+    .note-edit-actions button:hover { opacity: 0.85; }
+    .note-edit {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .note-edit-top {
+      display: grid;
+      grid-template-columns: 100px minmax(0, 1fr);
+      gap: 10px;
+    }
+    .note-edit-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .note-edit-actions .secondary {
+      background: transparent;
+      color: var(--b-dim);
+      border: 1px solid rgba(var(--b-accent-rgb),0.18);
+    }
 
     /* ============================
        RESPONSIVE
@@ -725,6 +850,11 @@ function renderFamilyHubPage() {
       .hub-todos { grid-column: 1; }
       .cam-grid { grid-template-columns: 1fr; }
       .health-grid { grid-template-columns: 1fr; }
+      .note-top,
+      .note-edit-top,
+      .note-add-controls { display: grid; grid-template-columns: 1fr; }
+      .note-actions { justify-content: flex-start; }
+      .note-add button { min-height: 44px; }
     }
   </style>
 </head>
@@ -819,18 +949,17 @@ function renderFamilyHubPage() {
       <!-- SHARED NOTES / PINBOARD -->
       <section class="hub-notes panel">
         <div class="panel-label">Pinboard</div>
-        <div class="notes-list">
-          <div class="note-item note-from-k">
-            <div class="note-meta">Kaili &middot; Today</div>
-            <div>Don't forget your mom's birthday is next Thursday! I already got a card, just need you to sign it.</div>
-          </div>
-          <div class="note-item note-from-a">
-            <div class="note-meta">Andrew &middot; Yesterday</div>
-            <div>Wi-Fi password changed to the usual format. Also moved the router to the office shelf.</div>
-          </div>
-          <div class="note-item note-from-k">
-            <div class="note-meta">Kaili &middot; Mar 18</div>
-            <div>Leftover pasta is in the blue container, second shelf. It's really good, don't skip it.</div>
+        <div class="notes-list" id="pinboard-list">
+          <div class="notes-empty">Loading pinboard...</div>
+        </div>
+        <div class="note-add">
+          <textarea id="pinboard-input" placeholder="Add something for the family..."></textarea>
+          <div class="note-add-controls">
+            <select id="pinboard-author">
+              <option value="Andrew">Andrew</option>
+              <option value="Kaili">Kaili</option>
+            </select>
+            <button onclick="addPinboardNote()">Add New</button>
           </div>
         </div>
       </section>
@@ -879,12 +1008,137 @@ function renderFamilyHubPage() {
     /* ------ Todo API ------ */
     var Q = String.fromCharCode(39);
     var todoData = null;
+    var pinboardData = null;
+    var editingPinboardId = null;
     var expandedProjects = {};
 
     function esc(s) {
       var d = document.createElement('div');
       d.textContent = s;
       return d.innerHTML;
+    }
+
+    function relDate(value) {
+      var d = new Date(value);
+      if (isNaN(d.getTime())) return '';
+      var now = new Date();
+      var diffDays = Math.floor((now - d) / (24 * 60 * 60 * 1000));
+      if (diffDays <= 0) return 'Today';
+      if (diffDays === 1) return 'Yesterday';
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function authorClass(author) {
+      return String(author || '').toLowerCase().charAt(0) === 'k' ? 'note-from-k' : 'note-from-a';
+    }
+
+    function renderPinboard() {
+      var container = document.getElementById('pinboard-list');
+      if (!container) return;
+      var notes = pinboardData && pinboardData.notes ? pinboardData.notes : [];
+      if (!notes.length) {
+        container.innerHTML = '<div class="notes-empty">Nothing pinned yet.</div>';
+        return;
+      }
+      var html = '';
+      notes.forEach(function(note) {
+        var isEditing = editingPinboardId === note.id;
+        html += '<div class="note-item ' + authorClass(note.author) + '">';
+        if (isEditing) {
+          html += '<div class="note-edit">'
+            + '<div class="note-edit-top">'
+            + '<select id="pinboard-edit-author-' + note.id + '">'
+            + '<option value="Andrew"' + (note.author === 'Andrew' ? ' selected' : '') + '>Andrew</option>'
+            + '<option value="Kaili"' + (note.author === 'Kaili' ? ' selected' : '') + '>Kaili</option>'
+            + '</select>'
+            + '<div class="note-meta">Editing note</div>'
+            + '</div>'
+            + '<textarea id="pinboard-edit-text-' + note.id + '">' + esc(note.text) + '</textarea>'
+            + '<div class="note-edit-actions">'
+            + '<button class="secondary" onclick="cancelEditPinboard()">Cancel</button>'
+            + '<button onclick="savePinboardEdit(' + Q + note.id + Q + ')">Save</button>'
+            + '</div>'
+            + '</div>';
+        } else {
+          html += '<div class="note-head">'
+            + '<div class="note-top">'
+            + '<div class="note-meta">' + esc(note.author) + ' &middot; ' + esc(relDate(note.updatedAt || note.createdAt)) + '</div>'
+            + '<div class="note-actions">'
+            + '<button class="note-btn" onclick="startEditPinboard(' + Q + note.id + Q + ')">Edit</button>'
+            + '<button class="note-btn note-delete-btn" onclick="deletePinboardNote(' + Q + note.id + Q + ')">Delete</button>'
+            + '</div>'
+            + '</div>'
+            + '<div>'
+            + '<div class="note-text">' + esc(note.text) + '</div>'
+            + '</div>'
+            + '</div>'
+            + '</div>';
+        }
+        html += '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function loadPinboard() {
+      fetch('/api/family/pinboard')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          pinboardData = data;
+          renderPinboard();
+        })
+        .catch(function() {
+          var container = document.getElementById('pinboard-list');
+          if (container) container.innerHTML = '<div class="notes-empty">Could not load pinboard.</div>';
+        });
+    }
+
+    function addPinboardNote() {
+      var input = document.getElementById('pinboard-input');
+      var author = document.getElementById('pinboard-author');
+      var text = input.value.trim();
+      if (!text) return;
+      fetch('/api/family/pinboard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text, author: author.value })
+      }).then(function() {
+        input.value = '';
+        loadPinboard();
+      });
+    }
+
+    function startEditPinboard(id) {
+      editingPinboardId = id;
+      renderPinboard();
+    }
+
+    function cancelEditPinboard() {
+      editingPinboardId = null;
+      renderPinboard();
+    }
+
+    function savePinboardEdit(id) {
+      var textEl = document.getElementById('pinboard-edit-text-' + id);
+      var authorEl = document.getElementById('pinboard-edit-author-' + id);
+      if (!textEl) return;
+      var text = textEl.value.trim();
+      if (!text) return;
+      fetch('/api/family/pinboard/' + id, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text, author: authorEl ? authorEl.value : 'Andrew' })
+      }).then(function() {
+        editingPinboardId = null;
+        loadPinboard();
+      });
+    }
+
+    function deletePinboardNote(id) {
+      fetch('/api/family/pinboard/' + id, { method: 'DELETE' })
+        .then(function() {
+          if (editingPinboardId === id) editingPinboardId = null;
+          loadPinboard();
+        });
     }
 
     function renderSubTask(sub, parentId) {
@@ -1260,6 +1514,10 @@ function renderFamilyHubPage() {
     });
 
     loadTodos();
+    document.getElementById('pinboard-input').addEventListener('keydown', function(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') addPinboardNote();
+    });
+    loadPinboard();
   </script>
 </body>
 </html>`;

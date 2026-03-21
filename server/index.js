@@ -20,6 +20,7 @@ const {
   renderPersonHealthPage,
 } = require('./familyPages');
 const todoStore = require('./todoStore');
+const pinboardStore = require('./pinboardStore');
 const { renderHomePage } = require('./homePage');
 
 const PORT = process.env.PORT || 3000;
@@ -216,6 +217,28 @@ function createApp() {
 
   app.get('/api/family/todos', (req, res) => {
     res.json(todoStore.getTodos());
+  });
+
+  app.get('/api/family/pinboard', (req, res) => {
+    res.json(pinboardStore.getNotes());
+  });
+
+  app.post('/api/family/pinboard', (req, res) => {
+    const note = pinboardStore.addNote(req.body.text, req.body.author);
+    if (!note) return res.status(400).json({ error: 'Text is required' });
+    res.status(201).json(note);
+  });
+
+  app.patch('/api/family/pinboard/:id', (req, res) => {
+    const note = pinboardStore.updateNote(req.params.id, req.body);
+    if (!note) return res.status(404).json({ error: 'Note not found' });
+    res.json(note);
+  });
+
+  app.delete('/api/family/pinboard/:id', (req, res) => {
+    const ok = pinboardStore.deleteNote(req.params.id);
+    if (!ok) return res.status(404).json({ error: 'Note not found' });
+    res.json({ deleted: true });
   });
 
   app.post('/api/family/todos', (req, res) => {
