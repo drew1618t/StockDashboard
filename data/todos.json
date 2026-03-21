@@ -1,0 +1,44 @@
+[
+  {
+    "id": "seed01",
+    "text": "Grocery run — Costco list on fridge",
+    "done": false,
+    "assignee": "K",
+    "createdAt": "2026-03-21T12:00:00.000Z"
+  },
+  {
+    "id": "seed02",
+    "text": "Schedule vet appointment for Luna",
+    "done": false,
+    "assignee": "A",
+    "createdAt": "2026-03-21T12:00:00.000Z"
+  },
+  {
+    "id": "seed05",
+    "text": "Order new air filters",
+    "done": false,
+    "assignee": "A",
+    "createdAt": "2026-03-19T12:00:00.000Z"
+  },
+  {
+    "id": "seed06",
+    "text": "Book anniversary dinner",
+    "done": true,
+    "assignee": "K",
+    "createdAt": "2026-03-18T12:00:00.000Z"
+  },
+  {
+    "id": "seed07",
+    "text": "Renew car registration",
+    "done": false,
+    "assignee": "A",
+    "createdAt": "2026-03-18T12:00:00.000Z"
+  },
+  {
+    "id": "mn0fu0daqt2y",
+    "text": "Test todo",
+    "done": false,
+    "assignee": "A",
+    "createdAt": "2026-03-21T14:43:18.238Z"
+  }
+]

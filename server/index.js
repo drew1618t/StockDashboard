@@ -14,6 +14,7 @@ const requestTracker = require('./requestTracker');
 const { createAccessAuth } = require('./auth/accessAuth');
 const { authErrorHandler, requireAuth, requireRole } = require('./auth/authorize');
 const { renderFamilyHubPage, renderFamilySectionPage } = require('./familyPages');
+const todoStore = require('./todoStore');
 const { renderHomePage } = require('./homePage');
 
 const PORT = process.env.PORT || 3000;
@@ -209,11 +210,32 @@ function createApp() {
   });
 
   app.get('/api/family/todos', (req, res) => {
-    res.status(501).json({
-      error: 'Family todo APIs are not implemented yet',
-      section: 'todos',
-      role: req.user.role,
-    });
+    res.json(todoStore.getTodos());
+  });
+
+  app.post('/api/family/todos', (req, res) => {
+    const { text, assignee } = req.body;
+    const todo = todoStore.addTodo(text, assignee);
+    if (!todo) return res.status(400).json({ error: 'Text is required' });
+    res.status(201).json(todo);
+  });
+
+  app.patch('/api/family/todos/:id/toggle', (req, res) => {
+    const todo = todoStore.toggleTodo(req.params.id);
+    if (!todo) return res.status(404).json({ error: 'Todo not found' });
+    res.json(todo);
+  });
+
+  app.patch('/api/family/todos/:id', (req, res) => {
+    const todo = todoStore.updateTodo(req.params.id, req.body);
+    if (!todo) return res.status(404).json({ error: 'Todo not found' });
+    res.json(todo);
+  });
+
+  app.delete('/api/family/todos/:id', (req, res) => {
+    const ok = todoStore.deleteTodo(req.params.id);
+    if (!ok) return res.status(404).json({ error: 'Todo not found' });
+    res.json({ deleted: true });
   });
 
   app.get('/api/family/cameras', (req, res) => {

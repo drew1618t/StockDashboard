@@ -327,6 +327,70 @@ function renderFamilyHubPage() {
     }
     .todo-assignee.assignee-a { background: var(--b-accent); color: var(--b-bg); }
     .todo-assignee.assignee-k { background: var(--b-secondary); color: var(--b-bg); }
+    .todo-delete {
+      width: 20px;
+      height: 20px;
+      border: none;
+      background: transparent;
+      color: var(--b-muted);
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .todo-item:hover .todo-delete { opacity: 1; }
+    .todo-delete:hover { color: #ef4444; }
+
+    /* Add todo form */
+    .todo-add {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    .todo-add input[type="text"] {
+      flex: 1;
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(var(--b-accent-rgb),0.2);
+      background: rgba(var(--b-accent-rgb),0.04);
+      color: var(--b-text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .todo-add input[type="text"]::placeholder { color: var(--b-muted); }
+    .todo-add input[type="text"]:focus { border-color: rgba(var(--b-accent-rgb),0.5); }
+    .todo-add select {
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(var(--b-accent-rgb),0.2);
+      background: var(--b-tile);
+      color: var(--b-text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+    .todo-add button {
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: none;
+      background: var(--b-accent);
+      color: var(--b-bg);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .todo-add button:hover { opacity: 0.85; }
 
     /* ============================
        NOTES
@@ -443,43 +507,16 @@ function renderFamilyHubPage() {
       <!-- TODOS -->
       <section class="hub-todos panel">
         <div class="panel-label">Todos <span style="opacity:0.4; font-weight:400; margin-left:8px; font-size:10px;" id="todo-count"></span></div>
-        <ul class="todo-list">
-          <li class="todo-item" onclick="toggleTodo(this)">
-            <span class="todo-check"></span>
-            <span class="todo-text">Grocery run &mdash; Costco list on fridge</span>
-            <span class="todo-assignee assignee-k">K</span>
-          </li>
-          <li class="todo-item" onclick="toggleTodo(this)">
-            <span class="todo-check"></span>
-            <span class="todo-text">Schedule vet appointment for Luna</span>
-            <span class="todo-assignee assignee-a">A</span>
-          </li>
-          <li class="todo-item done" onclick="toggleTodo(this)">
-            <span class="todo-check">&#10003;</span>
-            <span class="todo-text">Pay rent</span>
-            <span class="todo-assignee assignee-a">A</span>
-          </li>
-          <li class="todo-item" onclick="toggleTodo(this)">
-            <span class="todo-check"></span>
-            <span class="todo-text">Call plumber about kitchen faucet</span>
-            <span class="todo-assignee assignee-k">K</span>
-          </li>
-          <li class="todo-item" onclick="toggleTodo(this)">
-            <span class="todo-check"></span>
-            <span class="todo-text">Order new air filters</span>
-            <span class="todo-assignee assignee-a">A</span>
-          </li>
-          <li class="todo-item done" onclick="toggleTodo(this)">
-            <span class="todo-check">&#10003;</span>
-            <span class="todo-text">Book anniversary dinner</span>
-            <span class="todo-assignee assignee-k">K</span>
-          </li>
-          <li class="todo-item" onclick="toggleTodo(this)">
-            <span class="todo-check"></span>
-            <span class="todo-text">Renew car registration</span>
-            <span class="todo-assignee assignee-a">A</span>
-          </li>
-        </ul>
+        <ul class="todo-list" id="todo-list"></ul>
+        <div class="todo-add">
+          <input type="text" id="todo-input" placeholder="Add a task..." />
+          <select id="todo-assignee">
+            <option value="">--</option>
+            <option value="A">A</option>
+            <option value="K">K</option>
+          </select>
+          <button onclick="addTodo()">Add</button>
+        </div>
       </section>
 
       <!-- SHARED NOTES / PINBOARD -->
@@ -542,24 +579,76 @@ function renderFamilyHubPage() {
       }
     })();
 
-    /* ------ Todo Toggle ------ */
-    function toggleTodo(el) {
-      el.classList.toggle('done');
-      var check = el.querySelector('.todo-check');
-      if (el.classList.contains('done')) {
-        check.innerHTML = '&#10003;';
-      } else {
-        check.innerHTML = '';
-      }
-      updateTodoCount();
+    /* ------ Todo API ------ */
+    function escapeHtml(s) {
+      var d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
     }
-    function updateTodoCount() {
-      var total = document.querySelectorAll('.todo-item').length;
-      var done = document.querySelectorAll('.todo-item.done').length;
-      var el = document.getElementById('todo-count');
-      if (el) el.textContent = done + '/' + total + ' done';
+
+    function renderTodos(todos) {
+      var list = document.getElementById('todo-list');
+      var done = 0;
+      var q = String.fromCharCode(39);
+      list.innerHTML = todos.map(function(t) {
+        if (t.done) done++;
+        var cls = t.done ? 'todo-item done' : 'todo-item';
+        var check = t.done ? '&#10003;' : '';
+        var assignee = t.assignee
+          ? '<span class="todo-assignee assignee-' + t.assignee.toLowerCase() + '">' + escapeHtml(t.assignee) + '</span>'
+          : '';
+        return '<li class="' + cls + '" data-id="' + t.id + '">'
+          + '<span class="todo-check" onclick="toggleTodo(' + q + t.id + q + ')">' + check + '</span>'
+          + '<span class="todo-text" onclick="toggleTodo(' + q + t.id + q + ')">' + escapeHtml(t.text) + '</span>'
+          + assignee
+          + '<button class="todo-delete" onclick="deleteTodo(' + q + t.id + q + ')" title="Delete">&times;</button>'
+          + '</li>';
+      }).join('');
+      var countEl = document.getElementById('todo-count');
+      if (countEl) countEl.textContent = done + '/' + todos.length + ' done';
     }
-    updateTodoCount();
+
+    function loadTodos() {
+      fetch('/api/family/todos')
+        .then(function(r) { return r.json(); })
+        .then(renderTodos)
+        .catch(function() {
+          document.getElementById('todo-list').innerHTML = '<li style="padding:12px;opacity:0.5;">Could not load todos</li>';
+        });
+    }
+
+    function toggleTodo(id) {
+      fetch('/api/family/todos/' + id + '/toggle', { method: 'PATCH' })
+        .then(function() { loadTodos(); });
+    }
+
+    function deleteTodo(id) {
+      fetch('/api/family/todos/' + id, { method: 'DELETE' })
+        .then(function() { loadTodos(); });
+    }
+
+    function addTodo() {
+      var input = document.getElementById('todo-input');
+      var select = document.getElementById('todo-assignee');
+      var text = input.value.trim();
+      if (!text) return;
+      fetch('/api/family/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text, assignee: select.value || null })
+      }).then(function() {
+        input.value = '';
+        select.value = '';
+        loadTodos();
+      });
+    }
+
+    // Submit on Enter key
+    document.getElementById('todo-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') addTodo();
+    });
+
+    loadTodos();
   </script>
 </body>
 </html>`;
