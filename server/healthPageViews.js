@@ -16,11 +16,11 @@ function renderBulletItem(item) {
 }
 
 function renderFileItem(item, basePath) {
-  return `<li class="health-list-item"><div><strong>${escapeHtml(item.fileName)}</strong><div class="health-meta">${escapeHtml(item.ext.replace('.', '').toUpperCase())} report</div></div><a class="health-link-inline" href="${basePath}/report/${encodeURIComponent(item.fileName)}">Open</a></li>`;
+  return `<li class="health-list-item"><div><strong>${escapeHtml(item.fileName)}</strong><div class="health-meta">${escapeHtml(item.ext.replace('.', '').toUpperCase())} <span data-i18n>report</span></div></div><a class="health-link-inline" href="${basePath}/report/${encodeURIComponent(item.fileName)}" data-i18n>Open</a></li>`;
 }
 
 function renderStudyListItem(study, basePath) {
-  return `<li class="health-list-item"><div><strong>${escapeHtml(study.title)}</strong><div class="health-meta">${escapeHtml(study.date || 'Undated')} · ${escapeHtml(String(study.imageCount))} image${study.imageCount === 1 ? '' : 's'}</div></div><a class="health-link-inline" href="${basePath}/images/${encodeURIComponent(study.slug)}">Open Study</a></li>`;
+  return `<li class="health-list-item"><div><strong>${escapeHtml(study.title)}</strong><div class="health-meta">${escapeHtml(study.date || 'Undated')} · ${escapeHtml(String(study.imageCount))} <span data-i18n>${study.imageCount === 1 ? 'image' : 'images'}</span></div></div><a class="health-link-inline" href="${basePath}/images/${encodeURIComponent(study.slug)}" data-i18n>Open Study</a></li>`;
 }
 
 function renderHealthThemeAssets(title) {
@@ -66,7 +66,10 @@ function renderHealthThemeAssets(title) {
     .image-stack { display:flex; flex-direction:column; gap:14px; margin-top:18px; }
     .image-stack img { width:100%; border-radius:18px; display:block; background:rgba(255,255,255,0.04); }
     .doc-copy { white-space:pre-wrap; background:rgba(var(--b-accent-rgb),0.04); border-radius:18px; padding:18px; border:1px solid rgba(var(--b-accent-rgb),0.08); }
-    @media (max-width: 640px) { main { width:min(100vw - 20px, 100%); padding-top:20px; } .health-list-item { flex-direction:column; } .bento-palette { top:auto; bottom:16px; right:50%; transform:translateX(50%); } }
+    .lang-toggle { position:fixed; top:16px; left:16px; z-index:1000; display:flex; align-items:center; gap:6px; padding:6px 10px; border-radius:12px; background:var(--b-switcher-bg); border:1px solid rgba(var(--b-accent-rgb),0.15); }
+    .lang-btn { background:none; border:1px solid rgba(var(--b-accent-rgb),0.2); color:var(--b-text); font:inherit; font-size:12px; padding:4px 10px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:4px; }
+    .lang-btn:hover { background:rgba(var(--b-accent-rgb),0.12); }
+    @media (max-width: 640px) { main { width:min(100vw - 20px, 100%); padding-top:20px; } .health-list-item { flex-direction:column; } .bento-palette { top:auto; bottom:16px; right:50%; transform:translateX(50%); } .lang-toggle { top:auto; bottom:16px; left:16px; transform:none; } }
   </style>
 </head>`;
 }
@@ -92,69 +95,203 @@ function renderHealthThemeScript() {
   </script>`;
 }
 
+function renderLanguageToggle() {
+  return `<div class="lang-toggle">
+    <span class="palette-label">Lang</span>
+    <button class="lang-btn" onclick="toggleLanguage()">
+      <span data-lang-label="en">🇧🇷 Português</span>
+      <span data-lang-label="pt" style="display:none">🇺🇸 English</span>
+    </button>
+  </div>`;
+}
+
+function renderLanguageScript() {
+  return `<script>
+    (function() {
+      var PT = {
+        'Health': 'Saúde',
+        'Bloodwork': 'Exames',
+        'Images': 'Imagens',
+        'Reports': 'Relatórios',
+        'Switch To': 'Ver',
+        'All Imaging': 'Todas as Imagens',
+        'Imaging Study': 'Estudo de Imagem',
+        'Study Documents': 'Documentos do Estudo',
+        'Source Document': 'Documento Original',
+        'Share': 'Compartilhar',
+        'Open Study': 'Abrir Estudo',
+        'Open': 'Abrir',
+        'Open Doc': 'Abrir Doc',
+        'Palette': 'Paleta',
+        'Lang': 'Idioma',
+        'Latest date': 'Data mais recente',
+        'Studies': 'Estudos',
+        'Source files': 'Arquivos fonte',
+        'Flagged items': 'Itens sinalizados',
+        'Viewer-ready': 'Prontos para visualizar',
+        'Recent imaging findings': 'Achados recentes de imagem',
+        'Available source documents': 'Documentos fonte disponíveis',
+        'Imaging studies': 'Estudos de imagem',
+        'Related report files': 'Arquivos de relatórios relacionados',
+        'Flags and trend highlights': 'Sinalizações e tendências',
+        'No imaging findings are currently available.': 'Nenhum achado de imagem disponível no momento.',
+        'No report files were found in the reports folder.': 'Nenhum arquivo de relatório encontrado na pasta de relatórios.',
+        'No flagged bloodwork markers were parsed from the current report.': 'Nenhum marcador sinalizado foi encontrado no relatório atual.',
+        'No imaging studies found': 'Nenhum estudo de imagem encontrado',
+        'Rendered image folders were not found yet.': 'As pastas de imagens renderizadas ainda não foram encontradas.',
+        'No matching report files': 'Nenhum arquivo de relatório correspondente',
+        'Nothing in the reports folder matched this section yet.': 'Nada na pasta de relatórios corresponde a esta seção ainda.',
+        'No rendered images found': 'Nenhuma imagem renderizada encontrada',
+        'This study does not have a rendered image set yet.': 'Este estudo ainda não possui um conjunto de imagens renderizadas.',
+        'No study documents': 'Sem documentos do estudo',
+        'Only images were found for this study.': 'Apenas imagens foram encontradas para este estudo.',
+        'report': 'relatório',
+        'source document ready to open in the viewer.': 'documento fonte pronto para abrir no visualizador.',
+        'Focused imaging view with study lists, narrative findings, and click-through image viewers.': 'Visualização focada em imagens com listas de estudos, achados narrativos e visualizadores de imagens clicáveis.',
+        'Focused report view with source documents opened in-browser whenever possible.': 'Visualização focada em relatórios com documentos originais abertos no navegador sempre que possível.',
+        'Focused lab view with report-derived flags, recent draw timing, and source document viewers.': 'Visualização focada em exames com sinalizações derivadas de relatórios, datas de coleta recentes e visualizadores de documentos.',
+        'rendered image': 'imagem renderizada',
+        'rendered images': 'imagens renderizadas',
+        'available to scroll through below.': 'disponíveis para visualizar abaixo.',
+        'image': 'imagem',
+        'images': 'imagens',
+        'Family Health': 'Saúde da Família',
+        'Family Hub': 'Família',
+        'Snapshot': 'Resumo',
+        'Health records anchored to live source material': 'Registros de saúde ancorados em material de origem ao vivo',
+        'Latest bloodwork': 'Último exame de sangue',
+        'Flagged lab items': 'Itens sinalizados',
+        'Reminders': 'Lembretes',
+        'Due soon and due this year': 'Vencendo em breve e neste ano',
+        'Vaccines, annual bloodwork timing, and short-horizon follow-ups inferred from recent records.': 'Vacinas, datas de exames de sangue anuais e acompanhamentos de curto prazo inferidos dos registros recentes.',
+        'Findings': 'Achados',
+        'Recent concerns': 'Preocupações recentes',
+        'Current items worth checking soon based on the latest labs and imaging summaries.': 'Itens atuais que vale a pena verificar em breve com base nos últimos exames e resumos de imagem.',
+        'Vaccines': 'Vacinas',
+        'Recorded immunizations': 'Imunizações registradas',
+        'Recent vaccine history stays here while the top buttons handle deeper bloodwork, imaging, and report pages.': 'O histórico recente de vacinas fica aqui enquanto os botões acima levam a páginas mais detalhadas de exames, imagens e relatórios.',
+        'No reminders yet': 'Nenhum lembrete ainda',
+        'No due items were derived from the current records.': 'Nenhum item pendente foi derivado dos registros atuais.',
+        'No vaccine history found': 'Nenhum histórico de vacinas encontrado',
+        'Immunization records have not been ingested yet.': 'Os registros de imunização ainda não foram importados.',
+        'No recent flagged concerns': 'Nenhuma preocupação recente sinalizada',
+        'Nothing recent matched the current alert rules.': 'Nada recente correspondeu às regras de alerta atuais.',
+        'Balanced bento overview of bloodwork, imaging, reminders, vaccine timing, and recent issues pulled from the ingested health database and report folder.': 'Visão geral equilibrada de exames de sangue, imagens, lembretes, calendário de vacinas e questões recentes extraídas do banco de dados de saúde e da pasta de relatórios.',
+      };
+
+      var reverseMap = {};
+      Object.keys(PT).forEach(function(k) { reverseMap[PT[k]] = k; });
+
+      function getLang() {
+        return localStorage.getItem('health-lang') || 'en';
+      }
+
+      function applyLang(lang) {
+        var map = lang === 'pt' ? PT : reverseMap;
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+          var current = el.textContent;
+          if (map[current]) el.textContent = map[current];
+        });
+        document.querySelectorAll('[data-lang-label]').forEach(function(el) {
+          el.style.display = el.getAttribute('data-lang-label') === lang ? '' : 'none';
+        });
+        document.querySelectorAll('.palette-label').forEach(function(el) {
+          var txt = el.textContent;
+          if (lang === 'pt') {
+            if (txt === 'Palette') el.textContent = 'Paleta';
+            if (txt === 'Lang') el.textContent = 'Idioma';
+          } else {
+            if (txt === 'Paleta') el.textContent = 'Palette';
+            if (txt === 'Idioma') el.textContent = 'Lang';
+          }
+        });
+      }
+
+      window.toggleLanguage = function() {
+        var current = getLang();
+        var next = current === 'en' ? 'pt' : 'en';
+        localStorage.setItem('health-lang', next);
+        applyLang(next);
+      };
+
+      // Apply saved language on load
+      var saved = getLang();
+      if (saved === 'pt') {
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() { applyLang('pt'); });
+        } else {
+          applyLang('pt');
+        }
+      }
+    })();
+  </script>`;
+}
+
 function renderPersonHealthPage(healthData) {
   const { person, reminders, bloodworkReport, immunizations, concerns, latestLabs, imagingStudies } = healthData;
   const basePath = `/family/health/${person.slug}`;
   const otherSlug = person.slug === 'andrew' ? 'kaili' : 'andrew';
   const otherName = person.slug === 'andrew' ? 'Kaili' : 'Andrew';
-  const reminderMarkup = reminders.length ? reminders.map(renderReminderItem).join('') : '<li class="health-list-item"><div><strong>No reminders yet</strong><div class="health-meta">No due items were derived from the current records.</div></div></li>';
-  const vaccineMarkup = immunizations.length ? immunizations.slice(0, 4).map(renderBulletItem).join('') : '<li class="health-list-item"><div><strong>No vaccine history found</strong><div class="health-meta">Immunization records have not been ingested yet.</div></div></li>';
-  const concernMarkup = concerns.length ? concerns.slice(0, 4).map(renderBulletItem).join('') : '<li class="health-list-item"><div><strong>No recent flagged concerns</strong><div class="health-meta">Nothing recent matched the current alert rules.</div></div></li>';
+  const reminderMarkup = reminders.length ? reminders.map(renderReminderItem).join('') : '<li class="health-list-item"><div><strong data-i18n>No reminders yet</strong><div class="health-meta" data-i18n>No due items were derived from the current records.</div></div></li>';
+  const vaccineMarkup = immunizations.length ? immunizations.slice(0, 4).map(renderBulletItem).join('') : '<li class="health-list-item"><div><strong data-i18n>No vaccine history found</strong><div class="health-meta" data-i18n>Immunization records have not been ingested yet.</div></div></li>';
+  const concernMarkup = concerns.length ? concerns.slice(0, 4).map(renderBulletItem).join('') : '<li class="health-list-item"><div><strong data-i18n>No recent flagged concerns</strong><div class="health-meta" data-i18n>Nothing recent matched the current alert rules.</div></div></li>';
 
   return `<!DOCTYPE html>
 <html lang="en">
 ${renderHealthThemeAssets(`${person.name} Health`)}
 <body>
   ${renderHealthThemePalette()}
+  ${renderLanguageToggle()}
   <main>
     <div class="links" style="justify-content:space-between; margin-bottom:24px;">
       <div>
-        <div class="eyebrow">Family Health</div>
-        <h1 style="margin:0; font-size:clamp(2.2rem, 5vw, 4rem); line-height:0.95;">${escapeHtml(person.name)} Health</h1>
-        <p class="lead" style="margin-top:14px; max-width:68ch;">Balanced bento overview of bloodwork, imaging, reminders, vaccine timing, and recent issues pulled from the ingested health database and report folder.</p>
+        <div class="eyebrow" data-i18n>Family Health</div>
+        <h1 style="margin:0; font-size:clamp(2.2rem, 5vw, 4rem); line-height:0.95;">${escapeHtml(person.name)} <span data-i18n>Health</span></h1>
+        <p class="lead" style="margin-top:14px; max-width:68ch;" data-i18n>Balanced bento overview of bloodwork, imaging, reminders, vaccine timing, and recent issues pulled from the ingested health database and report folder.</p>
       </div>
       <div class="links">
-        <a href="/family" class="primary">Family Hub</a>
-        <a href="/family/health/${otherSlug}">Switch To ${otherName}</a>
-        <a href="${basePath}/bloodwork">Bloodwork</a>
-        <a href="${basePath}/images">Images</a>
-        <a href="${basePath}/reports">Reports</a>
+        <a href="/family" class="primary" data-i18n>Family Hub</a>
+        <a href="/family/health/${otherSlug}"><span data-i18n>Switch To</span>&nbsp;${otherName}</a>
+        <a href="${basePath}/bloodwork" data-i18n>Bloodwork</a>
+        <a href="${basePath}/images" data-i18n>Images</a>
+        <a href="${basePath}/reports" data-i18n>Reports</a>
       </div>
     </div>
     <section style="margin-bottom:18px;">
       <article class="hero-card" style="padding:28px;">
-        <div class="card-label">Snapshot</div>
-        <h2 style="margin:0 0 8px; font-size:1.35rem;">Health records anchored to live source material</h2>
+        <div class="card-label" data-i18n>Snapshot</div>
+        <h2 style="margin:0 0 8px; font-size:1.35rem;" data-i18n>Health records anchored to live source material</h2>
         <p class="card-copy">The dashboard is using ${escapeHtml(person.name)}&#39;s health database, recent reports, and reminder rules so the top-level page stays actionable rather than document-heavy.</p>
         <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:22px;">
-          <div class="health-list-item" style="display:block;"><div class="stat-label">Latest bloodwork</div><div style="margin-top:6px; font-size:1.35rem;">${escapeHtml(latestLabs ? latestLabs.date_of_service : 'Unknown')}</div></div>
-          <div class="health-list-item" style="display:block;"><div class="stat-label">Flagged lab items</div><div style="margin-top:6px; font-size:1.35rem;">${escapeHtml(String((bloodworkReport && bloodworkReport.flags && bloodworkReport.flags.length) || 0))}</div></div>
-          <div class="health-list-item" style="display:block;"><div class="stat-label">Imaging studies</div><div style="margin-top:6px; font-size:1.35rem;">${escapeHtml(String(imagingStudies.length))}</div></div>
+          <div class="health-list-item" style="display:block;"><div class="stat-label" data-i18n>Latest bloodwork</div><div style="margin-top:6px; font-size:1.35rem;">${escapeHtml(latestLabs ? latestLabs.date_of_service : 'Unknown')}</div></div>
+          <div class="health-list-item" style="display:block;"><div class="stat-label" data-i18n>Flagged lab items</div><div style="margin-top:6px; font-size:1.35rem;">${escapeHtml(String((bloodworkReport && bloodworkReport.flags && bloodworkReport.flags.length) || 0))}</div></div>
+          <div class="health-list-item" style="display:block;"><div class="stat-label" data-i18n>Imaging studies</div><div style="margin-top:6px; font-size:1.35rem;">${escapeHtml(String(imagingStudies.length))}</div></div>
         </div>
       </article>
     </section>
     <section style="display:grid; grid-template-columns:1.35fr 1fr 1fr; gap:16px;">
       <article class="health-card" style="padding:22px;">
-        <div class="card-label">Reminders</div>
-        <h2 style="margin:0 0 8px; font-size:1.35rem;">Due soon and due this year</h2>
-        <p class="card-copy">Vaccines, annual bloodwork timing, and short-horizon follow-ups inferred from recent records.</p>
+        <div class="card-label" data-i18n>Reminders</div>
+        <h2 style="margin:0 0 8px; font-size:1.35rem;" data-i18n>Due soon and due this year</h2>
+        <p class="card-copy" data-i18n>Vaccines, annual bloodwork timing, and short-horizon follow-ups inferred from recent records.</p>
         <ul class="health-list">${reminderMarkup}</ul>
       </article>
       <article class="health-card" style="padding:22px;">
-        <div class="card-label">Findings</div>
-        <h2 style="margin:0 0 8px; font-size:1.35rem;">Recent concerns</h2>
-        <p class="card-copy">Current items worth checking soon based on the latest labs and imaging summaries.</p>
+        <div class="card-label" data-i18n>Findings</div>
+        <h2 style="margin:0 0 8px; font-size:1.35rem;" data-i18n>Recent concerns</h2>
+        <p class="card-copy" data-i18n>Current items worth checking soon based on the latest labs and imaging summaries.</p>
         <ul class="health-list">${concernMarkup}</ul>
       </article>
       <article class="health-card" style="padding:22px;">
-        <div class="card-label">Vaccines</div>
-        <h2 style="margin:0 0 8px; font-size:1.35rem;">Recorded immunizations</h2>
-        <p class="card-copy">Recent vaccine history stays here while the top buttons handle deeper bloodwork, imaging, and report pages.</p>
+        <div class="card-label" data-i18n>Vaccines</div>
+        <h2 style="margin:0 0 8px; font-size:1.35rem;" data-i18n>Recorded immunizations</h2>
+        <p class="card-copy" data-i18n>Recent vaccine history stays here while the top buttons handle deeper bloodwork, imaging, and report pages.</p>
         <ul class="health-list">${vaccineMarkup}</ul>
       </article>
     </section>
   </main>
   ${renderHealthThemeScript()}
+  ${renderLanguageScript()}
 </body>
 </html>`;
 }
@@ -171,47 +308,49 @@ function renderPersonHealthSectionPage(healthData, section) {
     return true;
   });
   const listMarkup = section === 'bloodwork'
-    ? ((bloodworkReport && bloodworkReport.flags && bloodworkReport.flags.length) ? bloodworkReport.flags.map(flag => `<li>${escapeHtml(flag)}</li>`).join('') : '<li>No flagged bloodwork markers were parsed from the current report.</li>')
+    ? ((bloodworkReport && bloodworkReport.flags && bloodworkReport.flags.length) ? bloodworkReport.flags.map(flag => `<li>${escapeHtml(flag)}</li>`).join('') : '<li><span data-i18n>No flagged bloodwork markers were parsed from the current report.</span></li>')
     : section === 'images'
-      ? (latestImaging.length ? latestImaging.map(item => `<li><strong>${escapeHtml(item.title)}</strong><br><span class="health-meta">${escapeHtml(item.date_of_service || 'Undated')} · ${escapeHtml(item.summary || '')}</span></li>`).join('') : '<li>No imaging findings are currently available.</li>')
-      : (relatedReports.length ? relatedReports.map(item => `<li><strong>${escapeHtml(item.fileName)}</strong><br><span class="health-meta">${escapeHtml(item.ext.replace('.', '').toUpperCase())} source document ready to open in the viewer.</span></li>`).join('') : '<li>No report files were found in the reports folder.</li>');
+      ? (latestImaging.length ? latestImaging.map(item => `<li><strong>${escapeHtml(item.title)}</strong><br><span class="health-meta">${escapeHtml(item.date_of_service || 'Undated')} · ${escapeHtml(item.summary || '')}</span></li>`).join('') : '<li><span data-i18n>No imaging findings are currently available.</span></li>')
+      : (relatedReports.length ? relatedReports.map(item => `<li><strong>${escapeHtml(item.fileName)}</strong><br><span class="health-meta">${escapeHtml(item.ext.replace('.', '').toUpperCase())} <span data-i18n>source document ready to open in the viewer.</span></span></li>`).join('') : '<li><span data-i18n>No report files were found in the reports folder.</span></li>');
   const secondaryMarkup = section === 'images'
-    ? (imagingStudies.length ? imagingStudies.map(study => renderStudyListItem(study, basePath)).join('') : '<li class="health-list-item"><div><strong>No imaging studies found</strong><div class="health-meta">Rendered image folders were not found yet.</div></div></li>')
-    : (relatedReports.length ? relatedReports.map(item => renderFileItem(item, basePath)).join('') : '<li class="health-list-item"><div><strong>No matching report files</strong><div class="health-meta">Nothing in the reports folder matched this section yet.</div></div></li>');
+    ? (imagingStudies.length ? imagingStudies.map(study => renderStudyListItem(study, basePath)).join('') : '<li class="health-list-item"><div><strong data-i18n>No imaging studies found</strong><div class="health-meta" data-i18n>Rendered image folders were not found yet.</div></div></li>')
+    : (relatedReports.length ? relatedReports.map(item => renderFileItem(item, basePath)).join('') : '<li class="health-list-item"><div><strong data-i18n>No matching report files</strong><div class="health-meta" data-i18n>Nothing in the reports folder matched this section yet.</div></div></li>');
 
   return `<!DOCTYPE html>
 <html lang="en">
 ${renderHealthThemeAssets(`${person.name} ${pageTitle}`)}
 <body>
   ${renderHealthThemePalette()}
+  ${renderLanguageToggle()}
   <main style="width:min(1080px, calc(100vw - 32px));">
     <div class="links" style="margin-bottom:22px;">
-      <a href="${basePath}">${escapeHtml(person.name)} Health</a>
-      <a href="${basePath}/bloodwork">Bloodwork</a>
-      <a href="${basePath}/images">Images</a>
-      <a href="${basePath}/reports">Reports</a>
-      <a href="/family/health/${otherSlug}">Switch To ${otherName}</a>
+      <a href="${basePath}"><span>${escapeHtml(person.name)}</span> <span data-i18n>Health</span></a>
+      <a href="${basePath}/bloodwork" data-i18n>Bloodwork</a>
+      <a href="${basePath}/images" data-i18n>Images</a>
+      <a href="${basePath}/reports" data-i18n>Reports</a>
+      <a href="/family/health/${otherSlug}"><span data-i18n>Switch To</span>&nbsp;${otherName}</a>
     </div>
     <section class="panel" style="padding:24px; margin-bottom:16px;">
-      <div class="eyebrow">${escapeHtml(person.name)} ${escapeHtml(pageTitle)}</div>
-      <h1 style="margin:0; font-size:clamp(2rem, 4vw, 3.2rem);">${escapeHtml(pageTitle)}</h1>
-      <p class="lead">${section === 'bloodwork' ? 'Focused lab view with report-derived flags, recent draw timing, and source document viewers.' : section === 'images' ? 'Focused imaging view with study lists, narrative findings, and click-through image viewers.' : 'Focused report view with source documents opened in-browser whenever possible.'}</p>
+      <div class="eyebrow"><span>${escapeHtml(person.name)}</span> <span data-i18n>${escapeHtml(pageTitle)}</span></div>
+      <h1 style="margin:0; font-size:clamp(2rem, 4vw, 3.2rem);" data-i18n>${escapeHtml(pageTitle)}</h1>
+      <p class="lead" data-i18n>${section === 'bloodwork' ? 'Focused lab view with report-derived flags, recent draw timing, and source document viewers.' : section === 'images' ? 'Focused imaging view with study lists, narrative findings, and click-through image viewers.' : 'Focused report view with source documents opened in-browser whenever possible.'}</p>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-top:18px;">
-        <div class="health-list-item" style="display:block;"><div class="stat-label">Latest date</div><div style="margin-top:6px; font-size:1.15rem;">${escapeHtml(section === 'bloodwork' ? (latestLabs ? latestLabs.date_of_service : 'Unknown') : section === 'images' ? (latestImaging[0] ? latestImaging[0].date_of_service || 'Undated' : 'Unknown') : (reportFiles[0] ? reportFiles[0].fileName : 'Unknown'))}</div></div>
-        <div class="health-list-item" style="display:block;"><div class="stat-label">${section === 'images' ? 'Studies' : 'Source files'}</div><div style="margin-top:6px; font-size:1.15rem;">${escapeHtml(String(section === 'images' ? imagingStudies.length : relatedReports.length))}</div></div>
-        <div class="health-list-item" style="display:block;"><div class="stat-label">${section === 'reports' ? 'Viewer-ready' : 'Flagged items'}</div><div style="margin-top:6px; font-size:1.15rem;">${escapeHtml(String(section === 'bloodwork' ? ((bloodworkReport && bloodworkReport.flags && bloodworkReport.flags.length) || 0) : section === 'images' ? concerns.length : relatedReports.length))}</div></div>
+        <div class="health-list-item" style="display:block;"><div class="stat-label" data-i18n>Latest date</div><div style="margin-top:6px; font-size:1.15rem;">${escapeHtml(section === 'bloodwork' ? (latestLabs ? latestLabs.date_of_service : 'Unknown') : section === 'images' ? (latestImaging[0] ? latestImaging[0].date_of_service || 'Undated' : 'Unknown') : (reportFiles[0] ? reportFiles[0].fileName : 'Unknown'))}</div></div>
+        <div class="health-list-item" style="display:block;"><div class="stat-label" data-i18n>${section === 'images' ? 'Studies' : 'Source files'}</div><div style="margin-top:6px; font-size:1.15rem;">${escapeHtml(String(section === 'images' ? imagingStudies.length : relatedReports.length))}</div></div>
+        <div class="health-list-item" style="display:block;"><div class="stat-label" data-i18n>${section === 'reports' ? 'Viewer-ready' : 'Flagged items'}</div><div style="margin-top:6px; font-size:1.15rem;">${escapeHtml(String(section === 'bloodwork' ? ((bloodworkReport && bloodworkReport.flags && bloodworkReport.flags.length) || 0) : section === 'images' ? concerns.length : relatedReports.length))}</div></div>
       </div>
     </section>
     <section class="panel" style="padding:24px; margin-bottom:16px;">
-      <h2 style="margin:0;">${section === 'bloodwork' ? 'Flags and trend highlights' : section === 'images' ? 'Recent imaging findings' : 'Available source documents'}</h2>
+      <h2 style="margin:0;" data-i18n>${section === 'bloodwork' ? 'Flags and trend highlights' : section === 'images' ? 'Recent imaging findings' : 'Available source documents'}</h2>
       <ul class="bullet-list" style="margin-top:16px; padding-left:18px;">${listMarkup}</ul>
     </section>
     <section class="panel" style="padding:24px;">
-      <h2 style="margin:0;">${section === 'images' ? 'Imaging studies' : 'Related report files'}</h2>
+      <h2 style="margin:0;" data-i18n>${section === 'images' ? 'Imaging studies' : 'Related report files'}</h2>
       <ul class="health-list">${secondaryMarkup}</ul>
     </section>
   </main>
   ${renderHealthThemeScript()}
+  ${renderLanguageScript()}
 </body>
 </html>`;
 }
@@ -223,38 +362,40 @@ function renderPersonImagingStudyPage(healthData, study) {
   const otherName = person.slug === 'andrew' ? 'Kaili' : 'Andrew';
   const imageMarkup = study.images.length
     ? study.images.map((image, index) => `<img src="${basePath}/images/${encodeURIComponent(study.slug)}/asset/${encodeURIComponent(image.relativePath)}" alt="${escapeHtml(study.title)} image ${index + 1}" loading="lazy">`).join('')
-    : '<div class="health-list-item"><div><strong>No rendered images found</strong><div class="health-meta">This study does not have a rendered image set yet.</div></div></div>';
+    : '<div class="health-list-item"><div><strong data-i18n>No rendered images found</strong><div class="health-meta" data-i18n>This study does not have a rendered image set yet.</div></div></div>';
   const docMarkup = study.documents.length
-    ? study.documents.map(file => `<li class="health-list-item"><div><strong>${escapeHtml(file.fileName)}</strong><div class="health-meta">${escapeHtml(file.ext.replace('.', '').toUpperCase())}</div></div><a class="health-link-inline" href="${basePath}/images/${encodeURIComponent(study.slug)}/document/${encodeURIComponent(file.relativePath)}">Open Doc</a></li>`).join('')
-    : '<li class="health-list-item"><div><strong>No study documents</strong><div class="health-meta">Only images were found for this study.</div></div></li>';
+    ? study.documents.map(file => `<li class="health-list-item"><div><strong>${escapeHtml(file.fileName)}</strong><div class="health-meta">${escapeHtml(file.ext.replace('.', '').toUpperCase())}</div></div><a class="health-link-inline" href="${basePath}/images/${encodeURIComponent(study.slug)}/document/${encodeURIComponent(file.relativePath)}" data-i18n>Open Doc</a></li>`).join('')
+    : '<li class="health-list-item"><div><strong data-i18n>No study documents</strong><div class="health-meta" data-i18n>Only images were found for this study.</div></div></li>';
 
   return `<!DOCTYPE html>
 <html lang="en">
 ${renderHealthThemeAssets(`${person.name} ${study.title}`)}
 <body>
   ${renderHealthThemePalette()}
+  ${renderLanguageToggle()}
   <main style="width:min(1180px, calc(100vw - 32px));">
     <div class="links" style="margin-bottom:22px;">
-      <a href="${basePath}">${escapeHtml(person.name)} Health</a>
-      <a href="${basePath}/images">All Imaging</a>
-      <a href="${basePath}/reports">Reports</a>
-      <a href="/family/health/${otherSlug}">Switch To ${otherName}</a>
+      <a href="${basePath}"><span>${escapeHtml(person.name)}</span> <span data-i18n>Health</span></a>
+      <a href="${basePath}/images" data-i18n>All Imaging</a>
+      <a href="${basePath}/reports" data-i18n>Reports</a>
+      <a href="/family/health/${otherSlug}"><span data-i18n>Switch To</span>&nbsp;${otherName}</a>
     </div>
     <section class="panel" style="padding:24px; margin-bottom:16px;">
-      <div class="eyebrow">Imaging Study</div>
+      <div class="eyebrow" data-i18n>Imaging Study</div>
       <h1 style="margin:0; font-size:clamp(2rem, 4vw, 3.2rem);">${escapeHtml(study.title)}</h1>
-      <p class="lead">${escapeHtml(study.date || 'Undated')} · ${escapeHtml(String(study.imageCount))} rendered image${study.imageCount === 1 ? '' : 's'} available to scroll through below.</p>
+      <p class="lead">${escapeHtml(study.date || 'Undated')} · ${escapeHtml(String(study.imageCount))} <span data-i18n>${study.imageCount === 1 ? 'rendered image' : 'rendered images'}</span> <span data-i18n>available to scroll through below.</span></p>
     </section>
     <section class="panel" style="padding:24px; margin-bottom:16px;">
-      <h2 style="margin:0;">Study Documents</h2>
+      <h2 style="margin:0;" data-i18n>Study Documents</h2>
       <ul class="health-list">${docMarkup}</ul>
     </section>
     <section class="panel" style="padding:24px;">
-      <h2 style="margin:0;">Images</h2>
+      <h2 style="margin:0;" data-i18n>Images</h2>
       <div class="image-stack">${imageMarkup}</div>
     </section>
   </main>
   ${renderHealthThemeScript()}
+  ${renderLanguageScript()}
 </body>
 </html>`;
 }
@@ -265,10 +406,11 @@ function renderPersonHealthFileViewerPage(title, bodyMarkup, actionsMarkup, shar
 ${renderHealthThemeAssets(title)}
 <body>
   ${renderHealthThemePalette()}
+  ${renderLanguageToggle()}
   <main style="width:min(1180px, calc(100vw - 32px));">
-    <div class="links" style="margin-bottom:22px;">${actionsMarkup}<button type="button" class="action-button" onclick="shareCurrentPage()">Share</button></div>
+    <div class="links" style="margin-bottom:22px;">${actionsMarkup}<button type="button" class="action-button" onclick="shareCurrentPage()" data-i18n>Share</button></div>
     <section class="panel" style="padding:24px;">
-      <div class="eyebrow">Source Document</div>
+      <div class="eyebrow" data-i18n>Source Document</div>
       <h1 style="margin:0 0 16px; font-size:clamp(2rem, 4vw, 3.2rem);">${escapeHtml(title)}</h1>
       ${bodyMarkup}
     </section>
@@ -305,6 +447,7 @@ ${renderHealthThemeAssets(title)}
       alert('Unable to share the file directly on this device.');
     }
   </script>
+  ${renderLanguageScript()}
 </body>
 </html>`;
 }
