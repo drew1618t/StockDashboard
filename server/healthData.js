@@ -2,22 +2,43 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
+function resolveHealthPaths(rootDir, defaults = {}) {
+  return {
+    rootDir,
+    reportsDir: defaults.reportsDir || path.join(rootDir, 'Reports'),
+    dbPath: defaults.dbPath || path.join(rootDir, 'health.db'),
+    imagingDir: defaults.imagingDir || path.join(rootDir, 'Ingested', 'Imaging'),
+  };
+}
+
+const DEFAULT_ANDREW_ROOT = 'C:\\Users\\Andrew\\OneDrive\\Documents\\Health';
+const DEFAULT_KAILI_ROOT = 'C:\\Users\\Andrew\\OneDrive\\Documents\\Kaili Health';
+const PYTHON_BIN = process.env.HEALTH_PYTHON_BIN || (process.platform === 'win32' ? 'py' : 'python3');
+
 const PERSON_CONFIG = {
   andrew: {
     slug: 'andrew',
     name: 'Andrew',
-    rootDir: 'C:\\Users\\Andrew\\OneDrive\\Documents\\Health',
-    reportsDir: 'C:\\Users\\Andrew\\OneDrive\\Documents\\Health\\Reports',
-    dbPath: 'C:\\Users\\Andrew\\OneDrive\\Documents\\Health\\health.db',
-    imagingDir: 'C:\\Users\\Andrew\\OneDrive\\Documents\\Health\\Ingested\\Imaging',
+    ...resolveHealthPaths(
+      process.env.HEALTH_ANDREW_ROOT || DEFAULT_ANDREW_ROOT,
+      {
+        reportsDir: process.env.HEALTH_ANDREW_REPORTS_DIR,
+        dbPath: process.env.HEALTH_ANDREW_DB_PATH,
+        imagingDir: process.env.HEALTH_ANDREW_IMAGING_DIR,
+      }
+    ),
   },
   kaili: {
     slug: 'kaili',
     name: 'Kaili',
-    rootDir: 'C:\\Users\\Andrew\\OneDrive\\Documents\\Kaili Health',
-    reportsDir: 'C:\\Users\\Andrew\\OneDrive\\Documents\\Kaili Health\\reports',
-    dbPath: 'C:\\Users\\Andrew\\OneDrive\\Documents\\Kaili Health\\health.db',
-    imagingDir: 'C:\\Users\\Andrew\\OneDrive\\Documents\\Kaili Health\\ingested\\Imaging',
+    ...resolveHealthPaths(
+      process.env.HEALTH_KAILI_ROOT || DEFAULT_KAILI_ROOT,
+      {
+        reportsDir: process.env.HEALTH_KAILI_REPORTS_DIR || path.join(process.env.HEALTH_KAILI_ROOT || DEFAULT_KAILI_ROOT, 'reports'),
+        dbPath: process.env.HEALTH_KAILI_DB_PATH,
+        imagingDir: process.env.HEALTH_KAILI_IMAGING_DIR || path.join(process.env.HEALTH_KAILI_ROOT || DEFAULT_KAILI_ROOT, 'ingested', 'Imaging'),
+      }
+    ),
   },
 };
 
@@ -37,7 +58,7 @@ function runSqliteQuery(dbPath, sql, params = []) {
     'print(json.dumps(rows, ensure_ascii=True))',
   ].join('\n');
 
-  const output = execFileSync('py', ['-c', script, dbPath, sql, JSON.stringify(params)], {
+  const output = execFileSync(PYTHON_BIN, ['-c', script, dbPath, sql, JSON.stringify(params)], {
     encoding: 'utf8',
   });
   return JSON.parse(output);
