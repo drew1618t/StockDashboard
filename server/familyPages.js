@@ -1,3 +1,10 @@
+const {
+  renderPersonHealthPage: renderPersonHealthPageView,
+  renderPersonHealthSectionPage: renderPersonHealthSectionPageView,
+  renderPersonImagingStudyPage,
+  renderPersonHealthFileViewerPage,
+} = require('./healthPageViews');
+
 function renderFamilyHubPage() {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -1676,22 +1683,596 @@ function renderFamilyHealthChooserPage() {
   ]);
 }
 
-function renderPersonHealthPage(personName) {
-  return renderFamilyLayout(
-    `${personName} Health`,
-    `Protected placeholder for ${personName}'s health records, appointments, and medical references.`,
-    [
-      {
-        title: 'Protected Placeholder',
-        description: `${personName}'s health page is routed and protected. This is ready for real health content.`,
-      },
-    ]
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderReminderItem(item) {
+  return `<li class="health-list-item">
+    <div>
+      <strong>${escapeHtml(item.label)}</strong>
+      <div class="health-meta">${escapeHtml(item.note || '')}</div>
+    </div>
+    <div class="health-chip">${escapeHtml(item.dueDate || item.status || 'Open')}</div>
+  </li>`;
+}
+
+function renderBulletItem(item) {
+  return `<li class="health-list-item">
+    <div>
+      <strong>${escapeHtml(item.title || 'Untitled')}</strong>
+      <div class="health-meta">${escapeHtml(item.summary || '')}</div>
+    </div>
+    <div class="health-chip">${escapeHtml(item.date_of_service || 'Undated')}</div>
+  </li>`;
+}
+
+function renderFileItem(item, basePath) {
+  const href = `${basePath}/report/${encodeURIComponent(item.fileName)}`;
+  return `<li class="health-list-item">
+    <div>
+      <strong>${escapeHtml(item.fileName)}</strong>
+      <div class="health-meta">${escapeHtml(item.ext.replace('.', '').toUpperCase())} report</div>
+    </div>
+    <a class="health-link-inline" href="${href}">Open</a>
+  </li>`;
+}
+
+function renderPersonHealthPage(healthData) {
+  const { person, reminders, bloodworkReport, latestImaging, immunizations, concerns, reportFiles, latestLabs } = healthData;
+  const basePath = `/family/health/${person.slug}`;
+  const reminderMarkup = reminders.length
+    ? reminders.map(renderReminderItem).join('')
+    : '<li class="health-list-item"><div><strong>No reminders yet</strong><div class="health-meta">No due items were derived from the current records.</div></div></li>';
+  const imagingMarkup = latestImaging.length
+    ? latestImaging.slice(0, 3).map(renderBulletItem).join('')
+    : '<li class="health-list-item"><div><strong>No imaging found</strong><div class="health-meta">No imaging reports or findings are currently in the database.</div></div></li>';
+  const vaccineMarkup = immunizations.length
+    ? immunizations.slice(0, 4).map(renderBulletItem).join('')
+    : '<li class="health-list-item"><div><strong>No vaccine history found</strong><div class="health-meta">Immunization records have not been ingested yet.</div></div></li>';
+  const concernMarkup = concerns.length
+    ? concerns.slice(0, 4).map(renderBulletItem).join('')
+    : '<li class="health-list-item"><div><strong>No recent flagged concerns</strong><div class="health-meta">Nothing recent matched the current alert rules.</div></div></li>';
+  const reportMarkup = reportFiles.length
+    ? reportFiles.slice(0, 5).map(item => renderFileItem(item, basePath)).join('')
+    : '<li class="health-list-item"><div><strong>No report files found</strong><div class="health-meta">The reports folder is empty.</div></div></li>';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(person.name)} Health</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111827;
+      --panel: #182235;
+      --panel-soft: rgba(255,255,255,0.03);
+      --panel-border: rgba(255,255,255,0.08);
+      --text: #edf2f7;
+      --muted: #94a3b8;
+      --accent: #7dd3fc;
+      --accent-2: #f59e0b;
+      --danger: #fca5a5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(125, 211, 252, 0.14), transparent 28%),
+        radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 24%),
+        linear-gradient(180deg, #09111f, var(--bg));
+      font-family: "DM Sans", "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1240px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 36px 0 72px;
+    }
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .eyebrow {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      line-height: 0.95;
+    }
+    .lead {
+      margin-top: 14px;
+      max-width: 68ch;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .links a, .health-link-inline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--panel-border);
+    }
+    .links a.primary {
+      background: linear-gradient(90deg, rgba(125,211,252,0.18), rgba(245,158,11,0.16));
+      border-color: rgba(125,211,252,0.26);
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr 0.9fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .hero-card, .health-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      box-shadow: 0 18px 48px rgba(0,0,0,0.28);
+      backdrop-filter: blur(10px);
+    }
+    .hero-card {
+      padding: 28px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--panel-soft);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+    .stat-value {
+      margin-top: 6px;
+      font-size: 1.35rem;
+      color: var(--text);
+    }
+    .health-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr 1fr;
+      grid-template-areas:
+        "reminders bloodwork images"
+        "findings vaccines reports";
+      gap: 16px;
+    }
+    .card-reminders { grid-area: reminders; }
+    .card-bloodwork { grid-area: bloodwork; }
+    .card-images { grid-area: images; }
+    .card-findings { grid-area: findings; }
+    .card-vaccines { grid-area: vaccines; }
+    .card-reports { grid-area: reports; }
+    .health-card {
+      padding: 22px;
+    }
+    .health-card.link-card {
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+    .health-card.link-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(125,211,252,0.3);
+    }
+    .card-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+    }
+    .card-title {
+      margin: 0 0 8px;
+      font-size: 1.35rem;
+      line-height: 1.1;
+    }
+    .card-copy {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .health-list {
+      list-style: none;
+      margin: 16px 0 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .health-list-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: var(--panel-soft);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .health-meta {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+    .health-chip {
+      flex-shrink: 0;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(125,211,252,0.1);
+      color: var(--accent);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .flag-list {
+      margin: 16px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .flag-list li + li { margin-top: 8px; }
+    .mini-stat {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    @media (max-width: 980px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .health-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "reminders reminders"
+          "bloodwork images"
+          "findings vaccines"
+          "reports reports";
+      }
+    }
+    @media (max-width: 640px) {
+      main {
+        width: min(100vw - 20px, 100%);
+        padding-top: 20px;
+      }
+      .stats, .health-grid {
+        grid-template-columns: 1fr;
+      }
+      .health-grid {
+        grid-template-areas:
+          "reminders"
+          "bloodwork"
+          "images"
+          "findings"
+          "vaccines"
+          "reports";
+      }
+      .health-list-item {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <div>
+        <div class="eyebrow">Family Health</div>
+        <h1>${escapeHtml(person.name)} Health</h1>
+        <p class="lead">Balanced bento overview of bloodwork, imaging, reminders, vaccine timing, and recent issues pulled from the ingested health database and report folder.</p>
+      </div>
+      <div class="links">
+        <a href="/family" class="primary">Family Hub</a>
+        <a href="/family/health">Switch Person</a>
+        <a href="${basePath}/bloodwork">Bloodwork</a>
+        <a href="${basePath}/images">Images</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <article class="hero-card">
+        <div class="card-label">Snapshot</div>
+        <h2 class="card-title">Health records anchored to live source material</h2>
+        <p class="card-copy">The dashboard is using ${escapeHtml(person.name)}&#39;s health database, recent reports, and reminder rules so the top-level page stays actionable rather than document-heavy.</p>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Latest bloodwork</div>
+            <div class="stat-value">${escapeHtml(latestLabs ? latestLabs.date_of_service : 'Unknown')}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Flagged lab items</div>
+            <div class="stat-value">${escapeHtml(String(bloodworkReport && bloodworkReport.flags ? bloodworkReport.flags.length : 0))}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Recent imaging items</div>
+            <div class="stat-value">${escapeHtml(String(latestImaging.length))}</div>
+          </div>
+        </div>
+      </article>
+      <article class="hero-card">
+        <div class="card-label">This year</div>
+        <h2 class="card-title">What needs attention next</h2>
+        <ul class="health-list">${reminderMarkup}</ul>
+      </article>
+    </section>
+
+    <section class="health-grid">
+      <article class="health-card card-reminders">
+        <div class="card-label">Reminders</div>
+        <h2 class="card-title">Due soon and due this year</h2>
+        <p class="card-copy">Vaccines, annual bloodwork timing, and short-horizon follow-ups inferred from recent records.</p>
+        <ul class="health-list">${reminderMarkup}</ul>
+      </article>
+
+      <a class="health-card link-card card-bloodwork" href="${basePath}/bloodwork">
+        <div class="card-label">Bloodwork</div>
+        <h2 class="card-title">Labs and blood panels</h2>
+        <p class="card-copy">${escapeHtml(bloodworkReport && bloodworkReport.stats['Date Range']
+          ? `Trend report available. Coverage: ${bloodworkReport.stats['Date Range']}.`
+          : 'Open the bloodwork section for the report, trend summary, and flagged markers.')}</p>
+        ${bloodworkReport && bloodworkReport.flags && bloodworkReport.flags.length ? `<ul class="flag-list">${bloodworkReport.flags.slice(0, 4).map(flag => `<li>${escapeHtml(flag)}</li>`).join('')}</ul>` : ''}
+        <div class="mini-stat">
+          <span>Latest draw</span>
+          <strong>${escapeHtml(latestLabs ? latestLabs.date_of_service : 'Unknown')}</strong>
+        </div>
+      </a>
+
+      <a class="health-card link-card card-images" href="${basePath}/images">
+        <div class="card-label">Images</div>
+        <h2 class="card-title">Imaging and findings</h2>
+        <p class="card-copy">Open the imaging section for recent studies, narrative findings, and linked report files.</p>
+        <ul class="health-list">${imagingMarkup}</ul>
+      </a>
+
+      <article class="health-card card-findings">
+        <div class="card-label">Findings</div>
+        <h2 class="card-title">Recent concerns</h2>
+        <p class="card-copy">This card surfaces recent abnormalities or follow-up-worthy findings from labs and imaging.</p>
+        <ul class="health-list">${concernMarkup}</ul>
+      </article>
+
+      <article class="health-card card-vaccines">
+        <div class="card-label">Vaccines</div>
+        <h2 class="card-title">Recorded immunizations</h2>
+        <p class="card-copy">Most recent vaccine entries pulled directly from the ingested immunization history.</p>
+        <ul class="health-list">${vaccineMarkup}</ul>
+      </article>
+
+      <article class="health-card card-reports">
+        <div class="card-label">Reports</div>
+        <h2 class="card-title">Source documents</h2>
+        <p class="card-copy">Quick access to bloodwork reports and imaging writeups sitting in the person-specific reports folder.</p>
+        <ul class="health-list">${reportMarkup}</ul>
+      </article>
+    </section>
+  </main>
+</body>
+</html>`;
+}
+
+function renderPersonHealthSectionPage(healthData, section) {
+  const { person, bloodworkReport, latestImaging, reportFiles, latestLabs, concerns } = healthData;
+  const basePath = `/family/health/${person.slug}`;
+  const pageTitle = section === 'bloodwork' ? 'Bloodwork' : 'Images';
+  const relatedReports = reportFiles.filter(file =>
+    section === 'bloodwork'
+      ? /bloodwork|lab/i.test(file.fileName)
+      : /mri|ct|xray|ultra|imaging|report/i.test(file.fileName)
   );
+  const listMarkup = section === 'bloodwork'
+    ? (bloodworkReport && bloodworkReport.flags && bloodworkReport.flags.length
+      ? bloodworkReport.flags.map(flag => `<li>${escapeHtml(flag)}</li>`).join('')
+      : '<li>No flagged bloodwork markers were parsed from the current report.</li>')
+    : (latestImaging.length
+      ? latestImaging.map(item => `<li><strong>${escapeHtml(item.title)}</strong><br><span class="health-meta">${escapeHtml(item.date_of_service || 'Undated')} · ${escapeHtml(item.summary || '')}</span></li>`).join('')
+      : '<li>No imaging findings are currently available.</li>');
+  const reportMarkup = relatedReports.length
+    ? relatedReports.map(item => renderFileItem(item, basePath)).join('')
+    : '<li class="health-list-item"><div><strong>No matching report files</strong><div class="health-meta">Nothing in the reports folder matched this section yet.</div></div></li>';
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtml(person.name)} ${escapeHtml(pageTitle)}</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: #152033;
+      --border: rgba(255,255,255,0.08);
+      --text: #edf2f7;
+      --muted: #94a3b8;
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background: linear-gradient(180deg, #07101c, var(--bg));
+      font-family: "DM Sans", "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1080px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 36px 0 60px;
+    }
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+    }
+    .panel {
+      padding: 24px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 48px rgba(0,0,0,0.28);
+      margin-bottom: 16px;
+    }
+    .eyebrow {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    h1, h2 { margin: 0; }
+    h1 { font-size: clamp(2rem, 4vw, 3.2rem); }
+    .lead, .health-meta {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .health-list {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .health-list-item, .bullet-list li {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .bullet-list {
+      margin: 16px 0 0;
+      padding-left: 18px;
+      line-height: 1.6;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .stat {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+    .stat-value {
+      margin-top: 6px;
+      font-size: 1.15rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="links">
+      <a href="${basePath}">${escapeHtml(person.name)} Health</a>
+      <a href="${basePath}/bloodwork">Bloodwork</a>
+      <a href="${basePath}/images">Images</a>
+      <a href="/family/health">Switch Person</a>
+    </div>
+
+    <section class="panel">
+      <div class="eyebrow">${escapeHtml(person.name)} ${escapeHtml(pageTitle)}</div>
+      <h1>${escapeHtml(pageTitle)}</h1>
+      <p class="lead">${section === 'bloodwork'
+        ? 'Focused lab view with report-derived flags, recent draw timing, and direct links to bloodwork source files.'
+        : 'Focused imaging view with recent findings, narrative summaries, and direct links to imaging source files.'}</p>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Latest date</div>
+          <div class="stat-value">${escapeHtml(section === 'bloodwork' ? (latestLabs ? latestLabs.date_of_service : 'Unknown') : (latestImaging[0] ? latestImaging[0].date_of_service || 'Undated' : 'Unknown'))}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Source files</div>
+          <div class="stat-value">${escapeHtml(String(relatedReports.length))}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Flagged items</div>
+          <div class="stat-value">${escapeHtml(String(section === 'bloodwork' ? ((bloodworkReport && bloodworkReport.flags && bloodworkReport.flags.length) || 0) : concerns.length))}</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>${section === 'bloodwork' ? 'Flags and trend highlights' : 'Recent imaging findings'}</h2>
+      <ul class="bullet-list">${listMarkup}</ul>
+    </section>
+
+    <section class="panel">
+      <h2>Related report files</h2>
+      <ul class="health-list">${reportMarkup}</ul>
+    </section>
+  </main>
+</body>
+</html>`;
 }
 
 module.exports = {
   renderFamilyHubPage,
   renderFamilySectionPage,
   renderFamilyHealthChooserPage,
-  renderPersonHealthPage,
+  renderPersonHealthPage: renderPersonHealthPageView,
+  renderPersonHealthSectionPage: renderPersonHealthSectionPageView,
+  renderPersonImagingStudyPage,
+  renderPersonHealthFileViewerPage,
 };
