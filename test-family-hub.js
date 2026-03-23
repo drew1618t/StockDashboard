@@ -69,6 +69,13 @@ app.get('/family/health/:personSlug/images/:studySlug/asset/:assetPath(*)', (req
   if (!person || !study || !asset) return res.status(404).send('Asset not found');
   return res.sendFile(asset.fullPath);
 });
+app.get('/family/health/:personSlug/images/:studySlug/document/raw/:docPath(*)', (req, res) => {
+  const person = getPersonConfig(req.params.personSlug);
+  const study = person ? getImagingStudy(person, req.params.studySlug) : null;
+  const doc = study ? resolveStudyFile(study, req.params.docPath) : null;
+  if (!person || !study || !doc) return res.status(404).send('Doc not found');
+  return res.sendFile(doc.fullPath);
+});
 app.get('/family/health/:personSlug/images/:studySlug/document/:docPath(*)', (req, res) => {
   const person = getPersonConfig(req.params.personSlug);
   const study = person ? getImagingStudy(person, req.params.studySlug) : null;
@@ -80,13 +87,6 @@ app.get('/family/health/:personSlug/images/:studySlug/document/:docPath(*)', (re
   if (doc.ext === '.docx') {
     return res.send(renderPersonHealthFileViewerPage(doc.fileName, `<iframe class="viewer-frame" src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(`${req.protocol}://${req.get('host')}/family/health/${person.slug}/images/${encodeURIComponent(study.slug)}/document/raw/${encodeURIComponent(doc.relativePath)}`)}"></iframe>`, `<a href="/family/health/${person.slug}/images/${encodeURIComponent(study.slug)}">Back to Study</a>`, `/family/health/${person.slug}/images/${encodeURIComponent(study.slug)}/document/raw/${encodeURIComponent(doc.relativePath)}`, doc.fileName));
   }
-  return res.sendFile(doc.fullPath);
-});
-app.get('/family/health/:personSlug/images/:studySlug/document/raw/:docPath(*)', (req, res) => {
-  const person = getPersonConfig(req.params.personSlug);
-  const study = person ? getImagingStudy(person, req.params.studySlug) : null;
-  const doc = study ? resolveStudyFile(study, req.params.docPath) : null;
-  if (!person || !study || !doc) return res.status(404).send('Doc not found');
   return res.sendFile(doc.fullPath);
 });
 app.get('/family/medical', (req, res) => res.redirect('/family/health'));

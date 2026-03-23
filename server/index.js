@@ -119,11 +119,11 @@ function createApp() {
 
   app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader(
       'Content-Security-Policy',
-      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'"
+      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src 'self' https://view.officeapps.live.com"
     );
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     next();
@@ -458,6 +458,18 @@ function createApp() {
     return res.sendFile(asset.fullPath);
   });
 
+  app.get('/family/health/:personSlug/images/:studySlug/document/raw/:docPath(*)', requireRole('family'), (req, res) => {
+    const person = getPersonConfig(req.params.personSlug);
+    const study = person ? getImagingStudy(person, req.params.studySlug) : null;
+    const doc = study ? resolveStudyFile(study, req.params.docPath) : null;
+    if (!person || !study || !doc) {
+      return res.status(404).type('html').send(
+        renderFamilySectionPage('Study Document Not Found', 'That study document does not exist.')
+      );
+    }
+    return res.sendFile(doc.fullPath);
+  });
+
   app.get('/family/health/:personSlug/images/:studySlug/document/:docPath(*)', requireRole('family'), (req, res) => {
     const person = getPersonConfig(req.params.personSlug);
     const study = person ? getImagingStudy(person, req.params.studySlug) : null;
@@ -488,18 +500,6 @@ function createApp() {
           `/family/health/${person.slug}/images/${encodeURIComponent(study.slug)}/document/raw/${encodeURIComponent(doc.relativePath)}`,
           doc.fileName
         )
-      );
-    }
-    return res.sendFile(doc.fullPath);
-  });
-
-  app.get('/family/health/:personSlug/images/:studySlug/document/raw/:docPath(*)', requireRole('family'), (req, res) => {
-    const person = getPersonConfig(req.params.personSlug);
-    const study = person ? getImagingStudy(person, req.params.studySlug) : null;
-    const doc = study ? resolveStudyFile(study, req.params.docPath) : null;
-    if (!person || !study || !doc) {
-      return res.status(404).type('html').send(
-        renderFamilySectionPage('Study Document Not Found', 'That study document does not exist.')
       );
     }
     return res.sendFile(doc.fullPath);
