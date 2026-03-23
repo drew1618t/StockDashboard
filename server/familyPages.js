@@ -5,7 +5,34 @@ const {
   renderPersonHealthFileViewerPage,
 } = require('./healthPageViews');
 
-function renderFamilyHubPage() {
+function renderHubHealthCard(summary) {
+  if (!summary) return '';
+  return `<a class="health-person" href="/family/health/${escapeHtml(summary.slug)}">
+            <div class="person-name">
+              <span class="person-initial">${escapeHtml(summary.name.slice(0, 1))}</span> ${escapeHtml(summary.name)}
+            </div>
+            <div class="health-icon-wrap" aria-hidden="true">
+              <div class="health-icon">
+                <svg viewBox="0 0 64 64" role="presentation" focusable="false">
+                  <path class="health-icon-heart" d="M32 54c-1.4 0-2.7-.5-3.8-1.4C18.5 44.7 10 36.8 10 26.9 10 19.8 15.7 14 22.8 14c3.7 0 7.2 1.7 9.2 4.5 2-2.8 5.5-4.5 9.2-4.5C48.3 14 54 19.8 54 26.9c0 9.9-8.5 17.8-18.2 25.7-1.1.9-2.4 1.4-3.8 1.4Z"/>
+                  <path class="health-icon-cross" d="M35.5 23.5v7h7v3h-7v7h-3v-7h-7v-3h7v-7h3Z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="health-cta">Open ${escapeHtml(summary.name)}'s Health</div>
+          </a>`;
+}
+
+function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}) {
+  const andrewCard = renderHubHealthCard(healthSummaries.andrew || {
+    slug: 'andrew',
+    name: 'Andrew',
+  });
+  const kailiCard = renderHubHealthCard(healthSummaries.kaili || {
+    slug: 'kaili',
+    name: 'Kaili',
+  });
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -263,6 +290,8 @@ function renderFamilyHubPage() {
       text-decoration: none;
       border: 1px solid transparent;
       transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+      position: relative;
+      text-align: center;
     }
     .health-person:hover {
       transform: translateY(-2px);
@@ -299,6 +328,39 @@ function renderFamilyHubPage() {
       color: var(--b-dim);
     }
     .health-row span:last-child { font-weight: 600; }
+    .health-icon-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 14px 0 10px;
+    }
+    .health-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      background: rgba(var(--b-accent-rgb),0.12);
+      color: var(--b-accent);
+      border: 1px solid rgba(var(--b-accent-rgb),0.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .health-icon svg {
+      width: 34px;
+      height: 34px;
+      display: block;
+    }
+    .health-icon-heart {
+      fill: rgba(var(--b-accent-rgb),0.22);
+      stroke: var(--b-accent);
+      stroke-width: 2.4;
+      stroke-linejoin: round;
+    }
+    .health-icon-cross {
+      fill: var(--b-accent);
+    }
     .health-cta {
       margin-top: 10px;
       font-size: 10px;
@@ -911,24 +973,8 @@ function renderFamilyHubPage() {
       <section class="hub-health panel">
         <div class="panel-label">Health</div>
         <div class="health-grid">
-          <a class="health-person" href="/family/health/andrew">
-            <div class="person-name">
-              <span class="person-initial">A</span> Andrew
-            </div>
-            <div class="health-row"><span>Status</span><span>All good</span></div>
-            <div class="health-row"><span>Next Appt</span><span>Apr 12</span></div>
-            <div class="health-row"><span>Last Check</span><span>Feb 8</span></div>
-            <div class="health-cta">Open Andrew's Health</div>
-          </a>
-          <a class="health-person" href="/family/health/kaili">
-            <div class="person-name">
-              <span class="person-initial">K</span> Kaili
-            </div>
-            <div class="health-row"><span>Status</span><span>All good</span></div>
-            <div class="health-row"><span>Next Appt</span><span>Mar 28</span></div>
-            <div class="health-row"><span>Last Check</span><span>Jan 15</span></div>
-            <div class="health-cta">Open Kaili's Health</div>
-          </a>
+          ${andrewCard}
+          ${kailiCard}
         </div>
       </section>
 
