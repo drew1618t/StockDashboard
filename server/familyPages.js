@@ -180,7 +180,7 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}) {
       padding: 0 24px 48px;
     }
     .hub-greeting {
-      padding: 48px 0 8px;
+      padding: 16px 0 8px;
       font-size: clamp(1.6rem, 4vw, 2.4rem);
       font-weight: 700;
       color: var(--b-text);
