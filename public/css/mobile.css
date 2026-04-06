@@ -1,0 +1,303 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   mobile.css — Mobile-only responsive overrides.
+   Everything is inside @media queries — zero impact on desktop.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet & small laptop (≤ 1024px) ──────────────────────────────────── */
+/* (Grid collapses already handled in base.css — no additions needed.) */
+
+
+/* ── Tablet-portrait & large phones (≤ 768px) ──────────────────────────── */
+@media (max-width: 768px) {
+
+  /* -- Spacing tighten -- */
+  :root {
+    --gap: 12px;
+    --gap-lg: 16px;
+    --gap-sm: 6px;
+  }
+
+  /* -- Header -- */
+  #app-header {
+    padding: 6px 12px;
+    gap: 6px;
+  }
+
+  .home-link { display: none; }        /* free up space */
+  .header-meta { display: none; }      /* hide "11 companies" / role chip */
+  .app-title { font-size: 13px; }
+
+  .header-nav {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;              /* Firefox */
+    padding: 0;
+    gap: 0;
+    justify-content: space-evenly;
+  }
+  .header-nav::-webkit-scrollbar { display: none; }  /* Chrome/Safari */
+
+  .nav-link {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 6px 4px !important;
+    font-size: 10px !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* -- Sticky ticker column (first column pins on scroll) -- */
+  .thead .th:first-child,
+  .tbody .td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--bg-secondary);
+  }
+  .tbody .td:first-child {
+    background: var(--bg-card);
+  }
+  .tbody .tr:hover .td:first-child {
+    background: var(--bg-hover);
+  }
+
+  .heatmap-ticker {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+  }
+  .heatmap-corner {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+  }
+
+  /* -- Chart containers -- */
+  .chart-container       { height: 220px; padding: 10px; }
+  .chart-container.chart-tall { height: 280px; }
+  .chart-container.chart-xl   { height: 340px; }
+
+  /* -- Tables -- */
+  .table-grid { min-width: 450px; }
+  .thead .th { padding: 8px 8px; font-size: 9px; }
+  .tbody .td { padding: 6px 8px; font-size: 11px; }
+
+  /* -- Heatmap -- */
+  .heatmap-grid { min-width: 380px; }
+  .heatmap-cell { padding: 4px 5px; font-size: 10px; }
+  .heatmap-value { min-width: 46px; }
+  .heatmap-corner, .heatmap-header { font-size: 8px; }
+  .heatmap-ticker { font-size: 10px; }
+
+  /* -- Metric cards -- */
+  .metric-cards-row {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  .metric-card { padding: 10px; }
+  .metric-value { font-size: 17px; }
+  .metric-label { font-size: 9px; }
+
+  /* -- Section titles -- */
+  .section-title { font-size: 12px; }
+
+  /* -- Filter bar -- */
+  .filter-bar {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    gap: 8px 16px;
+  }
+
+  /* -- Deep Dive: stock selector -- */
+  .stock-selector-label {
+    flex-wrap: wrap;
+  }
+  .stock-selector-label select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* -- P/E compression -- */
+  .pe-compression-wrapper { padding: var(--gap); }
+  .pe-stage {
+    grid-template-columns: 80px 1fr 60px;
+    gap: 8px;
+  }
+  .pe-stage-label { font-size: 10px; }
+  .pe-stage-value { font-size: 12px; }
+
+  /* -- Company Selector bar -- */
+  .company-selector-bar {
+    gap: 10px;
+    padding: 8px 10px;
+    flex-direction: column;
+  }
+
+  .selector-checkboxes {
+    gap: 3px 8px;
+  }
+
+  .selector-checkbox {
+    font-size: 10px;
+  }
+
+  /* -- Verdict row -- */
+  .verdict-row {
+    gap: 8px;
+  }
+  .verdict-card {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  /* -- Thesis cards -- */
+  .thesis-card { padding: 12px; }
+  .thesis-card li { font-size: 11px; }
+
+  /* -- Alerts -- */
+  .alert { padding: 6px 10px; font-size: 11px; }
+  .alert-ticker { min-width: 40px; font-size: 11px; }
+
+  /* -- Saul grid -- */
+  .saul-rules {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  /* -- Mini table cards (top performers) -- */
+  .mini-table-card { padding: 10px; }
+  .mini-row { font-size: 11px; }
+
+  /* -- Business description -- */
+  .business-desc { font-size: 12px; }
+
+  /* -- Risk list -- */
+  .risk-item { padding: 6px 10px; font-size: 11px; }
+  .risk-category { min-width: 60px; font-size: 9px; }
+
+  /* -- Markdown content -- */
+  .md-content { font-size: 12px; max-height: 400px; padding: 10px; }
+}
+
+
+/* ── Phone (≤ 480px) ───────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+
+  /* -- Even tighter spacing -- */
+  :root {
+    --gap: 10px;
+    --gap-lg: 12px;
+    --gap-sm: 4px;
+  }
+
+  /* -- Header -- */
+  #app-header { padding: 4px 8px; }
+  .app-title { font-size: 12px; letter-spacing: 0.03em; }
+
+  .header-right { gap: 4px; }
+  #theme-selector { font-size: 10px; padding: 3px 6px; }
+  #refresh-btn { font-size: 14px; padding: 3px 6px; }
+
+  .header-nav {
+    justify-content: space-between;
+  }
+
+  .nav-link {
+    flex: 1 !important;
+    text-align: center;
+    padding: 6px 2px !important;
+    font-size: 9px !important;
+  }
+
+  /* -- Content padding -- */
+  #dashboard-content { padding: 10px 8px; }
+
+  /* -- Chart containers -- */
+  .chart-container       { height: 180px; padding: 8px; }
+  .chart-container.chart-tall { height: 240px; }
+  .chart-container.chart-xl   { height: 300px; }
+
+  /* -- Tables (allow tighter squeeze) -- */
+  .table-grid { min-width: 360px; }
+  .thead .th { padding: 6px 6px; font-size: 8px; letter-spacing: 0.03em; }
+  .tbody .td { padding: 5px 6px; font-size: 10px; }
+
+  /* -- Heatmap -- */
+  .heatmap-grid { min-width: 320px; }
+  .heatmap-cell { padding: 3px 4px; font-size: 9px; }
+  .heatmap-value { min-width: 38px; }
+
+  /* -- Metric cards: 2 per row on phones -- */
+  .metric-cards-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .metric-card { padding: 8px; gap: 2px; }
+  .metric-value { font-size: 15px; }
+  .metric-label { font-size: 8px; }
+  .metric-subtext { font-size: 9px; }
+
+  /* -- Section titles -- */
+  .section-title { font-size: 11px; letter-spacing: 0.04em; }
+
+  /* -- Top performers: single column -- */
+  .top-performers-grid { grid-template-columns: 1fr; }
+
+  /* -- P/E compression -- */
+  .pe-stage {
+    grid-template-columns: 60px 1fr 50px;
+    gap: 6px;
+  }
+  .pe-stage-label { font-size: 9px; }
+  .pe-stage-value { font-size: 11px; }
+  .pe-total { font-size: 12px; padding: 8px; }
+
+  /* -- Saul grid -- */
+  .saul-rules {
+    grid-template-columns: 1fr;
+  }
+  .saul-rule { font-size: 10px; }
+  .saul-rule-id { font-size: 8px; }
+  .saul-summary { flex-wrap: wrap; gap: 8px; font-size: 11px; }
+
+  /* -- Verdict row -- */
+  .verdict-card { font-size: 11px; padding: 5px 8px; }
+  .verdict-card .label { font-size: 10px; }
+
+  /* -- Thesis cards -- */
+  .thesis-grid { grid-template-columns: 1fr; }
+
+  /* -- Company Selector -- */
+  .selector-label { font-size: 8px; }
+  .selector-checkbox { font-size: 10px; gap: 3px; }
+  .selector-ticker-input { width: 60px; font-size: 10px; padding: 3px 6px; }
+  .selector-add-btn { padding: 3px 8px; font-size: 9px; }
+
+  /* -- Filter bar -- */
+  .filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 10px;
+    gap: 6px;
+    font-size: 11px;
+  }
+
+  /* -- Live section -- */
+  .live-section {
+    padding-bottom: var(--gap);
+    margin-bottom: var(--gap);
+  }
+
+  /* -- Alerts -- */
+  .alert {
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+  .alert-ticker { min-width: unset; font-size: 10px; }
+
+  /* -- Markdown -- */
+  .md-content {
+    font-size: 11px;
+    max-height: 300px;
+    padding: 8px;
+    line-height: 1.5;
+  }
+  .md-content td { font-size: 10px; padding: 3px 6px; }
+}

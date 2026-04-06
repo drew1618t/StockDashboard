@@ -349,6 +349,7 @@ body {
   .thesis-grid { grid-template-columns: 1fr; }
 }
 
+/* Mobile-specific overrides are in mobile.css */
 @media (max-width: 768px) {
   #app-header { flex-wrap: wrap; height: auto !important; padding: var(--gap-sm); }
   .header-nav { order: 3; width: 100%; overflow-x: auto; }
