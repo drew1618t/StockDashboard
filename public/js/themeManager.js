@@ -7,11 +7,12 @@ const ThemeManager = {
 
   init() {
     const saved = localStorage.getItem('portfolio-theme');
-    if (saved && this.themes.includes(saved)) {
-      this._initializing = true;
-      this.apply(saved);
-      this._initializing = false;
-    }
+    const theme = (saved && this.themes.includes(saved)) ? saved : this.themes[0];
+
+    // Always apply — clears stale localStorage and ensures CSS + body class are set
+    this._initializing = true;
+    this.apply(theme);
+    this._initializing = false;
 
     const selector = document.getElementById('theme-selector');
     if (selector) {
