@@ -331,7 +331,7 @@ function createApp() {
   app.use('/family', requireRole('family'));
 
   app.get('/family', requireRole('family'), (req, res) => {
-    res.type('html').send(renderFamilyHubPage());
+    res.type('html').send(renderFamilyHubPage(undefined, undefined, req.user));
   });
 
   app.get('/family/health', requireRole('family'), (req, res) => {

@@ -23,7 +23,15 @@ function renderHubHealthCard(summary) {
           </a>`;
 }
 
-function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}) {
+function emailToName(email) {
+  if (!email) return 'Andrew & Kaili';
+  const prefix = email.split('@')[0].toLowerCase();
+  if (prefix.startsWith('drew') || prefix.startsWith('andrew')) return 'Andrew';
+  if (prefix.startsWith('kaili')) return 'Kaili';
+  return prefix.slice(0, 1).toUpperCase() + prefix.slice(1);
+}
+
+function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = null) {
   const andrewCard = renderHubHealthCard(healthSummaries.andrew || {
     slug: 'andrew',
     name: 'Andrew',
@@ -947,7 +955,7 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}) {
 
     <!-- Greeting -->
     <div class="hub-greeting">
-      <span id="greeting-text">Good evening, Andrew & Kaili.</span>
+      <span id="greeting-text">Good evening, ${escapeHtml(emailToName(user?.email))}.</span>
       <span class="greeting-sub" id="greeting-sub"></span>
     </div>
 
@@ -1051,7 +1059,7 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}) {
       else if (hour < 17) greeting = 'Good afternoon';
 
       var el = document.getElementById('greeting-text');
-      if (el) el.textContent = greeting + ', Andrew & Kaili.';
+      if (el) el.textContent = greeting + ', ${escapeHtml(emailToName(user?.email))}.';
 
       var sub = document.getElementById('greeting-sub');
       if (sub) {
