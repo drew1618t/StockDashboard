@@ -46,8 +46,8 @@ const ThemeManager = {
     };
 
     if (link) {
-      const newHref = `/css/themes/${themeName}.css`;
-      if (link.href.endsWith(newHref)) {
+      const newHref = `/css/themes/${themeName}.css?v=2`;
+      if (link.href.includes(`/css/themes/${themeName}.css`)) {
         // Already loaded — apply immediately
         requestAnimationFrame(onReady);
       } else {

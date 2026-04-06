@@ -141,6 +141,13 @@ function createApp() {
     express.static(path.join(__dirname, '..', 'public'), {
       maxAge: 0,
       etag: true,
+      setHeaders(res, filePath) {
+        // Prevent Cloudflare and browser from caching HTML
+        if (filePath.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+          res.setHeader('Pragma', 'no-cache');
+        }
+      },
     })
   );
 
