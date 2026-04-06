@@ -1698,7 +1698,7 @@ function renderFamilyLayout(title, description, cards = []) {
       <a href="/family/health">Health</a>
       <a href="/family/todos">ToDos</a>
       <a href="/family/cameras">Cameras</a>
-      <a href="/dashboard">Dashboard</a>
+      <a href="/">Home</a>
     </div>
     <section class="grid">${cardMarkup}</section>
   </main>
