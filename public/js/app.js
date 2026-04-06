@@ -135,7 +135,8 @@ const App = {
     const familyLink = document.getElementById('family-nav-link');
     if (userEl && this.user) {
       userEl.hidden = false;
-      userEl.textContent = `${this.user.role.toUpperCase()} • ${this.user.email}`;
+      const masked = this.user.email ? this.user.email.slice(0, 4) + '••••' : '';
+      userEl.textContent = `${this.user.role.toUpperCase()} • ${masked}`;
     }
     if (familyLink) {
       familyLink.hidden = !this.user || this.user.role !== 'family';
