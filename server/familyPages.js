@@ -211,6 +211,7 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}) {
       gap: 12px;
       padding: 16px 24px 0;
       justify-content: flex-start;
+      margin-bottom: -8px;
     }
     .hub-nav a {
       text-decoration: none;

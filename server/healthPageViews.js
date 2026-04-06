@@ -250,6 +250,7 @@ ${renderHealthThemeAssets(`${person.name} Health`)}
         <p class="lead" style="margin-top:14px; max-width:68ch;" data-i18n>Balanced bento overview of bloodwork, imaging, reminders, vaccine timing, and recent issues pulled from the ingested health database and report folder.</p>
       </div>
       <div class="links">
+        <a href="/" data-i18n>Home</a>
         <a href="/family" class="primary" data-i18n>Family Hub</a>
         <a href="/family/health/${otherSlug}"><span data-i18n>Switch To</span>&nbsp;${otherName}</a>
         <a href="${basePath}/bloodwork" data-i18n>Bloodwork</a>
@@ -324,6 +325,7 @@ ${renderHealthThemeAssets(`${person.name} ${pageTitle}`)}
   ${renderLanguageToggle()}
   <main style="width:min(1080px, calc(100vw - 32px));">
     <div class="links" style="margin-bottom:22px;">
+      <a href="/" data-i18n>Home</a>
       <a href="${basePath}"><span>${escapeHtml(person.name)}</span> <span data-i18n>Health</span></a>
       <a href="${basePath}/bloodwork" data-i18n>Bloodwork</a>
       <a href="${basePath}/images" data-i18n>Images</a>
@@ -375,6 +377,7 @@ ${renderHealthThemeAssets(`${person.name} ${study.title}`)}
   ${renderLanguageToggle()}
   <main style="width:min(1180px, calc(100vw - 32px));">
     <div class="links" style="margin-bottom:22px;">
+      <a href="/" data-i18n>Home</a>
       <a href="${basePath}"><span>${escapeHtml(person.name)}</span> <span data-i18n>Health</span></a>
       <a href="${basePath}/images" data-i18n>All Imaging</a>
       <a href="${basePath}/reports" data-i18n>Reports</a>
