@@ -30,24 +30,32 @@ const ThemeManager = {
     // Update body class
     document.body.className = `theme-${themeName}`;
 
-    // Swap stylesheet
-    const link = document.getElementById('theme-stylesheet');
-    if (link) link.href = `/css/themes/${themeName}.css`;
-
     // Update selector if it exists
     const selector = document.getElementById('theme-selector');
     if (selector) selector.value = themeName;
 
-    // Re-apply Chart.js theme colors
-    if (window.ChartDefaults) {
-      // Small delay to let CSS variables load
-      requestAnimationFrame(() => {
+    // Swap stylesheet and wait for it to load before re-rendering charts
+    const link = document.getElementById('theme-stylesheet');
+    const onReady = () => {
+      if (window.ChartDefaults) {
         ChartDefaults.applyTheme(themeName);
-        // Re-render active dashboard to pick up new colors
         if (window.App && window.App.currentDashboard && !this._initializing) {
           window.App.renderDashboard(window.App.currentDashboard);
         }
-      });
+      }
+    };
+
+    if (link) {
+      const newHref = `/css/themes/${themeName}.css`;
+      if (link.href.endsWith(newHref)) {
+        // Already loaded — apply immediately
+        requestAnimationFrame(onReady);
+      } else {
+        link.onload = () => requestAnimationFrame(onReady);
+        link.href = newHref;
+      }
+    } else {
+      requestAnimationFrame(onReady);
     }
   },
 };
