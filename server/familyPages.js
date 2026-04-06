@@ -209,8 +209,8 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}) {
     .hub-nav {
       display: flex;
       gap: 12px;
-      padding: 24px;
-      justify-content: center;
+      padding: 16px 24px 0;
+      justify-content: flex-start;
     }
     .hub-nav a {
       text-decoration: none;
@@ -938,6 +938,12 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}) {
   </div>
 
   <div class="hub-wrap">
+    <!-- Navigation -->
+    <nav class="hub-nav">
+      <a href="/">Home</a>
+      <a href="/dashboard">Stock Dashboard</a>
+    </nav>
+
     <!-- Greeting -->
     <div class="hub-greeting">
       <span id="greeting-text">Good evening, Andrew & Kaili.</span>
@@ -1019,11 +1025,6 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}) {
 
     </main>
 
-    <!-- Navigation -->
-    <nav class="hub-nav">
-      <a href="/dashboard">Stock Dashboard</a>
-      <a href="/">Home</a>
-    </nav>
   </div>
 
   <script>
