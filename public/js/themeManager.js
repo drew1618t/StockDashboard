@@ -2,8 +2,8 @@
  * themeManager.js — Theme switching with localStorage persistence.
  */
 const ThemeManager = {
-  current: 'colorful',
-  themes: ['bloomberg', 'minimalist', 'terminal', 'colorful', 'newspaper'],
+  current: 'onyx',
+  themes: ['onyx', 'ivory-ink'],
 
   init() {
     const saved = localStorage.getItem('portfolio-theme');

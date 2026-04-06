@@ -68,6 +68,21 @@ const Colors = {
     });
     return map;
   },
+
+  /**
+   * Resolve a CSS variable reference (e.g. 'var(--color-positive)') to its
+   * computed value. Returns the input unchanged if it's already a plain color.
+   * Needed because Canvas 2D context cannot interpret CSS custom properties.
+   */
+  resolveVar(cssVarOrColor) {
+    if (typeof cssVarOrColor === 'string' && cssVarOrColor.startsWith('var(')) {
+      const varName = cssVarOrColor.match(/var\(([^)]+)\)/)?.[1]?.trim();
+      if (varName) {
+        return getComputedStyle(document.body).getPropertyValue(varName).trim() || cssVarOrColor;
+      }
+    }
+    return cssVarOrColor;
+  },
 };
 
 window.Colors = Colors;

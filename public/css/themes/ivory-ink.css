@@ -1,0 +1,376 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   IVORY INK — Warm white & charcoal. Typeset private equity report.
+   Playfair Display serif headers. Single warm gold accent used sparingly.
+   Luxury through restraint and typography.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.theme-ivory-ink {
+  --bg-primary: #FAF9F6;
+  --bg-secondary: #FAF9F6;
+  --bg-tertiary: #F5F4F0;
+  --bg-card: #FFFFFF;
+  --bg-tooltip: #2C2C2E;
+  --tooltip-text: #FAF9F6;
+  --bg-hover: #F5F4F0;
+
+  --text-primary: #1A1A1C;
+  --text-secondary: #3A3A3E;
+  --text-muted: #6A6A6E;
+
+  --color-accent: #C8B89A;
+  --color-positive: #2D6A4F;
+  --color-negative: #9B2C2C;
+  --color-warning: #B8860B;
+
+  --heatmap-100: #1B4D3E;
+  --heatmap-50: #2D6A4F;
+  --heatmap-35: #5A9E78;
+  --heatmap-25: #B8A040;
+  --heatmap-10: #C89830;
+  --heatmap-0: #A87040;
+  --heatmap-neg: #8B3A3A;
+  --heatmap-text-light: #FAF9F6;
+  --heatmap-text-dark: #2C2C2E;
+
+  --chart-grid: rgba(0, 0, 0, 0.12);
+
+  --font-heading: 'Playfair Display', 'Georgia', serif;
+  --font-body: 'Source Sans 3', 'Source Sans Pro', system-ui, sans-serif;
+  --font-mono: 'Source Sans 3', system-ui, sans-serif;
+  --font-numbers: 'Source Sans 3', system-ui, sans-serif;
+
+  --border-color: #E8E5E0;
+  --border-radius: 0px;
+  --card-shadow: none;
+  --gap: 16px;
+  --gap-sm: 8px;
+  --gap-lg: 28px;
+}
+
+/* ─── Header ─── */
+.theme-ivory-ink #app-header {
+  height: auto;
+  padding: 10px 48px;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+.theme-ivory-ink .app-title {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+.theme-ivory-ink .header-meta {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.theme-ivory-ink .nav-link {
+  padding: 10px 18px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+}
+
+.theme-ivory-ink .nav-link.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--color-accent);
+}
+
+.theme-ivory-ink .nav-link:hover {
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.theme-ivory-ink .header-right {
+  gap: 8px;
+}
+
+.theme-ivory-ink #theme-selector,
+.theme-ivory-ink #refresh-btn {
+  font-family: var(--font-body);
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* ─── Content Area ─── */
+.theme-ivory-ink #dashboard-content {
+  padding: 48px 56px;
+  max-width: 1100px;
+}
+
+/* ─── Sections ─── */
+.theme-ivory-ink .section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 40px;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.theme-ivory-ink .section:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.theme-ivory-ink .section-title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 24px;
+}
+
+.theme-ivory-ink .section-subtitle {
+  font-family: var(--font-body);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* ─── Metric Cards (no cards — open editorial layout) ─── */
+.theme-ivory-ink .metric-card {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 12px 0;
+  border-right: 1px solid var(--border-color);
+}
+
+.theme-ivory-ink .metric-card:last-child {
+  border-right: none;
+}
+
+.theme-ivory-ink .metric-value {
+  font-family: var(--font-body);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.theme-ivory-ink .metric-card.positive .metric-value {
+  color: var(--color-positive);
+}
+
+.theme-ivory-ink .metric-card.negative .metric-value {
+  color: var(--color-negative);
+}
+
+.theme-ivory-ink .metric-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.theme-ivory-ink .metric-subtext {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ─── Tables ─── */
+.theme-ivory-ink .sortable-table-wrapper {
+  border: none;
+  border-top: 2px solid var(--text-primary);
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.theme-ivory-ink .thead .th {
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--text-primary);
+  padding: 8px 12px;
+}
+
+.theme-ivory-ink .tbody .td {
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.theme-ivory-ink .tbody .tr:hover .td {
+  background: var(--bg-hover);
+}
+
+.theme-ivory-ink .tbody .td:first-child {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Gold accent on #1 performer ticker — applied via JS or manually */
+
+/* ─── Charts ─── */
+.theme-ivory-ink .chart-container {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 16px 0;
+  height: 300px;
+}
+
+.theme-ivory-ink .chart-container.chart-tall {
+  height: 380px;
+}
+
+/* ─── Verdicts ─── */
+.theme-ivory-ink .verdict {
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.theme-ivory-ink .verdict-pass {
+  background: rgba(45, 106, 79, 0.08);
+  color: var(--color-positive);
+}
+
+.theme-ivory-ink .verdict-caution {
+  background: rgba(184, 134, 11, 0.08);
+  color: var(--color-warning);
+}
+
+.theme-ivory-ink .verdict-fail {
+  background: rgba(155, 44, 44, 0.08);
+  color: var(--color-negative);
+}
+
+/* ─── Heatmap ─── */
+.theme-ivory-ink .heatmap-wrapper {
+  border: none;
+  border-top: 2px solid var(--text-primary);
+  background: transparent;
+  border-radius: 0;
+}
+
+.theme-ivory-ink .heatmap-corner,
+.theme-ivory-ink .heatmap-header {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+}
+
+.theme-ivory-ink .heatmap-ticker {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.theme-ivory-ink .heatmap-cell {
+  font-family: var(--font-body);
+  border-color: var(--bg-primary);
+}
+
+/* ─── Mini Tables & Cards (no card styling) ─── */
+.theme-ivory-ink .mini-table-card {
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  background: transparent;
+  border-radius: 0;
+}
+
+.theme-ivory-ink .mini-table-title {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.theme-ivory-ink .mini-row span:first-child {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.theme-ivory-ink .thesis-card {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  background: transparent;
+  border-radius: 0;
+}
+
+.theme-ivory-ink .thesis-card h3 {
+  font-family: var(--font-heading);
+}
+
+.theme-ivory-ink .pe-compression-wrapper,
+.theme-ivory-ink .saul-grid-wrapper {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  background: transparent;
+  border-radius: 0;
+}
+
+.theme-ivory-ink .saul-rule {
+  font-family: var(--font-body);
+}
+
+.theme-ivory-ink .filter-bar {
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  background: transparent;
+  border-radius: 0;
+  padding: 10px 0;
+  font-family: var(--font-body);
+}
+
+.theme-ivory-ink .alert {
+  border-radius: 0;
+  border: none;
+  border-left: 2px solid var(--border-color);
+  background: transparent;
+  font-family: var(--font-body);
+}
+
+.theme-ivory-ink .alert-danger {
+  border-left-color: var(--color-negative);
+}
+
+.theme-ivory-ink .alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.theme-ivory-ink .business-desc {
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+  line-height: 1.8;
+  text-align: justify;
+}
+
+/* Editorial drop cap on business description */
+.theme-ivory-ink .business-desc::first-letter {
+  font-family: var(--font-heading);
+  font-size: 44px;
+  font-weight: 700;
+  float: left;
+  line-height: 0.8;
+  margin-right: 6px;
+  margin-top: 4px;
+  color: var(--color-accent);
+}

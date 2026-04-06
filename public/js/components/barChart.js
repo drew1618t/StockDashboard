@@ -21,16 +21,25 @@ const BarChart = {
     if (!canvas) return null;
 
     const ctx = canvas.getContext('2d');
-    const datasets = opts.datasets.map((ds, i) => ({
-      label: ds.label,
-      data: ds.data,
-      backgroundColor: ds.colors || ds.color || Colors.chartColor(i),
-      borderColor: 'transparent',
-      borderWidth: 0,
-      borderRadius: 3,
-      barPercentage: 0.7,
-      categoryPercentage: 0.8,
-    }));
+    const datasets = opts.datasets.map((ds, i) => {
+      let bg = ds.colors || ds.color || Colors.chartColor(i);
+      // Resolve CSS variable references for canvas rendering
+      if (Array.isArray(bg)) {
+        bg = bg.map(c => Colors.resolveVar(c));
+      } else {
+        bg = Colors.resolveVar(bg);
+      }
+      return {
+        label: ds.label,
+        data: ds.data,
+        backgroundColor: bg,
+        borderColor: 'transparent',
+        borderWidth: 0,
+        borderRadius: 3,
+        barPercentage: 0.7,
+        categoryPercentage: 0.8,
+      };
+    });
 
     const config = {
       type: 'bar',
@@ -47,9 +56,12 @@ const BarChart = {
         }),
         plugins: {
           legend: { display: datasets.length > 1 },
-          tooltip: opts.tooltipFormat ? {
-            callbacks: { label: opts.tooltipFormat }
-          } : {},
+          tooltip: {
+            backgroundColor: ChartDefaults.tooltipBg(),
+            titleColor: ChartDefaults.tooltipText(),
+            bodyColor: ChartDefaults.tooltipText(),
+            ...(opts.tooltipFormat ? { callbacks: { label: opts.tooltipFormat } } : {}),
+          },
         },
       },
       plugins: opts.plugins || [],

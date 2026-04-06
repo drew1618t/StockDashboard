@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Viz — Onyx Theme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --bg-deep: #0A0A0B;
+    --bg-subtle: #141417;
+    --border: #1E1E22;
+    --text-secondary: #A0A0A8;
+    --text-primary: #E8E8EC;
+    --accent: #6B8BA4;
+    --positive: #4ADE80;
+    --negative: #F87171;
+    --caution: #FBBF24;
+  }
+
+  html {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--bg-deep);
+    min-height: 100vh;
+  }
+
+  /* ── Sticky Header ─────────────────────────────── */
+
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-deep);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 100%;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .header-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+
+  .header-chip {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 3px 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .header-nav {
+    display: flex;
+    gap: 0;
+  }
+
+  .header-nav a {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+    letter-spacing: -0.01em;
+  }
+
+  .header-nav a:hover {
+    color: var(--text-primary);
+    background: var(--bg-subtle);
+  }
+
+  .header-nav a.active {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .header-theme {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ── Main Container ────────────────────────────── */
+
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  /* ── Sections ──────────────────────────────────── */
+
+  .section {
+    padding: 52px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section:last-child {
+    border-bottom: none;
+    padding-bottom: 80px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: 32px;
+  }
+
+  /* ── Portfolio Metrics ─────────────────────────── */
+
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    position: relative;
+  }
+
+  .metric {
+    text-align: center;
+    padding: 0 24px;
+    position: relative;
+  }
+
+  .metric:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .metric-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+  }
+
+  .metric-value {
+    font-size: 36px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--text-primary);
+  }
+
+  .metric-value.positive { color: var(--positive); }
+  .metric-value.negative { color: var(--negative); }
+
+  .metric-sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+  }
+
+  /* ── Chart Section ─────────────────────────────── */
+
+  .chart-wrap {
+    width: 100%;
+    height: 300px;
+    position: relative;
+  }
+
+  /* ── Growth Rankings Table ──────────────────────── */
+
+  .table-grid {
+    display: grid;
+    grid-template-columns: 80px 1fr 120px 120px 90px 100px;
+    gap: 0;
+  }
+
+  .table-header {
+    display: contents;
+  }
+
+  .table-header .th {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    padding: 0 0 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table-row {
+    display: contents;
+    cursor: default;
+  }
+
+  .table-row .td {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    transition: background 0.15s;
+  }
+
+  .table-row:hover .td {
+    background: var(--bg-subtle);
+  }
+
+  .td.ticker {
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+
+  .td.company {
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .td.growth {
+    color: var(--positive);
+    font-weight: 500;
+  }
+
+  .td.mcap, .td.pe {
+    color: var(--text-primary);
+  }
+
+  .verdict {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+
+  .verdict.pass {
+    color: var(--positive);
+    background: rgba(74, 222, 128, 0.08);
+  }
+
+  .verdict.caution {
+    color: var(--caution);
+    background: rgba(251, 191, 36, 0.08);
+  }
+
+  .verdict.fail {
+    color: var(--negative);
+    background: rgba(248, 113, 113, 0.08);
+  }
+
+  /* ── Responsive ────────────────────────────────── */
+
+  @media (max-width: 860px) {
+    .header {
+      padding: 0 20px;
+      height: auto;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+    .header-nav {
+      order: 3;
+      width: 100%;
+      justify-content: center;
+    }
+    .main { padding: 0 20px; }
+    .metrics-row { grid-template-columns: repeat(2, 1fr); row-gap: 32px; }
+    .metric:nth-child(2)::after { display: none; }
+    .metric:nth-child(3)::after, .metric:nth-child(4)::after { }
+    .table-grid { grid-template-columns: 60px 1fr 80px 80px 60px 80px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────── -->
+<header class="header">
+  <div class="header-left">
+    <span class="header-title">Portfolio Viz</span>
+    <span class="header-chip">11 holdings</span>
+  </div>
+  <nav class="header-nav">
+    <a href="#" class="active">Summary</a>
+    <a href="#">Growth</a>
+    <a href="#">Valuation</a>
+    <a href="#">Profitability</a>
+    <a href="#">Deep Dive</a>
+  </nav>
+  <span class="header-theme">Onyx</span>
+</header>
+
+<!-- ── Main Content ────────────────────────────────── -->
+<main class="main">
+
+  <!-- Section 1: Portfolio Metrics -->
+  <section class="section">
+    <div class="metrics-row">
+      <div class="metric">
+        <div class="metric-label">Avg Revenue Growth</div>
+        <div class="metric-value positive">42%</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Total Market Cap</div>
+        <div class="metric-value">$284B</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Profitable</div>
+        <div class="metric-value">8/11</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Avg GAV</div>
+        <div class="metric-value">1.2x</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Revenue Growth Trends -->
+  <section class="section">
+    <h2 class="section-title">Revenue Growth Trends</h2>
+    <div class="chart-wrap">
+      <canvas id="growthChart"></canvas>
+    </div>
+  </section>
+
+  <!-- Section 3: Growth Rankings -->
+  <section class="section">
+    <h2 class="section-title">Growth Rankings</h2>
+    <div class="table-grid" id="rankingsTable">
+      <!-- Header -->
+      <div class="table-header">
+        <div class="th">Ticker</div>
+        <div class="th">Company</div>
+        <div class="th">Rev Growth</div>
+        <div class="th">Market Cap</div>
+        <div class="th">P/E</div>
+        <div class="th">Verdict</div>
+      </div>
+      <!-- Rows injected by JS -->
+    </div>
+  </section>
+
+</main>
+
+<script>
+// ── Chart ─────────────────────────────────────────────
+(function() {
+  const ctx = document.getElementById('growthChart').getContext('2d');
+
+  const labels = ["Q1'25", "Q2'25", "Q3'25", "Q4'25"];
+
+  const datasets = [
+    { label: 'APP',  data: [85, 78, 74, 71],    borderColor: '#6B8BA4', backgroundColor: 'transparent' },
+    { label: 'CRDO', data: [60, 72, 82, 89],    borderColor: '#8BA4B8', backgroundColor: 'transparent' },
+    { label: 'ALAB', data: [95, 100, 108, 113], borderColor: '#A0B8C8', backgroundColor: 'transparent' },
+    { label: 'PLTR', data: [29, 31, 34, 36],    borderColor: '#4A5568', backgroundColor: 'transparent' },
+  ];
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: datasets.map(d => ({
+        ...d,
+        tension: 0.35,
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: d.borderColor,
+        pointBorderColor: d.borderColor,
+        pointHoverRadius: 5,
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: {
+            color: '#A0A0A8',
+            font: { family: 'Inter', size: 12, weight: '500' },
+            usePointStyle: true,
+            pointStyle: 'circle',
+            boxWidth: 6,
+            boxHeight: 6,
+            padding: 20,
+          }
+        },
+        tooltip: {
+          backgroundColor: '#1E1E22',
+          titleColor: '#E8E8EC',
+          bodyColor: '#A0A0A8',
+          borderColor: '#2A2A30',
+          borderWidth: 1,
+          titleFont: { family: 'Inter', size: 13, weight: '500' },
+          bodyFont: { family: 'Inter', size: 12 },
+          padding: 12,
+          cornerRadius: 6,
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + context.parsed.y + '%';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: '#1E1E22', drawTicks: false },
+          ticks: {
+            color: '#A0A0A8',
+            font: { family: 'Inter', size: 12 },
+            padding: 10,
+          },
+          border: { display: false }
+        },
+        y: {
+          grid: { color: '#1E1E22', drawTicks: false },
+          ticks: {
+            color: '#A0A0A8',
+            font: { family: 'Inter', size: 12 },
+            padding: 14,
+            callback: function(v) { return v + '%'; }
+          },
+          border: { display: false },
+          beginAtZero: false,
+        }
+      }
+    }
+  });
+})();
+
+// ── Table ─────────────────────────────────────────────
+(function() {
+  const rows = [
+    { ticker: 'ALAB', company: 'Astera Labs',  growth: '113%', mcap: '$15B',  pe: '95x',  verdict: 'caution' },
+    { ticker: 'CRDO', company: 'Credo Tech',   growth: '89%',  mcap: '$12B',  pe: '68x',  verdict: 'pass' },
+    { ticker: 'APP',  company: 'AppLovin',     growth: '74%',  mcap: '$112B', pe: '52x',  verdict: 'pass' },
+    { ticker: 'UPST', company: 'Upstart',      growth: '56%',  mcap: '$8B',   pe: '85x',  verdict: 'caution' },
+    { ticker: 'PLTR', company: 'Palantir',     growth: '36%',  mcap: '$245B', pe: '180x', verdict: 'fail' },
+    { ticker: 'TOST', company: 'Toast',        growth: '32%',  mcap: '$18B',  pe: '72x',  verdict: 'pass' },
+    { ticker: 'DDOG', company: 'Datadog',      growth: '28%',  mcap: '$42B',  pe: '65x',  verdict: 'pass' },
+    { ticker: 'AMD',  company: 'AMD',          growth: '18%',  mcap: '$195B', pe: '28x',  verdict: 'pass' },
+  ];
+
+  const grid = document.getElementById('rankingsTable');
+
+  rows.forEach(r => {
+    const verdictLabel = r.verdict === 'pass' ? 'Pass' : r.verdict === 'caution' ? 'Caution' : 'Fail';
+
+    const html = `
+      <div class="table-row">
+        <div class="td ticker">${r.ticker}</div>
+        <div class="td company">${r.company}</div>
+        <div class="td growth">${r.growth}</div>
+        <div class="td mcap">${r.mcap}</div>
+        <div class="td pe">${r.pe}</div>
+        <div class="td"><span class="verdict ${r.verdict}">${verdictLabel}</span></div>
+      </div>
+    `;
+
+    grid.insertAdjacentHTML('beforeend', html);
+  });
+})();
+</script>
+
+</body>
+</html>

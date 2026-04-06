@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ivory Ink — Portfolio Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+  :root{
+    --ivory:#FAF9F6;
+    --white:#FFFFFF;
+    --charcoal:#2C2C2E;
+    --muted:#9B9B9F;
+    --gold:#C8B89A;
+    --divider:#E8E5E0;
+    --positive:#2D6A4F;
+    --negative:#9B2C2C;
+    --caution:#B8860B;
+    --hover:#F5F4F0;
+    --light-line:#D4D0CB;
+  }
+
+  html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+  body{
+    font-family:'Source Sans 3',system-ui,sans-serif;
+    font-weight:400;
+    color:var(--charcoal);
+    background:var(--ivory);
+    line-height:1.5;
+  }
+
+  /* ── Header ────────────────────────────────────── */
+  .header{
+    position:sticky;top:0;z-index:100;
+    background:var(--ivory);
+    border-bottom:1px solid var(--divider);
+  }
+  .header-inner{
+    max-width:1100px;margin:0 auto;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 32px;
+  }
+  .header-brand{display:flex;flex-direction:column;gap:2px}
+  .header-title{
+    font-family:'Playfair Display',serif;font-weight:700;
+    font-size:1.15rem;letter-spacing:.03em;color:var(--charcoal);
+  }
+  .header-subtitle{
+    font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);
+  }
+
+  .header-nav{display:flex;gap:0}
+  .header-nav a{
+    text-decoration:none;color:var(--muted);
+    font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;font-weight:600;
+    padding:6px 16px 18px;position:relative;
+    transition:color .2s;
+  }
+  .header-nav a:hover{color:var(--charcoal)}
+  .header-nav a.active{
+    color:var(--charcoal);
+  }
+  .header-nav a.active::after{
+    content:'';position:absolute;bottom:-1px;left:16px;right:16px;
+    height:2px;background:var(--gold);
+  }
+
+  .header-theme{
+    font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;
+    color:var(--muted);font-weight:400;
+  }
+
+  /* ── Main ──────────────────────────────────────── */
+  .main{max-width:1100px;margin:0 auto;padding:0 32px 80px}
+
+  .section{padding-top:56px}
+  .section+.section{border-top:1px solid var(--divider);margin-top:56px}
+
+  .section-title{
+    font-family:'Playfair Display',serif;font-weight:700;
+    font-size:1.75rem;color:var(--charcoal);margin-bottom:36px;
+    letter-spacing:.01em;line-height:1.2;
+  }
+
+  /* ── Metrics Row ───────────────────────────────── */
+  .metrics{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    gap:0;
+  }
+  .metric{
+    text-align:center;
+    padding:8px 24px;
+    position:relative;
+  }
+  .metric+.metric::before{
+    content:'';position:absolute;left:0;top:8px;bottom:8px;
+    width:1px;background:var(--divider);
+  }
+  .metric-value{
+    font-size:2rem;font-weight:600;line-height:1.15;
+    margin-bottom:6px;
+  }
+  .metric-label{
+    font-size:.68rem;text-transform:uppercase;letter-spacing:.14em;
+    color:var(--muted);
+  }
+  .metric-value.positive{color:var(--positive)}
+
+  /* ── Chart ─────────────────────────────────────── */
+  .chart-wrap{
+    width:100%;height:300px;
+    margin-top:8px;
+  }
+
+  /* ── Table ─────────────────────────────────────── */
+  .rankings-grid{
+    display:grid;
+    grid-template-columns:80px 1fr 110px 110px 80px 100px;
+    width:100%;
+  }
+  .rankings-grid .th,
+  .rankings-grid .td{
+    padding:10px 12px;
+    font-size:.85rem;
+    display:flex;align-items:center;
+  }
+
+  /* Header row */
+  .rankings-grid .th{
+    font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;
+    color:var(--muted);font-weight:600;
+    border-bottom:2px solid var(--charcoal);
+    padding-bottom:10px;
+  }
+
+  /* Body cells */
+  .rankings-grid .td{border-bottom:1px solid var(--divider)}
+
+  /* Hover on rows — we target groups of 6 cells */
+  .rankings-grid .row-group{
+    display:contents;
+  }
+  .rankings-grid .row-group:hover .td{
+    background:var(--hover);
+  }
+
+  .td.ticker{font-weight:600;letter-spacing:.04em}
+  .td.ticker.gold{color:var(--gold)}
+  .td.company{color:var(--muted);font-size:.82rem}
+  .td.number{font-variant-numeric:tabular-nums}
+  .td.growth.positive{color:var(--positive)}
+
+  .verdict-pass{color:var(--positive);font-weight:600;font-size:.75rem;letter-spacing:.06em}
+  .verdict-caution{color:var(--caution);font-weight:600;font-size:.75rem;letter-spacing:.06em}
+  .verdict-fail{color:var(--negative);font-weight:600;font-size:.75rem;letter-spacing:.06em}
+
+  /* ── Responsive ────────────────────────────────── */
+  @media(max-width:860px){
+    .header-inner{flex-wrap:wrap;gap:12px;justify-content:center}
+    .header-nav a{padding:6px 10px 16px;font-size:.65rem}
+    .metrics{grid-template-columns:repeat(2,1fr);row-gap:24px}
+    .metric:nth-child(3)::before{display:none}
+    .rankings-grid{
+      grid-template-columns:60px 1fr 80px 80px 60px 80px;
+      font-size:.78rem;
+    }
+    .rankings-grid .th,.rankings-grid .td{padding:8px 6px}
+    .section-title{font-size:1.4rem}
+  }
+  @media(max-width:560px){
+    .header-theme{display:none}
+    .metrics{grid-template-columns:1fr 1fr}
+    .rankings-grid{
+      grid-template-columns:55px 1fr 70px 70px 55px 72px;
+      font-size:.72rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-title">PORTFOLIO VIZ</div>
+      <div class="header-subtitle">11 holdings</div>
+    </div>
+    <nav class="header-nav">
+      <a href="#" class="active">Summary</a>
+      <a href="#">Growth</a>
+      <a href="#">Valuation</a>
+      <a href="#">Profitability</a>
+      <a href="#">Deep Dive</a>
+    </nav>
+    <div class="header-theme">Ivory Ink</div>
+  </div>
+</header>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main">
+
+  <!-- Section 1: Portfolio Metrics -->
+  <section class="section">
+    <h2 class="section-title">Portfolio Overview</h2>
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-value positive">42%</div>
+        <div class="metric-label">Avg Revenue Growth</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">$284B</div>
+        <div class="metric-label">Total Market Cap</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">8/11</div>
+        <div class="metric-label">Profitable</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">1.2x</div>
+        <div class="metric-label">Avg GAV</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Revenue Growth Trends -->
+  <section class="section">
+    <h2 class="section-title">Revenue Growth Trends</h2>
+    <div class="chart-wrap">
+      <canvas id="growthChart"></canvas>
+    </div>
+  </section>
+
+  <!-- Section 3: Growth Rankings -->
+  <section class="section">
+    <h2 class="section-title">Growth Rankings</h2>
+    <div class="rankings-grid" id="rankingsTable">
+      <!-- Header -->
+      <div class="th">Ticker</div>
+      <div class="th">Company</div>
+      <div class="th">Rev Growth</div>
+      <div class="th">Market Cap</div>
+      <div class="th">P/E</div>
+      <div class="th">Verdict</div>
+      <!-- Rows injected by JS -->
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+
+  /* ── Chart ─────────────────────────────────────── */
+  const ctx = document.getElementById('growthChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ["Q1'25","Q2'25","Q3'25","Q4'25"],
+      datasets: [
+        {
+          label: 'ALAB',
+          data: [95,100,108,113],
+          borderColor: '#C8B89A',
+          backgroundColor: 'transparent',
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: '#C8B89A',
+          tension: 0.3,
+        },
+        {
+          label: 'APP',
+          data: [85,78,74,71],
+          borderColor: '#2C2C2E',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#2C2C2E',
+          tension: 0.3,
+        },
+        {
+          label: 'CRDO',
+          data: [60,72,82,89],
+          borderColor: '#9B9B9F',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#9B9B9F',
+          tension: 0.3,
+        },
+        {
+          label: 'PLTR',
+          data: [29,31,34,36],
+          borderColor: '#D4D0CB',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#D4D0CB',
+          tension: 0.3,
+        },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {mode:'index',intersect:false},
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#9B9B9F',
+            font: {family:"'Source Sans 3',sans-serif",size:12},
+            boxWidth:14,boxHeight:2,
+            padding:20,
+            usePointStyle:false,
+          }
+        },
+        tooltip: {
+          backgroundColor:'#2C2C2E',
+          titleFont:{family:"'Source Sans 3',sans-serif",size:12},
+          bodyFont:{family:"'Source Sans 3',sans-serif",size:12},
+          padding:10,
+          cornerRadius:2,
+          displayColors:true,
+          callbacks:{
+            label:function(c){return c.dataset.label+': '+c.parsed.y+'%'}
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid:{display:false},
+          ticks:{
+            color:'#9B9B9F',
+            font:{family:"'Source Sans 3',sans-serif",size:12},
+          },
+          border:{color:'#E8E5E0'}
+        },
+        y: {
+          grid:{color:'#E8E5E0',lineWidth:1},
+          ticks:{
+            color:'#9B9B9F',
+            font:{family:"'Source Sans 3',sans-serif",size:12},
+            callback:function(v){return v+'%'}
+          },
+          border:{display:false}
+        }
+      }
+    }
+  });
+
+  /* ── Table ─────────────────────────────────────── */
+  const rows = [
+    {ticker:'ALAB',company:'Astera Labs',growth:'113%',cap:'$15B',pe:'95x',verdict:'CAUTION',rank:1},
+    {ticker:'CRDO',company:'Credo Tech',growth:'89%',cap:'$12B',pe:'68x',verdict:'PASS',rank:2},
+    {ticker:'APP',company:'AppLovin',growth:'74%',cap:'$112B',pe:'52x',verdict:'PASS',rank:3},
+    {ticker:'UPST',company:'Upstart',growth:'56%',cap:'$8B',pe:'85x',verdict:'CAUTION',rank:4},
+    {ticker:'PLTR',company:'Palantir',growth:'36%',cap:'$245B',pe:'180x',verdict:'FAIL',rank:5},
+    {ticker:'TOST',company:'Toast',growth:'32%',cap:'$18B',pe:'72x',verdict:'PASS',rank:6},
+    {ticker:'DDOG',company:'Datadog',growth:'28%',cap:'$42B',pe:'65x',verdict:'PASS',rank:7},
+    {ticker:'AMD',company:'AMD',growth:'18%',cap:'$195B',pe:'28x',verdict:'PASS',rank:8},
+  ];
+
+  const table = document.getElementById('rankingsTable');
+  rows.forEach(function(r){
+    const group = document.createElement('div');
+    group.className = 'row-group';
+
+    const verdictClass = r.verdict === 'PASS' ? 'verdict-pass'
+                       : r.verdict === 'CAUTION' ? 'verdict-caution'
+                       : 'verdict-fail';
+
+    const tickerGold = r.rank === 1 ? ' gold' : '';
+
+    group.innerHTML =
+      '<div class="td ticker'+tickerGold+'">'+r.ticker+'</div>'+
+      '<div class="td company">'+r.company+'</div>'+
+      '<div class="td number growth positive">'+r.growth+'</div>'+
+      '<div class="td number">'+r.cap+'</div>'+
+      '<div class="td number">'+r.pe+'</div>'+
+      '<div class="td '+verdictClass+'">'+r.verdict+'</div>';
+
+    table.appendChild(group);
+  });
+
+})();
+</script>
+
+</body>
+</html>

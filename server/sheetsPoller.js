@@ -6,6 +6,10 @@
  */
 
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
+
+const PORTFOLIO_PATH = path.join(__dirname, '..', 'portfolio.json');
 
 const SHEETS_URL = process.env.SHEETS_CSV_URL ||
   'https://docs.google.com/spreadsheets/d/1fme7KenYvt4-a-1NkTxajzRSmlam1zwx-3vDevbYX4U/gviz/tq?tqx=out:csv';
@@ -255,6 +259,45 @@ function fetchSheetCSV(retries = 3) {
 
 // ── Polling & Cache ─────────────────────────────────────────────────────────
 
+/**
+ * Sync portfolio.json with live holdings from Google Sheets.
+ * Returns true if holdings changed and data was reloaded.
+ */
+function syncPortfolioHoldings(liveTickers) {
+  try {
+    const raw = fs.readFileSync(PORTFOLIO_PATH, 'utf8');
+    const config = JSON.parse(raw);
+    const current = new Set((config.holdings || []).map(t => t.toUpperCase()));
+    const live = new Set(liveTickers.map(t => t.toUpperCase()));
+
+    // Check if they already match
+    if (current.size === live.size && [...current].every(t => live.has(t))) {
+      return false;
+    }
+
+    // They differ — update portfolio.json
+    const added = [...live].filter(t => !current.has(t));
+    const removed = [...current].filter(t => !live.has(t));
+
+    config.holdings = [...live].sort();
+    fs.writeFileSync(PORTFOLIO_PATH, JSON.stringify(config, null, 2) + '\n');
+
+    const parts = [];
+    if (added.length) parts.push(`added ${added.join(', ')}`);
+    if (removed.length) parts.push(`removed ${removed.join(', ')}`);
+    console.log(`[sheetsPoller] Portfolio synced: ${parts.join('; ')} → ${config.holdings.length} holdings`);
+
+    // Reload company data with updated portfolio
+    const dataLoader = require('./dataLoader');
+    dataLoader.loadAll();
+
+    return true;
+  } catch (err) {
+    console.warn('[sheetsPoller] Could not sync portfolio.json:', err.message);
+    return false;
+  }
+}
+
 async function fetchAndCache() {
   try {
     console.log('[sheetsPoller] Fetching Google Sheets data...');
@@ -266,6 +309,11 @@ async function fetchAndCache() {
       (cachedData.cash ? ` + cash` : '') +
       `, total: $${(cachedData.portfolioMetrics.totalValue || 0).toLocaleString()}`
     );
+
+    // Auto-sync portfolio.json if live holdings changed
+    if (cachedData.stocks.length > 0) {
+      syncPortfolioHoldings(cachedData.stocks.map(s => s.ticker));
+    }
   } catch (err) {
     console.error('[sheetsPoller] Fetch failed:', err.message);
     // Keep stale cached data if available

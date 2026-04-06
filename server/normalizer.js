@@ -212,6 +212,18 @@ function normalizeCompany(raw) {
     result.saulSummary = computeSaulSummary(result.saulRules);
   }
 
+  // Backfill missing top-level metrics from most recent quarterly history entry
+  if (result.quarterlyHistory && result.quarterlyHistory.length > 0) {
+    const recent = result.quarterlyHistory.find(q => q.grossMarginPct != null);
+    if (result.grossMarginPct == null && recent) {
+      result.grossMarginPct = recent.grossMarginPct;
+    }
+    const recentEbitda = result.quarterlyHistory.find(q => q.ebitdaMarginPct != null);
+    if (result.ebitdaMarginPct == null && recentEbitda) {
+      result.ebitdaMarginPct = recentEbitda.ebitdaMarginPct;
+    }
+  }
+
   return result;
 }
 

@@ -59,6 +59,57 @@ const ProfitabilityDashboard = {
       .sort((a, b) => b.calculated.operatingLeverage - a.calculated.operatingLeverage);
 
     setTimeout(() => {
+      // Gross margin as decimal (e.g. 70% → 0.70) = theoretical ceiling for op leverage
+      const gmValues = withLeverage.map(c =>
+        c.grossMarginPct != null ? c.grossMarginPct / 100 : null
+      );
+
+      const gmMarkerPlugin = {
+        id: 'grossMarginMarkers',
+        afterDraw(chart) {
+          const ctx = chart.ctx;
+          const xScale = chart.scales.x;
+          const yScale = chart.scales.y;
+          const styles = getComputedStyle(document.body);
+          const markerColor = styles.getPropertyValue('--text-muted').trim() || '#888';
+
+          ctx.save();
+          ctx.strokeStyle = markerColor;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 3]);
+
+          gmValues.forEach((gm, i) => {
+            if (gm === null) return;
+            const xPixel = xScale.getPixelForValue(gm);
+            const yPixel = yScale.getPixelForValue(i);
+            const barHeight = yScale.getPixelForValue(0) - yScale.getPixelForValue(1);
+            const halfBar = Math.abs(barHeight) * 0.35;
+
+            // Dashed vertical tick at the GM value
+            ctx.beginPath();
+            ctx.moveTo(xPixel, yPixel - halfBar);
+            ctx.lineTo(xPixel, yPixel + halfBar);
+            ctx.stroke();
+          });
+
+          // Draw legend entry for the GM marker
+          const lastGmIdx = gmValues.findLastIndex(v => v !== null);
+          if (lastGmIdx >= 0) {
+            ctx.fillStyle = markerColor;
+            ctx.font = `10px ${styles.getPropertyValue('--font-body').trim() || 'sans-serif'}`;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            const xPixel = xScale.getPixelForValue(gmValues[lastGmIdx]);
+            const yPixel = yScale.getPixelForValue(lastGmIdx);
+            const barHeight = yScale.getPixelForValue(0) - yScale.getPixelForValue(1);
+            const halfBar = Math.abs(barHeight) * 0.35;
+            ctx.fillText('GM', xPixel + 4, yPixel + halfBar + 2);
+          }
+
+          ctx.restore();
+        },
+      };
+
       BarChart.render('prof-leverage-chart', {
         labels: withLeverage.map(c => c.ticker),
         datasets: [{
@@ -73,6 +124,13 @@ const ProfitabilityDashboard = {
         }],
         horizontal: true,
         yLabel: 'Leverage Ratio',
+        plugins: [gmMarkerPlugin],
+        tooltipFormat: (context) => {
+          const gm = gmValues[context.dataIndex];
+          const val = context.raw?.toFixed(2) || 'N/A';
+          const gmStr = gm != null ? (gm * 100).toFixed(0) + '%' : 'N/A';
+          return `Op. Leverage: ${val}x  |  Gross Margin: ${gmStr}`;
+        },
       });
     }, 50);
 

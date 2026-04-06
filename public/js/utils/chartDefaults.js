@@ -4,7 +4,7 @@
 const ChartDefaults = {
   /** Apply theme-specific defaults to Chart.js global config */
   applyTheme(themeName) {
-    const styles = getComputedStyle(document.documentElement);
+    const styles = getComputedStyle(document.body);
     const textColor = styles.getPropertyValue('--text-primary').trim() || '#c8d0e0';
     const textMuted = styles.getPropertyValue('--text-muted').trim() || '#666';
     const gridColor = styles.getPropertyValue('--chart-grid').trim() || 'rgba(255,255,255,0.08)';
@@ -16,9 +16,13 @@ const ChartDefaults = {
     Chart.defaults.font.size = 11;
     Chart.defaults.plugins.legend.labels.color = textColor;
     Chart.defaults.plugins.legend.labels.font = { family: fontFamily, size: 11 };
-    Chart.defaults.plugins.tooltip.backgroundColor = styles.getPropertyValue('--bg-card').trim() || '#1a2035';
-    Chart.defaults.plugins.tooltip.titleColor = textColor;
-    Chart.defaults.plugins.tooltip.bodyColor = textColor;
+    const tooltipBg = styles.getPropertyValue('--bg-tooltip').trim()
+      || styles.getPropertyValue('--bg-card').trim()
+      || '#1a2035';
+    const tooltipText = styles.getPropertyValue('--tooltip-text').trim() || '#fff';
+    Chart.defaults.plugins.tooltip.backgroundColor = tooltipBg;
+    Chart.defaults.plugins.tooltip.titleColor = tooltipText;
+    Chart.defaults.plugins.tooltip.bodyColor = tooltipText;
     Chart.defaults.plugins.tooltip.borderColor = styles.getPropertyValue('--border-color').trim() || '#2a3450';
     Chart.defaults.plugins.tooltip.borderWidth = 1;
     Chart.defaults.plugins.tooltip.cornerRadius = parseInt(styles.getPropertyValue('--border-radius')) || 4;
@@ -30,9 +34,25 @@ const ChartDefaults = {
     Chart.defaults.maintainAspectRatio = false;
   },
 
+  /** Tooltip background — read live from current theme */
+  tooltipBg() {
+    const s = getComputedStyle(document.body);
+    return s.getPropertyValue('--bg-tooltip').trim()
+      || s.getPropertyValue('--bg-card').trim()
+      || 'rgba(0,0,0,0.85)';
+  },
+
+  /** Tooltip text color — read live from current theme */
+  tooltipText() {
+    const s = getComputedStyle(document.body);
+    return s.getPropertyValue('--tooltip-text').trim()
+      || s.getPropertyValue('--text-primary').trim()
+      || '#fff';
+  },
+
   /** Common scales config */
   scales(opts = {}) {
-    const styles = getComputedStyle(document.documentElement);
+    const styles = getComputedStyle(document.body);
     const gridColor = styles.getPropertyValue('--chart-grid').trim() || 'rgba(255,255,255,0.08)';
     const textColor = styles.getPropertyValue('--text-secondary').trim() || '#666';
 

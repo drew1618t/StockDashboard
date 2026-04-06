@@ -1,0 +1,339 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ONYX — Near-black monochromatic. No cards. Data etched into one dark plane.
+   Luxury watch on dark velvet. Hairline dividers, generous whitespace.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.theme-onyx {
+  --bg-primary: #0A0A0B;
+  --bg-secondary: #0A0A0B;
+  --bg-tertiary: #111113;
+  --bg-card: #141417;
+  --bg-tooltip: #1E1E22;
+  --tooltip-text: #E8E8EC;
+  --bg-hover: #141417;
+
+  --text-primary: #E8E8EC;
+  --text-secondary: #A0A0A8;
+  --text-muted: #636369;
+
+  --color-accent: #6B8BA4;
+  --color-positive: #4ADE80;
+  --color-negative: #F87171;
+  --color-warning: #FBBF24;
+
+  --heatmap-100: #166534;
+  --heatmap-50: #22804a;
+  --heatmap-35: #4a9e6e;
+  --heatmap-25: #7a8540;
+  --heatmap-10: #8a7030;
+  --heatmap-0: #6e4a2a;
+  --heatmap-neg: #7a3030;
+  --heatmap-text-light: #E8E8EC;
+  --heatmap-text-dark: #E8E8EC;
+
+  --chart-grid: rgba(255, 255, 255, 0.04);
+
+  --font-heading: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Inter', system-ui, sans-serif;
+  --font-numbers: 'Inter', system-ui, sans-serif;
+
+  --border-color: #1E1E22;
+  --border-radius: 0px;
+  --card-shadow: none;
+  --gap: 16px;
+  --gap-sm: 8px;
+  --gap-lg: 24px;
+}
+
+/* ─── Header ─── */
+.theme-onyx #app-header {
+  height: 48px;
+  background: #0A0A0B;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+.theme-onyx .app-title {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.theme-onyx .header-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.theme-onyx .nav-link {
+  padding: 12px 18px;
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+  border-bottom: 1px solid transparent;
+}
+
+.theme-onyx .nav-link.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-muted);
+}
+
+.theme-onyx .nav-link:hover {
+  color: var(--text-secondary);
+  background: transparent;
+}
+
+.theme-onyx .header-right {
+  gap: 8px;
+}
+
+.theme-onyx #theme-selector,
+.theme-onyx #refresh-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* ─── Content Area ─── */
+.theme-onyx #dashboard-content {
+  padding: 40px 48px;
+  max-width: 1200px;
+}
+
+/* ─── Sections ─── */
+.theme-onyx .section {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 40px;
+  margin-bottom: 40px;
+}
+
+.theme-onyx .section:last-child {
+  border-bottom: none;
+}
+
+.theme-onyx .section-title {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 24px;
+}
+
+.theme-onyx .section-subtitle {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ─── Metric Cards (no cards — open layout) ─── */
+.theme-onyx .metric-card {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 12px 0;
+  border-right: 1px solid var(--border-color);
+}
+
+.theme-onyx .metric-card:last-child {
+  border-right: none;
+}
+
+.theme-onyx .metric-value {
+  font-family: var(--font-numbers);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.theme-onyx .metric-card.positive .metric-value {
+  color: var(--color-positive);
+}
+
+.theme-onyx .metric-card.negative .metric-value {
+  color: var(--color-negative);
+}
+
+.theme-onyx .metric-label {
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.theme-onyx .metric-subtext {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ─── Tables ─── */
+.theme-onyx .sortable-table-wrapper {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.theme-onyx .thead .th {
+  background: transparent;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  padding: 8px 12px;
+}
+
+.theme-onyx .tbody .td {
+  font-size: 13px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+}
+
+.theme-onyx .tbody .tr:hover .td {
+  background: var(--bg-hover);
+}
+
+.theme-onyx .tbody .td:first-child {
+  font-weight: 500;
+  color: var(--color-accent);
+}
+
+/* ─── Charts ─── */
+.theme-onyx .chart-container {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 16px 0;
+  height: 300px;
+}
+
+.theme-onyx .chart-container.chart-tall {
+  height: 360px;
+}
+
+/* ─── Verdicts ─── */
+.theme-onyx .verdict {
+  border-radius: 0;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+.theme-onyx .verdict-pass {
+  background: rgba(74, 222, 128, 0.08);
+  color: var(--color-positive);
+}
+
+.theme-onyx .verdict-caution {
+  background: rgba(251, 191, 36, 0.08);
+  color: var(--color-warning);
+}
+
+.theme-onyx .verdict-fail {
+  background: rgba(248, 113, 113, 0.08);
+  color: var(--color-negative);
+}
+
+/* ─── Heatmap ─── */
+.theme-onyx .heatmap-wrapper {
+  border: none;
+  background: transparent;
+  border-radius: 0;
+}
+
+.theme-onyx .heatmap-corner,
+.theme-onyx .heatmap-header {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.theme-onyx .heatmap-ticker {
+  background: transparent;
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.theme-onyx .heatmap-cell {
+  border-color: #0A0A0B;
+}
+
+/* ─── Cards-that-aren't-cards ─── */
+.theme-onyx .mini-table-card {
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  background: transparent;
+  border-radius: 0;
+}
+
+.theme-onyx .mini-table-title {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.theme-onyx .mini-row span:first-child {
+  color: var(--color-accent);
+}
+
+.theme-onyx .thesis-card {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  background: transparent;
+  border-radius: 0;
+}
+
+.theme-onyx .pe-compression-wrapper,
+.theme-onyx .saul-grid-wrapper {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  background: transparent;
+  border-radius: 0;
+}
+
+.theme-onyx .saul-rule {
+  font-family: var(--font-body);
+}
+
+.theme-onyx .filter-bar {
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  background: transparent;
+  border-radius: 0;
+  padding: 8px 0;
+}
+
+.theme-onyx .alert {
+  border-radius: 0;
+  border: none;
+  border-left: 2px solid var(--border-color);
+  background: transparent;
+}
+
+.theme-onyx .alert-danger {
+  border-left-color: var(--color-negative);
+}
+
+.theme-onyx .alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.theme-onyx .business-desc {
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+  line-height: 1.7;
+}

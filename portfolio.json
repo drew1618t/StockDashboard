@@ -1,7 +1,7 @@
 {
   "holdings": [
     "ALAB", "APP", "IREN", "ELVA", "SEI", "MU",
-    "DAVE", "CRDO", "UPST", "PTRN", "FIGR"
+    "CRDO", "PTRN", "FIGR"
   ],
-  "_comment": "Edit this list to add/remove portfolio holdings. Only these tickers appear in dashboards."
+  "_comment": "Auto-synced with Google Sheets live positions. Manual edits are overwritten on next sync."
 }

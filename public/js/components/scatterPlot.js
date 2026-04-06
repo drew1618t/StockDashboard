@@ -27,8 +27,8 @@ const ScatterPlot = {
       data: {
         datasets: [{
           data: points.map(p => ({ x: p.x, y: p.y })),
-          backgroundColor: points.map(p => p.color || Colors.chartColor(0)),
-          borderColor: points.map(p => p.color || Colors.chartColor(0)),
+          backgroundColor: points.map(p => Colors.resolveVar(p.color || Colors.chartColor(0))),
+          borderColor: points.map(p => Colors.resolveVar(p.color || Colors.chartColor(0))),
           pointRadius: points.map(p => p.size || 6),
           pointHoverRadius: points.map(p => (p.size || 6) + 2),
         }],
@@ -43,6 +43,9 @@ const ScatterPlot = {
         plugins: {
           legend: { display: false },
           tooltip: {
+            backgroundColor: ChartDefaults.tooltipBg(),
+            titleColor: ChartDefaults.tooltipText(),
+            bodyColor: ChartDefaults.tooltipText(),
             callbacks: {
               label: (ctx) => {
                 const p = points[ctx.dataIndex];
@@ -58,7 +61,7 @@ const ScatterPlot = {
         afterDraw(chart) {
           const ctx = chart.ctx;
           const meta = chart.getDatasetMeta(0);
-          const styles = getComputedStyle(document.documentElement);
+          const styles = getComputedStyle(document.body);
           ctx.font = `10px ${styles.getPropertyValue('--font-mono').trim() || 'monospace'}`;
           ctx.fillStyle = styles.getPropertyValue('--text-primary').trim() || '#fff';
           ctx.textAlign = 'center';

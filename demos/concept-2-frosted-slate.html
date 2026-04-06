@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frosted Slate — Portfolio Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 400;
+    color: #3A3F47;
+    background: linear-gradient(180deg, #E4E7EC 0%, #DFE3EA 100%);
+    background-attachment: fixed;
+    min-height: 200vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── Header ── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #F8F9FB;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .header-title {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 1.2px;
+    color: #3A3F47;
+  }
+
+  .header-chip {
+    font-size: 11px;
+    font-weight: 500;
+    color: #6B7280;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+
+  .header-nav {
+    display: flex;
+    gap: 0;
+  }
+
+  .nav-tab {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6B7280;
+    background: none;
+    border: none;
+    padding: 20px 18px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+    letter-spacing: 0.2px;
+  }
+
+  .nav-tab:hover {
+    color: #3A3F47;
+  }
+
+  .nav-tab.active {
+    color: #3B82F6;
+    font-weight: 600;
+  }
+
+  .nav-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 18px;
+    right: 18px;
+    height: 2px;
+    background: #3B82F6;
+    border-radius: 2px 2px 0 0;
+  }
+
+  .header-theme {
+    font-size: 12px;
+    font-weight: 500;
+    color: #9CA3AF;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Main Layout ── */
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ── Frosted Pane ── */
+  .frosted-pane {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03), 0 1px 4px rgba(0, 0, 0, 0.02);
+  }
+
+  /* ── Pane 1: Portfolio Overview ── */
+  .overview-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    position: relative;
+  }
+
+  .metric-item {
+    text-align: center;
+    padding: 12px 24px;
+    position: relative;
+  }
+
+  .metric-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  .metric-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.1px;
+    text-transform: uppercase;
+    color: #6B7280;
+    margin-bottom: 10px;
+  }
+
+  .metric-value {
+    font-size: 32px;
+    font-weight: 600;
+    color: #3A3F47;
+    line-height: 1;
+  }
+
+  .metric-value.positive {
+    color: #16A34A;
+  }
+
+  /* ── Pane 2: Chart ── */
+  .pane-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #3A3F47;
+    margin-bottom: 24px;
+    letter-spacing: 0.1px;
+  }
+
+  .chart-wrap {
+    height: 300px;
+    position: relative;
+  }
+
+  /* ── Pane 3: Rankings Table ── */
+  .rankings-grid {
+    display: grid;
+    grid-template-columns: 72px 1fr 110px 100px 80px 100px;
+    gap: 0;
+    align-items: center;
+  }
+
+  .rankings-header {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #6B7280;
+    padding: 0 0 14px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .rankings-cell {
+    font-size: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    color: #3A3F47;
+  }
+
+  .rankings-row {
+    display: contents;
+  }
+
+  .rankings-row:hover > .rankings-cell {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .ticker {
+    font-weight: 600;
+    color: #3B82F6;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+
+  .company-name {
+    color: #3A3F47;
+  }
+
+  .rev-growth {
+    font-weight: 600;
+    color: #16A34A;
+  }
+
+  .verdict {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .verdict.pass {
+    color: #16A34A;
+    background: rgba(22, 163, 74, 0.08);
+  }
+
+  .verdict.caution {
+    color: #D97706;
+    background: rgba(217, 119, 6, 0.08);
+  }
+
+  .verdict.fail {
+    color: #DC2626;
+    background: rgba(220, 38, 38, 0.08);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .header {
+      padding: 0 16px;
+      height: auto;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 12px;
+      padding-bottom: 12px;
+    }
+
+    .header-nav {
+      order: 3;
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-tab {
+      padding: 12px 12px;
+      font-size: 12px;
+    }
+
+    .main {
+      padding: 20px 16px 60px;
+    }
+
+    .frosted-pane {
+      padding: 24px 20px;
+    }
+
+    .overview-metrics {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px 0;
+    }
+
+    .metric-item:nth-child(2)::after {
+      display: none;
+    }
+
+    .metric-item:nth-child(1)::after,
+    .metric-item:nth-child(3)::after {
+      top: 4px;
+      bottom: 4px;
+    }
+
+    .rankings-grid {
+      grid-template-columns: 60px 1fr 80px 80px 60px 80px;
+      font-size: 12px;
+    }
+
+    .rankings-cell {
+      font-size: 12px;
+      padding: 10px 0;
+    }
+
+    .metric-value {
+      font-size: 26px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-left">
+    <span class="header-title">PORTFOLIO VIZ</span>
+    <span class="header-chip">11 holdings</span>
+  </div>
+  <nav class="header-nav">
+    <button class="nav-tab active">Summary</button>
+    <button class="nav-tab">Growth</button>
+    <button class="nav-tab">Valuation</button>
+    <button class="nav-tab">Profitability</button>
+    <button class="nav-tab">Deep Dive</button>
+  </nav>
+  <span class="header-theme">Frosted Slate</span>
+</header>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- Pane 1: Portfolio Overview -->
+  <section class="frosted-pane">
+    <div class="overview-metrics">
+      <div class="metric-item">
+        <div class="metric-label">Avg Revenue Growth</div>
+        <div class="metric-value positive">42%</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-label">Total Market Cap</div>
+        <div class="metric-value">$284B</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-label">Profitable</div>
+        <div class="metric-value">8/11</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-label">Avg GAV</div>
+        <div class="metric-value">1.2x</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pane 2: Revenue Growth Trends -->
+  <section class="frosted-pane">
+    <h2 class="pane-title">Revenue Growth Trends</h2>
+    <div class="chart-wrap">
+      <canvas id="growthChart"></canvas>
+    </div>
+  </section>
+
+  <!-- Pane 3: Growth Rankings -->
+  <section class="frosted-pane">
+    <h2 class="pane-title">Growth Rankings</h2>
+    <div class="rankings-grid">
+      <!-- Header -->
+      <div class="rankings-header">Ticker</div>
+      <div class="rankings-header">Company</div>
+      <div class="rankings-header">Rev Growth</div>
+      <div class="rankings-header">Market Cap</div>
+      <div class="rankings-header">P/E</div>
+      <div class="rankings-header">Verdict</div>
+
+      <!-- Row 1 -->
+      <div class="rankings-cell ticker">ALAB</div>
+      <div class="rankings-cell company-name">Astera Labs</div>
+      <div class="rankings-cell rev-growth">113%</div>
+      <div class="rankings-cell">$15B</div>
+      <div class="rankings-cell">95x</div>
+      <div class="rankings-cell"><span class="verdict caution">CAUTION</span></div>
+
+      <!-- Row 2 -->
+      <div class="rankings-cell ticker">CRDO</div>
+      <div class="rankings-cell company-name">Credo Tech</div>
+      <div class="rankings-cell rev-growth">89%</div>
+      <div class="rankings-cell">$12B</div>
+      <div class="rankings-cell">68x</div>
+      <div class="rankings-cell"><span class="verdict pass">PASS</span></div>
+
+      <!-- Row 3 -->
+      <div class="rankings-cell ticker">APP</div>
+      <div class="rankings-cell company-name">AppLovin</div>
+      <div class="rankings-cell rev-growth">74%</div>
+      <div class="rankings-cell">$112B</div>
+      <div class="rankings-cell">52x</div>
+      <div class="rankings-cell"><span class="verdict pass">PASS</span></div>
+
+      <!-- Row 4 -->
+      <div class="rankings-cell ticker">UPST</div>
+      <div class="rankings-cell company-name">Upstart</div>
+      <div class="rankings-cell rev-growth">56%</div>
+      <div class="rankings-cell">$8B</div>
+      <div class="rankings-cell">85x</div>
+      <div class="rankings-cell"><span class="verdict caution">CAUTION</span></div>
+
+      <!-- Row 5 -->
+      <div class="rankings-cell ticker">PLTR</div>
+      <div class="rankings-cell company-name">Palantir</div>
+      <div class="rankings-cell rev-growth">36%</div>
+      <div class="rankings-cell">$245B</div>
+      <div class="rankings-cell">180x</div>
+      <div class="rankings-cell"><span class="verdict fail">FAIL</span></div>
+
+      <!-- Row 6 -->
+      <div class="rankings-cell ticker">TOST</div>
+      <div class="rankings-cell company-name">Toast</div>
+      <div class="rankings-cell rev-growth">32%</div>
+      <div class="rankings-cell">$18B</div>
+      <div class="rankings-cell">72x</div>
+      <div class="rankings-cell"><span class="verdict pass">PASS</span></div>
+
+      <!-- Row 7 -->
+      <div class="rankings-cell ticker">DDOG</div>
+      <div class="rankings-cell company-name">Datadog</div>
+      <div class="rankings-cell rev-growth">28%</div>
+      <div class="rankings-cell">$42B</div>
+      <div class="rankings-cell">65x</div>
+      <div class="rankings-cell"><span class="verdict pass">PASS</span></div>
+
+      <!-- Row 8 -->
+      <div class="rankings-cell ticker">AMD</div>
+      <div class="rankings-cell company-name">AMD</div>
+      <div class="rankings-cell rev-growth">18%</div>
+      <div class="rankings-cell">$195B</div>
+      <div class="rankings-cell">28x</div>
+      <div class="rankings-cell"><span class="verdict pass">PASS</span></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ── Nav tab interaction ──
+  document.querySelectorAll('.nav-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelector('.nav-tab.active').classList.remove('active');
+      tab.classList.add('active');
+    });
+  });
+
+  // ── Row hover via CSS grid (display:contents workaround) ──
+  // CSS :hover on display:contents doesn't work, so we handle it via grouping
+  // The grid is flat, so we apply hover styles via JS
+  const cells = document.querySelectorAll('.rankings-grid > .rankings-cell');
+  const COLS = 6;
+
+  cells.forEach((cell, i) => {
+    const rowStart = Math.floor(i / COLS) * COLS;
+    cell.addEventListener('mouseenter', () => {
+      for (let j = rowStart; j < rowStart + COLS && j < cells.length; j++) {
+        cells[j].style.background = 'rgba(0,0,0,0.03)';
+      }
+    });
+    cell.addEventListener('mouseleave', () => {
+      for (let j = rowStart; j < rowStart + COLS && j < cells.length; j++) {
+        cells[j].style.background = 'transparent';
+      }
+    });
+  });
+
+  // ── Chart.js — Revenue Growth Trends ──
+  const ctx = document.getElementById('growthChart').getContext('2d');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ["Q1'25", "Q2'25", "Q3'25", "Q4'25"],
+      datasets: [
+        {
+          label: 'ALAB',
+          data: [95, 100, 108, 113],
+          borderColor: '#8B5CF6',
+          backgroundColor: 'rgba(139, 92, 246, 0.06)',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: '#8B5CF6',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointHoverRadius: 6,
+          tension: 0.35,
+          fill: false
+        },
+        {
+          label: 'CRDO',
+          data: [60, 72, 82, 89],
+          borderColor: '#6366F1',
+          backgroundColor: 'rgba(99, 102, 241, 0.06)',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: '#6366F1',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointHoverRadius: 6,
+          tension: 0.35,
+          fill: false
+        },
+        {
+          label: 'APP',
+          data: [85, 78, 74, 71],
+          borderColor: '#3B82F6',
+          backgroundColor: 'rgba(59, 130, 246, 0.06)',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: '#3B82F6',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointHoverRadius: 6,
+          tension: 0.35,
+          fill: false
+        },
+        {
+          label: 'PLTR',
+          data: [29, 31, 34, 36],
+          borderColor: '#A1A1AA',
+          backgroundColor: 'rgba(161, 161, 170, 0.06)',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: '#A1A1AA',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointHoverRadius: 6,
+          tension: 0.35,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: {
+            font: {
+              family: "'DM Sans', sans-serif",
+              size: 12,
+              weight: '500'
+            },
+            color: '#6B7280',
+            usePointStyle: true,
+            pointStyle: 'circle',
+            padding: 20,
+            boxWidth: 8,
+            boxHeight: 8
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(58, 63, 71, 0.92)',
+          titleFont: {
+            family: "'DM Sans', sans-serif",
+            size: 12,
+            weight: '600'
+          },
+          bodyFont: {
+            family: "'DM Sans', sans-serif",
+            size: 12
+          },
+          padding: 12,
+          cornerRadius: 8,
+          displayColors: true,
+          boxPadding: 4,
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + context.parsed.y + '%';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            color: 'rgba(107, 114, 128, 0.1)',
+            drawBorder: false
+          },
+          ticks: {
+            font: {
+              family: "'DM Sans', sans-serif",
+              size: 12,
+              weight: '500'
+            },
+            color: '#6B7280',
+            padding: 8
+          },
+          border: {
+            display: false
+          }
+        },
+        y: {
+          grid: {
+            color: 'rgba(107, 114, 128, 0.12)',
+            drawBorder: false
+          },
+          ticks: {
+            font: {
+              family: "'DM Sans', sans-serif",
+              size: 12
+            },
+            color: '#6B7280',
+            padding: 12,
+            callback: function(value) {
+              return value + '%';
+            }
+          },
+          border: {
+            display: false
+          },
+          min: 20,
+          max: 120
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

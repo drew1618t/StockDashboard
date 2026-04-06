@@ -42,7 +42,7 @@ const ValuationDashboard = {
         x: c.revenueYoyPct,
         y: self._effectivePe(c),
         label: c.ticker,
-        color: c._isComparison ? colorMap[c.ticker] : Colors.verdictColor(c.verdict),
+        color: c._isComparison ? colorMap[c.ticker] : 'var(--color-accent)',
         size: Math.max(4, Math.min(12, (c.marketCapMil || 1000) / 1000)),
       }));
 
@@ -82,8 +82,7 @@ const ValuationDashboard = {
           data: withGav.map(c => c.calculated.gav),
           colors: withGav.map((c) => {
             if (c._isComparison) return colorMap[c.ticker];
-            const median = withGav[Math.floor(withGav.length / 2)]?.calculated?.gav || 1;
-            return c.calculated.gav <= median ? 'var(--color-positive)' : 'var(--color-warning)';
+            return c.calculated.gav <= 0.8 ? 'var(--color-positive)' : 'var(--color-warning)';
           }),
         }],
         yLabel: 'GAV (lower = better)',
