@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dry Ink — Editorial Writing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,700;1,7..72,400;1,7..72,500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #FAFAFA;
+    color: #111111;
+    font-family: 'Literata', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .page-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+    display: grid;
+    grid-template-columns: 600px 1fr;
+    gap: 0 48px;
+  }
+
+  .site-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #E5E5E5;
+    margin-bottom: 56px;
+  }
+
+  .site-name {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #111;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .nav-links a {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #999;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: #111;
+  }
+
+  .main-content {
+    grid-column: 1;
+  }
+
+  .margin-content {
+    grid-column: 2;
+    position: relative;
+  }
+
+  /* Article */
+  article {
+    margin-bottom: 64px;
+  }
+
+  .article-tag {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #000;
+    margin-bottom: 20px;
+    letter-spacing: -0.75px;
+  }
+
+  .byline {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 12px;
+    font-weight: 400;
+  }
+
+  .byline .author {
+    color: #333;
+    font-weight: 600;
+  }
+
+  hr.section-rule {
+    border: none;
+    border-top: 1px solid #E5E5E5;
+    margin: 16px 0 32px;
+  }
+
+  article p {
+    margin-bottom: 22px;
+    color: #222;
+  }
+
+  h2 {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #000;
+    margin-top: 40px;
+    margin-bottom: 18px;
+    letter-spacing: -0.25px;
+  }
+
+  .pullquote {
+    margin: 36px 0;
+    padding: 28px 0;
+    border-top: 1px solid #E5E5E5;
+    border-bottom: 1px solid #E5E5E5;
+  }
+
+  .pullquote p {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 0;
+  }
+
+  /* Margin annotations */
+  .margin-note {
+    position: absolute;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 11px;
+    color: #BBB;
+    line-height: 1.5;
+    max-width: 180px;
+  }
+
+  .margin-note .note-label {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 9px;
+    color: #CCC;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  /* Article previews */
+  .article-preview {
+    padding: 32px 0;
+    border-top: 1px solid #E5E5E5;
+  }
+
+  .article-preview:last-child {
+    border-bottom: 1px solid #E5E5E5;
+  }
+
+  .article-preview .article-tag {
+    margin-bottom: 8px;
+  }
+
+  .article-preview h2 {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-top: 0;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+  }
+
+  .article-preview h2 a {
+    color: #000;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .article-preview h2 a:hover {
+    color: #555;
+  }
+
+  .article-preview .excerpt {
+    font-family: 'Literata', Georgia, serif;
+    font-size: 15px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .article-preview .meta {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 11px;
+    color: #BBB;
+    letter-spacing: 0.5px;
+  }
+
+  /* Responsive */
+  @media (max-width: 780px) {
+    .page-wrapper {
+      grid-template-columns: 1fr;
+      padding: 32px 20px 60px;
+    }
+    .margin-content { display: none; }
+    .site-header { flex-direction: column; gap: 12px; }
+    h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <header class="site-header">
+    <div class="site-name">Drew's Stock Journal</div>
+    <nav class="nav-links">
+      <a href="#" class="active">Writing</a>
+      <a href="#">Portfolio</a>
+      <a href="#">Dashboard</a>
+      <a href="#">About</a>
+    </nav>
+  </header>
+
+  <main class="main-content">
+
+    <!-- FEATURED ARTICLE -->
+    <article>
+      <div class="article-tag">Deep Dive</div>
+      <h1>Cloudflare's Rule-Breaking Quarter and What It Means for the Portfolio</h1>
+      <div class="byline"><span class="author">Drew</span> &middot; March 28, 2026</div>
+      <hr class="section-rule">
+
+      <p>There's a particular kind of earnings report that makes you sit up straighter. Not the ones that beat estimates by a penny and guide in-line. The ones that break the pattern. Cloudflare's Q4 was that kind of quarter.</p>
+
+      <p>Revenue came in at $498 million, up 29% year-over-year. That's an acceleration from 28% the prior quarter. At a $2 billion run rate, that's not supposed to happen. The law of large numbers is supposed to be pulling growth down, not pushing it up. And yet here we are.</p>
+
+      <div class="pullquote">
+        <p>When a company accelerates revenue growth at this scale, the market hasn't priced it in. It can't — because most models assume deceleration is inevitable.</p>
+      </div>
+
+      <p>The driver was Workers AI and the broader AI gateway story. Enterprise customers are routing inference traffic through Cloudflare's network, and the usage-based revenue is compounding on top of the subscription base. CEO Matthew Prince called it "the fastest-growing product in company history," and for once, that kind of CEO superlative was backed up by the numbers.</p>
+
+      <h2>What the Saul Rules Say</h2>
+
+      <p>Cloudflare passes 9 of 11 rules cleanly. Revenue growth above 25% at scale, check. Net dollar retention above 120%, check. The two soft areas — profitability trajectory and insider selling — are both improving. Operating margin turned positive this quarter for the first time on a GAAP basis.</p>
+
+      <p>The position is now 11.2% of the portfolio. I'm comfortable with that weighting. When a company is executing this well, the risk isn't in holding too much — it's in holding too little because you were anchored to a lower price.</p>
+
+      <h2>The Uncomfortable Part</h2>
+
+      <p>Valuation. At 22x forward revenue, this is not cheap by any historical standard. But "cheap" is a relative concept in growth investing. A company growing 29% with expanding margins and a massive TAM in front of it is a different animal than a company growing 29% because of a one-time COVID pull-forward.</p>
+
+      <p>I've been wrong before about paying up for quality. I've also been wrong about selling too early because a stock "looked expensive." The second mistake has cost me more money over the years. So the position stays.</p>
+    </article>
+
+    <!-- ARTICLE INDEX -->
+    <div class="article-preview">
+      <div class="article-tag">Portfolio Update</div>
+      <h2><a href="#">March 2026: The Portfolio Crosses a Milestone</a></h2>
+      <p class="excerpt">For the first time since inception, the portfolio has outperformed the S&P 500 over a rolling three-year period. Here's what I've learned about concentration, conviction, and the cost of being early.</p>
+      <div class="meta">March 15, 2026 &middot; 6 min read</div>
+    </div>
+
+    <div class="article-preview">
+      <div class="article-tag">Thesis Review</div>
+      <h2><a href="#">Why I Sold My Entire UPST Position</a></h2>
+      <p class="excerpt">The thesis hasn't broken. The numbers are fine. But "fine" isn't what I'm looking for in a concentrated portfolio — and the opportunity cost of holding a "fine" position is real.</p>
+      <div class="meta">March 2, 2026 &middot; 5 min read</div>
+    </div>
+
+    <div class="article-preview">
+      <div class="article-tag">New Position</div>
+      <h2><a href="#">Adding Credo Technology: The Picks-and-Shovels AI Play</a></h2>
+      <p class="excerpt">Every AI hyperscaler needs high-speed connectivity. Credo is building the electrical and optical interconnects that make it work. Here's why I started a 6% position.</p>
+      <div class="meta">February 18, 2026 &middot; 7 min read</div>
+    </div>
+
+  </main>
+
+  <!-- RIGHT MARGIN -->
+  <aside class="margin-content">
+    <div class="margin-note" style="top: 0px;">
+      <span class="note-label">Topic</span>
+      Cloudflare (NET)
+    </div>
+    <div class="margin-note" style="top: 60px;">
+      <span class="note-label">Read Time</span>
+      8 min &middot; 2,340 words
+    </div>
+    <div class="margin-note" style="top: 320px;">
+      <span class="note-label">Position</span>
+      11.2% of portfolio
+    </div>
+    <div class="margin-note" style="top: 640px;">
+      <span class="note-label">Saul Score</span>
+      9 / 11 rules passed
+    </div>
+    <div class="margin-note" style="top: 920px;">
+      <span class="note-label">Valuation</span>
+      22x forward revenue
+    </div>
+  </aside>
+
+</div>
+
+</body>
+</html>

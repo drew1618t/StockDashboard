@@ -8,6 +8,9 @@
 const express = require('express');
 const compression = require('compression');
 const path = require('path');
+const mammoth = require('mammoth');
+const multer = require('multer');
+const os = require('os');
 const dataLoader = require('./dataLoader');
 const sheetsPoller = require('./sheetsPoller');
 const requestTracker = require('./requestTracker');
@@ -26,6 +29,8 @@ const { getPersonConfig, getPersonHealthData, findReportFile, getImagingStudy, r
 const todoStore = require('./todoStore');
 const pinboardStore = require('./pinboardStore');
 const { renderHomePage } = require('./homePage');
+const { renderWritingPage } = require('./writingPage');
+const writingStore = require('./writingStore');
 
 const PORT = process.env.PORT || 3000;
 const accessAuth = createAccessAuth();
@@ -318,6 +323,82 @@ function createApp() {
       companiesLoaded: dataLoader.getCompanies().length,
       lastUpdated: dataLoader.getLastLoadTime(),
     });
+  });
+
+  app.get('/writing', (req, res) => {
+    const articles = writingStore.getArticles('published');
+    res.type('html').send(renderWritingPage(req.user, articles));
+  });
+
+  app.get('/writing/:slug', (req, res) => {
+    const article = writingStore.getArticle(req.params.slug);
+    if (!article) {
+      return res.redirect('/writing');
+    }
+    const articles = writingStore.getArticles('published');
+    res.type('html').send(renderWritingPage(req.user, articles, article));
+  });
+
+  app.get('/api/writing', (req, res) => {
+    const status = req.query.status || 'published';
+    res.json(writingStore.getArticles(status));
+  });
+
+  app.post('/api/writing', (req, res) => {
+    const { title, subtitle, category, body, status } = req.body;
+    const article = writingStore.createArticle({ title, subtitle, category, body, status });
+    if (!article) return res.status(400).json({ error: 'Title is required' });
+    res.status(201).json(article);
+  });
+
+  const upload = multer({ dest: os.tmpdir(), limits: { fileSize: 10 * 1024 * 1024 } });
+
+  app.post('/api/writing/upload', upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      let body = '';
+
+      if (ext === '.docx') {
+        const result = await mammoth.convertToHtml({ path: req.file.path });
+        body = result.value;
+      } else if (ext === '.md' || ext === '.txt') {
+        const fs = require('fs');
+        body = fs.readFileSync(req.file.path, 'utf-8');
+      } else {
+        return res.status(400).json({ error: 'Unsupported file type. Use .md, .txt, or .docx' });
+      }
+
+      // Clean up temp file
+      try { require('fs').unlinkSync(req.file.path); } catch (e) { /* ignore */ }
+
+      const title = req.body.title || req.file.originalname.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ');
+      const article = writingStore.createArticle({
+        title,
+        subtitle: req.body.subtitle || '',
+        category: req.body.category || '',
+        body,
+        status: req.body.status || 'published',
+      });
+
+      if (!article) return res.status(400).json({ error: 'Failed to create article' });
+      res.status(201).json(article);
+    } catch (err) {
+      res.status(500).json({ error: 'Failed to process file: ' + err.message });
+    }
+  });
+
+  app.patch('/api/writing/:id', (req, res) => {
+    const article = writingStore.updateArticle(req.params.id, req.body);
+    if (!article) return res.status(404).json({ error: 'Article not found' });
+    res.json(article);
+  });
+
+  app.delete('/api/writing/:id', (req, res) => {
+    const ok = writingStore.deleteArticle(req.params.id);
+    if (!ok) return res.status(404).json({ error: 'Article not found' });
+    res.json({ deleted: true });
   });
 
   app.get('/privacy', (req, res) => {

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masthead — Editorial Writing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400;1,9..40,500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #FFFFFF;
+    color: #0D0D0D;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Sticky masthead */
+  .masthead {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #FFFFFF;
+    border-bottom: 2px solid #0D0D0D;
+  }
+
+  .masthead-inner {
+    max-width: 660px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .masthead-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 22px;
+    color: #0D0D0D;
+    letter-spacing: -0.5px;
+  }
+
+  .masthead-nav {
+    display: flex;
+    gap: 24px;
+  }
+
+  .masthead-nav a {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    color: #8C8C8C;
+    transition: color 0.2s;
+  }
+
+  .masthead-nav a:hover,
+  .masthead-nav a.active {
+    color: #1D4E89;
+  }
+
+  .column {
+    max-width: 660px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* Featured article */
+  .featured {
+    padding: 56px 0 0;
+  }
+
+  .article-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    background: #1D4E89;
+    padding: 4px 12px;
+    margin-bottom: 20px;
+  }
+
+  .featured h1 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 48px;
+    font-weight: 400;
+    line-height: 1.1;
+    color: #0D0D0D;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+
+  .featured .subtitle {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: #8C8C8C;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .byline-block {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-top: 2px solid #1D4E89;
+    border-bottom: 1px solid #E5E5E5;
+    margin-bottom: 40px;
+  }
+
+  .byline-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1D4E89;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .byline-text {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .byline-text .author {
+    font-weight: 700;
+    color: #0D0D0D;
+  }
+
+  .byline-text .date {
+    color: #8C8C8C;
+  }
+
+  /* Drop cap */
+  .drop-cap::first-letter {
+    font-family: 'DM Serif Display', Georgia, serif;
+    float: left;
+    font-size: 72px;
+    line-height: 0.8;
+    padding-right: 12px;
+    padding-top: 6px;
+    color: #1D4E89;
+  }
+
+  article p {
+    margin-bottom: 22px;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.25;
+    color: #0D0D0D;
+    margin-top: 44px;
+    margin-bottom: 20px;
+  }
+
+  .pullquote {
+    margin: 40px -40px;
+    padding: 32px 40px;
+    background: #F0F0F0;
+    border-left: 4px solid #1D4E89;
+  }
+
+  .pullquote p {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 22px;
+    font-style: italic;
+    line-height: 1.45;
+    color: #1D4E89;
+    margin-bottom: 0;
+  }
+
+  .article-end {
+    margin-top: 40px;
+    padding: 20px 0;
+    border-top: 2px solid #0D0D0D;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .article-end .word-count {
+    font-size: 13px;
+    color: #8C8C8C;
+    font-weight: 500;
+  }
+
+  .article-end .share-btn {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1D4E89;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: opacity 0.2s;
+  }
+
+  .article-end .share-btn:hover {
+    opacity: 0.7;
+  }
+
+  /* Article list with alternating backgrounds */
+  .article-list {
+    padding-top: 16px;
+  }
+
+  .list-section-header {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #8C8C8C;
+    padding: 24px 0 16px;
+    border-bottom: 1px solid #E5E5E5;
+  }
+
+  .article-card {
+    padding: 32px 0;
+  }
+
+  .article-card.alt-bg {
+    background: #F0F0F0;
+    margin-left: -24px;
+    margin-right: -24px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .article-card .card-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #1D4E89;
+    margin-bottom: 8px;
+  }
+
+  .article-card h3 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+
+  .article-card h3 a {
+    color: #0D0D0D;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .article-card h3 a:hover {
+    color: #1D4E89;
+  }
+
+  .article-card .excerpt {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .article-card .meta {
+    font-size: 12px;
+    color: #AAA;
+    font-weight: 500;
+  }
+
+  .page-footer {
+    max-width: 660px;
+    margin: 0 auto;
+    padding: 40px 24px 64px;
+    text-align: center;
+    border-top: 2px solid #0D0D0D;
+    margin-top: 48px;
+  }
+
+  .page-footer p {
+    font-size: 13px;
+    color: #AAA;
+  }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .column { padding-left: 20px; padding-right: 20px; }
+    .featured h1 { font-size: 36px; }
+    .drop-cap::first-letter { font-size: 56px; }
+    .pullquote { margin-left: -20px; margin-right: -20px; padding: 24px 20px; }
+    .masthead-inner { padding: 12px 20px; }
+    .masthead-title { font-size: 18px; }
+    .article-card.alt-bg { margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-title">Drew's Stock Journal</div>
+    <nav class="masthead-nav">
+      <a href="#" class="active">Writing</a>
+      <a href="#">Portfolio</a>
+      <a href="#">Dashboard</a>
+      <a href="#">About</a>
+    </nav>
+  </div>
+</header>
+
+<div class="column">
+
+  <!-- FEATURED ARTICLE -->
+  <article class="featured">
+    <div class="article-tag">Deep Dive</div>
+    <h1>Cloudflare's Rule-Breaking Quarter and What It Means for the Portfolio</h1>
+    <div class="subtitle">Revenue acceleration at scale is rare. When it happens, you pay attention.</div>
+
+    <div class="byline-block">
+      <div class="byline-avatar">D</div>
+      <div class="byline-text">
+        <div class="author">Drew</div>
+        <div class="date">March 28, 2026 &middot; 8 min read</div>
+      </div>
+    </div>
+
+    <p class="drop-cap">There's a particular kind of earnings report that makes you sit up straighter. Not the ones that beat estimates by a penny and guide in-line. The ones that break the pattern. Cloudflare's Q4 was that kind of quarter.</p>
+
+    <p>Revenue came in at $498 million, up 29% year-over-year. That's an acceleration from 28% the prior quarter. At a $2 billion run rate, that's not supposed to happen. The law of large numbers is supposed to be pulling growth down, not pushing it up. And yet here we are.</p>
+
+    <div class="pullquote">
+      <p>When a company accelerates revenue growth at this scale, the market hasn't priced it in. It can't — because most models assume deceleration is inevitable.</p>
+    </div>
+
+    <p>The driver was Workers AI and the broader AI gateway story. Enterprise customers are routing inference traffic through Cloudflare's network, and the usage-based revenue is compounding on top of the subscription base. CEO Matthew Prince called it "the fastest-growing product in company history," and for once, that kind of CEO superlative was backed up by the numbers.</p>
+
+    <h2>What the Saul Rules Say</h2>
+
+    <p>Cloudflare passes 9 of 11 rules cleanly. Revenue growth above 25% at scale, check. Net dollar retention above 120%, check. The two soft areas — profitability trajectory and insider selling — are both improving. Operating margin turned positive this quarter for the first time on a GAAP basis, and insider sales have been routine scheduled dispositions, not panic exits.</p>
+
+    <p>The position is now 11.2% of the portfolio. I'm comfortable with that weighting. When a company is executing this well, the risk isn't in holding too much — it's in holding too little because you were anchored to a lower price.</p>
+
+    <h2>The Uncomfortable Part</h2>
+
+    <p>Valuation. At 22x forward revenue, this is not cheap by any historical standard. But "cheap" is a relative concept in growth investing. A company growing 29% with expanding margins and a massive TAM in front of it is a different animal than a company growing 29% because of a one-time COVID pull-forward. Context matters more than multiples.</p>
+
+    <p>I've been wrong before about paying up for quality. I've also been wrong about selling too early because a stock "looked expensive." The second mistake has cost me more money over the years. So the position stays.</p>
+
+    <div class="article-end">
+      <span class="word-count">2,340 words</span>
+      <a href="#" class="share-btn">Share &rarr;</a>
+    </div>
+  </article>
+
+  <!-- ARTICLE LIST -->
+  <section class="article-list">
+    <div class="list-section-header">Recent Writing</div>
+
+    <div class="article-card">
+      <div class="card-tag">Portfolio Update</div>
+      <h3><a href="#">March 2026: The Portfolio Crosses a Milestone</a></h3>
+      <p class="excerpt">For the first time since inception, the portfolio has outperformed the S&P 500 over a rolling three-year period. Here's what I've learned about concentration, conviction, and the cost of being early.</p>
+      <div class="meta">March 15, 2026 &middot; 6 min read</div>
+    </div>
+
+    <div class="article-card alt-bg">
+      <div class="card-tag">Thesis Review</div>
+      <h3><a href="#">Why I Sold My Entire UPST Position</a></h3>
+      <p class="excerpt">The thesis hasn't broken. The numbers are fine. But "fine" isn't what I'm looking for in a concentrated portfolio — and the opportunity cost of holding a "fine" position is real.</p>
+      <div class="meta">March 2, 2026 &middot; 5 min read</div>
+    </div>
+
+    <div class="article-card">
+      <div class="card-tag">New Position</div>
+      <h3><a href="#">Adding Credo Technology: The Picks-and-Shovels AI Play</a></h3>
+      <p class="excerpt">Every AI hyperscaler needs high-speed connectivity. Credo is building the electrical and optical interconnects that make it work. Here's why I started a 6% position.</p>
+      <div class="meta">February 18, 2026 &middot; 7 min read</div>
+    </div>
+
+    <div class="article-card alt-bg">
+      <div class="card-tag">Lessons Learned</div>
+      <h3><a href="#">The Three Mistakes That Cost Me 40% Returns</a></h3>
+      <p class="excerpt">Selling winners too early, averaging down on losers, and confusing narrative with numbers. A retrospective on the errors that shaped my investing process.</p>
+      <div class="meta">February 4, 2026 &middot; 10 min read</div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="page-footer">
+  <p>Drew's Stock Journal &middot; Saul-style growth investing &middot; Written with conviction</p>
+</footer>
+
+</body>
+</html>

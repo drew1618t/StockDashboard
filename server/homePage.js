@@ -654,14 +654,17 @@ function renderHomePage(user) {
         <p class="card-desc">Code, experiments, and things being built.</p>
         <span class="card-forthcoming">Forthcoming</span>
       </article>
-      <article class="card card--placeholder">
+      <article class="card" onclick="window.location.href='/writing'">
         <div class="card-corner"></div>
         <div class="card-shimmer"></div>
-        <div class="card-stamp card-stamp--muted">Soon</div>
+        <div class="card-stamp">Writing</div>
         <h2 class="card-title">Writing</h2>
         <div class="card-line"></div>
         <p class="card-desc">Thoughts on investing, technology, and curiosities.</p>
-        <span class="card-forthcoming">Forthcoming</span>
+        <a href="/writing" class="card-cta">Open</a>
+        <a href="/writing" class="card-link">
+          Read articles <i class="arrow">&rarr;</i>
+        </a>
       </article>
     </section>
     <div class="bottom-rule light-only">

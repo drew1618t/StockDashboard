@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Column — Editorial Writing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #F7F3ED;
+    color: #1A1A1A;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .site-header {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 24px 0;
+  }
+
+  .site-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #6B6B6B;
+    border-bottom: 1px solid #D4CFC7;
+    padding-bottom: 16px;
+    margin-bottom: 0;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    padding: 14px 0;
+    border-bottom: 1px solid #D4CFC7;
+    margin-bottom: 48px;
+  }
+
+  .nav-links a {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #6B6B6B;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: #C8102E;
+  }
+
+  .nav-links a.new-writing {
+    color: #C8102E;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .nav-links a.new-writing:hover {
+    opacity: 0.7;
+  }
+
+  .column {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  article {
+    margin-bottom: 72px;
+  }
+
+  article + article {
+    padding-top: 72px;
+    border-top: 1px solid #D4CFC7;
+  }
+
+  .article-tag {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #C8102E;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1.15;
+    color: #1A1A1A;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+
+  .byline {
+    font-size: 14px;
+    color: #6B6B6B;
+    margin-bottom: 32px;
+    font-style: italic;
+  }
+
+  .byline .author {
+    color: #1A1A1A;
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  article p {
+    margin-bottom: 24px;
+  }
+
+  article p:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .pullquote {
+    position: relative;
+    margin: 40px 0;
+    padding: 24px 0 24px 28px;
+    border-left: 3px solid #C8102E;
+  }
+
+  .pullquote p {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22px;
+    line-height: 1.5;
+    font-style: italic;
+    color: #1A1A1A;
+    margin-bottom: 0;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    color: #1A1A1A;
+  }
+
+  .article-footer {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid #E8E3DB;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .article-footer .read-time {
+    font-size: 13px;
+    color: #6B6B6B;
+  }
+
+  .article-footer .share-link {
+    font-size: 13px;
+    color: #C8102E;
+    text-decoration: none;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .article-footer .share-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Article index / listing */
+  .article-preview {
+    margin-bottom: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid #D4CFC7;
+  }
+
+  .article-preview:last-child {
+    border-bottom: none;
+  }
+
+  .article-preview h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+
+  .article-preview h2 a {
+    color: #1A1A1A;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .article-preview h2 a:hover {
+    color: #C8102E;
+  }
+
+  .article-preview .excerpt {
+    color: #444;
+    margin-bottom: 12px;
+  }
+
+  .article-preview .meta {
+    font-size: 13px;
+    color: #6B6B6B;
+  }
+
+  /* Full article view */
+  .full-article h1 {
+    font-size: 42px;
+    margin-bottom: 8px;
+  }
+
+  .full-article .subtitle {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 20px;
+    font-weight: 400;
+    font-style: italic;
+    color: #6B6B6B;
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+
+  .thin-rule {
+    border: none;
+    border-top: 1px solid #D4CFC7;
+    margin: 20px 0 24px;
+  }
+
+  /* ── Compose View ── */
+  .compose-view {
+    display: none;
+  }
+
+  .compose-view.visible {
+    display: block;
+  }
+
+  .compose-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: #1A1A1A;
+    margin-bottom: 8px;
+  }
+
+  .compose-sub {
+    font-size: 15px;
+    color: #6B6B6B;
+    margin-bottom: 36px;
+    font-style: italic;
+  }
+
+  .compose-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 32px;
+    border-bottom: 1px solid #D4CFC7;
+  }
+
+  .compose-tab {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #6B6B6B;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .compose-tab:hover {
+    color: #1A1A1A;
+  }
+
+  .compose-tab.active {
+    color: #C8102E;
+    border-bottom-color: #C8102E;
+  }
+
+  .compose-panel {
+    display: none;
+  }
+
+  .compose-panel.visible {
+    display: block;
+  }
+
+  .field-group {
+    margin-bottom: 24px;
+  }
+
+  .field-label {
+    display: block;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6B6B6B;
+    margin-bottom: 8px;
+  }
+
+  .field-input,
+  .field-select,
+  .field-textarea {
+    width: 100%;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 17px;
+    color: #1A1A1A;
+    background: #FFFFFF;
+    border: 1px solid #D4CFC7;
+    padding: 12px 16px;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .field-input:focus,
+  .field-select:focus,
+  .field-textarea:focus {
+    border-color: #C8102E;
+  }
+
+  .field-input.title-input {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 24px;
+    font-weight: 700;
+    padding: 16px;
+    letter-spacing: -0.3px;
+  }
+
+  .field-textarea {
+    min-height: 400px;
+    line-height: 1.75;
+    resize: vertical;
+  }
+
+  .field-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6B6B' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+
+  .field-hint {
+    font-size: 13px;
+    color: #999;
+    font-style: italic;
+    margin-top: 6px;
+  }
+
+  /* Upload area */
+  .upload-zone {
+    border: 2px dashed #D4CFC7;
+    padding: 56px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #FFFFFF;
+    margin-bottom: 24px;
+  }
+
+  .upload-zone:hover,
+  .upload-zone.dragover {
+    border-color: #C8102E;
+    background: #FDF8F4;
+  }
+
+  .upload-zone-icon {
+    font-size: 36px;
+    color: #D4CFC7;
+    margin-bottom: 16px;
+    line-height: 1;
+  }
+
+  .upload-zone-text {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 16px;
+    color: #6B6B6B;
+    margin-bottom: 8px;
+  }
+
+  .upload-zone-hint {
+    font-size: 13px;
+    color: #999;
+    font-style: italic;
+  }
+
+  .upload-zone input[type="file"] {
+    display: none;
+  }
+
+  .upload-file-info {
+    display: none;
+    padding: 16px;
+    background: #FFFFFF;
+    border: 1px solid #D4CFC7;
+    margin-bottom: 24px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .upload-file-info.visible {
+    display: flex;
+  }
+
+  .upload-file-name {
+    font-size: 15px;
+    color: #1A1A1A;
+    font-weight: 600;
+  }
+
+  .upload-file-remove {
+    font-size: 13px;
+    color: #C8102E;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 600;
+  }
+
+  .btn-publish {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: #1A1A1A;
+    color: #F7F3ED;
+    border: none;
+    padding: 14px 36px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-publish:hover {
+    background: #C8102E;
+  }
+
+  .btn-save-draft {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    background: none;
+    color: #6B6B6B;
+    border: 1px solid #D4CFC7;
+    padding: 14px 28px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 12px;
+  }
+
+  .btn-save-draft:hover {
+    border-color: #1A1A1A;
+    color: #1A1A1A;
+  }
+
+  .compose-actions {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #D4CFC7;
+    display: flex;
+    align-items: center;
+  }
+
+  @media (max-width: 700px) {
+    .column, .site-header { padding-left: 20px; padding-right: 20px; }
+    h1 { font-size: 30px; }
+    .full-article h1 { font-size: 34px; }
+    body { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-name">Drew's Stock Journal</div>
+  <nav class="nav-links">
+    <a href="#">Home</a>
+    <a href="#">Dashboard</a>
+    <a href="#" class="active" id="nav-writing" onclick="showView('reading'); return false;">Writing</a>
+    <a href="#" class="new-writing" id="nav-new" onclick="showView('compose'); return false;">+ New</a>
+  </nav>
+</header>
+
+<main class="column">
+
+  <!-- ═══ COMPOSE VIEW ═══ -->
+  <section class="compose-view" id="compose-view">
+    <h1 class="compose-heading">New Writing</h1>
+    <p class="compose-sub">Write a new piece or upload an existing draft.</p>
+
+    <div class="compose-tabs">
+      <button class="compose-tab active" onclick="switchComposeTab('write')">Write</button>
+      <button class="compose-tab" onclick="switchComposeTab('upload')">Upload</button>
+    </div>
+
+    <!-- WRITE TAB -->
+    <div class="compose-panel visible" id="panel-write">
+      <div class="field-group">
+        <label class="field-label">Category</label>
+        <select class="field-select">
+          <option value="">Select a category&hellip;</option>
+          <option value="deep-dive">Deep Dive</option>
+          <option value="portfolio-update">Portfolio Update</option>
+          <option value="thesis-review">Thesis Review</option>
+          <option value="new-position">New Position</option>
+          <option value="lessons">Lessons Learned</option>
+          <option value="market-thoughts">Market Thoughts</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Title</label>
+        <input type="text" class="field-input title-input" placeholder="Your headline here&hellip;">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Subtitle</label>
+        <input type="text" class="field-input" placeholder="A one-line summary (optional)">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Body</label>
+        <textarea class="field-textarea" placeholder="Start writing&hellip;"></textarea>
+        <div class="field-hint">Markdown supported. Use ## for section headers, > for pull quotes.</div>
+      </div>
+
+      <div class="compose-actions">
+        <button class="btn-publish">Publish</button>
+        <button class="btn-save-draft">Save Draft</button>
+      </div>
+    </div>
+
+    <!-- UPLOAD TAB -->
+    <div class="compose-panel" id="panel-upload">
+      <div class="field-group">
+        <label class="field-label">Category</label>
+        <select class="field-select">
+          <option value="">Select a category&hellip;</option>
+          <option value="deep-dive">Deep Dive</option>
+          <option value="portfolio-update">Portfolio Update</option>
+          <option value="thesis-review">Thesis Review</option>
+          <option value="new-position">New Position</option>
+          <option value="lessons">Lessons Learned</option>
+          <option value="market-thoughts">Market Thoughts</option>
+        </select>
+      </div>
+
+      <div class="upload-zone" id="upload-zone">
+        <div class="upload-zone-icon">&uarr;</div>
+        <div class="upload-zone-text">Drop a file here, or click to browse</div>
+        <div class="upload-zone-hint">.md, .txt, or .docx</div>
+        <input type="file" id="file-input" accept=".md,.txt,.docx">
+      </div>
+
+      <div class="upload-file-info" id="upload-file-info">
+        <span class="upload-file-name" id="upload-file-name"></span>
+        <button class="upload-file-remove" onclick="clearUpload()">Remove</button>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Title Override</label>
+        <input type="text" class="field-input title-input" placeholder="Leave blank to use filename&hellip;">
+      </div>
+
+      <div class="compose-actions">
+        <button class="btn-publish">Publish</button>
+        <button class="btn-save-draft">Save Draft</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ READING VIEW ═══ -->
+  <section id="reading-view">
+
+  <!-- FEATURED / FULL ARTICLE -->
+  <article class="full-article">
+    <div class="article-tag">Deep Dive</div>
+    <h1>Cloudflare's Rule-Breaking Quarter and What It Means for the Portfolio</h1>
+    <div class="subtitle">Revenue acceleration at scale is rare. When it happens, you pay attention.</div>
+    <hr class="thin-rule">
+    <div class="byline"><span class="author">Drew</span> &middot; March 28, 2026 &middot; 8 min read</div>
+
+    <p>There's a particular kind of earnings report that makes you sit up straighter. Not the ones that beat estimates by a penny and guide in-line. The ones that break the pattern. Cloudflare's Q4 was that kind of quarter.</p>
+
+    <p>Revenue came in at $498 million, up 29% year-over-year. That's an acceleration from 28% the prior quarter. At a $2 billion run rate, that's not supposed to happen. The law of large numbers is supposed to be pulling growth down, not pushing it up. And yet here we are.</p>
+
+    <div class="pullquote">
+      <p>When a company accelerates revenue growth at this scale, the market hasn't priced it in. It can't — because most models assume deceleration is inevitable.</p>
+    </div>
+
+    <p>The driver was Workers AI and the broader AI gateway story. Enterprise customers are routing inference traffic through Cloudflare's network, and the usage-based revenue is compounding on top of the subscription base. CEO Matthew Prince called it "the fastest-growing product in company history," and for once, that kind of CEO superlative was backed up by the numbers.</p>
+
+    <h2>What the Saul Rules Say</h2>
+
+    <p>Cloudflare passes 9 of 11 rules cleanly. Revenue growth above 25% at scale, check. Net dollar retention above 120%, check. The two soft areas — profitability trajectory and insider selling — are both improving. Operating margin turned positive this quarter for the first time on a GAAP basis, and insider sales have been routine scheduled dispositions, not panic exits.</p>
+
+    <p>The position is now 11.2% of the portfolio. I'm comfortable with that weighting. When a company is executing this well, the risk isn't in holding too much — it's in holding too little because you were anchored to a lower price.</p>
+
+    <h2>The Uncomfortable Part</h2>
+
+    <p>Valuation. At 22x forward revenue, this is not cheap by any historical standard. But "cheap" is a relative concept in growth investing. A company growing 29% with expanding margins and a massive TAM in front of it is a different animal than a company growing 29% because of a one-time COVID pull-forward. Context matters more than multiples.</p>
+
+    <p>I've been wrong before about paying up for quality. I've also been wrong about selling too early because a stock "looked expensive." The second mistake has cost me more money over the years. So the position stays.</p>
+
+    <div class="article-footer">
+      <span class="read-time">2,340 words</span>
+      <a href="#" class="share-link">Share this piece</a>
+    </div>
+  </article>
+
+  <!-- ARTICLE PREVIEWS -->
+  <div class="article-preview">
+    <div class="article-tag">Portfolio Update</div>
+    <h2><a href="#">March 2026: The Portfolio Crosses a Milestone</a></h2>
+    <p class="excerpt">For the first time since inception, the portfolio has outperformed the S&P 500 over a rolling three-year period. Here's what I've learned about concentration, conviction, and the cost of being early.</p>
+    <div class="meta">March 15, 2026 &middot; 6 min read</div>
+  </div>
+
+  <div class="article-preview">
+    <div class="article-tag">Thesis Review</div>
+    <h2><a href="#">Why I Sold My Entire UPST Position</a></h2>
+    <p class="excerpt">The thesis hasn't broken. The numbers are fine. But "fine" isn't what I'm looking for in a concentrated portfolio — and the opportunity cost of holding a "fine" position is real.</p>
+    <div class="meta">March 2, 2026 &middot; 5 min read</div>
+  </div>
+
+  <div class="article-preview">
+    <div class="article-tag">New Position</div>
+    <h2><a href="#">Adding Credo Technology: The Picks-and-Shovels AI Play</a></h2>
+    <p class="excerpt">Every AI hyperscaler needs high-speed connectivity. Credo is building the electrical and optical interconnects that make it work. Here's why I started a 6% position.</p>
+    <div class="meta">February 18, 2026 &middot; 7 min read</div>
+  </div>
+
+  </section><!-- /reading-view -->
+
+</main>
+
+<script>
+  // ── View switching ──
+  function showView(view) {
+    const compose = document.getElementById('compose-view');
+    const reading = document.getElementById('reading-view');
+    const navWriting = document.getElementById('nav-writing');
+    const navNew = document.getElementById('nav-new');
+
+    if (view === 'compose') {
+      compose.classList.add('visible');
+      reading.style.display = 'none';
+      navWriting.classList.remove('active');
+      navNew.classList.add('active');
+    } else {
+      compose.classList.remove('visible');
+      reading.style.display = 'block';
+      navWriting.classList.add('active');
+      navNew.classList.remove('active');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── Compose tab switching ──
+  function switchComposeTab(tab) {
+    document.querySelectorAll('.compose-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.compose-panel').forEach(p => p.classList.remove('visible'));
+
+    if (tab === 'write') {
+      document.querySelectorAll('.compose-tab')[0].classList.add('active');
+      document.getElementById('panel-write').classList.add('visible');
+    } else {
+      document.querySelectorAll('.compose-tab')[1].classList.add('active');
+      document.getElementById('panel-upload').classList.add('visible');
+    }
+  }
+
+  // ── File upload ──
+  const uploadZone = document.getElementById('upload-zone');
+  const fileInput = document.getElementById('file-input');
+  const fileInfo = document.getElementById('upload-file-info');
+  const fileName = document.getElementById('upload-file-name');
+
+  uploadZone.addEventListener('click', () => fileInput.click());
+
+  uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+  });
+
+  uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('dragover');
+  });
+
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) {
+      handleFile(fileInput.files[0]);
+    }
+  });
+
+  function handleFile(file) {
+    fileName.textContent = file.name;
+    fileInfo.classList.add('visible');
+    uploadZone.style.display = 'none';
+  }
+
+  function clearUpload() {
+    fileInput.value = '';
+    fileInfo.classList.remove('visible');
+    uploadZone.style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
