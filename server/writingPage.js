@@ -106,7 +106,7 @@ function formatDate(isoString) {
  */
 function renderWritingPage(user, articles, focusArticle) {
   const email = (user && user.email) || '';
-  const canCompose = true; // TODO: gate to email === 'drew1618t@gmail.com' once tested
+  const canCompose = email === 'drew1618t@gmail.com';
 
   return `<!DOCTYPE html>
 <html lang="en">

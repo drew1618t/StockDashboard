@@ -344,7 +344,14 @@ function createApp() {
     res.json(writingStore.getArticles(status));
   });
 
-  app.post('/api/writing', (req, res) => {
+  function requireAuthor(req, res, next) {
+    if (!req.user || req.user.email !== 'drew1618t@gmail.com') {
+      return res.status(403).json({ error: 'Only the author can perform this action' });
+    }
+    next();
+  }
+
+  app.post('/api/writing', requireAuthor, (req, res) => {
     const { title, subtitle, category, body, status } = req.body;
     const article = writingStore.createArticle({ title, subtitle, category, body, status });
     if (!article) return res.status(400).json({ error: 'Title is required' });
@@ -353,7 +360,7 @@ function createApp() {
 
   const upload = multer({ dest: os.tmpdir(), limits: { fileSize: 10 * 1024 * 1024 } });
 
-  app.post('/api/writing/upload', upload.single('file'), async (req, res) => {
+  app.post('/api/writing/upload', requireAuthor, upload.single('file'), async (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
@@ -389,13 +396,13 @@ function createApp() {
     }
   });
 
-  app.patch('/api/writing/:id', (req, res) => {
+  app.patch('/api/writing/:id', requireAuthor, (req, res) => {
     const article = writingStore.updateArticle(req.params.id, req.body);
     if (!article) return res.status(404).json({ error: 'Article not found' });
     res.json(article);
   });
 
-  app.delete('/api/writing/:id', (req, res) => {
+  app.delete('/api/writing/:id', requireAuthor, (req, res) => {
     const ok = writingStore.deleteArticle(req.params.id);
     if (!ok) return res.status(404).json({ error: 'Article not found' });
     res.json({ deleted: true });
