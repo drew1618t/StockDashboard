@@ -681,7 +681,295 @@ function renderWritingPage(user, articles, focusArticle) {
 
     .back-link:hover { color: #C8102E; }
 
+    /* ── Edit Mode ── */
+    .edit-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .btn-edit {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      background: none;
+      color: #C8102E;
+      border: 1px solid #C8102E;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-edit:hover {
+      background: #C8102E;
+      color: #F7F3ED;
+    }
+
+    .btn-delete {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 13px;
+      font-weight: 600;
+      background: none;
+      color: #999;
+      border: 1px solid #D4CFC7;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+      border-color: #C8102E;
+      color: #C8102E;
+    }
+
+    .edit-view { display: none; }
+    .edit-view.visible { display: block; }
+    .read-view.hidden { display: none; }
+
+    /* Split pane layout */
+    .edit-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin-top: 24px;
+      height: calc(100vh - 160px);
+    }
+
+    .edit-pane {
+      min-width: 0;
+      padding-right: 24px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .pane-label {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #6B6B6B;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #D4CFC7;
+      margin-bottom: 20px;
+      position: sticky;
+      top: 0;
+      background: #F7F3ED;
+      z-index: 5;
+    }
+
+    .edit-pane .field-group { margin-bottom: 16px; }
+
+    .edit-pane .field-group.body-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .edit-pane .field-textarea {
+      flex: 1;
+      font-size: 14px;
+      line-height: 1.8;
+      font-family: 'Source Serif 4', Georgia, monospace;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      resize: none;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .edit-pane .field-input.title-input {
+      font-size: 20px;
+    }
+
+    /* Preview pane */
+    .preview-pane {
+      min-width: 0;
+      border-left: 1px solid #D4CFC7;
+      padding-left: 32px;
+      overflow-y: auto;
+    }
+
+    .preview-pane .preview-content {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.75;
+      color: #1A1A1A;
+    }
+
+    .preview-pane .preview-content h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .preview-pane .preview-content .preview-subtitle {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 18px;
+      font-weight: 400;
+      font-style: italic;
+      color: #6B6B6B;
+      line-height: 1.4;
+      margin-bottom: 16px;
+    }
+
+    .preview-pane .preview-content .preview-tag {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #C8102E;
+      margin-bottom: 12px;
+    }
+
+    .preview-pane .preview-content .preview-byline {
+      font-size: 14px;
+      color: #6B6B6B;
+      font-style: italic;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #D4CFC7;
+    }
+
+    .preview-pane .preview-content p { margin-bottom: 20px; }
+    .preview-pane .preview-content h1 { font-size: 24px; margin-top: 32px; margin-bottom: 14px; }
+    .preview-pane .preview-content strong { font-weight: 700; }
+    .preview-pane .preview-content em { font-style: italic; color: #555; }
+
+    .preview-pane .preview-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    .preview-pane .preview-content th,
+    .preview-pane .preview-content td {
+      border: 1px solid #D4CFC7;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    .preview-pane .preview-content th {
+      background: #EDE8DF;
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #6B6B6B;
+    }
+
+    .preview-empty {
+      color: #BBB;
+      font-style: italic;
+      padding: 40px 0;
+      text-align: center;
+    }
+
+    .edit-actions {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #D4CFC7;
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-cancel {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 14px;
+      font-weight: 600;
+      background: none;
+      color: #6B6B6B;
+      border: 1px solid #D4CFC7;
+      padding: 12px 28px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+      border-color: #1A1A1A;
+      color: #1A1A1A;
+    }
+
+    /* Mobile: preview toggle button */
+    .preview-toggle {
+      display: none;
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 13px;
+      font-weight: 600;
+      background: none;
+      color: #6B6B6B;
+      border: 1px solid #D4CFC7;
+      padding: 8px 20px;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+
+    .preview-toggle:hover {
+      border-color: #C8102E;
+      color: #C8102E;
+    }
+
+    .preview-toggle.active {
+      background: #C8102E;
+      border-color: #C8102E;
+      color: #F7F3ED;
+    }
+
     /* ── Responsive ── */
+    @media (max-width: 1100px) {
+      .edit-view.visible .column-override {
+        max-width: 100%;
+        padding: 0 24px;
+      }
+    }
+
+    @media (max-width: 840px) {
+      .edit-split {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .edit-pane {
+        overflow: visible;
+        padding-right: 0;
+        display: block;
+      }
+
+      .edit-pane .field-textarea {
+        min-height: 400px;
+        flex: none;
+      }
+
+      .preview-pane {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid #D4CFC7;
+        padding-top: 24px;
+        overflow-y: visible;
+        display: none;
+      }
+
+      .preview-pane.mobile-visible {
+        display: block;
+      }
+
+      .preview-toggle {
+        display: inline-block;
+      }
+
+      .pane-label {
+        position: static;
+      }
+    }
+
+    /* ── Responsive (general) ── */
     @media (max-width: 700px) {
       .column, .site-header { padding-left: 20px; padding-right: 20px; }
       h1 { font-size: 30px; }
@@ -795,7 +1083,7 @@ function renderWritingPage(user, articles, focusArticle) {
 
   <!-- ═══ READING VIEW ═══ -->
   <section id="reading-view">
-    ${focusArticle ? renderFullArticle(focusArticle, articles) : renderArticleList(articles)}
+    ${focusArticle ? renderFullArticle(focusArticle, articles, canCompose) : renderArticleList(articles)}
   </section>
 
 </main>
@@ -986,6 +1274,185 @@ function renderWritingPage(user, articles, focusArticle) {
     if (mode === 'upload') submitUpload('draft');
     else submitWrite('draft');
   }
+
+  // ── Edit article ──
+  var previewTimer = null;
+  var categoryLabels = {
+    'deep-dive': 'Deep Dive', 'portfolio-update': 'Portfolio Update',
+    'thesis-review': 'Thesis Review', 'new-position': 'New Position',
+    'lessons': 'Lessons Learned', 'market-thoughts': 'Market Thoughts'
+  };
+
+  function startEdit() {
+    var readView = document.getElementById('article-read-view');
+    var editView = document.getElementById('article-edit-view');
+    // Widen the column for split pane
+    var col = document.querySelector('.column');
+    if (col) { col.style.maxWidth = '1200px'; }
+    if (readView) readView.classList.add('hidden');
+    if (editView) editView.classList.add('visible');
+    updatePreview();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function cancelEdit() {
+    var readView = document.getElementById('article-read-view');
+    var editView = document.getElementById('article-edit-view');
+    var col = document.querySelector('.column');
+    if (col) { col.style.maxWidth = '640px'; }
+    if (editView) editView.classList.remove('visible');
+    if (readView) readView.classList.remove('hidden');
+  }
+
+  function updatePreview() {
+    clearTimeout(previewTimer);
+    previewTimer = setTimeout(renderPreview, 150);
+  }
+
+  function renderPreview() {
+    var preview = document.getElementById('preview-content');
+    if (!preview) return;
+
+    var title = document.getElementById('edit-title').value;
+    var subtitle = document.getElementById('edit-subtitle').value;
+    var category = document.getElementById('edit-category').value;
+    var body = document.getElementById('edit-body').value;
+
+    if (!title && !body) {
+      preview.innerHTML = '<div class="preview-empty">Start editing to see preview...</div>';
+      return;
+    }
+
+    var html = '';
+    if (category && categoryLabels[category]) {
+      html += '<div class="preview-tag">' + categoryLabels[category] + '</div>';
+    }
+    if (title) {
+      html += '<h1>' + escapePreview(title) + '</h1>';
+    }
+    if (subtitle) {
+      html += '<div class="preview-subtitle">' + escapePreview(subtitle) + '</div>';
+    }
+    html += '<div class="preview-byline">Drew &middot; Preview</div>';
+
+    // Render body: if it looks like HTML, inject directly; otherwise basic markdown
+    if (body.trim().indexOf('<') === 0) {
+      html += body;
+    } else {
+      html += markdownToPreviewHtml(body);
+    }
+
+    preview.innerHTML = html;
+  }
+
+  function escapePreview(str) {
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function markdownToPreviewHtml(md) {
+    if (!md) return '';
+    var lines = md.split('\\n');
+    var result = [];
+    var para = [];
+
+    function flushPara() {
+      if (para.length > 0) {
+        var text = para.join(' ').trim();
+        if (text) result.push('<p>' + inlineFmt(text) + '</p>');
+        para = [];
+      }
+    }
+
+    function inlineFmt(t) {
+      t = t.replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');
+      t = t.replace(/\\*(.+?)\\*/g, '<em>$1</em>');
+      t = t.replace(/---/g, '&mdash;');
+      t = t.replace(/--/g, '&mdash;');
+      return t;
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (line.indexOf('## ') === 0) {
+        flushPara();
+        result.push('<h2>' + inlineFmt(escapePreview(line.slice(3))) + '</h2>');
+      } else if (line.indexOf('> ') === 0) {
+        flushPara();
+        result.push('<blockquote style="border-left:3px solid #C8102E;padding-left:20px;margin:20px 0;font-style:italic;color:#555;">' + inlineFmt(escapePreview(line.slice(2))) + '</blockquote>');
+      } else if (line === '') {
+        flushPara();
+      } else {
+        para.push(escapePreview(line));
+      }
+    }
+    flushPara();
+    return result.join('');
+  }
+
+  // Mobile preview toggle
+  function toggleMobilePreview() {
+    var pane = document.getElementById('preview-pane');
+    var btn = document.getElementById('preview-toggle');
+    if (!pane || !btn) return;
+
+    if (pane.classList.contains('mobile-visible')) {
+      pane.classList.remove('mobile-visible');
+      btn.textContent = 'Show Preview';
+      btn.classList.remove('active');
+    } else {
+      pane.classList.add('mobile-visible');
+      btn.textContent = 'Hide Preview';
+      btn.classList.add('active');
+      updatePreview();
+    }
+  }
+
+  function saveEdit(articleId) {
+    var title = document.getElementById('edit-title').value;
+    var body = document.getElementById('edit-body').value;
+
+    if (!title || !title.trim()) { alert('Title is required.'); return; }
+
+    var btns = disableButtons();
+
+    fetch('/api/writing/' + articleId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: title,
+        subtitle: document.getElementById('edit-subtitle').value,
+        category: document.getElementById('edit-category').value,
+        body: body,
+      }),
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(article) {
+      if (article.error) {
+        alert('Error: ' + article.error);
+        enableButtons(btns);
+        return;
+      }
+      window.location.href = '/writing/' + article.slug;
+    })
+    .catch(function(err) {
+      alert('Failed to save: ' + err.message);
+      enableButtons(btns);
+    });
+  }
+
+  function deleteArticle(articleId, articleTitle) {
+    if (!confirm('Delete "' + articleTitle + '"? This cannot be undone.')) return;
+
+    fetch('/api/writing/' + articleId, { method: 'DELETE' })
+    .then(function(res) { return res.json(); })
+    .then(function(result) {
+      if (result.error) { alert('Error: ' + result.error); return; }
+      window.location.href = '/writing';
+    })
+    .catch(function(err) { alert('Failed to delete: ' + err.message); });
+  }
 </script>
 
 </body>
@@ -1005,13 +1472,96 @@ function renderBody(body) {
   return markdownToHtml(body);
 }
 
+/**
+ * Format HTML body with line breaks for the textarea editor.
+ * Inserts newlines before block-level tags so the content is scannable.
+ */
+function formatBodyForEditor(body) {
+  if (!body) return '';
+  var s = String(body);
+  // If it's not HTML, return as-is (markdown already has line breaks)
+  if (!s.trim().startsWith('<')) return s;
+
+  // Add blank line before block elements for visual separation
+  s = s.replace(/<(p|h[1-6]|ul|ol|li|table|tr|blockquote|div|hr)([ >])/gi, '\n\n<$1$2');
+  // Add newline after closing block elements
+  s = s.replace(/<\/(p|h[1-6]|ul|ol|li|table|tr|blockquote|div)>/gi, '</$1>\n');
+  // Clean up excessive newlines (3+ becomes 2)
+  s = s.replace(/\n{3,}/g, '\n\n');
+  // Trim leading whitespace
+  s = s.replace(/^\n+/, '');
+
+  return s;
+}
+
 // ── Render helpers (string concat to avoid template-in-template issues) ──
 
-function renderFullArticle(article, allArticles) {
+function renderFullArticle(article, allArticles, canCompose) {
   var otherArticles = allArticles.filter(function(a) { return a.id !== article.id; }).slice(0, 3);
   var html = '';
 
   html += '<a href="/writing" class="back-link">&larr; All Writing</a>';
+
+  // Edit bar (author only)
+  if (canCompose) {
+    html += '<div class="edit-bar">';
+    html += '<button class="btn-edit" onclick="startEdit()">Edit</button>';
+    html += '<button class="btn-delete" onclick="deleteArticle(\'' + article.id + '\', \'' + escapeHtml(article.title).replace(/'/g, "\\'") + '\')">Delete</button>';
+    html += '</div>';
+  }
+
+  // Edit view (hidden by default) — split pane with live preview
+  if (canCompose) {
+    html += '<div class="edit-view" id="article-edit-view">';
+    html += '<h1 class="compose-heading">Edit Article</h1>';
+
+    // Meta fields above the split
+    html += '<div class="field-group"><label class="field-label">Category</label>';
+    html += '<select class="field-select" id="edit-category" onchange="updatePreview()">';
+    html += '<option value="">Select a category&hellip;</option>';
+    var cats = [['deep-dive','Deep Dive'],['portfolio-update','Portfolio Update'],['thesis-review','Thesis Review'],['new-position','New Position'],['lessons','Lessons Learned'],['market-thoughts','Market Thoughts']];
+    cats.forEach(function(c) {
+      var sel = c[0] === article.category ? ' selected' : '';
+      html += '<option value="' + c[0] + '"' + sel + '>' + c[1] + '</option>';
+    });
+    html += '</select></div>';
+
+    html += '<div class="field-group"><label class="field-label">Title</label>';
+    html += '<input type="text" class="field-input title-input" id="edit-title" value="' + escapeHtml(article.title) + '" oninput="updatePreview()"></div>';
+
+    html += '<div class="field-group"><label class="field-label">Subtitle</label>';
+    html += '<input type="text" class="field-input" id="edit-subtitle" value="' + escapeHtml(article.subtitle || '') + '" oninput="updatePreview()"></div>';
+
+    // Split pane: editor left, preview right
+    html += '<button class="preview-toggle" id="preview-toggle" onclick="toggleMobilePreview()">Show Preview</button>';
+    html += '<div class="edit-split">';
+
+    // Left: editor
+    html += '<div class="edit-pane">';
+    html += '<div class="pane-label">Editor</div>';
+    html += '<div class="field-group body-group">';
+    html += '<textarea class="field-textarea" id="edit-body" oninput="updatePreview()">' + escapeHtml(formatBodyForEditor(article.body)) + '</textarea>';
+    html += '</div>';
+    html += '</div>';
+
+    // Right: live preview
+    html += '<div class="preview-pane" id="preview-pane">';
+    html += '<div class="pane-label">Preview</div>';
+    html += '<div class="preview-content" id="preview-content">';
+    html += '<div class="preview-empty">Start editing to see preview...</div>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>'; // close .edit-split
+
+    html += '<div class="edit-actions">';
+    html += '<button class="btn-publish" onclick="saveEdit(\'' + article.id + '\')">Save Changes</button>';
+    html += '<button class="btn-cancel" onclick="cancelEdit()">Cancel</button>';
+    html += '</div></div>';
+  }
+
+  // Read view
+  html += '<div id="article-read-view" class="read-view">';
   html += '<article class="full-article">';
   if (article.categoryLabel) {
     html += '<div class="article-tag">' + escapeHtml(article.categoryLabel) + '</div>';
@@ -1029,6 +1579,7 @@ function renderFullArticle(article, allArticles) {
   html += '<span class="read-time">' + article.wordCount.toLocaleString() + ' words</span>';
   html += '<a href="/writing" class="share-link">Back to Writing</a>';
   html += '</div></article>';
+  html += '</div>';
 
   otherArticles.forEach(function(a) { html += renderPreviewCard(a); });
   return html;
