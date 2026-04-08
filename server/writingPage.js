@@ -104,7 +104,7 @@ function formatDate(isoString) {
  * @param {array} articles - published articles from writingStore
  * @param {object} [focusArticle] - if set, render this article as the full view
  */
-function renderWritingPage(user, articles, focusArticle) {
+function renderWritingPage(user, articles, focusArticle, analytics) {
   const email = (user && user.email) || '';
   const canCompose = email === 'drew1618t@gmail.com';
 
@@ -681,6 +681,137 @@ function renderWritingPage(user, articles, focusArticle) {
 
     .back-link:hover { color: #C8102E; }
 
+    /* ── Analytics ── */
+    .analytics-heading {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: #1A1A1A;
+      margin-bottom: 8px;
+    }
+
+    .analytics-sub {
+      font-size: 15px;
+      color: #6B6B6B;
+      font-style: italic;
+      margin-bottom: 36px;
+    }
+
+    .analytics-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: #FFFFFF;
+      border: 1px solid #D4CFC7;
+      padding: 24px;
+    }
+
+    .stat-number {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 36px;
+      font-weight: 900;
+      color: #C8102E;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #6B6B6B;
+    }
+
+    .analytics-section {
+      margin-bottom: 40px;
+    }
+
+    .analytics-section-title {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #6B6B6B;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #D4CFC7;
+      margin-bottom: 20px;
+    }
+
+    .analytics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    .analytics-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #6B6B6B;
+      padding: 8px 12px;
+      border-bottom: 2px solid #D4CFC7;
+    }
+
+    .analytics-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #E8E3DB;
+      vertical-align: top;
+    }
+
+    .analytics-table tr:hover td {
+      background: #FAF7F2;
+    }
+
+    .analytics-table .article-link {
+      color: #1A1A1A;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .analytics-table .article-link:hover {
+      color: #C8102E;
+    }
+
+    .analytics-table .email-cell {
+      font-size: 13px;
+      color: #555;
+    }
+
+    .analytics-table .date-cell {
+      font-size: 13px;
+      color: #999;
+      white-space: nowrap;
+    }
+
+    .reader-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .reader-tag {
+      font-size: 12px;
+      background: #EDE8DF;
+      color: #555;
+      padding: 3px 10px;
+      border-radius: 2px;
+    }
+
+    .analytics-empty {
+      text-align: center;
+      padding: 60px 0;
+      color: #999;
+      font-style: italic;
+    }
+
     /* ── Edit Mode ── */
     .edit-bar {
       display: flex;
@@ -987,6 +1118,7 @@ function renderWritingPage(user, articles, focusArticle) {
     <a href="/">Home</a>
     <a href="/dashboard">Dashboard</a>
     <a href="/writing" class="active" id="nav-writing" onclick="showView('reading'); return false;">Writing</a>
+    ${canCompose ? '<a href="/writing/analytics" class="' + (analytics ? 'active' : '') + '" style="' + (analytics ? 'color:#C8102E' : '') + '">Analytics</a>' : ''}
     ${canCompose ? '<a href="#" class="new-writing" id="nav-new" onclick="showView(\'compose\'); return false;">+ New</a>' : ''}
   </nav>
 </header>
@@ -1083,7 +1215,7 @@ function renderWritingPage(user, articles, focusArticle) {
 
   <!-- ═══ READING VIEW ═══ -->
   <section id="reading-view">
-    ${focusArticle ? renderFullArticle(focusArticle, articles, canCompose) : renderArticleList(articles)}
+    ${analytics ? renderAnalyticsView(analytics) : focusArticle ? renderFullArticle(focusArticle, articles, canCompose) : renderArticleList(articles)}
   </section>
 
 </main>
@@ -1631,6 +1763,68 @@ function renderPreviewCard(article) {
   html += '<p class="excerpt">' + escapeHtml(excerpt) + '</p>';
   html += '<div class="meta">' + formatDate(article.publishedAt || article.createdAt) + ' &middot; ' + article.readMinutes + ' min read</div>';
   html += '</div>';
+  return html;
+}
+
+function renderAnalyticsView(analytics) {
+  var html = '';
+
+  html += '<a href="/writing" class="back-link">&larr; Back to Writing</a>';
+  html += '<h1 class="analytics-heading">Analytics</h1>';
+  html += '<p class="analytics-sub">Who\'s reading your writing.</p>';
+
+  if (analytics.totalViews === 0) {
+    html += '<div class="analytics-empty">No views yet. Share your articles and check back.</div>';
+    return html;
+  }
+
+  // Summary stats
+  html += '<div class="analytics-stats">';
+  html += '<div class="stat-card"><div class="stat-number">' + analytics.totalViews + '</div><div class="stat-label">Total Views</div></div>';
+  html += '<div class="stat-card"><div class="stat-number">' + analytics.uniqueReaders + '</div><div class="stat-label">Unique Readers</div></div>';
+  html += '</div>';
+
+  // Per-article breakdown
+  html += '<div class="analytics-section">';
+  html += '<div class="analytics-section-title">By Article</div>';
+  html += '<table class="analytics-table">';
+  html += '<thead><tr><th>Article</th><th>Views</th><th>Readers</th><th>Who</th></tr></thead>';
+  html += '<tbody>';
+
+  analytics.articles.forEach(function(a) {
+    html += '<tr>';
+    html += '<td><a href="/writing/' + a.slug + '" class="article-link">' + escapeHtml(a.title) + '</a></td>';
+    html += '<td>' + a.totalViews + '</td>';
+    html += '<td>' + a.uniqueReaderCount + '</td>';
+    html += '<td><div class="reader-list">';
+    a.readers.forEach(function(email) {
+      var label = email.split('@')[0];
+      html += '<span class="reader-tag">' + escapeHtml(label) + '</span>';
+    });
+    html += '</div></td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+
+  // Recent activity
+  html += '<div class="analytics-section">';
+  html += '<div class="analytics-section-title">Recent Activity</div>';
+  html += '<table class="analytics-table">';
+  html += '<thead><tr><th>Reader</th><th>Article</th><th>Date</th></tr></thead>';
+  html += '<tbody>';
+
+  analytics.recentActivity.forEach(function(v) {
+    var label = v.email.split('@')[0];
+    html += '<tr>';
+    html += '<td class="email-cell">' + escapeHtml(label) + '</td>';
+    html += '<td><a href="/writing/' + v.slug + '" class="article-link">' + escapeHtml(v.articleTitle || v.slug) + '</a></td>';
+    html += '<td class="date-cell">' + v.date + '</td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+
   return html;
 }
 

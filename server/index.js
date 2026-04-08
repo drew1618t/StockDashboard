@@ -31,6 +31,7 @@ const pinboardStore = require('./pinboardStore');
 const { renderHomePage } = require('./homePage');
 const { renderWritingPage } = require('./writingPage');
 const writingStore = require('./writingStore');
+const writingAnalytics = require('./writingAnalytics');
 
 const PORT = process.env.PORT || 3000;
 const accessAuth = createAccessAuth();
@@ -330,10 +331,23 @@ function createApp() {
     res.type('html').send(renderWritingPage(req.user, articles));
   });
 
+  app.get('/writing/analytics', (req, res) => {
+    if (!req.user || req.user.email !== 'drew1618t@gmail.com') {
+      return res.redirect('/writing');
+    }
+    const analytics = writingAnalytics.getAnalytics();
+    const articles = writingStore.getArticles('published');
+    res.type('html').send(renderWritingPage(req.user, articles, null, analytics));
+  });
+
   app.get('/writing/:slug', (req, res) => {
     const article = writingStore.getArticle(req.params.slug);
     if (!article) {
       return res.redirect('/writing');
+    }
+    // Track the view
+    if (req.user && req.user.email) {
+      writingAnalytics.recordView(req.user.email, article.slug, article.title);
     }
     const articles = writingStore.getArticles('published');
     res.type('html').send(renderWritingPage(req.user, articles, article));
@@ -400,6 +414,10 @@ function createApp() {
     const article = writingStore.updateArticle(req.params.id, req.body);
     if (!article) return res.status(404).json({ error: 'Article not found' });
     res.json(article);
+  });
+
+  app.get('/api/writing/analytics', requireAuthor, (req, res) => {
+    res.json(writingAnalytics.getAnalytics());
   });
 
   app.delete('/api/writing/:id', requireAuthor, (req, res) => {
