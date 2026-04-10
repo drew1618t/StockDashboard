@@ -339,6 +339,105 @@ function renderWritingPage(user, articles, focusArticle, analytics) {
 
     .article-footer .share-link:hover { text-decoration: underline; }
 
+    /* ── Share Menu ── */
+    .share-wrapper {
+      position: relative;
+    }
+
+    .share-btn {
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 13px;
+      color: #C8102E;
+      background: none;
+      border: 1px solid #C8102E;
+      padding: 6px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+    }
+
+    .share-btn:hover {
+      background: #C8102E;
+      color: #F7F3ED;
+    }
+
+    .share-menu {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      right: 0;
+      margin-bottom: 8px;
+      background: #FFFFFF;
+      border: 1px solid #D4CFC7;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      min-width: 220px;
+      z-index: 50;
+    }
+
+    .share-menu.open {
+      display: block;
+    }
+
+    .share-menu a,
+    .share-menu button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 16px;
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 14px;
+      color: #1A1A1A;
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s;
+    }
+
+    .share-menu a:hover,
+    .share-menu button:hover {
+      background: #FAF7F2;
+    }
+
+    .share-menu .share-icon {
+      width: 18px;
+      text-align: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .share-menu .share-divider {
+      border-top: 1px solid #E8E3DB;
+      margin: 0;
+    }
+
+    .share-toast {
+      display: none;
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1A1A1A;
+      color: #F7F3ED;
+      padding: 12px 24px;
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 14px;
+      z-index: 200;
+    }
+
+    .share-toast.visible {
+      display: block;
+      animation: toastFade 2s ease-out forwards;
+    }
+
+    @keyframes toastFade {
+      0%, 70% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
     /* ── Article Previews ── */
     .article-preview {
       margin-bottom: 48px;
@@ -1574,6 +1673,44 @@ function renderWritingPage(user, articles, focusArticle, analytics) {
     });
   }
 
+  // ── Share ──
+  function toggleShareMenu(e) {
+    e.stopPropagation();
+    var menu = document.getElementById('share-menu');
+    if (menu) menu.classList.toggle('open');
+  }
+
+  // Close share menu when clicking outside
+  document.addEventListener('click', function() {
+    var menu = document.getElementById('share-menu');
+    if (menu) menu.classList.remove('open');
+  });
+
+  function showToast(msg) {
+    var toast = document.getElementById('share-toast');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.classList.remove('visible');
+    void toast.offsetWidth; // force reflow
+    toast.classList.add('visible');
+    setTimeout(function() { toast.classList.remove('visible'); }, 2200);
+  }
+
+  function copyArticleText() {
+    var readView = document.getElementById('article-read-view');
+    if (!readView) return;
+    var article = readView.querySelector('.full-article');
+    if (!article) return;
+    var text = article.innerText || article.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('Article copied to clipboard');
+    }).catch(function() {
+      showToast('Failed to copy');
+    });
+    var menu = document.getElementById('share-menu');
+    if (menu) menu.classList.remove('open');
+  }
+
   function deleteArticle(articleId, articleTitle) {
     if (!confirm('Delete "' + articleTitle + '"? This cannot be undone.')) return;
 
@@ -1709,7 +1846,7 @@ function renderFullArticle(article, allArticles, canCompose) {
   html += renderBody(article.body);
   html += '<div class="article-footer">';
   html += '<span class="read-time">' + article.wordCount.toLocaleString() + ' words</span>';
-  html += '<a href="/writing" class="share-link">Back to Writing</a>';
+  html += '<a href="/writing/' + article.slug + '/export" download="' + escapeHtml(article.slug) + '.html" class="share-link">Download &darr;</a>';
   html += '</div></article>';
   html += '</div>';
 
@@ -1846,4 +1983,56 @@ function getExcerpt(body, maxLen) {
   return plain.slice(0, maxLen).replace(/\s+\S*$/, '') + '...';
 }
 
-module.exports = { renderWritingPage };
+/**
+ * Render a standalone HTML file for sharing an article externally.
+ * Self-contained with inline CSS, Google Fonts fallback, no auth needed.
+ */
+function renderArticleExport(article) {
+  var bodyHtml = article.body.trim().startsWith('<') ? article.body : markdownToHtml(article.body);
+
+  return '<!DOCTYPE html>\n'
+    + '<html lang="en"><head><meta charset="UTF-8">'
+    + '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
+    + '<title>' + escapeHtml(article.title) + ' — Drew\'s Stock Journal</title>'
+    + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+    + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+    + '<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Serif+4:wght@400;600;700&display=swap" rel="stylesheet">'
+    + '<style>'
+    + '*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }'
+    + 'body { background: #F7F3ED; color: #1A1A1A; font-family: "Source Serif 4", Georgia, serif; font-size: 18px; line-height: 1.75; -webkit-font-smoothing: antialiased; max-width: 640px; margin: 0 auto; padding: 48px 24px 80px; }'
+    + '.header { font-family: "Playfair Display", Georgia, serif; font-size: 13px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase; color: #6B6B6B; border-bottom: 1px solid #D4CFC7; padding-bottom: 16px; margin-bottom: 40px; }'
+    + '.tag { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #C8102E; margin-bottom: 12px; }'
+    + 'h1 { font-family: "Playfair Display", Georgia, serif; font-size: 42px; font-weight: 900; line-height: 1.15; color: #1A1A1A; margin-bottom: 8px; letter-spacing: -0.5px; }'
+    + '.subtitle { font-family: "Playfair Display", Georgia, serif; font-size: 20px; font-weight: 400; font-style: italic; color: #6B6B6B; line-height: 1.4; margin-bottom: 20px; }'
+    + '.rule { border: none; border-top: 1px solid #D4CFC7; margin: 20px 0 24px; }'
+    + '.byline { font-size: 14px; color: #6B6B6B; margin-bottom: 32px; font-style: italic; }'
+    + '.byline strong { color: #1A1A1A; font-style: normal; font-weight: 600; }'
+    + 'p { margin-bottom: 24px; }'
+    + 'h1, h2, h3 { font-family: "Playfair Display", Georgia, serif; }'
+    + 'h2 { font-size: 26px; font-weight: 700; line-height: 1.3; margin-top: 40px; margin-bottom: 20px; }'
+    + 'article h1 { font-size: 28px; margin-top: 44px; margin-bottom: 16px; }'
+    + '.pullquote, blockquote { position: relative; margin: 40px 0; padding: 24px 0 24px 28px; border-left: 3px solid #C8102E; }'
+    + '.pullquote p, blockquote p { font-family: "Playfair Display", Georgia, serif; font-size: 22px; line-height: 1.5; font-style: italic; margin-bottom: 0; }'
+    + 'table { width: 100%; border-collapse: collapse; margin: 28px 0; font-size: 15px; line-height: 1.5; }'
+    + 'th, td { border: 1px solid #D4CFC7; padding: 10px 14px; text-align: left; vertical-align: top; }'
+    + 'th { background: #EDE8DF; font-weight: 600; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; color: #6B6B6B; }'
+    + 'tr:nth-child(even) td { background: #FAF7F2; }'
+    + 'ul, ol { margin: 16px 0; padding-left: 28px; }'
+    + 'li { margin-bottom: 8px; }'
+    + 'strong { font-weight: 700; }'
+    + 'em { font-style: italic; }'
+    + '.footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid #D4CFC7; font-size: 13px; color: #6B6B6B; }'
+    + '@media (max-width: 700px) { body { padding: 32px 20px 60px; font-size: 17px; } h1 { font-size: 34px; } }'
+    + '</style></head><body>'
+    + '<div class="header">Drew\'s Stock Journal</div>'
+    + (article.categoryLabel ? '<div class="tag">' + escapeHtml(article.categoryLabel) + '</div>' : '')
+    + '<h1>' + escapeHtml(article.title) + '</h1>'
+    + (article.subtitle ? '<div class="subtitle">' + escapeHtml(article.subtitle) + '</div>' : '')
+    + '<hr class="rule">'
+    + '<div class="byline"><strong>Drew</strong> &middot; ' + formatDate(article.publishedAt || article.createdAt) + ' &middot; ' + article.readMinutes + ' min read</div>'
+    + '<article>' + bodyHtml + '</article>'
+    + '<div class="footer">' + article.wordCount.toLocaleString() + ' words &middot; Drew\'s Stock Journal</div>'
+    + '</body></html>';
+}
+
+module.exports = { renderWritingPage, renderArticleExport };

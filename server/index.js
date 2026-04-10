@@ -340,6 +340,14 @@ function createApp() {
     res.type('html').send(renderWritingPage(req.user, articles, null, analytics));
   });
 
+  app.get('/writing/:slug/export', (req, res) => {
+    const article = writingStore.getArticle(req.params.slug);
+    if (!article) return res.status(404).json({ error: 'Article not found' });
+    const { renderArticleExport } = require('./writingPage');
+    res.setHeader('Content-Disposition', 'attachment; filename="' + article.slug + '.html"');
+    res.type('html').send(renderArticleExport(article));
+  });
+
   app.get('/writing/:slug', (req, res) => {
     const article = writingStore.getArticle(req.params.slug);
     if (!article) {
