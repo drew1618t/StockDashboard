@@ -1,3 +1,5 @@
 node_modules/
 nul
 .claude/
+data/pigeons.db*
+data/pigeons-uploads/

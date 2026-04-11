@@ -183,3 +183,24 @@ test('requireRole blocks non-family users with 403', () => {
   assert.equal(statusCode, 403);
   assert.match(body.error, /family tier/);
 });
+
+test('family role can pass the pigeon API authorization boundary', () => {
+  const middleware = requireRole('family');
+  let nextCalled = false;
+
+  middleware(
+    {
+      user: { email: 'me@example.com', role: 'family' },
+      originalUrl: '/api/family/pigeons/summary',
+      accepts() {
+        return 'json';
+      },
+    },
+    {},
+    () => {
+      nextCalled = true;
+    }
+  );
+
+  assert.equal(nextCalled, true);
+});

@@ -8,6 +8,8 @@
 const express = require('express');
 const compression = require('compression');
 const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
 const mammoth = require('mammoth');
 const multer = require('multer');
 const os = require('os');
@@ -32,6 +34,13 @@ const { renderHomePage } = require('./homePage');
 const { renderWritingPage } = require('./writingPage');
 const writingStore = require('./writingStore');
 const writingAnalytics = require('./writingAnalytics');
+const { getPigeonStore } = require('./pigeonStore');
+const { renderPigeonsPage } = require('./pigeonPages');
+const {
+  DEFAULT_UPLOAD_DIR: PIGEON_UPLOAD_DIR,
+  PUBLIC_UPLOAD_PREFIX: PIGEON_UPLOAD_PREFIX,
+  importExistingPigeonDataIfNeeded,
+} = require('./pigeonImport');
 
 const PORT = process.env.PORT || 3000;
 const accessAuth = createAccessAuth();
@@ -114,6 +123,41 @@ function overlayLivePrices(companies) {
     if (livePrice) return overlayLivePrice(company, livePrice);
     return { ...company, priceSource: 'report' };
   });
+}
+
+const pigeonPhotoStorage = multer.diskStorage({
+  destination(req, file, cb) {
+    const dir = path.join(PIGEON_UPLOAD_DIR, 'photos');
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename(req, file, cb) {
+    const ext = path.extname(file.originalname || '').toLowerCase() || '.jpg';
+    cb(null, `${crypto.randomUUID()}${ext}`);
+  },
+});
+
+const pigeonPhotoUpload = multer({
+  storage: pigeonPhotoStorage,
+  limits: { fileSize: 10 * 1024 * 1024, files: 10 },
+  fileFilter(req, file, cb) {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    if (['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext)) return cb(null, true);
+    return cb(new Error('Only image files are allowed'));
+  },
+});
+
+function removePigeonUploadedFile(publicPath) {
+  const prefix = `${PIGEON_UPLOAD_PREFIX}/`;
+  if (!publicPath || !publicPath.startsWith(prefix)) return;
+  const relative = publicPath.slice(prefix.length).replace(/\//g, path.sep);
+  const fullPath = path.resolve(PIGEON_UPLOAD_DIR, relative);
+  if (!fullPath.startsWith(path.resolve(PIGEON_UPLOAD_DIR))) return;
+  try {
+    if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
+  } catch (err) {
+    console.warn(`[pigeons] failed to remove uploaded file: ${err.message}`);
+  }
 }
 
 function createApp() {
@@ -223,6 +267,102 @@ function createApp() {
   });
 
   app.use('/api/family', requireRole('family'));
+
+  app.get('/api/family/pigeons/summary', (req, res) => {
+    res.json(getPigeonStore().getSummary());
+  });
+
+  app.get('/api/family/pigeons/locations', (req, res) => {
+    res.json(getPigeonStore().getLocations());
+  });
+
+  app.post('/api/family/pigeons/locations', (req, res) => {
+    const location = getPigeonStore().createLocation(req.body.name);
+    if (!location) return res.status(400).json({ error: 'Room name is required' });
+    res.status(201).json(location);
+  });
+
+  app.get('/api/family/pigeons/birds', (req, res) => {
+    const birds = getPigeonStore().listBirds({
+      status: req.query.status,
+      locationId: req.query.locationId,
+      search: req.query.search,
+    });
+    res.json({ birds, total: birds.length });
+  });
+
+  app.post('/api/family/pigeons/birds', (req, res) => {
+    const bird = getPigeonStore().createBird(req.body);
+    if (!bird) return res.status(400).json({ error: 'Could not create bird' });
+    res.status(201).json(bird);
+  });
+
+  app.get('/api/family/pigeons/birds/:id', (req, res) => {
+    const bird = getPigeonStore().getBirdDetail(req.params.id);
+    if (!bird) return res.status(404).json({ error: 'Bird not found' });
+    res.json(bird);
+  });
+
+  app.patch('/api/family/pigeons/birds/:id', (req, res) => {
+    const bird = getPigeonStore().updateBird(req.params.id, req.body);
+    if (!bird) return res.status(404).json({ error: 'Bird not found' });
+    res.json(bird);
+  });
+
+  app.delete('/api/family/pigeons/birds/:id', (req, res) => {
+    const ok = getPigeonStore().deleteBird(req.params.id);
+    if (!ok) return res.status(404).json({ error: 'Bird not found' });
+    res.json({ deleted: true });
+  });
+
+  app.get('/api/family/pigeons/birds/:id/medications', (req, res) => {
+    const bird = getPigeonStore().getBirdById(req.params.id);
+    if (!bird) return res.status(404).json({ error: 'Bird not found' });
+    res.json(getPigeonStore().listBirdMedications(req.params.id));
+  });
+
+  app.post('/api/family/pigeons/birds/:id/medications', (req, res) => {
+    const medication = getPigeonStore().createMedication(req.params.id, req.body);
+    if (!medication) return res.status(400).json({ error: 'Medication name is required' });
+    res.status(201).json(medication);
+  });
+
+  app.patch('/api/family/pigeons/medications/:medId', (req, res) => {
+    const medication = getPigeonStore().updateMedication(req.params.medId, req.body);
+    if (!medication) return res.status(404).json({ error: 'Medication not found' });
+    res.json(medication);
+  });
+
+  app.delete('/api/family/pigeons/medications/:medId', (req, res) => {
+    const ok = getPigeonStore().deleteMedication(req.params.medId);
+    if (!ok) return res.status(404).json({ error: 'Medication not found' });
+    res.json({ deleted: true });
+  });
+
+  app.post('/api/family/pigeons/medications/:medId/log-dose', (req, res) => {
+    const log = getPigeonStore().logDose(req.params.medId, req.body);
+    if (!log) return res.status(404).json({ error: 'Medication not found' });
+    res.json(log);
+  });
+
+  app.post('/api/family/pigeons/birds/:id/photos', pigeonPhotoUpload.array('photos', 10), (req, res) => {
+    const store = getPigeonStore();
+    const bird = store.getBirdById(req.params.id);
+    if (!bird) return res.status(404).json({ error: 'Bird not found' });
+    const photos = (req.files || []).map(file => store.addPhoto(req.params.id, {
+      photo_path: `${PIGEON_UPLOAD_PREFIX}/photos/${file.filename}`,
+      description: req.body.description,
+      photo_type: req.body.photo_type,
+    }));
+    res.status(201).json(photos);
+  });
+
+  app.delete('/api/family/pigeons/photos/:photoId', (req, res) => {
+    const photo = getPigeonStore().deletePhoto(req.params.photoId);
+    if (!photo) return res.status(404).json({ error: 'Photo not found' });
+    removePigeonUploadedFile(photo.photo_path);
+    res.json({ deleted: true });
+  });
 
   app.get('/api/family/medical/summary', (req, res) => {
     res.status(501).json({
@@ -444,8 +584,17 @@ function createApp() {
 
   app.use('/family', requireRole('family'));
 
+  app.use('/family/pigeons/uploads', express.static(PIGEON_UPLOAD_DIR, {
+    maxAge: 0,
+    etag: true,
+  }));
+
   app.get('/family', requireRole('family'), (req, res) => {
     res.type('html').send(renderFamilyHubPage(undefined, undefined, req.user));
+  });
+
+  app.get('/family/pigeons', requireRole('family'), (req, res) => {
+    res.type('html').send(renderPigeonsPage(req.user));
   });
 
   app.get('/family/health', requireRole('family'), (req, res) => {
@@ -673,6 +822,18 @@ dataLoader.loadAll();
 
 console.log('[server] Starting Google Sheets polling...');
 sheetsPoller.startPolling();
+
+console.log('[server] Preparing pigeon data...');
+try {
+  const pigeonImportResult = importExistingPigeonDataIfNeeded();
+  if (pigeonImportResult.imported) {
+    console.log(`[server] Imported pigeon data: ${pigeonImportResult.birds} birds, ${pigeonImportResult.medications} medications`);
+  } else {
+    console.log(`[server] Pigeon import skipped: ${pigeonImportResult.reason}`);
+  }
+} catch (err) {
+  console.warn(`[server] Pigeon import failed: ${err.message}`);
+}
 
 const app = createApp();
 
