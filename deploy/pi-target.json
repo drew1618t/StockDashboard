@@ -1,0 +1,6 @@
+{
+  "ssh": "andrew@192.168.1.10",
+  "appDir": "/home/andrew/StockDashboard",
+  "service": "portfolio-viz",
+  "branch": "main"
+}
