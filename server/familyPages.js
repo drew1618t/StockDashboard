@@ -211,9 +211,8 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = nu
     }
     .hub-cameras { grid-column: 1; grid-row: 1 / 3; }
     .hub-health { grid-column: 2; grid-row: 1; }
-    .hub-pigeons { grid-column: 3; grid-row: 1; }
-    .hub-todos { grid-column: 2; grid-row: 2; }
-    .hub-notes { grid-column: 3; grid-row: 2; }
+    .hub-notes { grid-column: 3; grid-row: 1; }
+    .hub-todos { grid-column: 2 / 4; grid-row: 2; }
 
     .hub-nav {
       display: flex;
@@ -379,34 +378,6 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = nu
       text-transform: uppercase;
       color: var(--b-accent);
     }
-    .pigeon-link {
-      display: grid;
-      gap: 12px;
-      padding: 16px;
-      min-height: 150px;
-      border-radius: 14px;
-      background: rgba(var(--b-accent-rgb),0.06);
-      color: inherit;
-      text-decoration: none;
-      border: 1px solid transparent;
-      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-    }
-    .pigeon-link:hover {
-      transform: translateY(-2px);
-      border-color: rgba(var(--b-accent-rgb),0.28);
-      background: rgba(var(--b-accent-rgb),0.1);
-    }
-    .pigeon-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--b-text);
-    }
-    .pigeon-copy {
-      color: var(--b-dim);
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
     /* ============================
        TODOS
        ============================ */
@@ -942,9 +913,8 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = nu
       }
       .hub-cameras { grid-column: 1 / 3; grid-row: auto; }
       .hub-health { grid-column: 1; grid-row: auto; }
-      .hub-pigeons { grid-column: 2; grid-row: auto; }
-      .hub-todos { grid-column: 1; grid-row: auto; }
       .hub-notes { grid-column: 2; grid-row: auto; }
+      .hub-todos { grid-column: 1 / 3; grid-row: auto; }
     }
     @media (max-width: 600px) {
       .bento-palette { top: auto; bottom: 16px; right: 50%; transform: translateX(50%); }
@@ -953,7 +923,6 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = nu
       .hub-grid { grid-template-columns: 1fr; }
       .hub-cameras,
       .hub-health,
-      .hub-pigeons,
       .hub-notes,
       .hub-todos { grid-column: 1; }
       .cam-grid { grid-template-columns: 1fr; }
@@ -981,6 +950,7 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = nu
     <nav class="hub-nav">
       <a href="/">Home</a>
       <a href="/dashboard">Stock Dashboard</a>
+      <a href="/family/pigeons">Pigeons</a>
     </nav>
 
     <!-- Greeting -->
@@ -1021,16 +991,6 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = nu
           ${andrewCard}
           ${kailiCard}
         </div>
-      </section>
-
-      <!-- PIGEONS -->
-      <section class="hub-pigeons panel">
-        <div class="panel-label">Pigeons</div>
-        <a class="pigeon-link" href="/family/pigeons">
-          <div class="pigeon-title">Room meds</div>
-          <div class="pigeon-copy">See which birds need medicine or supplements before walking into each room.</div>
-          <div class="health-cta">Open Pigeons</div>
-        </a>
       </section>
 
       <!-- TODOS -->
