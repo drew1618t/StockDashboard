@@ -1,5 +1,20 @@
+const fs = require('fs');
+const path = require('path');
+
+function assetVersion(relativePath) {
+  try {
+    const assetPath = path.join(__dirname, '..', 'public', relativePath);
+    return String(Math.floor(fs.statSync(assetPath).mtimeMs));
+  } catch (err) {
+    return '1';
+  }
+}
+
 function renderPigeonsPage(user) {
   const userName = user && user.email ? user.email.split('@')[0] : 'family';
+  const cssVersion = assetVersion('css/pigeons.css');
+  const jsVersion = assetVersion('js/pigeons.js');
+  const chartVersion = assetVersion('vendor/chart.umd.min.js');
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +24,7 @@ function renderPigeonsPage(user) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/pigeons.css">
+  <link rel="stylesheet" href="/css/pigeons.css?v=${cssVersion}">
 </head>
 <body>
   <main class="pigeon-page">
@@ -136,8 +151,8 @@ function renderPigeonsPage(user) {
   </div>
   <div class="toast" id="toast"></div>
   <script>window.PIGEON_USER = ${JSON.stringify(userName)};</script>
-  <script src="/vendor/chart.umd.min.js"></script>
-  <script src="/js/pigeons.js"></script>
+  <script src="/vendor/chart.umd.min.js?v=${chartVersion}"></script>
+  <script src="/js/pigeons.js?v=${jsVersion}"></script>
 </body>
 </html>`;
 }
