@@ -1,3 +1,12 @@
+const STATUS_META = {
+  active: { label: 'Active', color: '#00A651', className: 'status-active' },
+  critical: { label: 'Critical', color: '#E31B23', className: 'status-critical' },
+  ready_for_release: { label: 'Ready for release', color: '#0077FF', className: 'status-ready-for-release' },
+  permanent_resident: { label: 'Permanent resident', color: '#D97706', className: 'status-permanent-resident' },
+  released: { label: 'Released', color: '#00B8D9', className: 'status-released' },
+  deceased: { label: 'Deceased', color: '#111827', className: 'status-deceased' },
+};
+
 const PigeonApp = {
   state: {
     summary: null,
@@ -6,6 +15,8 @@ const PigeonApp = {
     currentBird: null,
     confirmResolve: null,
     birdLoadTimer: null,
+    weightChart: null,
+    editingNoteId: null,
   },
 
   init() {
@@ -91,15 +102,7 @@ const PigeonApp = {
   },
 
   statusDotColor(status) {
-    const colors = {
-      active: '#7A9E7E',
-      critical: '#D4A03C',
-      ready_for_release: '#5B8FAF',
-      permanent_resident: '#7A9E7E',
-      released: '#8B9E8B',
-      deceased: '#999',
-    };
-    return colors[status] || '#999';
+    return (STATUS_META[status] && STATUS_META[status].color) || '#999';
   },
 
   statusDotSvg(status) {
@@ -107,8 +110,33 @@ const PigeonApp = {
     return `<svg class="status-dot" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="4" fill="${color}"/></svg>`;
   },
 
-  metric(label, value, hot = false) {
-    const cls = hot ? ' danger' : '';
+  statusMeta(status) {
+    return STATUS_META[status] || {
+      label: String(status || 'Unknown').replace(/_/g, ' '),
+      color: '#999',
+      className: 'status-unknown',
+    };
+  },
+
+  statusChip(status) {
+    const meta = this.statusMeta(status);
+    return `<span class="status-chip ${meta.className}">${this.statusDotSvg(status)}${this.esc(meta.label)}</span>`;
+  },
+
+  birdIconSvg() {
+    return `
+      <svg class="bird-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <path d="M12 29c4.5-10.5 13.5-15 24-12.5-2.5 9.5-8.5 16-19 16.5l-6 5" />
+        <path d="M24 18c-2-4.5-5.5-7-10.5-7.5 1.2 4.5 3.8 7.5 8 9" />
+        <path d="M34 17l6-3-3.5 5" />
+        <path d="M23 33l-2.5 6" />
+        <path d="M28 32l2 6" />
+        <circle cx="31.5" cy="19.5" r="1" />
+      </svg>`;
+  },
+
+  metric(label, value, hot = false, extraClass = '') {
+    const cls = `${hot ? ' danger' : ''}${extraClass ? ` ${extraClass}` : ''}`;
     return `<div class="metric${cls}"><div class="metric-value">${this.esc(value)}</div><div class="metric-label">${this.esc(label)}</div></div>`;
   },
 
@@ -148,7 +176,7 @@ const PigeonApp = {
         </div>
       `).join('');
       return `
-        <article class="room-card">
+        <article class="room-card clickable" data-action="filter-room" data-location-id="${room.location_id == null ? '' : Number(room.location_id)}" data-location-name="${this.esc(room.location_name)}">
           <div class="room-head">
             <div>
               <h3>${this.esc(room.location_name)}</h3>
@@ -182,8 +210,8 @@ const PigeonApp = {
   },
 
   statusOptions(selected = 'active') {
-    return ['active', 'critical', 'ready_for_release', 'permanent_resident', 'released', 'deceased']
-      .map(status => `<option value="${status}"${status === selected ? ' selected' : ''}>${status.replace(/_/g, ' ')}</option>`)
+    return Object.keys(STATUS_META)
+      .map(status => `<option value="${status}"${status === selected ? ' selected' : ''}>${this.esc(this.statusMeta(status).label)}</option>`)
       .join('');
   },
 
@@ -202,7 +230,7 @@ const PigeonApp = {
       <label>Injury type <input name="injury_type" value="${this.esc(bird.injury_type || '')}"></label>
       <label>Alert level <input name="alert_level" value="${this.esc(bird.alert_level || '')}"></label>
       <label class="span-3">Initial condition <textarea name="initial_condition">${this.esc(bird.initial_condition || '')}</textarea></label>
-      <label class="span-3">Notes <textarea name="notes">${this.esc(bird.notes || '')}</textarea></label>`;
+      <label class="span-3">General notes <textarea name="notes">${this.esc(bird.notes || '')}</textarea></label>`;
   },
 
   fillBirdForm(containerId, bird = {}) {
@@ -237,6 +265,21 @@ const PigeonApp = {
     } catch (err) {
       this.showToast(err.message);
     }
+  },
+
+  filterRoom(target, event) {
+    if (event && event.target.closest('button, input, select, textarea, a')) return;
+    const locationId = target.dataset.locationId || '';
+    const locationName = target.dataset.locationName || 'room';
+    const locationFilter = document.getElementById('bird-location-filter');
+    const statusFilter = document.getElementById('bird-status-filter');
+    const search = document.getElementById('bird-search');
+    if (locationFilter) locationFilter.value = locationId;
+    if (statusFilter) statusFilter.value = '';
+    if (search) search.value = '';
+    this.showView('birds');
+    this.loadBirds();
+    this.showToast(`Showing birds in ${locationName}`);
   },
 
   async createBird(event) {
@@ -314,8 +357,7 @@ const PigeonApp = {
     list.innerHTML = this.state.birds.map(bird => {
       const img = bird.first_photo
         ? `<img class="bird-photo" src="${this.esc(bird.first_photo)}" alt="">`
-        : `<div class="bird-photo">${this.esc((bird.name || bird.case_number || '?').slice(0, 1).toUpperCase())}</div>`;
-      const statusLabel = (bird.status || '').replace(/_/g, ' ');
+        : `<div class="bird-photo placeholder">${this.birdIconSvg()}</div>`;
       const noRoom = ['released', 'deceased'].includes(bird.status);
       const roomText = noRoom ? '' : (bird.location_name || 'Unassigned');
       return `
@@ -327,7 +369,7 @@ const PigeonApp = {
               <span class="muted small">${this.esc(bird.species)}</span>
             </div>
             <div class="bird-line-2">
-              <span class="bird-status">${this.statusDotSvg(bird.status)}${this.esc(statusLabel)}</span>
+              ${this.statusChip(bird.status)}
               ${roomText ? `<span>${this.esc(roomText)}</span>` : ''}
               ${noRoom ? '' : `<span>${this.esc(bird.active_med_count || 0)} meds</span>`}
             </div>
@@ -337,6 +379,7 @@ const PigeonApp = {
   },
 
   async openBird(id) {
+    this.state.editingNoteId = null;
     this.state.currentBird = await this.api(`/api/family/pigeons/birds/${id}`);
     this.renderBirdDetail();
     this.showView('detail');
@@ -347,11 +390,16 @@ const PigeonApp = {
     const b = this.state.currentBird;
     const photos = (b.photos || []).map(photo => this.renderPhoto(photo)).join('') || '<div class="panel muted">No photos yet.</div>';
     const meds = (b.medications || []).map(med => this.renderMed(med)).join('') || '<div class="panel muted">No medications or supplements yet.</div>';
+    const metaParts = [
+      this.esc(b.case_number),
+      this.esc(b.species),
+      this.esc(b.location_name || 'Unassigned'),
+    ];
     document.getElementById('bird-detail').innerHTML = `
       <div class="section-head">
         <div>
           <h2>${this.esc(b.name || 'Unnamed')}</h2>
-          <p>${this.esc(b.case_number)} - ${this.esc(b.species)} - ${this.esc(b.location_name || 'Unassigned')}</p>
+          <p>${metaParts.join(' - ')} ${this.statusChip(b.status)}</p>
         </div>
         <button data-view-jump="birds">Back</button>
       </div>
@@ -362,6 +410,10 @@ const PigeonApp = {
           <button class="danger" type="button" data-action="delete-bird" data-bird-id="${Number(b.id)}">Delete Bird</button>
         </div>
       </form>
+      <div class="section-head"><div><h3>Notes</h3><p>Keep dated notes over time.</p></div></div>
+      ${this.renderNoteTracker()}
+      <div class="section-head"><div><h3>Weight</h3><p>Track gram changes over time.</p></div></div>
+      ${this.renderWeightTracker()}
       <div class="section-head"><div><h3>Meds and supplements</h3><p>Stop or delete a medication when the plan changes.</p></div></div>
       ${this.medicationForm()}
       <div class="med-list">${meds}</div>
@@ -369,8 +421,137 @@ const PigeonApp = {
       ${this.photoForm()}
       <div class="photo-grid">${photos}</div>`;
     document.querySelector('[data-form="edit-bird"]').addEventListener('submit', event => this.updateBird(event));
+    document.querySelector('[data-form="dated-note"]').addEventListener('submit', event => this.saveDatedNote(event));
+    document.querySelector('[data-form="add-weight"]').addEventListener('submit', event => this.addWeight(event));
     document.querySelector('[data-form="add-medication"]').addEventListener('submit', event => this.addMedication(event));
     document.querySelector('[data-form="upload-photo"]').addEventListener('submit', event => this.uploadPhoto(event));
+    this.renderWeightChart(b.weights || []);
+  },
+
+  renderNoteTracker() {
+    const notes = (this.state.currentBird && this.state.currentBird.noteLogs) || [];
+    const editingNote = notes.find(note => String(note.id) === String(this.state.editingNoteId));
+    const isEditing = !!editingNote;
+    const rows = notes.length
+      ? notes.map(note => `
+        <article class="note-row">
+          <div>
+            <div class="note-date">${this.esc(note.note_date)}</div>
+            <div class="note-text">${this.esc(note.note_text)}</div>
+          </div>
+          <div class="note-actions">
+            <button type="button" data-action="edit-note" data-note-id="${Number(note.id)}">Edit</button>
+            <button class="danger" type="button" data-action="delete-note" data-note-id="${Number(note.id)}">Delete</button>
+          </div>
+        </article>
+      `).join('')
+      : '<div class="panel muted">No dated notes yet.</div>';
+
+    return `
+      <section class="panel note-panel">
+        <form class="note-form" data-form="dated-note">
+          <input type="hidden" name="note_id" value="${isEditing ? Number(editingNote.id) : ''}">
+          <label>Date <input type="date" name="note_date" value="${this.esc(isEditing ? editingNote.note_date : this.today())}" required></label>
+          <label class="span-3">Note <textarea name="note_text" required>${this.esc(isEditing ? editingNote.note_text : '')}</textarea></label>
+          <div class="note-form-actions">
+            <button class="primary" type="submit">${isEditing ? 'Save note edit' : 'Add note'}</button>
+            ${isEditing ? '<button type="button" data-action="cancel-note-edit">Cancel</button>' : ''}
+          </div>
+        </form>
+        <div class="note-list">${rows}</div>
+      </section>`;
+  },
+
+  renderWeightTracker() {
+    const weights = (this.state.currentBird && this.state.currentBird.weights) || [];
+    const latest = weights.length ? weights[weights.length - 1] : null;
+    const helper = weights.length < 2
+      ? `<p class="muted small">Add another weight to draw a trend.</p>`
+      : `<p class="muted small">Latest: ${this.esc(latest.weight_grams)}g on ${this.esc(latest.weight_date)}</p>`;
+    const rows = weights.length
+      ? weights.slice().reverse().map(weight => `
+        <div class="weight-row">
+          <div>
+            <strong>${this.esc(weight.weight_grams)}g</strong>
+            <span class="muted small">${this.esc(weight.weight_date)}</span>
+            <span class="weight-source">${weight.source === 'initial' ? 'Initial weight' : 'Logged weight'}</span>
+          </div>
+          ${weight.source === 'log' ? `<button class="danger" type="button" data-action="delete-weight" data-weight-id="${Number(weight.id)}">Delete</button>` : ''}
+        </div>
+      `).join('')
+      : '<div class="panel muted">No weights yet.</div>';
+
+    return `
+      <section class="panel weight-panel">
+        <div class="weight-chart-wrap"><canvas id="weight-chart"></canvas></div>
+        ${helper}
+        <form class="weight-form" data-form="add-weight">
+          <label>Date <input type="date" name="weight_date" value="${this.today()}" required></label>
+          <label>Grams <input type="number" step="0.1" min="0.1" name="weight_grams" required></label>
+          <button class="primary" type="submit">Add weight</button>
+        </form>
+        <div class="weight-list">${rows}</div>
+      </section>`;
+  },
+
+  renderWeightChart(weights) {
+    if (this.state.weightChart) {
+      this.state.weightChart.destroy();
+      this.state.weightChart = null;
+    }
+    const canvas = document.getElementById('weight-chart');
+    if (!canvas || !window.Chart) return;
+
+    const labels = weights.map(weight => weight.weight_date);
+    const data = weights.map(weight => Number(weight.weight_grams));
+    const styles = getComputedStyle(document.body);
+    const lineColor = styles.getPropertyValue('--leaf').trim() || '#2F7D52';
+    const textColor = styles.getPropertyValue('--forest').trim() || '#2D4A3E';
+    const gridColor = styles.getPropertyValue('--rule-dark').trim() || 'rgba(45, 74, 62, 0.25)';
+
+    this.state.weightChart = new Chart(canvas.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Weight (g)',
+          data,
+          borderColor: lineColor,
+          backgroundColor: `${lineColor}22`,
+          pointBackgroundColor: lineColor,
+          pointBorderColor: lineColor,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 2,
+          tension: 0.25,
+          fill: weights.length > 1,
+        }],
+      },
+      options: {
+        animation: false,
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: context => `${context.parsed.y}g`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: gridColor },
+            ticks: { color: textColor, maxRotation: 0, autoSkip: true },
+          },
+          y: {
+            beginAtZero: false,
+            grid: { color: gridColor },
+            ticks: { color: textColor, callback: value => `${value}g` },
+          },
+        },
+      },
+    });
   },
 
   medicationForm() {
@@ -508,6 +689,88 @@ const PigeonApp = {
     await this.refreshAfterDetailChange();
   },
 
+  startEditNote(id) {
+    this.state.editingNoteId = Number(id);
+    this.renderBirdDetail();
+  },
+
+  cancelNoteEdit() {
+    this.state.editingNoteId = null;
+    this.renderBirdDetail();
+  },
+
+  async saveDatedNote(event) {
+    event.preventDefault();
+    if (!this.state.currentBird) return;
+
+    const data = this.formToObject(event.target);
+    const isEditing = !!data.note_id;
+    try {
+      if (isEditing) {
+        const ok = await this.confirmModal('Save note edit', 'Save changes to this dated note?', 'Save');
+        if (!ok) return;
+        await this.api(`/api/family/pigeons/notes/${data.note_id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            note_date: data.note_date,
+            note_text: data.note_text,
+          }),
+        });
+        this.showToast('Note updated');
+      } else {
+        await this.api(`/api/family/pigeons/birds/${this.state.currentBird.id}/notes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            note_date: data.note_date,
+            note_text: data.note_text,
+          }),
+        });
+        this.showToast('Note saved');
+      }
+
+      this.state.editingNoteId = null;
+      await this.refreshAfterDetailChange();
+    } catch (err) {
+      this.showToast(err.message);
+    }
+  },
+
+  async deleteNote(id) {
+    const ok = await this.confirmModal('Delete note', 'Delete this dated note?', 'Delete');
+    if (!ok) return;
+    await this.api(`/api/family/pigeons/notes/${id}`, { method: 'DELETE' });
+    this.showToast('Note deleted');
+    this.state.editingNoteId = null;
+    await this.refreshAfterDetailChange();
+  },
+
+  async addWeight(event) {
+    event.preventDefault();
+    if (!this.state.currentBird) return;
+    try {
+      await this.api(`/api/family/pigeons/birds/${this.state.currentBird.id}/weights`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(this.formToObject(event.target)),
+      });
+      event.target.reset();
+      this.showToast('Weight saved');
+      await this.refreshAfterDetailChange();
+    } catch (err) {
+      this.showToast(err.message);
+    }
+  },
+
+  async deleteWeight(id) {
+    const ok = await this.confirmModal('Delete weight', 'Delete this recorded weight?', 'Delete');
+    if (!ok) return;
+    await this.api(`/api/family/pigeons/weights/${id}`, { method: 'DELETE' });
+    this.showToast('Weight deleted');
+    await this.refreshAfterDetailChange();
+  },
+
   async refreshAfterDetailChange() {
     const birdId = this.state.currentBird && this.state.currentBird.id;
     await this.loadAll();
@@ -523,11 +786,11 @@ const PigeonApp = {
     const medRoomHtml = (s.activeMedsByRoom || []).map(r => `<div class="row small"><span>${this.esc(r.location_name)}</span><strong>${this.esc(r.count)}</strong></div>`).join('');
     document.getElementById('stats-grid').innerHTML =
       this.metric('Total birds', s.total || 0) +
-      this.metric('Active', statusCounts.active || 0) +
-      this.metric('Critical', statusCounts.critical || 0, (statusCounts.critical || 0) > 0) +
-      this.metric('Residents', statusCounts.permanent_resident || 0) +
-      this.metric('Released', statusCounts.released || 0) +
-      this.metric('Deceased', statusCounts.deceased || 0) +
+      this.metric('Active', statusCounts.active || 0, false, 'status-active') +
+      this.metric('Critical', statusCounts.critical || 0, (statusCounts.critical || 0) > 0, 'status-critical') +
+      this.metric('Residents', statusCounts.permanent_resident || 0, false, 'status-permanent-resident') +
+      this.metric('Released', statusCounts.released || 0, false, 'status-released') +
+      this.metric('Deceased', statusCounts.deceased || 0, false, 'status-deceased') +
       `<div class="panel"><h3>Birds by room</h3><div class="stat-list">${roomHtml || '<span class="muted">No data</span>'}</div></div>` +
       `<div class="panel"><h3>Birds by species</h3><div class="stat-list">${speciesHtml || '<span class="muted">No data</span>'}</div></div>` +
       `<div class="panel"><h3>Active meds by room</h3><div class="stat-list">${medRoomHtml || '<span class="muted">No data</span>'}</div></div>` +
@@ -567,11 +830,16 @@ document.addEventListener('click', event => {
   if (!target) return;
   const action = target.dataset.action;
   if (target.dataset.viewJump) PigeonApp.showView(target.dataset.viewJump);
+  if (action === 'filter-room') PigeonApp.filterRoom(target, event);
   if (action === 'open-bird') PigeonApp.openBird(target.dataset.birdId);
   if (action === 'delete-bird') PigeonApp.deleteBird(target.dataset.birdId);
   if (action === 'stop-med') PigeonApp.stopMedication(target.dataset.medId);
   if (action === 'delete-med') PigeonApp.deleteMedication(target.dataset.medId);
   if (action === 'delete-photo') PigeonApp.deletePhoto(target.dataset.photoId);
+  if (action === 'edit-note') PigeonApp.startEditNote(target.dataset.noteId);
+  if (action === 'cancel-note-edit') PigeonApp.cancelNoteEdit();
+  if (action === 'delete-note') PigeonApp.deleteNote(target.dataset.noteId);
+  if (action === 'delete-weight') PigeonApp.deleteWeight(target.dataset.weightId);
   if (action === 'mark-dose') PigeonApp.markDoseGiven(target.dataset.medId, target.dataset.logId || null);
 });
 

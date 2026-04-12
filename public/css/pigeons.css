@@ -201,6 +201,14 @@ h3 { font-size: 1.0rem; }
   border-bottom: 1px solid var(--rule);
 }
 .room-card:last-child { border-bottom: none; }
+.room-card.clickable {
+  cursor: pointer;
+  transition: background var(--transition), box-shadow var(--transition);
+}
+.room-card.clickable:hover {
+  background: var(--leaf-light);
+  box-shadow: inset 3px 0 0 var(--leaf);
+}
 
 .room-head {
   display: flex;
@@ -373,7 +381,10 @@ textarea { min-height: 80px; resize: vertical; line-height: 1.45; }
   transition: background var(--transition);
 }
 .bird-card:last-child { border-bottom: none; }
-.bird-card:hover { background: var(--leaf-light); margin: 0 -8px; padding: 10px 8px; border-radius: var(--radius); }
+.bird-card:hover {
+  background: var(--leaf-light);
+  box-shadow: inset 3px 0 0 var(--leaf);
+}
 
 .bird-photo {
   width: 36px;
@@ -392,6 +403,22 @@ textarea { min-height: 80px; resize: vertical; line-height: 1.45; }
   overflow: hidden;
 }
 img.bird-photo { object-fit: cover; display: block; }
+.bird-photo.placeholder {
+  color: var(--forest);
+}
+.bird-icon {
+  width: 28px;
+  height: 28px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+.bird-icon circle {
+  fill: currentColor;
+  stroke: none;
+}
 
 .bird-line-1 {
   display: flex;
@@ -431,6 +458,40 @@ img.bird-photo { object-fit: cover; display: block; }
   vertical-align: middle;
   flex-shrink: 0;
 }
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.3;
+  background: var(--aged);
+  color: var(--muted);
+}
+.status-active { color: #00A651; background: rgba(0, 166, 81, 0.16); }
+.status-critical { color: #E31B23; background: rgba(227, 27, 35, 0.16); }
+.status-ready-for-release { color: #0077FF; background: rgba(0, 119, 255, 0.16); }
+.status-permanent-resident { color: #D97706; background: rgba(217, 119, 6, 0.18); }
+.status-released { color: #007D99; background: rgba(0, 184, 217, 0.18); }
+.status-deceased { color: #111827; background: rgba(17, 24, 39, 0.15); }
+
+.metric.status-active,
+.metric.status-critical,
+.metric.status-ready-for-release,
+.metric.status-permanent-resident,
+.metric.status-released,
+.metric.status-deceased {
+  background: var(--aged);
+}
+.metric.status-active .metric-value { color: #00A651; }
+.metric.status-critical .metric-value { color: #E31B23; }
+.metric.status-ready-for-release .metric-value { color: #0077FF; }
+.metric.status-permanent-resident .metric-value { color: #D97706; }
+.metric.status-released .metric-value { color: #007D99; }
+.metric.status-deceased .metric-value { color: #111827; }
 
 /* Legacy bird-head (used in detail view) */
 .bird-head {
@@ -536,6 +597,126 @@ img.bird-photo { object-fit: cover; display: block; }
   border-radius: 999px;
 }
 
+/* ── Dated Notes ────────────────────────────────────────────────────── */
+.note-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.note-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.note-form textarea {
+  min-height: 92px;
+}
+
+.note-form-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.note-list {
+  display: grid;
+  gap: 0;
+}
+
+.note-row {
+  display: grid;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px dashed var(--rule);
+}
+
+.note-date {
+  color: var(--leaf);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.note-text {
+  margin-top: 2px;
+  font-size: 0.88rem;
+  white-space: pre-wrap;
+}
+
+.note-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.note-actions button {
+  min-height: 34px;
+  padding: 4px 10px;
+}
+
+/* ── Weight Tracker ─────────────────────────────────────────────────── */
+.weight-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.weight-chart-wrap {
+  height: 180px;
+  min-height: 180px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 245, 0.5);
+  padding: 10px;
+}
+
+.weight-chart-wrap canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.weight-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.weight-list {
+  display: grid;
+  gap: 0;
+}
+
+.weight-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px dashed var(--rule);
+}
+
+.weight-row strong {
+  font-family: 'Lora', serif;
+  margin-right: 6px;
+}
+
+.weight-row button {
+  min-height: 34px;
+  padding: 4px 10px;
+  flex-shrink: 0;
+}
+
+.weight-source {
+  display: inline-flex;
+  margin-left: 6px;
+  border-radius: 999px;
+  padding: 1px 7px;
+  color: var(--muted);
+  background: var(--parchment);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
 /* ── Bottom Navigation ──────────────────────────────── */
 .bottom-nav {
   position: fixed;
@@ -580,6 +761,10 @@ img.bird-photo { object-fit: cover; display: block; }
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+.bottom-nav button svg circle {
+  fill: currentColor;
+  stroke: none;
 }
 
 .bottom-nav button.active {
@@ -655,7 +840,9 @@ img.bird-photo { object-fit: cover; display: block; }
   .span-2, .span-3 { grid-column: span 1; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .bird-photo { width: 32px; height: 32px; font-size: 0.85rem; }
+  .bird-icon { width: 24px; height: 24px; }
   .room-add { flex-direction: column; }
+  .weight-form { grid-template-columns: 1fr; }
   .dose-row { flex-direction: column; gap: 6px; }
   .dose-row button { width: 100%; }
   .section-head { flex-direction: column; align-items: stretch; gap: 6px; }

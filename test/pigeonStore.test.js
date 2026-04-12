@@ -97,6 +97,131 @@ test('pigeon store returns due and overdue room-grouped medication data', () => 
   }
 });
 
+test('pigeon store records explicit weights and keeps initial weight as a synthetic point', () => {
+  const dir = makeTempDir();
+  const store = createPigeonStore({ dbPath: path.join(dir, 'pigeons.db') });
+  try {
+    const bird = store.createBird({
+      name: 'Pip',
+      intake_date: '2026-04-01',
+      initial_weight: 45,
+      status: 'active',
+    });
+
+    let detail = store.getBirdDetail(bird.id);
+    assert.deepEqual(detail.weights, [{
+      id: null,
+      bird_id: bird.id,
+      weight_date: '2026-04-01',
+      weight_grams: 45,
+      created_at: null,
+      source: 'initial',
+    }]);
+
+    const added = store.addBirdWeight(bird.id, {
+      weight_date: '2026-04-03',
+      weight_grams: '48.5',
+    });
+    assert.equal(added.source, 'log');
+
+    detail = store.getBirdDetail(bird.id);
+    assert.deepEqual(detail.weights.map(weight => [weight.weight_date, weight.weight_grams, weight.source]), [
+      ['2026-04-01', 45, 'initial'],
+      ['2026-04-03', 48.5, 'log'],
+    ]);
+
+    const deleted = store.deleteBirdWeight(added.id);
+    assert.equal(deleted.id, added.id);
+
+    detail = store.getBirdDetail(bird.id);
+    assert.deepEqual(detail.weights.map(weight => [weight.weight_date, weight.weight_grams, weight.source]), [
+      ['2026-04-01', 45, 'initial'],
+    ]);
+  } finally {
+    store.close();
+    cleanupTempDir(dir);
+  }
+});
+
+test('explicit weight on intake date replaces the synthetic initial weight point', () => {
+  const dir = makeTempDir();
+  const store = createPigeonStore({ dbPath: path.join(dir, 'pigeons.db') });
+  try {
+    const bird = store.createBird({
+      name: 'Neve',
+      intake_date: '2026-04-02',
+      initial_weight: 320,
+      status: 'active',
+    });
+
+    store.addBirdWeight(bird.id, {
+      weight_date: '2026-04-02',
+      weight_grams: 322,
+    });
+
+    const detail = store.getBirdDetail(bird.id);
+    assert.deepEqual(detail.weights.map(weight => [weight.weight_date, weight.weight_grams, weight.source]), [
+      ['2026-04-02', 322, 'log'],
+    ]);
+  } finally {
+    store.close();
+    cleanupTempDir(dir);
+  }
+});
+
+test('pigeon store records, updates, and deletes dated notes', () => {
+  const dir = makeTempDir();
+  const store = createPigeonStore({ dbPath: path.join(dir, 'pigeons.db') });
+  try {
+    const bird = store.createBird({
+      name: 'Misty',
+      intake_date: '2026-04-04',
+      status: 'active',
+    });
+
+    const note = store.addBirdNote(bird.id, {
+      note_date: '2026-04-05',
+      note_text: 'Eating well after morning feeding.',
+    });
+
+    assert.equal(note.note_date, '2026-04-05');
+    assert.equal(note.note_text, 'Eating well after morning feeding.');
+    assert.deepEqual(store.getBirdDetail(bird.id).noteLogs.map(row => row.note_text), [
+      'Eating well after morning feeding.',
+    ]);
+
+    const updated = store.updateBirdNote(note.id, {
+      note_date: '2026-04-06',
+      note_text: 'Eating well after evening feeding.',
+    });
+    assert.equal(updated.note_date, '2026-04-06');
+    assert.equal(updated.note_text, 'Eating well after evening feeding.');
+
+    assert.equal(store.deleteBirdNote(note.id).id, note.id);
+    assert.deepEqual(store.getBirdDetail(bird.id).noteLogs, []);
+  } finally {
+    store.close();
+    cleanupTempDir(dir);
+  }
+});
+
+test('all birds list excludes released and deceased birds unless their status is selected', () => {
+  const dir = makeTempDir();
+  const store = createPigeonStore({ dbPath: path.join(dir, 'pigeons.db') });
+  try {
+    store.createBird({ name: 'Active', status: 'active' });
+    store.createBird({ name: 'Released', status: 'released' });
+    store.createBird({ name: 'Deceased', status: 'deceased' });
+
+    assert.deepEqual(store.listBirds({}).map(bird => bird.name), ['Active']);
+    assert.deepEqual(store.listBirds({ status: 'deceased' }).map(bird => bird.name), ['Deceased']);
+    assert.deepEqual(store.listBirds({ status: 'released' }).map(bird => bird.name), ['Released']);
+  } finally {
+    store.close();
+    cleanupTempDir(dir);
+  }
+});
+
 test('pigeon import migrates old birds, medications, logs, and defaults room to Unassigned', () => {
   const dir = makeTempDir();
   const oldRoot = path.join(dir, 'old-pigeons');

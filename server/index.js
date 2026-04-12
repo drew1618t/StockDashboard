@@ -327,15 +327,47 @@ function createApp() {
     res.status(201).json(medication);
   });
 
+  app.post('/api/family/pigeons/birds/:id/notes', (req, res) => {
+    const store = getPigeonStore();
+    const bird = store.getBirdById(req.params.id);
+    if (!bird) return res.status(404).json({ error: 'Bird not found' });
+    const note = store.addBirdNote(req.params.id, req.body);
+    if (!note) return res.status(400).json({ error: 'Note text is required' });
+    res.status(201).json(note);
+  });
+
+  app.post('/api/family/pigeons/birds/:id/weights', (req, res) => {
+    const store = getPigeonStore();
+    const bird = store.getBirdById(req.params.id);
+    if (!bird) return res.status(404).json({ error: 'Bird not found' });
+    const weight = store.addBirdWeight(req.params.id, req.body);
+    if (!weight) return res.status(400).json({ error: 'Valid date and positive gram weight are required' });
+    res.status(201).json(weight);
+  });
+
   app.patch('/api/family/pigeons/medications/:medId', (req, res) => {
     const medication = getPigeonStore().updateMedication(req.params.medId, req.body);
     if (!medication) return res.status(404).json({ error: 'Medication not found' });
     res.json(medication);
   });
 
+  app.patch('/api/family/pigeons/notes/:noteId', (req, res) => {
+    const store = getPigeonStore();
+    if (!store.getNoteById(req.params.noteId)) return res.status(404).json({ error: 'Note not found' });
+    const note = store.updateBirdNote(req.params.noteId, req.body);
+    if (!note) return res.status(400).json({ error: 'Valid note date and note text are required' });
+    res.json(note);
+  });
+
   app.delete('/api/family/pigeons/medications/:medId', (req, res) => {
     const ok = getPigeonStore().deleteMedication(req.params.medId);
     if (!ok) return res.status(404).json({ error: 'Medication not found' });
+    res.json({ deleted: true });
+  });
+
+  app.delete('/api/family/pigeons/notes/:noteId', (req, res) => {
+    const note = getPigeonStore().deleteBirdNote(req.params.noteId);
+    if (!note) return res.status(404).json({ error: 'Note not found' });
     res.json({ deleted: true });
   });
 
@@ -361,6 +393,12 @@ function createApp() {
     const photo = getPigeonStore().deletePhoto(req.params.photoId);
     if (!photo) return res.status(404).json({ error: 'Photo not found' });
     removePigeonUploadedFile(photo.photo_path);
+    res.json({ deleted: true });
+  });
+
+  app.delete('/api/family/pigeons/weights/:weightId', (req, res) => {
+    const weight = getPigeonStore().deleteBirdWeight(req.params.weightId);
+    if (!weight) return res.status(404).json({ error: 'Weight not found' });
     res.json({ deleted: true });
   });
 

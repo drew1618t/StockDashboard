@@ -111,7 +111,7 @@ function renderPigeonsPage(user) {
       Rooms
     </button>
     <button data-view="birds">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0113 0"/></svg>
+      <svg viewBox="0 0 48 48"><path d="M12 29c4.5-10.5 13.5-15 24-12.5-2.5 9.5-8.5 16-19 16.5l-6 5"/><path d="M24 18c-2-4.5-5.5-7-10.5-7.5 1.2 4.5 3.8 7.5 8 9"/><path d="M34 17l6-3-3.5 5"/><path d="M23 33l-2.5 6"/><path d="M28 32l2 6"/><circle cx="31.5" cy="19.5" r="1"/></svg>
       Birds
     </button>
     <button data-view="add">
@@ -136,6 +136,7 @@ function renderPigeonsPage(user) {
   </div>
   <div class="toast" id="toast"></div>
   <script>window.PIGEON_USER = ${JSON.stringify(userName)};</script>
+  <script src="/vendor/chart.umd.min.js"></script>
   <script src="/js/pigeons.js"></script>
 </body>
 </html>`;

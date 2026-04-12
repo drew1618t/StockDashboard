@@ -48,6 +48,20 @@ function parseFloatOrNull(value) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function parsePositiveFloat(value) {
+  const parsed = parseFloatOrNull(value);
+  return parsed !== null && parsed > 0 ? parsed : null;
+}
+
+function normalizeDateOnly(value) {
+  const clean = normalizeText(value);
+  if (!clean || !/^\d{4}-\d{2}-\d{2}$/.test(clean)) return null;
+  const parsed = new Date(`${clean}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return null;
+  if (toDateOnly(parsed) !== clean) return null;
+  return clean;
+}
+
 function doseHoursForFrequency(frequency) {
   const freq = parsePositiveInt(frequency, 1);
   if (freq === 1) return [9];
@@ -175,6 +189,24 @@ class PigeonStore {
         upload_date TEXT DEFAULT (datetime('now'))
       );
 
+      CREATE TABLE IF NOT EXISTS pigeon_weight_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bird_id INTEGER NOT NULL REFERENCES pigeon_birds(id) ON DELETE CASCADE,
+        weight_date TEXT NOT NULL,
+        weight_grams REAL NOT NULL,
+        created_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(bird_id, weight_date)
+      );
+
+      CREATE TABLE IF NOT EXISTS pigeon_note_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bird_id INTEGER NOT NULL REFERENCES pigeon_birds(id) ON DELETE CASCADE,
+        note_date TEXT NOT NULL,
+        note_text TEXT NOT NULL,
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now'))
+      );
+
       CREATE INDEX IF NOT EXISTS idx_pigeon_birds_status ON pigeon_birds(status);
       CREATE INDEX IF NOT EXISTS idx_pigeon_birds_location ON pigeon_birds(current_location_id);
       CREATE INDEX IF NOT EXISTS idx_pigeon_meds_bird ON pigeon_medications(bird_id);
@@ -182,6 +214,10 @@ class PigeonStore {
       CREATE INDEX IF NOT EXISTS idx_pigeon_med_logs_med ON pigeon_medication_logs(medication_id);
       CREATE INDEX IF NOT EXISTS idx_pigeon_med_logs_scheduled ON pigeon_medication_logs(scheduled_datetime);
       CREATE INDEX IF NOT EXISTS idx_pigeon_photos_bird ON pigeon_photos(bird_id);
+      CREATE INDEX IF NOT EXISTS idx_pigeon_weight_logs_bird ON pigeon_weight_logs(bird_id);
+      CREATE INDEX IF NOT EXISTS idx_pigeon_weight_logs_date ON pigeon_weight_logs(weight_date);
+      CREATE INDEX IF NOT EXISTS idx_pigeon_note_logs_bird ON pigeon_note_logs(bird_id);
+      CREATE INDEX IF NOT EXISTS idx_pigeon_note_logs_date ON pigeon_note_logs(note_date);
     `);
   }
 
@@ -318,10 +354,13 @@ class PigeonStore {
   listBirds(filters = {}) {
     const where = [];
     const params = [];
+    const status = normalizeText(filters.status);
 
-    if (filters.status) {
+    if (status) {
       where.push('b.status = ?');
-      params.push(filters.status);
+      params.push(status);
+    } else {
+      where.push("b.status NOT IN ('released', 'deceased')");
     }
     if (filters.locationId) {
       where.push('b.current_location_id = ?');
@@ -331,9 +370,10 @@ class PigeonStore {
       where.push(`(
         b.name LIKE ? OR b.case_number LIKE ? OR b.species LIKE ? OR b.notes LIKE ?
         OR b.initial_condition LIKE ? OR l.name LIKE ?
+        OR EXISTS (SELECT 1 FROM pigeon_note_logs n WHERE n.bird_id = b.id AND n.note_text LIKE ?)
       )`);
       const s = `%${filters.search}%`;
-      params.push(s, s, s, s, s, s);
+      params.push(s, s, s, s, s, s, s);
     }
 
     const whereClause = where.length ? `WHERE ${where.join(' AND ')}` : '';
@@ -364,7 +404,146 @@ class PigeonStore {
     if (!bird) return null;
     bird.medications = this.listBirdMedications(id);
     bird.photos = this.listBirdPhotos(id);
+    bird.weights = this.listBirdWeights(id);
+    bird.noteLogs = this.listBirdNotes(id);
     return bird;
+  }
+
+  listBirdNotes(birdId) {
+    return this.db.prepare(`
+      SELECT id, bird_id, note_date, note_text, created_at, updated_at
+      FROM pigeon_note_logs
+      WHERE bird_id = ?
+      ORDER BY note_date DESC, id DESC
+    `).all(birdId);
+  }
+
+  getNoteById(id) {
+    return this.db.prepare(`
+      SELECT id, bird_id, note_date, note_text, created_at, updated_at
+      FROM pigeon_note_logs
+      WHERE id = ?
+    `).get(id);
+  }
+
+  addBirdNote(birdId, input = {}) {
+    const bird = this.getBirdById(birdId);
+    if (!bird) return null;
+
+    const rawNoteDate = normalizeText(input.note_date);
+    const noteDate = rawNoteDate ? normalizeDateOnly(rawNoteDate) : toDateOnly();
+    const noteText = normalizeText(input.note_text || input.notes);
+    if (!noteDate || !noteText) return null;
+
+    const result = this.db.prepare(`
+      INSERT INTO pigeon_note_logs (bird_id, note_date, note_text)
+      VALUES (?, ?, ?)
+    `).run(birdId, noteDate, noteText);
+
+    return this.getNoteById(result.lastInsertRowid);
+  }
+
+  updateBirdNote(noteId, input = {}) {
+    const note = this.getNoteById(noteId);
+    if (!note) return null;
+
+    const noteDate = input.note_date !== undefined ? normalizeDateOnly(input.note_date) : note.note_date;
+    const noteText = input.note_text !== undefined || input.notes !== undefined
+      ? normalizeText(input.note_text || input.notes)
+      : note.note_text;
+    if (!noteDate || !noteText) return null;
+
+    this.db.prepare(`
+      UPDATE pigeon_note_logs
+      SET note_date = ?, note_text = ?, updated_at = datetime('now')
+      WHERE id = ?
+    `).run(noteDate, noteText, noteId);
+
+    return this.getNoteById(noteId);
+  }
+
+  deleteBirdNote(noteId) {
+    const note = this.getNoteById(noteId);
+    if (!note) return null;
+    this.db.prepare('DELETE FROM pigeon_note_logs WHERE id = ?').run(noteId);
+    return note;
+  }
+
+  listBirdWeights(birdId) {
+    const bird = this.getBirdById(birdId);
+    if (!bird) return [];
+
+    const logs = this.db.prepare(`
+      SELECT id, bird_id, weight_date, weight_grams, created_at, 'log' as source
+      FROM pigeon_weight_logs
+      WHERE bird_id = ?
+      ORDER BY weight_date ASC, id ASC
+    `).all(birdId);
+
+    const rows = logs.map(row => ({
+      ...row,
+      weight_grams: Number(row.weight_grams),
+    }));
+
+    if (bird.initial_weight !== null && bird.initial_weight !== undefined && bird.intake_date) {
+      const hasLogForIntakeDate = rows.some(row => row.weight_date === bird.intake_date);
+      if (!hasLogForIntakeDate) {
+        rows.push({
+          id: null,
+          bird_id: Number(bird.id),
+          weight_date: bird.intake_date,
+          weight_grams: Number(bird.initial_weight),
+          created_at: null,
+          source: 'initial',
+        });
+      }
+    }
+
+    return rows.sort((a, b) => {
+      const byDate = String(a.weight_date).localeCompare(String(b.weight_date));
+      if (byDate !== 0) return byDate;
+      if (a.source === b.source) return (a.id || 0) - (b.id || 0);
+      return a.source === 'log' ? -1 : 1;
+    });
+  }
+
+  getWeightById(id) {
+    const row = this.db.prepare(`
+      SELECT id, bird_id, weight_date, weight_grams, created_at, 'log' as source
+      FROM pigeon_weight_logs
+      WHERE id = ?
+    `).get(id);
+    return row ? { ...row, weight_grams: Number(row.weight_grams) } : null;
+  }
+
+  addBirdWeight(birdId, input = {}) {
+    const bird = this.getBirdById(birdId);
+    if (!bird) return null;
+
+    const weightDate = normalizeDateOnly(input.weight_date);
+    const weightGrams = parsePositiveFloat(input.weight_grams);
+    if (!weightDate || weightGrams === null) return null;
+
+    this.db.prepare(`
+      INSERT INTO pigeon_weight_logs (bird_id, weight_date, weight_grams)
+      VALUES (?, ?, ?)
+      ON CONFLICT(bird_id, weight_date) DO UPDATE SET
+        weight_grams = excluded.weight_grams,
+        created_at = datetime('now')
+    `).run(birdId, weightDate, weightGrams);
+
+    return this.db.prepare(`
+      SELECT id, bird_id, weight_date, weight_grams, created_at, 'log' as source
+      FROM pigeon_weight_logs
+      WHERE bird_id = ? AND weight_date = ?
+    `).get(birdId, weightDate);
+  }
+
+  deleteBirdWeight(weightId) {
+    const weight = this.getWeightById(weightId);
+    if (!weight) return null;
+    this.db.prepare('DELETE FROM pigeon_weight_logs WHERE id = ?').run(weightId);
+    return weight;
   }
 
   createMedication(birdId, input = {}) {
