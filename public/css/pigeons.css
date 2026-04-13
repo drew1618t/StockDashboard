@@ -218,6 +218,14 @@ h3 { font-size: 1.0rem; }
   padding-bottom: 4px;
 }
 
+.room-status-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
 /* ── Pills ──────────────────────────────────────────── */
 .pill-row {
   display: flex;
@@ -295,6 +303,7 @@ h3 { font-size: 1.0rem; }
 .dose-time.overdue { color: var(--brick); font-weight: 600; }
 .dose-time.due { color: var(--leaf); }
 .dose-time.completed { color: #007D99; font-weight: 600; }
+.dose-time.carried-over { color: var(--brick); font-weight: 600; }
 
 .completed-actions {
   display: flex;
@@ -332,6 +341,107 @@ button.undo-dose:hover {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+
+/* ── Room Modal ─────────────────────────────────────────────────────── */
+.room-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 38;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(45, 74, 62, 0.35);
+  backdrop-filter: blur(2px);
+}
+.room-modal-backdrop.open { display: flex; }
+
+.room-modal {
+  width: min(500px, 100%);
+  max-height: min(82vh, 720px);
+  display: flex;
+  flex-direction: column;
+  background: var(--parchment);
+  border: 1px solid var(--rule-dark);
+  border-radius: var(--radius);
+  box-shadow: 0 20px 80px rgba(45, 74, 62, 0.2);
+  padding: 14px;
+}
+
+.room-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.room-modal-head p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+#room-modal-body {
+  overflow-y: auto;
+  padding-top: 8px;
+}
+
+.room-bird-list {
+  display: grid;
+  gap: 0;
+}
+
+.room-bird-row {
+  border-bottom: 1px solid var(--rule);
+  padding: 10px 0;
+  cursor: pointer;
+}
+.room-bird-row:last-child { border-bottom: none; }
+
+.room-bird-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.room-bird-expanded {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  cursor: default;
+}
+
+.room-bird-status {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.room-bird-status.needs-meds {
+  color: #946200;
+  background: rgba(255, 193, 7, 0.22);
+}
+.room-bird-status.medicated {
+  color: #007D99;
+  background: rgba(0, 184, 217, 0.18);
+}
+.room-bird-status.no-meds {
+  color: var(--muted);
+  background: var(--aged);
+}
+
+.room-bird-med-list {
+  display: grid;
+  gap: 6px;
+}
+
+.quiet-med {
+  padding: 8px 0;
 }
 
 /* ── Forms ──────────────────────────────────────────── */

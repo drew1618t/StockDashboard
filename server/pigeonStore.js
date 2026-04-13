@@ -775,6 +775,18 @@ class PigeonStore {
     `).all(...ACTIVE_CARE_STATUSES);
   }
 
+  listActiveBirdsByRoom() {
+    const placeholders = ACTIVE_CARE_STATUSES.map(() => '?').join(', ');
+    return this.db.prepare(`
+      SELECT b.*, COALESCE(l.name, 'Unassigned') as location_name,
+        (SELECT COUNT(*) FROM pigeon_medications m WHERE m.bird_id = b.id AND m.active = 1) as active_med_count
+      FROM pigeon_birds b
+      LEFT JOIN pigeon_locations l ON l.id = b.current_location_id
+      WHERE b.status IN (${placeholders})
+      ORDER BY COALESCE(l.sort_order, 999999), lower(COALESCE(l.name, 'Unassigned')), lower(COALESCE(b.name, b.case_number))
+    `).all(...ACTIVE_CARE_STATUSES);
+  }
+
   addPhoto(birdId, input = {}) {
     const bird = this.getBirdById(birdId);
     if (!bird || !input.photo_path) return null;
@@ -853,7 +865,9 @@ class PigeonStore {
     const dueTodayDoses = this.listDueDoses({ dueToday: true });
     const completedTodayDoses = this.listCompletedDosesToday();
     const activeMeds = this.listActiveMedicationsByRoom();
+    const activeBirds = this.listActiveBirdsByRoom();
     const roomsByName = new Map();
+    const birdsById = new Map();
 
     for (const location of this.getLocations()) {
       roomsByName.set(location.name, {
@@ -864,6 +878,7 @@ class PigeonStore {
         dueDoses: [],
         completedDoses: [],
         activeMeds: [],
+        birds: [],
       });
     }
 
@@ -878,9 +893,29 @@ class PigeonStore {
           dueDoses: [],
           completedDoses: [],
           activeMeds: [],
+          birds: [],
         });
       }
       return roomsByName.get(key);
+    }
+
+    for (const bird of activeBirds) {
+      const room = ensureRoom(bird.location_name, bird.current_location_id);
+      const roomBird = {
+        id: bird.id,
+        name: bird.name,
+        case_number: bird.case_number,
+        species: bird.species,
+        status: bird.status,
+        current_location_id: bird.current_location_id,
+        location_name: bird.location_name,
+        activeMeds: [],
+        dueDoses: [],
+        completedDoses: [],
+        medication_state: 'no_meds',
+      };
+      birdsById.set(bird.id, roomBird);
+      room.birds.push(roomBird);
     }
 
     const dueOrOverdueByLog = new Map();
@@ -889,12 +924,21 @@ class PigeonStore {
     });
     for (const dose of dueOrOverdueByLog.values()) {
       ensureRoom(dose.location_name, dose.location_id).dueDoses.push(dose);
+      if (birdsById.has(dose.bird_id)) birdsById.get(dose.bird_id).dueDoses.push(dose);
     }
     for (const dose of completedTodayDoses) {
       ensureRoom(dose.location_name, dose.location_id).completedDoses.push(dose);
+      if (birdsById.has(dose.bird_id)) birdsById.get(dose.bird_id).completedDoses.push(dose);
     }
     for (const med of activeMeds) {
       ensureRoom(med.location_name, med.location_id).activeMeds.push(med);
+      if (birdsById.has(med.bird_id)) birdsById.get(med.bird_id).activeMeds.push(med);
+    }
+
+    for (const bird of birdsById.values()) {
+      if (bird.dueDoses.length > 0) bird.medication_state = 'needs_meds';
+      else if (bird.activeMeds.length > 0) bird.medication_state = 'medicated';
+      else bird.medication_state = 'no_meds';
     }
 
     return {
@@ -903,7 +947,7 @@ class PigeonStore {
       overdueDoses,
       completedTodayDoses,
       roomGroups: Array.from(roomsByName.values()).filter(room =>
-        room.bird_count > 0 || room.activeMeds.length > 0 || room.dueDoses.length > 0 || room.completedDoses.length > 0
+        room.birds.length > 0 || room.bird_count > 0 || room.activeMeds.length > 0 || room.dueDoses.length > 0 || room.completedDoses.length > 0
       ),
     };
   }

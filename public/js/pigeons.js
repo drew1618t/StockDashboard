@@ -17,6 +17,8 @@ const PigeonApp = {
     birdLoadTimer: null,
     weightChart: null,
     editingNoteId: null,
+    roomModalRoomKey: null,
+    expandedRoomBirdIds: {},
   },
 
   init() {
@@ -24,7 +26,11 @@ const PigeonApp = {
       button.addEventListener('click', () => this.showView(button.dataset.view));
     });
     document.querySelector('[data-action="refresh"]').addEventListener('click', () => this.loadAll());
-    document.getElementById('show-all-active').addEventListener('change', () => this.renderRooms());
+    const showAllActive = document.getElementById('show-all-active');
+    if (showAllActive) showAllActive.addEventListener('change', () => this.renderRooms());
+    document.getElementById('room-modal-backdrop').addEventListener('click', event => {
+      if (event.target.id === 'room-modal-backdrop') this.closeRoom();
+    });
     document.getElementById('bird-search').addEventListener('input', () => this.loadBirds());
     document.getElementById('bird-location-filter').addEventListener('change', () => this.loadBirds());
     document.getElementById('bird-status-filter').addEventListener('change', () => this.loadBirds());
@@ -151,7 +157,6 @@ const PigeonApp = {
   },
 
   renderRooms() {
-    const showAll = document.getElementById('show-all-active').checked;
     const rooms = (this.state.summary && this.state.summary.roomGroups) || [];
     const list = document.getElementById('room-list');
     if (!rooms.length) {
@@ -159,40 +164,130 @@ const PigeonApp = {
       return;
     }
     list.innerHTML = rooms.map(room => {
-      const due = room.dueDoses || [];
-      const completed = room.completedDoses || [];
-      const active = room.activeMeds || [];
-      const dueHtml = due.length
-        ? due.map(dose => this.renderDose(dose)).join('')
-        : '<p class="muted small">No doses due or overdue.</p>';
-      const completedHtml = completed.length
-        ? `<div class="completed-dose-list"><div class="room-subhead">Given today</div>${completed.map(dose => this.renderCompletedDose(dose)).join('')}</div>`
-        : '';
-      const activeHtml = active.map(med => `
-        <div class="med-card">
-          <div class="row">
-            <div>
-              <strong>${this.esc(med.bird_name || med.case_number)}</strong>
-              <div class="muted small">${this.esc(med.kind)}: ${this.esc(med.name)} ${this.esc(med.dosage || '')}</div>
-            </div>
-            <span class="pill">${this.esc(med.frequency_per_day)}x/day</span>
-          </div>
-        </div>
-      `).join('');
+      const birds = room.birds || [];
+      const needsMeds = birds.filter(bird => bird.medication_state === 'needs_meds').length;
+      const medicated = birds.filter(bird => bird.medication_state === 'medicated').length;
+      const roomKey = this.roomKey(room);
       return `
-        <article class="room-card clickable" data-action="filter-room" data-location-id="${room.location_id == null ? '' : Number(room.location_id)}" data-location-name="${this.esc(room.location_name)}">
+        <article class="room-card clickable" data-action="open-room" data-room-key="${this.esc(roomKey)}" data-location-name="${this.esc(room.location_name)}">
           <div class="room-head">
             <div>
               <h3>${this.esc(room.location_name)}</h3>
               <div class="muted small">${this.esc(room.bird_count || 0)} birds, ${this.esc(room.active_med_count || 0)} active meds</div>
             </div>
-            <span class="pill ${due.length ? 'hot' : 'ok'}">${due.length} due</span>
+            <span class="pill ${needsMeds ? 'hot' : 'ok'}">${needsMeds} need meds</span>
           </div>
-          ${dueHtml}
-          ${completedHtml}
-          <div class="active-med-list ${showAll ? 'open' : ''}">${activeHtml || '<div class="muted small">No active meds.</div>'}</div>
+          <div class="room-status-line">
+            <span>${this.esc(birds.length)} pigeons</span>
+            <span>${this.esc(medicated)} medicated</span>
+            <span>${this.esc(birds.filter(bird => bird.medication_state === 'no_meds').length)} no meds</span>
+          </div>
         </article>`;
     }).join('');
+  },
+
+  roomKey(room) {
+    if (!room) return '';
+    return room.location_id == null ? `name:${room.location_name || 'Unassigned'}` : `id:${room.location_id}`;
+  },
+
+  findRoomByKey(roomKey) {
+    const rooms = (this.state.summary && this.state.summary.roomGroups) || [];
+    return rooms.find(room => this.roomKey(room) === roomKey) || null;
+  },
+
+  openRoom(roomKey) {
+    this.state.roomModalRoomKey = roomKey;
+    this.state.expandedRoomBirdIds = {};
+    this.renderRoomModal();
+  },
+
+  closeRoom() {
+    this.state.roomModalRoomKey = null;
+    this.state.expandedRoomBirdIds = {};
+    document.getElementById('room-modal-backdrop').classList.remove('open');
+  },
+
+  toggleRoomBird(birdId, event) {
+    if (event && event.target.closest('button, input, select, textarea, a')) return;
+    const key = String(birdId);
+    this.state.expandedRoomBirdIds[key] = !this.state.expandedRoomBirdIds[key];
+    this.renderRoomModal();
+  },
+
+  renderRoomModal() {
+    const backdrop = document.getElementById('room-modal-backdrop');
+    if (!backdrop) return;
+    const room = this.findRoomByKey(this.state.roomModalRoomKey);
+    if (!room) {
+      backdrop.classList.remove('open');
+      return;
+    }
+
+    const birds = room.birds || [];
+    const needsMeds = birds.filter(bird => bird.medication_state === 'needs_meds').length;
+    const medicated = birds.filter(bird => bird.medication_state === 'medicated').length;
+    document.getElementById('room-modal-title').textContent = room.location_name || 'Unassigned';
+    document.getElementById('room-modal-summary').textContent =
+      `${birds.length} pigeons, ${needsMeds} need meds, ${medicated} medicated`;
+    document.getElementById('room-modal-body').innerHTML = birds.length
+      ? `<div class="room-bird-list">${birds.map(bird => this.renderRoomBird(bird)).join('')}</div>`
+      : '<div class="panel muted">No active-care pigeons in this room.</div>';
+    backdrop.classList.add('open');
+  },
+
+  roomBirdStateChip(bird) {
+    const labels = {
+      needs_meds: 'Needs meds',
+      medicated: 'Medicated',
+      no_meds: 'No meds',
+    };
+    const className = String(bird.medication_state || 'no_meds').replace(/_/g, '-');
+    return `<span class="room-bird-status ${this.esc(className)}">${this.esc(labels[bird.medication_state] || 'No meds')}</span>`;
+  },
+
+  renderRoomBird(bird) {
+    const expanded = !!this.state.expandedRoomBirdIds[String(bird.id)];
+    return `
+      <article class="room-bird-row ${expanded ? 'open' : ''}" data-action="toggle-room-bird" data-bird-id="${Number(bird.id)}">
+        <div class="room-bird-main">
+          <div>
+            <strong>${this.esc(bird.name || bird.case_number)}</strong>
+            <div class="muted small">${this.esc(bird.species || 'Unknown')} - ${this.esc(this.statusMeta(bird.status).label)}</div>
+          </div>
+          ${this.roomBirdStateChip(bird)}
+        </div>
+        ${expanded ? `<div class="room-bird-expanded">${this.renderRoomBirdMedications(bird)}</div>` : ''}
+      </article>`;
+  },
+
+  renderRoomBirdMedications(bird) {
+    const due = bird.dueDoses || [];
+    const completed = bird.completedDoses || [];
+    const active = bird.activeMeds || [];
+    const activeIdsWithDoseRows = new Set([...due, ...completed].map(dose => Number(dose.medication_id)));
+    const quietActive = active.filter(med => !activeIdsWithDoseRows.has(Number(med.id)));
+    const dueHtml = due.length
+      ? `<div class="room-bird-med-list">${due.map(dose => this.renderDose(dose)).join('')}</div>`
+      : '';
+    const completedHtml = completed.length
+      ? `<div class="room-bird-med-list"><div class="room-subhead">Given today</div>${completed.map(dose => this.renderCompletedDose(dose)).join('')}</div>`
+      : '';
+    const quietHtml = quietActive.length
+      ? `<div class="room-bird-med-list"><div class="room-subhead">Active meds</div>${quietActive.map(med => `
+        <div class="med-card quiet-med">
+          <div class="row">
+            <div>
+              <strong>${this.esc(med.name)}</strong>
+              <div class="muted small">${this.esc(med.kind)} ${this.esc(med.dosage || '')}</div>
+            </div>
+            <span class="pill">${this.esc(med.frequency_per_day)}x/day</span>
+          </div>
+        </div>
+      `).join('')}</div>`
+      : '';
+    if (!dueHtml && !completedHtml && !quietHtml) return '<div class="muted small">No active medications.</div>';
+    return dueHtml + completedHtml + quietHtml;
   },
 
   renderDose(dose) {
@@ -208,12 +303,19 @@ const PigeonApp = {
   },
 
   renderCompletedDose(dose) {
+    const completedDate = dose.completed_datetime ? String(dose.completed_datetime).slice(0, 10) : '';
+    const scheduledDate = dose.scheduled_datetime ? String(dose.scheduled_datetime).slice(0, 10) : '';
+    const carriedOver = completedDate && scheduledDate && completedDate !== scheduledDate;
+    const scheduledNote = carriedOver
+      ? `<div class="dose-time carried-over">Scheduled: ${this.esc(this.formatDateTime(dose.scheduled_datetime))}</div>`
+      : '';
     return `
       <div class="dose-row completed">
         <div>
           <div class="dose-bird">${this.esc(dose.bird_name || dose.case_number)}</div>
           <div class="dose-med">${this.esc(dose.kind)}: ${this.esc(dose.name)} ${this.esc(dose.dosage || '')}</div>
           <div class="dose-time completed">Given: ${this.esc(this.formatDateTime(dose.completed_datetime))}</div>
+          ${scheduledNote}
         </div>
         <div class="completed-actions">
           <span class="pill medicated">Medicated</span>
@@ -861,6 +963,7 @@ const PigeonApp = {
     this.renderSummary();
     this.renderRooms();
     this.renderStats();
+    this.renderRoomModal();
     this.loadBirds();
   },
 };
@@ -870,6 +973,9 @@ document.addEventListener('click', event => {
   if (!target) return;
   const action = target.dataset.action;
   if (target.dataset.viewJump) PigeonApp.showView(target.dataset.viewJump);
+  if (action === 'open-room') PigeonApp.openRoom(target.dataset.roomKey);
+  if (action === 'close-room-modal') PigeonApp.closeRoom();
+  if (action === 'toggle-room-bird') PigeonApp.toggleRoomBird(target.dataset.birdId, event);
   if (action === 'filter-room') PigeonApp.filterRoom(target, event);
   if (action === 'open-bird') PigeonApp.openBird(target.dataset.birdId);
   if (action === 'delete-bird') PigeonApp.deleteBird(target.dataset.birdId);

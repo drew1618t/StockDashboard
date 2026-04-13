@@ -72,6 +72,21 @@ test('pigeon store returns due and overdue room-grouped medication data', () => 
       current_location_id: room.id,
       status: 'active',
     });
+    store.createBird({
+      name: 'No Med',
+      current_location_id: room.id,
+      status: 'active',
+    });
+    store.createBird({
+      name: 'Released',
+      current_location_id: room.id,
+      status: 'released',
+    });
+    store.createBird({
+      name: 'Deceased',
+      current_location_id: room.id,
+      status: 'deceased',
+    });
     const today = new Date();
     const start = today.toISOString().slice(0, 10);
     const med = store.createMedication(bird.id, {
@@ -90,7 +105,12 @@ test('pigeon store returns due and overdue room-grouped medication data', () => 
     assert.equal(overdue[0].location_name, 'Computer Room');
 
     const summary = store.getSummary();
-    assert.equal(summary.roomGroups.find(roomGroup => roomGroup.location_name === 'Computer Room').dueDoses.length, 1);
+    const roomSummary = summary.roomGroups.find(roomGroup => roomGroup.location_name === 'Computer Room');
+    assert.equal(roomSummary.dueDoses.length, 1);
+    assert.deepEqual(roomSummary.birds.map(row => row.name), ['Neve', 'No Med']);
+    assert.equal(roomSummary.birds.find(row => row.name === 'Neve').medication_state, 'needs_meds');
+    assert.equal(roomSummary.birds.find(row => row.name === 'Neve').dueDoses.length, 1);
+    assert.equal(roomSummary.birds.find(row => row.name === 'No Med').medication_state, 'no_meds');
 
     store.logDose(med.id, { log_id: overdue[0].log_id });
 
@@ -100,6 +120,8 @@ test('pigeon store returns due and overdue room-grouped medication data', () => 
     assert.equal(updatedRoom.completedDoses.length, 1);
     assert.equal(updatedRoom.completedDoses[0].name, 'Baytril');
     assert.equal(updatedSummary.completedTodayDoses.length, 1);
+    assert.equal(updatedRoom.birds.find(row => row.name === 'Neve').medication_state, 'medicated');
+    assert.equal(updatedRoom.birds.find(row => row.name === 'Neve').completedDoses.length, 1);
 
     const undone = store.undoDose(overdue[0].log_id);
     assert.equal(undone.given, 0);
@@ -109,6 +131,7 @@ test('pigeon store returns due and overdue room-grouped medication data', () => 
     const undoneRoom = undoneSummary.roomGroups.find(roomGroup => roomGroup.location_name === 'Computer Room');
     assert.equal(undoneRoom.dueDoses.length, 1);
     assert.equal(undoneRoom.completedDoses.length, 0);
+    assert.equal(undoneRoom.birds.find(row => row.name === 'Neve').medication_state, 'needs_meds');
   } finally {
     store.close();
     cleanupTempDir(dir);

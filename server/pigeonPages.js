@@ -52,10 +52,6 @@ function renderPigeonsPage(user) {
         <input name="name" placeholder="New room name..." required>
         <button class="primary" type="submit">Add Room</button>
       </form>
-      <label class="inline-check">
-        <input type="checkbox" id="show-all-active">
-        Show all active meds
-      </label>
       <div class="room-list" id="room-list"></div>
     </section>
 
@@ -138,6 +134,19 @@ function renderPigeonsPage(user) {
       Stats
     </button>
   </nav>
+
+  <div class="room-modal-backdrop" id="room-modal-backdrop">
+    <div class="room-modal">
+      <div class="room-modal-head">
+        <div>
+          <h3 id="room-modal-title">Room</h3>
+          <p id="room-modal-summary"></p>
+        </div>
+        <button data-action="close-room-modal">Close</button>
+      </div>
+      <div id="room-modal-body"></div>
+    </div>
+  </div>
 
   <div class="modal-backdrop" id="modal-backdrop">
     <div class="modal">
