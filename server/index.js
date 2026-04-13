@@ -290,6 +290,12 @@ function createApp() {
     res.json(result);
   });
 
+  app.patch('/api/family/taxes/planner', (req, res) => {
+    const result = taxStore.updatePlanner(req.body || {});
+    if (!result) return res.status(400).json({ error: 'Valid planner data is required' });
+    res.json(result);
+  });
+
   app.get('/api/family/pigeons/summary', (req, res) => {
     res.json(getPigeonStore().getSummary());
   });

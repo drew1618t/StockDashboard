@@ -15,6 +15,7 @@ const TaxesDashboard = {
     this._renderHeader(section, this._data);
     this._renderMetrics(section, this._data);
     this._renderTermBreakdown(section, this._data);
+    this._renderPlanner(section, this._data);
     this._renderPositions(section, this._data);
     this._renderAttention(section, this._data);
     this._renderSales(section, this._data);
@@ -35,14 +36,15 @@ const TaxesDashboard = {
 
   _renderMetrics(section, data) {
     const m = data.summary;
+    const planner = data.planner?.computed || {};
     const metricsRow = document.createElement('div');
     metricsRow.className = 'section';
     MetricCard.renderRow(metricsRow, [
       {
-        label: 'Carryover Loss',
-        value: this._money(m.carryoverLossEnteringYear),
-        subtext: 'Stored in data/taxes.json',
-        colorClass: m.carryoverLossEnteringYear ? 'negative' : 'neutral',
+        label: 'Roth 0% Headroom',
+        value: this._money(planner.headroomNoOrdinaryTax),
+        subtext: `Taxable ordinary ${this._money(planner.ordinaryIncomeEstimate)}`,
+        colorClass: planner.headroomNoOrdinaryTax ? 'positive' : 'neutral',
       },
       {
         label: 'Current Unrealized',
@@ -57,10 +59,10 @@ const TaxesDashboard = {
         colorClass: this._gainClass(m.realizedGainLossEstimate),
       },
       {
-        label: 'Unconfirmed Realized',
-        value: this._money(m.unconfirmedRealizedGainLoss),
-        subtext: `${data.attentionItems.length} attention items`,
-        colorClass: this._gainClass(m.unconfirmedRealizedGainLoss),
+        label: 'Confirmed Realized YTD',
+        value: this._money(m.confirmedRealizedGainLoss),
+        subtext: `${this._money(m.unconfirmedRealizedGainLoss)} unconfirmed est.`,
+        colorClass: this._gainClass(m.confirmedRealizedGainLoss),
       },
     ]);
     section.appendChild(metricsRow);
@@ -73,6 +75,7 @@ const TaxesDashboard = {
     el.className = 'section tax-term-breakdown';
     el.innerHTML = `
       <h2 class="section-title">Short vs Long Term</h2>
+      <div class="tax-note">Short = held 365 days or less. Long = more than 365 days. (FIFO lots, as-of Schwab export.)</div>
       <div class="tax-term-grid">
         ${this._termCard('Current short-term unrealized', current.shortTerm?.unrealizedGainLoss, current.shortTerm?.marketValue)}
         ${this._termCard('Current long-term unrealized', current.longTerm?.unrealizedGainLoss, current.longTerm?.marketValue)}
@@ -81,6 +84,70 @@ const TaxesDashboard = {
       </div>
     `;
     section.appendChild(el);
+  },
+
+  _renderPlanner(section, data) {
+    const inputs = data.planner?.inputs || {};
+    const computed = data.planner?.computed || {};
+    const el = document.createElement('div');
+    el.className = 'section';
+    const marginalPct = computed.marginalRate == null ? null : computed.marginalRate * 100;
+    el.innerHTML = `
+      <h2 class="section-title">Roth Conversion Planner</h2>
+      <div class="tax-planner-grid">
+        <div class="tax-control-row">
+          <label for="tax-filing-status">Filing</label>
+          <select id="tax-filing-status">
+            ${this._statusOption('mfj', 'MFJ', inputs.filingStatus)}
+            ${this._statusOption('single', 'Single', inputs.filingStatus)}
+            ${this._statusOption('hoh', 'HOH', inputs.filingStatus)}
+            ${this._statusOption('mfs', 'MFS', inputs.filingStatus)}
+          </select>
+
+          <label for="tax-income-annual">Annual taxable</label>
+          <input id="tax-income-annual" type="number" step="0.01" value="${this._escapeAttr(String(inputs.taxableOrdinaryIncomeAnnual ?? 0))}">
+
+          <label for="tax-deduction">Deduction</label>
+          <input id="tax-deduction" type="number" step="1" value="${this._escapeAttr(String(inputs.standardDeduction ?? 0))}">
+
+          <label for="tax-conversion">Conversion</label>
+          <input id="tax-conversion" type="number" step="0.01" value="${this._escapeAttr(String(inputs.plannedRothConversion ?? 0))}">
+
+          <label for="tax-realized-mode">Realized mode</label>
+          <select id="tax-realized-mode">
+            ${this._statusOption('confirmed_or_estimate', 'Confirmed + Est', inputs.realizedMode)}
+            ${this._statusOption('confirmed_only', 'Confirmed only', inputs.realizedMode)}
+          </select>
+
+          <button class="tax-action-btn" data-action="save-planner">Save</button>
+        </div>
+      </div>
+      <div class="tax-term-grid" style="margin-top: var(--gap);">
+        ${this._metricCard('0% headroom (ordinary)', this._money(computed.headroomNoOrdinaryTax), `Ordinary ${this._money(computed.ordinaryIncomeEstimate)}`)}
+        ${this._metricCard('Marginal rate (ordinary)', marginalPct == null ? 'N/A' : Fmt.pct(marginalPct, true), computed.headroomToNextBracket == null ? 'Next bracket N/A' : `${this._money(computed.headroomToNextBracket)} to next bracket`)}
+        ${this._metricCard('Tax before (est.)', this._money(computed.estimatedTaxBefore), `Taxable ${this._money(computed.taxableOrdinaryBefore)}`)}
+        ${this._metricCard('Conversion tax add (est.)', this._money(computed.incrementalTax), `Taxable ${this._money(computed.taxableOrdinaryAfter)}`)}
+      </div>
+      <div class="tax-note" style="margin-top: 8px;">
+        Uses ordinary brackets only. Short-term gains increase ordinary income. Net capital losses reduce ordinary income up to $3,000.
+      </div>
+    `;
+    section.appendChild(el);
+  },
+
+  _metricCard(label, value, subtext) {
+    return `
+      <div class="tax-term-card">
+        <div class="metric-label">${this._escape(label)}</div>
+        <div class="metric-value">${this._escape(String(value ?? ''))}</div>
+        <div class="metric-subtext">${this._escape(String(subtext ?? ''))}</div>
+      </div>
+    `;
+  },
+
+  _statusOption(value, label, current) {
+    const selected = String(value) === String(current) ? 'selected' : '';
+    return `<option value="${this._escapeAttr(value)}" ${selected}>${this._escape(label)}</option>`;
   },
 
   _termCard(label, gainLoss, value) {
@@ -138,6 +205,10 @@ const TaxesDashboard = {
       columns: [
         { key: 'ticker', label: 'Ticker', width: '70px' },
         { key: 'quantity', label: 'Qty', format: v => Fmt.num(v, 0), align: 'right', width: '70px' },
+        { key: 'shortQuantity', label: 'Short sh', format: v => Fmt.num(v || 0, 0), align: 'right', width: '85px' },
+        { key: 'longQuantity', label: 'Long sh', format: v => Fmt.num(v || 0, 0), align: 'right', width: '85px' },
+        { key: 'shortUnrealizedGainLoss', label: 'Short P/L', format: v => `<span class="${this._gainTextClass(v)}">${this._money(v || 0)}</span>`, align: 'right', width: '105px' },
+        { key: 'longUnrealizedGainLoss', label: 'Long P/L', format: v => `<span class="${this._gainTextClass(v)}">${this._money(v || 0)}</span>`, align: 'right', width: '105px' },
         { key: 'acquiredDate', label: 'Acquired', format: v => v || 'N/A', width: '105px' },
         { key: 'holdingTerm', label: 'Term', format: v => this._termPill(v), width: '90px' },
         { key: 'nextLongTermDate', label: 'Long On', format: v => v || 'Already long', width: '110px' },
@@ -182,6 +253,23 @@ const TaxesDashboard = {
   async _handleClick(event, container) {
     const action = event.target?.dataset?.action;
     if (!action) return;
+
+    if (action === 'save-planner') {
+      const filingStatus = document.getElementById('tax-filing-status')?.value || 'mfj';
+      const taxableOrdinaryIncomeAnnual = Number(document.getElementById('tax-income-annual')?.value || 0);
+      const standardDeduction = Number(document.getElementById('tax-deduction')?.value || 0);
+      const plannedRothConversion = Number(document.getElementById('tax-conversion')?.value || 0);
+      const realizedMode = document.getElementById('tax-realized-mode')?.value || 'confirmed_or_estimate';
+      await API.updateTaxPlanner({
+        filingStatus,
+        taxableOrdinaryIncomeAnnual,
+        standardDeduction,
+        plannedRothConversion,
+        realizedMode,
+      });
+      await this.render(container);
+      return;
+    }
 
     if (action === 'save-carryover') {
       const input = document.getElementById('tax-carryover-input');

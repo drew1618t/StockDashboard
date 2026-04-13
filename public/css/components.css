@@ -789,6 +789,18 @@
   background: var(--bg-card);
 }
 
+.tax-planner-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap);
+}
+
+.tax-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
 .tax-control-row {
   display: flex;
   flex-wrap: wrap;
@@ -810,6 +822,17 @@
 
 .tax-control-row input,
 .tax-sale-actions input {
+  min-height: 30px;
+  padding: 5px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.tax-control-row select {
   min-height: 30px;
   padding: 5px 8px;
   border: 1px solid var(--border-color);

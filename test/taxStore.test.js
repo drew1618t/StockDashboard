@@ -158,3 +158,99 @@ test('persists sale confirmation overrides without changing FIFO estimate', { sk
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+test('planner computes MFJ headroom at standard deduction', () => {
+  const result = taxStore._computePlanner({
+    taxYear: 2026,
+    plannerInputs: {
+      filingStatus: 'mfj',
+      taxableOrdinaryIncomeAnnual: 9908.04,
+      standardDeduction: 32200,
+      plannedRothConversion: 0,
+      realizedMode: 'confirmed_or_estimate',
+    },
+    realizedSales: [],
+  });
+
+  assertClose(result.computed.headroomNoOrdinaryTax, 22291.96);
+  assertClose(result.computed.ordinaryIncomeEstimate, 9908.04);
+  assertClose(result.computed.taxableOrdinaryBefore, 0);
+});
+
+test('planner reduces headroom with short-term gains', () => {
+  const result = taxStore._computePlanner({
+    taxYear: 2026,
+    plannerInputs: {
+      filingStatus: 'mfj',
+      taxableOrdinaryIncomeAnnual: 9908.04,
+      standardDeduction: 32200,
+      plannedRothConversion: 0,
+      realizedMode: 'confirmed_or_estimate',
+    },
+    realizedSales: [
+      {
+        needsData: false,
+        confirmed: false,
+        gainLossEstimate: 5000,
+        holdingTerm: 'short',
+      },
+    ],
+  });
+
+  assertClose(result.computed.headroomNoOrdinaryTax, 17291.96);
+  assertClose(result.computed.shortTermAfterNetting, 5000);
+});
+
+test('planner caps ordinary offset from net capital loss at $3,000', () => {
+  const result = taxStore._computePlanner({
+    taxYear: 2026,
+    plannerInputs: {
+      filingStatus: 'mfj',
+      taxableOrdinaryIncomeAnnual: 9908.04,
+      standardDeduction: 32200,
+      plannedRothConversion: 0,
+      realizedMode: 'confirmed_or_estimate',
+    },
+    realizedSales: [
+      {
+        needsData: false,
+        confirmed: false,
+        gainLossEstimate: -30581.33,
+        holdingTerm: 'short',
+      },
+    ],
+  });
+
+  assertClose(result.computed.capLossOffsetUsed, 3000);
+  assertClose(result.computed.ordinaryIncomeEstimate, 6908.04);
+});
+
+test('planner bracket math responds to MFJ threshold boundaries', () => {
+  const zero = taxStore._computePlanner({
+    taxYear: 2026,
+    plannerInputs: {
+      filingStatus: 'mfj',
+      taxableOrdinaryIncomeAnnual: 32200,
+      standardDeduction: 32200,
+      plannedRothConversion: 24800,
+      realizedMode: 'confirmed_or_estimate',
+    },
+    realizedSales: [],
+  });
+  assertClose(zero.computed.taxableOrdinaryAfter, 24800);
+  assert.equal(zero.computed.marginalRate, 0.10);
+
+  const next = taxStore._computePlanner({
+    taxYear: 2026,
+    plannerInputs: {
+      filingStatus: 'mfj',
+      taxableOrdinaryIncomeAnnual: 32200,
+      standardDeduction: 32200,
+      plannedRothConversion: 24801,
+      realizedMode: 'confirmed_or_estimate',
+    },
+    realizedSales: [],
+  });
+  assertClose(next.computed.taxableOrdinaryAfter, 24801);
+  assert.equal(next.computed.marginalRate, 0.12);
+});

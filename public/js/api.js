@@ -83,6 +83,15 @@ const API = {
     });
   },
 
+  async updateTaxPlanner(updates) {
+    this._cache.taxes = null;
+    return this._requestJson('/api/family/taxes/planner', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates || {}),
+    });
+  },
+
   async getAvailableTickers() {
     if (this._cache.availableTickers) return this._cache.availableTickers;
     const data = await this._requestJson('/api/available-tickers');

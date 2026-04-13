@@ -1,0 +1,18 @@
+{
+  "method": "fifo",
+  "sourceFiles": {
+    "positionsCsv": "data/Drew Individual-Positions-2026-04-13-083744.csv",
+    "transactionHistoryPdf": "data/Transaction History _ Charles Schwab.pdf"
+  },
+  "carryoverLoss": 0,
+  "lastFiledTaxYear": 2025,
+  "planner": {
+    "filingStatus": "mfj",
+    "taxableOrdinaryIncomeAnnual": 0,
+    "standardDeduction": 32200,
+    "plannedRothConversion": 0,
+    "realizedMode": "confirmed_or_estimate"
+  },
+  "saleConfirmations": {}
+}
+

@@ -1,8 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 const { PDFParse } = require('pdf-parse');
+const usFederalTax = require('./usFederalTax');
 
-const DEFAULT_TAXES_PATH = path.join(__dirname, '..', 'data', 'taxes.json');
+const DEFAULT_TAXES_STATE_PATH = path.join(__dirname, '..', 'data', 'taxes.state.json');
+const DEFAULT_TAXES_TEMPLATE_PATH = path.join(__dirname, '..', 'data', 'taxes.template.json');
+const LEGACY_TAXES_PATH = path.join(__dirname, '..', 'data', 'taxes.json');
 
 function getCurrentTaxYear(lastFiledTaxYear = null, now = new Date()) {
   const override = Number(process.env.TAX_YEAR);
@@ -23,27 +26,40 @@ function getDefaultState() {
   return {
     taxYear: getCurrentTaxYear(),
     method: 'fifo',
-    account: {
-      label: 'Drew Individual',
-      mask: '893',
-    },
     sourceFiles: {
       positionsCsv: 'data/Drew Individual-Positions-2026-04-13-083744.csv',
       transactionHistoryPdf: 'data/Transaction History _ Charles Schwab.pdf',
     },
     carryoverLoss: 0,
     lastFiledTaxYear: null,
+    planner: {
+      filingStatus: 'mfj',
+      taxableOrdinaryIncomeAnnual: 0,
+      standardDeduction: 32200,
+      plannedRothConversion: 0,
+      realizedMode: 'confirmed_or_estimate',
+    },
     saleConfirmations: {},
   };
 }
 
 function getTaxesPath() {
-  return process.env.TAXES_STATE_PATH || DEFAULT_TAXES_PATH;
+  return process.env.TAXES_STATE_PATH || DEFAULT_TAXES_STATE_PATH;
 }
 
 function resolveRepoPath(filePath) {
   if (path.isAbsolute(filePath)) return filePath;
   return path.join(__dirname, '..', filePath);
+}
+
+function readJsonIfExists(filePath) {
+  try {
+    if (!filePath) return null;
+    if (!fs.existsSync(filePath)) return null;
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  } catch {
+    return null;
+  }
 }
 
 function round2(value) {
@@ -59,23 +75,44 @@ function round4(value) {
 function readData() {
   const taxesPath = getTaxesPath();
   const defaults = getDefaultState();
+  const template = readJsonIfExists(DEFAULT_TAXES_TEMPLATE_PATH) || {};
+
+  // Migration support: if the new state file doesn't exist but the legacy one does,
+  // read legacy data so the server still comes up (deploy script copies it over too).
+  const legacy = (!fs.existsSync(taxesPath) && fs.existsSync(LEGACY_TAXES_PATH))
+    ? readJsonIfExists(LEGACY_TAXES_PATH)
+    : null;
+
   try {
-    if (!fs.existsSync(taxesPath)) return defaults;
-    const raw = JSON.parse(fs.readFileSync(taxesPath, 'utf-8'));
-    const taxYear = getCurrentTaxYear(raw.lastFiledTaxYear);
+    const raw = readJsonIfExists(taxesPath) || legacy || null;
+    if (!raw) {
+      const taxYear = getCurrentTaxYear(template.lastFiledTaxYear ?? defaults.lastFiledTaxYear);
+      return {
+        ...defaults,
+        ...template,
+        taxYear,
+        sourceFiles: { ...defaults.sourceFiles, ...(template.sourceFiles || {}) },
+        planner: { ...defaults.planner, ...(template.planner || {}) },
+        carryoverLoss: template.carryoverLoss !== undefined ? round2(Number(template.carryoverLoss)) : defaults.carryoverLoss,
+        saleConfirmations: template.saleConfirmations || {},
+      };
+    }
+
+    const merged = { ...defaults, ...template, ...raw };
+    const taxYear = getCurrentTaxYear(merged.lastFiledTaxYear);
     return {
-      ...defaults,
-      ...raw,
+      ...merged,
       taxYear,
-      account: { ...defaults.account, ...(raw.account || {}) },
-      sourceFiles: { ...defaults.sourceFiles, ...(raw.sourceFiles || {}) },
+      sourceFiles: { ...defaults.sourceFiles, ...(template.sourceFiles || {}), ...(raw.sourceFiles || {}) },
       carryoverLoss: raw.carryoverLoss !== undefined
         ? round2(Number(raw.carryoverLoss))
-        : round2(Number((raw.carryoverLosses || {})[String(taxYear)] || 0)),
-      saleConfirmations: raw.saleConfirmations || {},
+        : (template.carryoverLoss !== undefined ? round2(Number(template.carryoverLoss)) : defaults.carryoverLoss),
+      planner: { ...defaults.planner, ...(template.planner || {}), ...(raw.planner || {}) },
+      saleConfirmations: raw.saleConfirmations || template.saleConfirmations || {},
     };
   } catch {
-    return defaults;
+    const taxYear = getCurrentTaxYear(defaults.lastFiledTaxYear);
+    return { ...defaults, taxYear };
   }
 }
 
@@ -83,7 +120,7 @@ function writeData(data) {
   const taxesPath = getTaxesPath();
   const dir = path.dirname(taxesPath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  const { taxYear, carryoverLosses, ...persisted } = data;
+  const { taxYear, carryoverLosses, account, ...persisted } = data;
   fs.writeFileSync(taxesPath, JSON.stringify(persisted, null, 2) + '\n');
 }
 
@@ -498,6 +535,15 @@ function buildPositions(positions, lotsByTicker, asOfDate) {
       ? shortLots.map(lot => lot.longTermDate).sort()[0]
       : null;
 
+    const shortQuantity = round4(lots.filter(lot => lot.holdingTerm === 'short').reduce((sum, lot) => sum + (lot.quantity || 0), 0));
+    const longQuantity = round4(lots.filter(lot => lot.holdingTerm === 'long').reduce((sum, lot) => sum + (lot.quantity || 0), 0));
+    const shortUnrealizedGainLoss = round2(lots
+      .filter(lot => lot.holdingTerm === 'short')
+      .reduce((sum, lot) => sum + (lot.unrealizedGainLoss || 0), 0));
+    const longUnrealizedGainLoss = round2(lots
+      .filter(lot => lot.holdingTerm === 'long')
+      .reduce((sum, lot) => sum + (lot.unrealizedGainLoss || 0), 0));
+
     return {
       ...position,
       acquiredDate: earliestAcquiredDate,
@@ -505,6 +551,10 @@ function buildPositions(positions, lotsByTicker, asOfDate) {
       nextLongTermDate,
       lots,
       lotCount: lots.length,
+      shortQuantity,
+      longQuantity,
+      shortUnrealizedGainLoss,
+      longUnrealizedGainLoss,
     };
   });
 }
@@ -593,6 +643,93 @@ function buildSummary(state, currentPositions, cash, realizedSales) {
   };
 }
 
+function sanitizePlannerInputs(planner = {}, taxYear) {
+  const filingStatus = usFederalTax.normalizeFilingStatus(planner.filingStatus || 'mfj');
+  const taxableOrdinaryIncomeAnnual = round2(Number(planner.taxableOrdinaryIncomeAnnual || 0)) || 0;
+  const standardDefault = usFederalTax.getStandardDeduction(taxYear, filingStatus);
+  const standardDeduction = planner.standardDeduction !== undefined && planner.standardDeduction !== null && String(planner.standardDeduction).trim() !== ''
+    ? round2(Number(planner.standardDeduction))
+    : (standardDefault !== null ? standardDefault : 0);
+  const plannedRothConversion = round2(Number(planner.plannedRothConversion || 0)) || 0;
+  const realizedMode = planner.realizedMode === 'confirmed_only' ? 'confirmed_only' : 'confirmed_or_estimate';
+
+  return {
+    filingStatus,
+    taxableOrdinaryIncomeAnnual: taxableOrdinaryIncomeAnnual < 0 ? 0 : taxableOrdinaryIncomeAnnual,
+    standardDeduction: standardDeduction === null || Number.isNaN(standardDeduction) ? (standardDefault || 0) : Math.max(0, standardDeduction),
+    plannedRothConversion: plannedRothConversion < 0 ? 0 : plannedRothConversion,
+    realizedMode,
+  };
+}
+
+function computePlanner({ taxYear, plannerInputs, realizedSales }) {
+  const inputs = sanitizePlannerInputs(plannerInputs || {}, taxYear);
+  const brackets = usFederalTax.getOrdinaryBrackets(taxYear, inputs.filingStatus);
+
+  const included = (realizedSales || [])
+    .filter(sale => sale && !sale.needsData)
+    .map(sale => {
+      const isConfirmed = !!sale.confirmed;
+      const mode = inputs.realizedMode;
+      if (mode === 'confirmed_only' && !isConfirmed) return null;
+      const amount = isConfirmed
+        ? sale.confirmedGainLoss
+        : sale.gainLossEstimate;
+      if (amount === null || amount === undefined || Number.isNaN(Number(amount))) return null;
+      return {
+        holdingTerm: sale.holdingTerm,
+        gainLoss: round2(Number(amount)),
+      };
+    })
+    .filter(Boolean);
+
+  const netShortTerm = round2(included
+    .filter(sale => sale.holdingTerm === 'short')
+    .reduce((sum, sale) => sum + (sale.gainLoss || 0), 0)) || 0;
+  const netLongTerm = round2(included
+    .filter(sale => sale.holdingTerm === 'long')
+    .reduce((sum, sale) => sum + (sale.gainLoss || 0), 0)) || 0;
+  const netCapital = round2(netShortTerm + netLongTerm) || 0;
+
+  const capLossOffsetUsed = netCapital < 0 ? round2(Math.min(3000, Math.abs(netCapital))) : 0;
+  const shortTermAfterNetting = round2(Math.max(0, netShortTerm + Math.min(0, netLongTerm))) || 0;
+
+  const ordinaryIncomeEstimate = round2(inputs.taxableOrdinaryIncomeAnnual - capLossOffsetUsed + shortTermAfterNetting) || 0;
+  const headroomNoOrdinaryTax = round2(Math.max(0, inputs.standardDeduction - ordinaryIncomeEstimate)) || 0;
+
+  const taxableOrdinaryBefore = round2(Math.max(0, ordinaryIncomeEstimate - inputs.standardDeduction)) || 0;
+  const taxableOrdinaryAfter = round2(Math.max(0, ordinaryIncomeEstimate + inputs.plannedRothConversion - inputs.standardDeduction)) || 0;
+
+  const estimatedTaxBefore = usFederalTax.computeOrdinaryTax(taxableOrdinaryBefore, brackets);
+  const estimatedTaxAfter = usFederalTax.computeOrdinaryTax(taxableOrdinaryAfter, brackets);
+  const incrementalTax = (estimatedTaxBefore !== null && estimatedTaxAfter !== null)
+    ? round2(estimatedTaxAfter - estimatedTaxBefore)
+    : null;
+
+  const marginal = usFederalTax.findMarginalBracket(taxableOrdinaryAfter, brackets);
+  const headroomToNextBracket = usFederalTax.headroomToNextBracket(taxableOrdinaryAfter, brackets);
+
+  return {
+    inputs,
+    computed: {
+      netShortTerm,
+      netLongTerm,
+      netCapital,
+      capLossOffsetUsed,
+      shortTermAfterNetting,
+      ordinaryIncomeEstimate,
+      headroomNoOrdinaryTax,
+      taxableOrdinaryBefore,
+      taxableOrdinaryAfter,
+      marginalRate: marginal ? marginal.rate : null,
+      headroomToNextBracket,
+      estimatedTaxBefore,
+      estimatedTaxAfter,
+      incrementalTax,
+    },
+  };
+}
+
 async function getTaxes() {
   const state = readData();
   const positionsPath = resolveRepoPath(process.env.TAX_POSITIONS_CSV || state.sourceFiles.positionsCsv);
@@ -605,17 +742,18 @@ async function getTaxes() {
   const positions = buildPositions(positionsData.positions, fifo.lotsByTicker, positionsData.asOfDate);
   const realizedSales = mergeConfirmations(fifo.realizedSales, state.saleConfirmations);
   const attentionItems = buildAttentionItems(realizedSales);
+  const planner = computePlanner({ taxYear: state.taxYear, plannerInputs: state.planner, realizedSales });
 
   return {
     taxYear: state.taxYear,
     method: state.method,
-    account: state.account,
     sources: {
       positionsCsv: state.sourceFiles.positionsCsv,
       transactionHistoryPdf: state.sourceFiles.transactionHistoryPdf,
       positionsAsOf: positionsData.asOf,
     },
     summary: buildSummary(state, positions, positionsData.cash, realizedSales),
+    planner,
     positions,
     realizedSales,
     attentionItems,
@@ -654,11 +792,25 @@ function updateSaleConfirmation(saleId, updates = {}) {
   return next;
 }
 
+function updatePlanner(updates = {}) {
+  const data = readData();
+  const next = {
+    ...data.planner,
+    ...updates,
+  };
+
+  data.planner = sanitizePlannerInputs(next, data.taxYear);
+  writeData(data);
+  return data.planner;
+}
+
 module.exports = {
   getTaxes,
   updateCarryoverLoss,
   updateSaleConfirmation,
+  updatePlanner,
   _parsePositionsCsv,
   _parseTransactionsText,
   _reconstructFifo,
+  _computePlanner: computePlanner,
 };
