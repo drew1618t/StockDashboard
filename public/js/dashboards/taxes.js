@@ -15,10 +15,10 @@ const TaxesDashboard = {
     this._renderHeader(section, this._data);
     this._renderMetrics(section, this._data);
     this._renderTermBreakdown(section, this._data);
-    this._renderPlanner(section, this._data);
     this._renderPositions(section, this._data);
     this._renderAttention(section, this._data);
     this._renderSales(section, this._data);
+    this._renderPlanner(section, this._data);
     this._renderCarryover(section, this._data);
 
     section.addEventListener('click', event => this._handleClick(event, container));
