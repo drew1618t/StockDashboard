@@ -41,7 +41,7 @@ const TaxesDashboard = {
     metricsRow.className = 'section';
     MetricCard.renderRow(metricsRow, [
       {
-        label: 'Roth 0% Headroom',
+        label: '0% Conversion Limit',
         value: this._money(planner.headroomNoOrdinaryTax),
         subtext: `Taxable ordinary ${this._money(planner.ordinaryIncomeEstimate)}`,
         colorClass: planner.headroomNoOrdinaryTax ? 'positive' : 'neutral',
@@ -92,6 +92,9 @@ const TaxesDashboard = {
     const el = document.createElement('div');
     el.className = 'section';
     const marginalPct = computed.marginalRate == null ? null : computed.marginalRate * 100;
+    const conversion = Number(inputs.plannedRothConversion || 0);
+    const headroom = Number(computed.headroomNoOrdinaryTax || 0);
+    const remainingHeadroom = Math.max(0, headroom - conversion);
     el.innerHTML = `
       <h2 class="section-title">Roth Conversion Planner</h2>
       <div class="tax-planner-grid">
@@ -122,8 +125,15 @@ const TaxesDashboard = {
           <button class="tax-action-btn" data-action="save-planner">Save</button>
         </div>
       </div>
+      <div class="tax-note" style="margin-top: 8px;">
+        0% conversion limit: <b>${this._escape(this._money(computed.headroomNoOrdinaryTax))}</b>
+        (${this._escape(this._money(remainingHeadroom))} remaining after ${this._escape(this._money(conversion))} planned).
+        Capital loss offset used: ${this._escape(this._money(computed.capLossOffsetUsed || 0))}.
+        Short-term ordinary added: ${this._escape(this._money(computed.shortTermAfterNetting || 0))}.
+      </div>
       <div class="tax-term-grid" style="margin-top: var(--gap);">
-        ${this._metricCard('0% headroom (ordinary)', this._money(computed.headroomNoOrdinaryTax), `Ordinary ${this._money(computed.ordinaryIncomeEstimate)}`)}
+        ${this._metricCard('0% conversion limit', this._money(computed.headroomNoOrdinaryTax), `Ordinary ${this._money(computed.ordinaryIncomeEstimate)}`)}
+        ${this._metricCard('Remaining at 0%', this._money(remainingHeadroom), `After ${this._money(conversion)} planned`)}
         ${this._metricCard('Marginal rate (ordinary)', marginalPct == null ? 'N/A' : Fmt.pct(marginalPct, true), computed.headroomToNextBracket == null ? 'Next bracket N/A' : `${this._money(computed.headroomToNextBracket)} to next bracket`)}
         ${this._metricCard('Tax before (est.)', this._money(computed.estimatedTaxBefore), `Taxable ${this._money(computed.taxableOrdinaryBefore)}`)}
         ${this._metricCard('Conversion tax add (est.)', this._money(computed.incrementalTax), `Taxable ${this._money(computed.taxableOrdinaryAfter)}`)}
