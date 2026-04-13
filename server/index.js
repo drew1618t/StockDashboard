@@ -30,6 +30,7 @@ const {
 const { getPersonConfig, getPersonHealthData, findReportFile, getImagingStudy, resolveStudyFile } = require('./healthData');
 const todoStore = require('./todoStore');
 const pinboardStore = require('./pinboardStore');
+const taxStore = require('./taxStore');
 const { renderHomePage } = require('./homePage');
 const { renderWritingPage } = require('./writingPage');
 const writingStore = require('./writingStore');
@@ -267,6 +268,27 @@ function createApp() {
   });
 
   app.use('/api/family', requireRole('family'));
+
+  app.get('/api/family/taxes', async (req, res) => {
+    try {
+      res.json(await taxStore.getTaxes());
+    } catch (err) {
+      console.warn(`[taxes] failed to load taxes: ${err.message}`);
+      res.status(500).json({ error: 'Failed to load tax dashboard data' });
+    }
+  });
+
+  app.patch('/api/family/taxes/carryover', (req, res) => {
+    const result = taxStore.updateCarryoverLoss(req.body.taxYear, req.body.amount);
+    if (!result) return res.status(400).json({ error: 'Valid taxYear and amount are required' });
+    res.json(result);
+  });
+
+  app.patch('/api/family/taxes/sales/:saleId', (req, res) => {
+    const result = taxStore.updateSaleConfirmation(req.params.saleId, req.body);
+    if (!result) return res.status(400).json({ error: 'Valid sale confirmation data is required' });
+    res.json(result);
+  });
 
   app.get('/api/family/pigeons/summary', (req, res) => {
     res.json(getPigeonStore().getSummary());

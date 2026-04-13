@@ -204,3 +204,24 @@ test('family role can pass the pigeon API authorization boundary', () => {
 
   assert.equal(nextCalled, true);
 });
+
+test('family role can pass the taxes API authorization boundary', () => {
+  const middleware = requireRole('family');
+  let nextCalled = false;
+
+  middleware(
+    {
+      user: { email: 'me@example.com', role: 'family' },
+      originalUrl: '/api/family/taxes',
+      accepts() {
+        return 'json';
+      },
+    },
+    {},
+    () => {
+      nextCalled = true;
+    }
+  );
+
+  assert.equal(nextCalled, true);
+});

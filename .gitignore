@@ -3,3 +3,5 @@ nul
 .claude/
 data/pigeons.db*
 data/pigeons-uploads/
+data/*Positions*.csv
+data/Transaction History _ Charles Schwab.pdf

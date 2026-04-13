@@ -57,6 +57,32 @@ const API = {
     return data;
   },
 
+  async getTaxes(forceRefresh = false) {
+    const key = 'taxes';
+    if (!forceRefresh && this._cache[key]) return this._cache[key];
+    const data = await this._requestJson('/api/family/taxes');
+    this._cache[key] = data;
+    return data;
+  },
+
+  async updateTaxCarryover(taxYear, amount) {
+    this._cache.taxes = null;
+    return this._requestJson('/api/family/taxes/carryover', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ taxYear, amount }),
+    });
+  },
+
+  async updateTaxSaleConfirmation(saleId, updates) {
+    this._cache.taxes = null;
+    return this._requestJson(`/api/family/taxes/sales/${encodeURIComponent(saleId)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates || {}),
+    });
+  },
+
   async getAvailableTickers() {
     if (this._cache.availableTickers) return this._cache.availableTickers;
     const data = await this._requestJson('/api/available-tickers');
