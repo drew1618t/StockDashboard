@@ -37,14 +37,18 @@ const TaxesDashboard = {
   _renderMetrics(section, data) {
     const m = data.summary;
     const planner = data.planner?.computed || {};
+    const plannerInputs = data.planner?.inputs || {};
+    const plannedConversion = Number(plannerInputs.plannedRothConversion || 0);
+    const limit = Number(planner.headroomNoOrdinaryTax || 0);
+    const remaining = Math.max(0, limit - plannedConversion);
     const metricsRow = document.createElement('div');
     metricsRow.className = 'section';
     MetricCard.renderRow(metricsRow, [
       {
-        label: '0% Conversion Limit',
-        value: this._money(planner.headroomNoOrdinaryTax),
-        subtext: `Taxable ordinary ${this._money(planner.ordinaryIncomeEstimate)}`,
-        colorClass: planner.headroomNoOrdinaryTax ? 'positive' : 'neutral',
+        label: '0% Headroom Remaining',
+        value: this._money(remaining),
+        subtext: `${this._money(limit)} limit, ${this._money(plannedConversion)} planned`,
+        colorClass: remaining ? 'positive' : 'neutral',
       },
       {
         label: 'Current Unrealized',
