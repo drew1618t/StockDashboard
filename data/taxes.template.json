@@ -11,8 +11,8 @@
     "taxableOrdinaryIncomeAnnual": 0,
     "standardDeduction": 32200,
     "plannedRothConversion": 0,
+    "useCapitalLossOffset": true,
     "realizedMode": "confirmed_or_estimate"
   },
   "saleConfirmations": {}
 }
-

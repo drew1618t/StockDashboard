@@ -120,6 +120,9 @@ const TaxesDashboard = {
           <label for="tax-conversion">Conversion</label>
           <input id="tax-conversion" type="number" step="0.01" value="${this._escapeAttr(String(inputs.plannedRothConversion ?? 0))}">
 
+          <label for="tax-use-cap-loss">Use $3k loss</label>
+          <input id="tax-use-cap-loss" type="checkbox" ${inputs.useCapitalLossOffset === false ? '' : 'checked'}>
+
           <label for="tax-realized-mode">Realized mode</label>
           <select id="tax-realized-mode">
             ${this._statusOption('confirmed_or_estimate', 'Confirmed + Est', inputs.realizedMode)}
@@ -273,12 +276,14 @@ const TaxesDashboard = {
       const taxableOrdinaryIncomeAnnual = Number(document.getElementById('tax-income-annual')?.value || 0);
       const standardDeduction = Number(document.getElementById('tax-deduction')?.value || 0);
       const plannedRothConversion = Number(document.getElementById('tax-conversion')?.value || 0);
+      const useCapitalLossOffset = !!document.getElementById('tax-use-cap-loss')?.checked;
       const realizedMode = document.getElementById('tax-realized-mode')?.value || 'confirmed_or_estimate';
       await API.updateTaxPlanner({
         filingStatus,
         taxableOrdinaryIncomeAnnual,
         standardDeduction,
         plannedRothConversion,
+        useCapitalLossOffset,
         realizedMode,
       });
       await this.render(container);

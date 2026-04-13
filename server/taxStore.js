@@ -37,6 +37,7 @@ function getDefaultState() {
       taxableOrdinaryIncomeAnnual: 0,
       standardDeduction: 32200,
       plannedRothConversion: 0,
+      useCapitalLossOffset: true,
       realizedMode: 'confirmed_or_estimate',
     },
     saleConfirmations: {},
@@ -651,6 +652,7 @@ function sanitizePlannerInputs(planner = {}, taxYear) {
     ? round2(Number(planner.standardDeduction))
     : (standardDefault !== null ? standardDefault : 0);
   const plannedRothConversion = round2(Number(planner.plannedRothConversion || 0)) || 0;
+  const useCapitalLossOffset = planner.useCapitalLossOffset === undefined ? true : !!planner.useCapitalLossOffset;
   const realizedMode = planner.realizedMode === 'confirmed_only' ? 'confirmed_only' : 'confirmed_or_estimate';
 
   return {
@@ -658,6 +660,7 @@ function sanitizePlannerInputs(planner = {}, taxYear) {
     taxableOrdinaryIncomeAnnual: taxableOrdinaryIncomeAnnual < 0 ? 0 : taxableOrdinaryIncomeAnnual,
     standardDeduction: standardDeduction === null || Number.isNaN(standardDeduction) ? (standardDefault || 0) : Math.max(0, standardDeduction),
     plannedRothConversion: plannedRothConversion < 0 ? 0 : plannedRothConversion,
+    useCapitalLossOffset,
     realizedMode,
   };
 }
@@ -691,7 +694,9 @@ function computePlanner({ taxYear, plannerInputs, realizedSales }) {
     .reduce((sum, sale) => sum + (sale.gainLoss || 0), 0)) || 0;
   const netCapital = round2(netShortTerm + netLongTerm) || 0;
 
-  const capLossOffsetUsed = netCapital < 0 ? round2(Math.min(3000, Math.abs(netCapital))) : 0;
+  const capLossOffsetUsed = (inputs.useCapitalLossOffset && netCapital < 0)
+    ? round2(Math.min(3000, Math.abs(netCapital)))
+    : 0;
   const shortTermAfterNetting = round2(Math.max(0, netShortTerm + Math.min(0, netLongTerm))) || 0;
 
   const ordinaryIncomeEstimate = round2(inputs.taxableOrdinaryIncomeAnnual - capLossOffsetUsed + shortTermAfterNetting) || 0;

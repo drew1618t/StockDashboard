@@ -209,6 +209,7 @@ test('planner caps ordinary offset from net capital loss at $3,000', () => {
       taxableOrdinaryIncomeAnnual: 9908.04,
       standardDeduction: 32200,
       plannedRothConversion: 0,
+      useCapitalLossOffset: true,
       realizedMode: 'confirmed_or_estimate',
     },
     realizedSales: [
@@ -225,6 +226,31 @@ test('planner caps ordinary offset from net capital loss at $3,000', () => {
   assertClose(result.computed.ordinaryIncomeEstimate, 6908.04);
 });
 
+test('planner can ignore the ordinary offset from net capital loss', () => {
+  const result = taxStore._computePlanner({
+    taxYear: 2026,
+    plannerInputs: {
+      filingStatus: 'mfj',
+      taxableOrdinaryIncomeAnnual: 9908.04,
+      standardDeduction: 32200,
+      plannedRothConversion: 0,
+      useCapitalLossOffset: false,
+      realizedMode: 'confirmed_or_estimate',
+    },
+    realizedSales: [
+      {
+        needsData: false,
+        confirmed: false,
+        gainLossEstimate: -30581.33,
+        holdingTerm: 'short',
+      },
+    ],
+  });
+
+  assertClose(result.computed.capLossOffsetUsed, 0);
+  assertClose(result.computed.ordinaryIncomeEstimate, 9908.04);
+});
+
 test('planner bracket math responds to MFJ threshold boundaries', () => {
   const zero = taxStore._computePlanner({
     taxYear: 2026,
@@ -233,6 +259,7 @@ test('planner bracket math responds to MFJ threshold boundaries', () => {
       taxableOrdinaryIncomeAnnual: 32200,
       standardDeduction: 32200,
       plannedRothConversion: 24800,
+      useCapitalLossOffset: true,
       realizedMode: 'confirmed_or_estimate',
     },
     realizedSales: [],
@@ -247,6 +274,7 @@ test('planner bracket math responds to MFJ threshold boundaries', () => {
       taxableOrdinaryIncomeAnnual: 32200,
       standardDeduction: 32200,
       plannedRothConversion: 24801,
+      useCapitalLossOffset: true,
       realizedMode: 'confirmed_or_estimate',
     },
     realizedSales: [],
