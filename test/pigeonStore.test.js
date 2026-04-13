@@ -91,6 +91,24 @@ test('pigeon store returns due and overdue room-grouped medication data', () => 
 
     const summary = store.getSummary();
     assert.equal(summary.roomGroups.find(roomGroup => roomGroup.location_name === 'Computer Room').dueDoses.length, 1);
+
+    store.logDose(med.id, { log_id: overdue[0].log_id });
+
+    const updatedSummary = store.getSummary();
+    const updatedRoom = updatedSummary.roomGroups.find(roomGroup => roomGroup.location_name === 'Computer Room');
+    assert.equal(updatedRoom.dueDoses.length, 0);
+    assert.equal(updatedRoom.completedDoses.length, 1);
+    assert.equal(updatedRoom.completedDoses[0].name, 'Baytril');
+    assert.equal(updatedSummary.completedTodayDoses.length, 1);
+
+    const undone = store.undoDose(overdue[0].log_id);
+    assert.equal(undone.given, 0);
+    assert.equal(undone.completed_datetime, null);
+
+    const undoneSummary = store.getSummary();
+    const undoneRoom = undoneSummary.roomGroups.find(roomGroup => roomGroup.location_name === 'Computer Room');
+    assert.equal(undoneRoom.dueDoses.length, 1);
+    assert.equal(undoneRoom.completedDoses.length, 0);
   } finally {
     store.close();
     cleanupTempDir(dir);

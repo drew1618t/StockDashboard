@@ -377,6 +377,12 @@ function createApp() {
     res.json(log);
   });
 
+  app.post('/api/family/pigeons/medication-logs/:logId/undo-dose', (req, res) => {
+    const log = getPigeonStore().undoDose(req.params.logId);
+    if (!log) return res.status(404).json({ error: 'Dose log not found' });
+    res.json(log);
+  });
+
   app.post('/api/family/pigeons/birds/:id/photos', pigeonPhotoUpload.array('photos', 10), (req, res) => {
     const store = getPigeonStore();
     const bird = store.getBirdById(req.params.id);

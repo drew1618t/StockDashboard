@@ -244,6 +244,11 @@ h3 { font-size: 1.0rem; }
   color: var(--leaf);
   background: var(--leaf-light);
 }
+.pill.medicated {
+  color: #007D99;
+  background: rgba(0, 184, 217, 0.18);
+  font-weight: 700;
+}
 
 /* ── Dose Rows ──────────────────────────────────────── */
 .dose-row {
@@ -265,6 +270,16 @@ h3 { font-size: 1.0rem; }
   padding: 8px 10px;
   border-bottom: none;
 }
+.dose-row.completed {
+  border-left: 4px solid #00B8D9;
+  padding-left: 10px;
+  background: rgba(0, 184, 217, 0.10);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 4px 0;
+  padding: 8px 10px;
+  border-bottom: none;
+  align-items: stretch;
+}
 
 .dose-row button {
   min-height: 36px;
@@ -279,9 +294,45 @@ h3 { font-size: 1.0rem; }
 .dose-time { font-size: 0.72rem; margin-top: 2px; }
 .dose-time.overdue { color: var(--brick); font-weight: 600; }
 .dose-time.due { color: var(--leaf); }
+.dose-time.completed { color: #007D99; font-weight: 600; }
+
+.completed-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+button.undo-dose {
+  min-height: 30px;
+  padding: 3px 9px;
+  font-size: 0.72rem;
+  color: #007D99;
+  border-color: rgba(0, 125, 153, 0.35);
+  background: rgba(255, 255, 245, 0.75);
+  width: auto;
+}
+
+button.undo-dose:hover {
+  background: rgba(0, 184, 217, 0.16);
+}
 
 .active-med-list { display: none; margin-top: 8px; }
 .active-med-list.open { display: grid; gap: 6px; }
+.completed-dose-list {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+}
+.room-subhead {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
 
 /* ── Forms ──────────────────────────────────────────── */
 .filters {
@@ -845,5 +896,7 @@ img.bird-photo { object-fit: cover; display: block; }
   .weight-form { grid-template-columns: 1fr; }
   .dose-row { flex-direction: column; gap: 6px; }
   .dose-row button { width: 100%; }
+  .completed-actions { align-items: flex-end; }
+  .dose-row button.undo-dose { width: 33%; min-width: 84px; }
   .section-head { flex-direction: column; align-items: stretch; gap: 6px; }
 }

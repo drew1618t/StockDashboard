@@ -688,6 +688,18 @@ class PigeonStore {
     return this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(result.lastInsertRowid);
   }
 
+  undoDose(logId) {
+    const log = this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(logId);
+    if (!log) return null;
+
+    this.db.prepare(`
+      UPDATE pigeon_medication_logs
+      SET given = 0, completed_datetime = NULL, notes = NULL
+      WHERE id = ?
+    `).run(logId);
+    return this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(logId);
+  }
+
   listMedicationLogs(medicationId) {
     return this.db.prepare(`
       SELECT * FROM pigeon_medication_logs
@@ -727,6 +739,27 @@ class PigeonStore {
       WHERE ${clauses.join(' AND ')}
       ORDER BY COALESCE(l.sort_order, 999999), lower(COALESCE(l.name, 'Unassigned')), ml.scheduled_datetime ASC, lower(COALESCE(b.name, b.case_number))
     `).all(now, ...params);
+  }
+
+  listCompletedDosesToday() {
+    const today = toDateOnly();
+    const placeholders = ACTIVE_CARE_STATUSES.map(() => '?').join(', ');
+    return this.db.prepare(`
+      SELECT ml.id as log_id, ml.scheduled_datetime, ml.completed_datetime, ml.given, ml.notes as dose_notes,
+        m.id as medication_id, m.kind, m.name, m.dosage, m.frequency_per_day, m.start_date, m.end_date, m.notes as medication_notes,
+        b.id as bird_id, b.name as bird_name, b.case_number, b.species, b.status,
+        l.id as location_id, COALESCE(l.name, 'Unassigned') as location_name,
+        0 as overdue
+      FROM pigeon_medication_logs ml
+      JOIN pigeon_medications m ON m.id = ml.medication_id
+      JOIN pigeon_birds b ON b.id = m.bird_id
+      LEFT JOIN pigeon_locations l ON l.id = b.current_location_id
+      WHERE ml.given = 1
+        AND ml.completed_datetime IS NOT NULL
+        AND substr(ml.completed_datetime, 1, 10) = ?
+        AND b.status IN (${placeholders})
+      ORDER BY COALESCE(l.sort_order, 999999), lower(COALESCE(l.name, 'Unassigned')), ml.completed_datetime DESC, lower(COALESCE(b.name, b.case_number))
+    `).all(today, ...ACTIVE_CARE_STATUSES);
   }
 
   listActiveMedicationsByRoom() {
@@ -818,6 +851,7 @@ class PigeonStore {
     const stats = this.getStats();
     const overdueDoses = this.listDueDoses({ overdue: true });
     const dueTodayDoses = this.listDueDoses({ dueToday: true });
+    const completedTodayDoses = this.listCompletedDosesToday();
     const activeMeds = this.listActiveMedicationsByRoom();
     const roomsByName = new Map();
 
@@ -828,6 +862,7 @@ class PigeonStore {
         bird_count: location.bird_count,
         active_med_count: location.active_med_count,
         dueDoses: [],
+        completedDoses: [],
         activeMeds: [],
       });
     }
@@ -841,6 +876,7 @@ class PigeonStore {
           bird_count: 0,
           active_med_count: 0,
           dueDoses: [],
+          completedDoses: [],
           activeMeds: [],
         });
       }
@@ -854,6 +890,9 @@ class PigeonStore {
     for (const dose of dueOrOverdueByLog.values()) {
       ensureRoom(dose.location_name, dose.location_id).dueDoses.push(dose);
     }
+    for (const dose of completedTodayDoses) {
+      ensureRoom(dose.location_name, dose.location_id).completedDoses.push(dose);
+    }
     for (const med of activeMeds) {
       ensureRoom(med.location_name, med.location_id).activeMeds.push(med);
     }
@@ -862,8 +901,9 @@ class PigeonStore {
       ...stats,
       dueTodayDoses,
       overdueDoses,
+      completedTodayDoses,
       roomGroups: Array.from(roomsByName.values()).filter(room =>
-        room.bird_count > 0 || room.activeMeds.length > 0 || room.dueDoses.length > 0
+        room.bird_count > 0 || room.activeMeds.length > 0 || room.dueDoses.length > 0 || room.completedDoses.length > 0
       ),
     };
   }

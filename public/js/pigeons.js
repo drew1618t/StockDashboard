@@ -160,10 +160,14 @@ const PigeonApp = {
     }
     list.innerHTML = rooms.map(room => {
       const due = room.dueDoses || [];
+      const completed = room.completedDoses || [];
       const active = room.activeMeds || [];
       const dueHtml = due.length
         ? due.map(dose => this.renderDose(dose)).join('')
         : '<p class="muted small">No doses due or overdue.</p>';
+      const completedHtml = completed.length
+        ? `<div class="completed-dose-list"><div class="room-subhead">Given today</div>${completed.map(dose => this.renderCompletedDose(dose)).join('')}</div>`
+        : '';
       const activeHtml = active.map(med => `
         <div class="med-card">
           <div class="row">
@@ -185,6 +189,7 @@ const PigeonApp = {
             <span class="pill ${due.length ? 'hot' : 'ok'}">${due.length} due</span>
           </div>
           ${dueHtml}
+          ${completedHtml}
           <div class="active-med-list ${showAll ? 'open' : ''}">${activeHtml || '<div class="muted small">No active meds.</div>'}</div>
         </article>`;
     }).join('');
@@ -199,6 +204,21 @@ const PigeonApp = {
           <div class="dose-time ${dose.overdue ? 'overdue' : 'due'}">${dose.overdue ? 'Overdue' : 'Due'}: ${this.esc(this.formatDateTime(dose.scheduled_datetime))}</div>
         </div>
         <button class="primary" data-action="mark-dose" data-med-id="${Number(dose.medication_id)}" data-log-id="${Number(dose.log_id)}">Mark given</button>
+      </div>`;
+  },
+
+  renderCompletedDose(dose) {
+    return `
+      <div class="dose-row completed">
+        <div>
+          <div class="dose-bird">${this.esc(dose.bird_name || dose.case_number)}</div>
+          <div class="dose-med">${this.esc(dose.kind)}: ${this.esc(dose.name)} ${this.esc(dose.dosage || '')}</div>
+          <div class="dose-time completed">Given: ${this.esc(this.formatDateTime(dose.completed_datetime))}</div>
+        </div>
+        <div class="completed-actions">
+          <span class="pill medicated">Medicated</span>
+          <button class="undo-dose" type="button" data-action="undo-dose" data-log-id="${Number(dose.log_id)}">Not yet</button>
+        </div>
       </div>`;
   },
 
@@ -659,13 +679,33 @@ const PigeonApp = {
   },
 
   async markDoseGiven(medId, logId) {
+    const wasOnDetail = document.getElementById('view-detail').classList.contains('active');
     await this.api(`/api/family/pigeons/medications/${medId}/log-dose`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(logId ? { log_id: logId } : {}),
     });
     this.showToast('Dose recorded');
-    await this.refreshAfterDetailChange();
+    if (wasOnDetail) {
+      await this.refreshAfterDetailChange();
+      return;
+    }
+    await this.loadAll();
+  },
+
+  async undoDose(logId) {
+    const wasOnDetail = document.getElementById('view-detail').classList.contains('active');
+    await this.api(`/api/family/pigeons/medication-logs/${logId}/undo-dose`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    this.showToast('Dose marked not yet');
+    if (wasOnDetail) {
+      await this.refreshAfterDetailChange();
+      return;
+    }
+    await this.loadAll();
   },
 
   async uploadPhoto(event) {
@@ -841,6 +881,7 @@ document.addEventListener('click', event => {
   if (action === 'delete-note') PigeonApp.deleteNote(target.dataset.noteId);
   if (action === 'delete-weight') PigeonApp.deleteWeight(target.dataset.weightId);
   if (action === 'mark-dose') PigeonApp.markDoseGiven(target.dataset.medId, target.dataset.logId || null);
+  if (action === 'undo-dose') PigeonApp.undoDose(target.dataset.logId);
 });
 
 document.addEventListener('DOMContentLoaded', () => PigeonApp.init());
