@@ -5,8 +5,8 @@
  * Each article has: id, title, subtitle, category, body (markdown), status, dates.
  */
 
-const fs = require('fs');
 const path = require('path');
+const { ensureJsonFile, readJsonFile, writeJsonFile } = require('./utils/jsonFileStore');
 
 const WRITING_PATH = path.join(__dirname, '..', 'data', 'writing.json');
 
@@ -46,27 +46,19 @@ function getDefaultData() {
 }
 
 function ensureDataFile() {
-  const dir = path.dirname(WRITING_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  if (!fs.existsSync(WRITING_PATH)) {
-    fs.writeFileSync(WRITING_PATH, JSON.stringify(getDefaultData(), null, 2));
-  }
+  ensureJsonFile(WRITING_PATH, getDefaultData);
 }
 
 function readData() {
-  try {
-    ensureDataFile();
-    const raw = JSON.parse(fs.readFileSync(WRITING_PATH, 'utf-8'));
-    if (!raw || !Array.isArray(raw.articles)) return getDefaultData();
-    return raw;
-  } catch {
-    return getDefaultData();
-  }
+  ensureDataFile();
+  const raw = readJsonFile(WRITING_PATH, getDefaultData);
+  if (!raw || !Array.isArray(raw.articles)) return getDefaultData();
+  return raw;
 }
 
 function writeData(data) {
   ensureDataFile();
-  fs.writeFileSync(WRITING_PATH, JSON.stringify(data, null, 2));
+  writeJsonFile(WRITING_PATH, data);
 }
 
 /**

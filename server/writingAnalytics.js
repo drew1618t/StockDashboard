@@ -5,8 +5,8 @@
  * Only Drew can query the analytics data.
  */
 
-const fs = require('fs');
 const path = require('path');
+const { ensureJsonFile, readJsonFile, writeJsonFile } = require('./utils/jsonFileStore');
 
 const ANALYTICS_PATH = path.join(__dirname, '..', 'data', 'writing-analytics.json');
 
@@ -15,27 +15,19 @@ function getDefaultData() {
 }
 
 function ensureDataFile() {
-  const dir = path.dirname(ANALYTICS_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  if (!fs.existsSync(ANALYTICS_PATH)) {
-    fs.writeFileSync(ANALYTICS_PATH, JSON.stringify(getDefaultData(), null, 2));
-  }
+  ensureJsonFile(ANALYTICS_PATH, getDefaultData);
 }
 
 function readData() {
-  try {
-    ensureDataFile();
-    const raw = JSON.parse(fs.readFileSync(ANALYTICS_PATH, 'utf-8'));
-    if (!raw || !Array.isArray(raw.views)) return getDefaultData();
-    return raw;
-  } catch {
-    return getDefaultData();
-  }
+  ensureDataFile();
+  const raw = readJsonFile(ANALYTICS_PATH, getDefaultData);
+  if (!raw || !Array.isArray(raw.views)) return getDefaultData();
+  return raw;
 }
 
 function writeData(data) {
   ensureDataFile();
-  fs.writeFileSync(ANALYTICS_PATH, JSON.stringify(data, null, 2));
+  writeJsonFile(ANALYTICS_PATH, data);
 }
 
 /**

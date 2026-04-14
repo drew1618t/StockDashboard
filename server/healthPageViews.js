@@ -1,11 +1,4 @@
-function escapeHtml(value) {
-  return String(value || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+const { escapeHtml } = require('./utils/html');
 
 function renderReminderItem(item) {
   return `<li class="health-list-item"><div><strong>${escapeHtml(item.label)}</strong><div class="health-meta">${escapeHtml(item.note || '')}</div></div><div class="health-chip">${escapeHtml(item.dueDate || item.status || 'Open')}</div></li>`;

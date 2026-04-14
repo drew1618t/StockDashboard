@@ -1,5 +1,5 @@
-const fs = require('fs');
 const path = require('path');
+const { ensureJsonFile, readJsonFile, writeJsonFile } = require('./utils/jsonFileStore');
 
 const PINBOARD_PATH = path.join(__dirname, '..', 'data', 'pinboard.json');
 
@@ -36,27 +36,19 @@ function getDefaultNotes() {
 }
 
 function ensureDataFile() {
-  const dir = path.dirname(PINBOARD_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  if (!fs.existsSync(PINBOARD_PATH)) {
-    fs.writeFileSync(PINBOARD_PATH, JSON.stringify(getDefaultNotes(), null, 2));
-  }
+  ensureJsonFile(PINBOARD_PATH, getDefaultNotes);
 }
 
 function readData() {
-  try {
-    ensureDataFile();
-    const raw = JSON.parse(fs.readFileSync(PINBOARD_PATH, 'utf-8'));
-    if (!raw || !Array.isArray(raw.notes)) return getDefaultNotes();
-    return raw;
-  } catch {
-    return getDefaultNotes();
-  }
+  ensureDataFile();
+  const raw = readJsonFile(PINBOARD_PATH, getDefaultNotes);
+  if (!raw || !Array.isArray(raw.notes)) return getDefaultNotes();
+  return raw;
 }
 
 function writeData(data) {
   ensureDataFile();
-  fs.writeFileSync(PINBOARD_PATH, JSON.stringify(data, null, 2));
+  writeJsonFile(PINBOARD_PATH, data);
 }
 
 function normalizeAuthor(author) {

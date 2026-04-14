@@ -23,8 +23,8 @@
  *   }
  */
 
-const fs = require('fs');
 const path = require('path');
+const { readJsonFile, writeJsonFile } = require('./utils/jsonFileStore');
 
 const TODOS_PATH = path.join(__dirname, '..', 'data', 'todos.json');
 const PRUNE_DAYS = 7;
@@ -34,14 +34,9 @@ function makeId() {
 }
 
 function readData() {
-  try {
-    if (!fs.existsSync(TODOS_PATH)) return { sections: [] };
-    const raw = JSON.parse(fs.readFileSync(TODOS_PATH, 'utf-8'));
-    if (Array.isArray(raw)) return migrateFromFlat(raw);
-    return raw;
-  } catch {
-    return { sections: [] };
-  }
+  const raw = readJsonFile(TODOS_PATH, { sections: [] });
+  if (Array.isArray(raw)) return migrateFromFlat(raw);
+  return raw;
 }
 
 function migrateFromFlat(arr) {
@@ -64,9 +59,7 @@ function migrateFromFlat(arr) {
 }
 
 function writeData(data) {
-  const dir = path.dirname(TODOS_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(TODOS_PATH, JSON.stringify(data, null, 2));
+  writeJsonFile(TODOS_PATH, data);
 }
 
 function pruneCompleted(data) {

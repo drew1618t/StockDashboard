@@ -3,24 +3,17 @@
  * Persists to data/requests.json. Auto-prunes when data becomes available.
  */
 
-const fs = require('fs');
 const path = require('path');
+const { readJsonFile, writeJsonFile } = require('./utils/jsonFileStore');
 
 const REQUESTS_PATH = path.join(__dirname, '..', 'data', 'requests.json');
 
 function readRequests() {
-  try {
-    if (!fs.existsSync(REQUESTS_PATH)) return [];
-    return JSON.parse(fs.readFileSync(REQUESTS_PATH, 'utf-8'));
-  } catch {
-    return [];
-  }
+  return readJsonFile(REQUESTS_PATH, []);
 }
 
 function writeRequests(requests) {
-  const dir = path.dirname(REQUESTS_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(REQUESTS_PATH, JSON.stringify(requests, null, 2));
+  writeJsonFile(REQUESTS_PATH, requests);
 }
 
 function getRequests() {
