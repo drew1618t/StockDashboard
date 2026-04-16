@@ -289,11 +289,18 @@ h3 { font-size: 1.0rem; }
   align-items: stretch;
 }
 
+.dose-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-self: center;
+  flex-shrink: 0;
+}
+
 .dose-row button {
   min-height: 36px;
   font-size: 0.78rem;
   padding: 4px 12px;
-  align-self: center;
   flex-shrink: 0;
 }
 
@@ -304,6 +311,23 @@ h3 { font-size: 1.0rem; }
 .dose-time.due { color: var(--leaf); }
 .dose-time.completed { color: #007D99; font-weight: 600; }
 .dose-time.carried-over { color: var(--brick); font-weight: 600; }
+.dose-time.skipped { color: #888; }
+
+.dose-row.skipped {
+  border-left: 4px solid #bbb;
+  padding-left: 10px;
+  background: #f5f4f2;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 4px 0;
+  padding: 8px 10px;
+  border-bottom: none;
+  align-items: stretch;
+}
+
+.pill.skipped-pill {
+  color: #888;
+  background: #eceae6;
+}
 
 .completed-actions {
   display: flex;
@@ -326,6 +350,27 @@ button.undo-dose {
 
 button.undo-dose:hover {
   background: rgba(0, 184, 217, 0.16);
+}
+
+button.out-of-stock-btn {
+  min-height: 28px;
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  color: #888;
+  border-color: #ccc;
+  background: #f7f5f2;
+  opacity: 0.9;
+}
+
+button.out-of-stock-btn:hover {
+  opacity: 1;
+  border-color: #aaa;
+}
+
+.pill.out-of-stock-pill {
+  color: #888;
+  background: #eceae6;
+  font-style: italic;
 }
 
 .active-med-list { display: none; margin-top: 8px; }
@@ -433,6 +478,20 @@ button.undo-dose:hover {
 .room-bird-status.no-meds {
   color: var(--muted);
   background: var(--aged);
+}
+.room-bird-status.missing-meds {
+  color: #6b4a00;
+  background: rgba(180, 120, 0, 0.14);
+}
+
+.pill.missing {
+  color: #6b4a00;
+  background: rgba(180, 120, 0, 0.14);
+}
+
+.missing-meds-count {
+  color: #6b4a00;
+  font-weight: 600;
 }
 
 .room-bird-med-list {

@@ -170,6 +170,18 @@ function createPigeonRoutes(options = {}) {
     res.json(log);
   });
 
+  router.post('/pigeons/medication-logs/:logId/skip-dose', (req, res) => {
+    const log = getPigeonStore().skipDose(req.params.logId);
+    if (!log) return res.status(404).json({ error: 'Dose log not found' });
+    res.json(log);
+  });
+
+  router.post('/pigeons/medication-logs/:logId/undo-skip', (req, res) => {
+    const log = getPigeonStore().undoSkip(req.params.logId);
+    if (!log) return res.status(404).json({ error: 'Dose log not found' });
+    res.json(log);
+  });
+
   router.post('/pigeons/birds/:id/photos', pigeonPhotoUpload.array('photos', 10), (req, res) => {
     const store = getPigeonStore();
     const bird = store.getBirdById(req.params.id);

@@ -101,6 +101,7 @@ function mapMedicationRow(row) {
   return {
     ...row,
     active: row.active ? 1 : 0,
+    out_of_stock: row.out_of_stock ? 1 : 0,
     doses_given: row.doses_given || 0,
     total_doses: row.total_doses || 0,
     overdue_count: row.overdue_count || 0,
@@ -219,6 +220,28 @@ class PigeonStore {
       CREATE INDEX IF NOT EXISTS idx_pigeon_note_logs_bird ON pigeon_note_logs(bird_id);
       CREATE INDEX IF NOT EXISTS idx_pigeon_note_logs_date ON pigeon_note_logs(note_date);
     `);
+
+    // Migrations for existing DBs
+    try { this.db.exec(`ALTER TABLE pigeon_medications ADD COLUMN out_of_stock INTEGER DEFAULT 0`); } catch (_) {}
+    try { this.db.exec(`ALTER TABLE pigeon_medication_logs ADD COLUMN skipped INTEGER DEFAULT 0`); } catch (_) {}
+
+    // Deduplicate any existing duplicate ungiven dose logs, then enforce uniqueness
+    try {
+      this.db.exec(`
+        DELETE FROM pigeon_medication_logs
+        WHERE skipped = 0 AND given = 0
+          AND id NOT IN (
+            SELECT MIN(id) FROM pigeon_medication_logs
+            WHERE skipped = 0 AND given = 0
+            GROUP BY medication_id, scheduled_datetime
+          )
+      `);
+      this.db.exec(`
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_med_logs_unique_schedule
+        ON pigeon_medication_logs(medication_id, scheduled_datetime)
+        WHERE given = 0 AND skipped = 0
+      `);
+    } catch (_) {}
   }
 
   ensureLocation(name) {
@@ -588,17 +611,11 @@ class PigeonStore {
 
   generateScheduledDoses(medicationId, frequency, startDate, endDate) {
     const insert = this.db.prepare(`
-      INSERT INTO pigeon_medication_logs (medication_id, scheduled_datetime, given)
+      INSERT OR IGNORE INTO pigeon_medication_logs (medication_id, scheduled_datetime, given)
       VALUES (?, ?, 0)
     `);
-    const existing = this.db.prepare(`
-      SELECT id FROM pigeon_medication_logs WHERE medication_id = ? AND scheduled_datetime = ? LIMIT 1
-    `);
-
     for (const scheduled of generateDoseDateTimes(frequency, startDate, endDate)) {
-      if (!existing.get(medicationId, scheduled)) {
-        insert.run(medicationId, scheduled);
-      }
+      insert.run(medicationId, scheduled);
     }
   }
 
@@ -629,7 +646,7 @@ class PigeonStore {
     const med = this.getMedicationById(id);
     if (!med) return null;
 
-    const allowed = ['kind', 'name', 'dosage', 'frequency_per_day', 'start_date', 'end_date', 'notes', 'active'];
+    const allowed = ['kind', 'name', 'dosage', 'frequency_per_day', 'start_date', 'end_date', 'notes', 'active', 'out_of_stock'];
     const scheduleChanged = ['frequency_per_day', 'start_date', 'end_date'].some(field => updates[field] !== undefined);
     const sets = [];
     const values = [];
@@ -639,7 +656,7 @@ class PigeonStore {
         sets.push(`${field} = ?`);
         if (field === 'kind') values.push(updates[field] === 'supplement' ? 'supplement' : 'medication');
         else if (field === 'frequency_per_day') values.push(parsePositiveInt(updates[field], med.frequency_per_day));
-        else if (field === 'active') values.push(updates[field] ? 1 : 0);
+        else if (field === 'active' || field === 'out_of_stock') values.push(updates[field] ? 1 : 0);
         else values.push(field === 'name' ? normalizeText(updates[field]) || med.name : updates[field]);
       }
     }
@@ -700,6 +717,15 @@ class PigeonStore {
     return this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(logId);
   }
 
+  skipDose(logId) {
+    const log = this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(logId);
+    if (!log) return null;
+    this.db.prepare(`
+      UPDATE pigeon_medication_logs SET skipped = 1 WHERE id = ?
+    `).run(logId);
+    return this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(logId);
+  }
+
   listMedicationLogs(medicationId) {
     return this.db.prepare(`
       SELECT * FROM pigeon_medication_logs
@@ -711,7 +737,7 @@ class PigeonStore {
   listDueDoses({ overdue = false, dueToday = false } = {}) {
     const now = toDateTimeString();
     const today = toDateOnly();
-    const clauses = ['ml.given = 0', 'm.active = 1'];
+    const clauses = ['ml.given = 0', 'ml.skipped = 0', 'm.active = 1'];
     const params = [];
     const placeholders = ACTIVE_CARE_STATUSES.map(() => '?').join(', ');
     clauses.push(`b.status IN (${placeholders})`);
@@ -727,8 +753,9 @@ class PigeonStore {
     }
 
     return this.db.prepare(`
-      SELECT ml.id as log_id, ml.scheduled_datetime, ml.completed_datetime, ml.given, ml.notes as dose_notes,
+      SELECT ml.id as log_id, ml.scheduled_datetime, ml.completed_datetime, ml.given, ml.skipped, ml.notes as dose_notes,
         m.id as medication_id, m.kind, m.name, m.dosage, m.frequency_per_day, m.start_date, m.end_date, m.notes as medication_notes,
+        m.out_of_stock,
         b.id as bird_id, b.name as bird_name, b.case_number, b.species, b.status,
         l.id as location_id, COALESCE(l.name, 'Unassigned') as location_name,
         CASE WHEN ml.scheduled_datetime < ? THEN 1 ELSE 0 END as overdue
@@ -760,6 +787,32 @@ class PigeonStore {
         AND b.status IN (${placeholders})
       ORDER BY COALESCE(l.sort_order, 999999), lower(COALESCE(l.name, 'Unassigned')), ml.completed_datetime DESC, lower(COALESCE(b.name, b.case_number))
     `).all(today, ...ACTIVE_CARE_STATUSES);
+  }
+
+  listSkippedDosesToday() {
+    const today = toDateOnly();
+    const placeholders = ACTIVE_CARE_STATUSES.map(() => '?').join(', ');
+    return this.db.prepare(`
+      SELECT ml.id as log_id, ml.scheduled_datetime, ml.given, ml.skipped, ml.notes as dose_notes,
+        m.id as medication_id, m.kind, m.name, m.dosage, m.frequency_per_day,
+        b.id as bird_id, b.name as bird_name, b.case_number, b.species, b.status,
+        l.id as location_id, COALESCE(l.name, 'Unassigned') as location_name
+      FROM pigeon_medication_logs ml
+      JOIN pigeon_medications m ON m.id = ml.medication_id
+      JOIN pigeon_birds b ON b.id = m.bird_id
+      LEFT JOIN pigeon_locations l ON l.id = b.current_location_id
+      WHERE ml.skipped = 1
+        AND substr(ml.scheduled_datetime, 1, 10) = ?
+        AND b.status IN (${placeholders})
+      ORDER BY COALESCE(l.sort_order, 999999), lower(COALESCE(l.name, 'Unassigned')), ml.scheduled_datetime DESC, lower(COALESCE(b.name, b.case_number))
+    `).all(today, ...ACTIVE_CARE_STATUSES);
+  }
+
+  undoSkip(logId) {
+    const log = this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(logId);
+    if (!log) return null;
+    this.db.prepare('UPDATE pigeon_medication_logs SET skipped = 0 WHERE id = ?').run(logId);
+    return this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(logId);
   }
 
   listActiveMedicationsByRoom() {
@@ -864,6 +917,7 @@ class PigeonStore {
     const overdueDoses = this.listDueDoses({ overdue: true });
     const dueTodayDoses = this.listDueDoses({ dueToday: true });
     const completedTodayDoses = this.listCompletedDosesToday();
+    const skippedTodayDoses = this.listSkippedDosesToday();
     const activeMeds = this.listActiveMedicationsByRoom();
     const activeBirds = this.listActiveBirdsByRoom();
     const roomsByName = new Map();
@@ -877,6 +931,7 @@ class PigeonStore {
         active_med_count: location.active_med_count,
         dueDoses: [],
         completedDoses: [],
+        skippedDoses: [],
         activeMeds: [],
         birds: [],
       });
@@ -892,6 +947,7 @@ class PigeonStore {
           active_med_count: 0,
           dueDoses: [],
           completedDoses: [],
+          skippedDoses: [],
           activeMeds: [],
           birds: [],
         });
@@ -912,6 +968,7 @@ class PigeonStore {
         activeMeds: [],
         dueDoses: [],
         completedDoses: [],
+        skippedDoses: [],
         medication_state: 'no_meds',
       };
       birdsById.set(bird.id, roomBird);
@@ -930,6 +987,10 @@ class PigeonStore {
       ensureRoom(dose.location_name, dose.location_id).completedDoses.push(dose);
       if (birdsById.has(dose.bird_id)) birdsById.get(dose.bird_id).completedDoses.push(dose);
     }
+    for (const dose of skippedTodayDoses) {
+      ensureRoom(dose.location_name, dose.location_id).skippedDoses.push(dose);
+      if (birdsById.has(dose.bird_id)) birdsById.get(dose.bird_id).skippedDoses.push(dose);
+    }
     for (const med of activeMeds) {
       ensureRoom(med.location_name, med.location_id).activeMeds.push(med);
       if (birdsById.has(med.bird_id)) birdsById.get(med.bird_id).activeMeds.push(med);
@@ -937,6 +998,7 @@ class PigeonStore {
 
     for (const bird of birdsById.values()) {
       if (bird.dueDoses.length > 0) bird.medication_state = 'needs_meds';
+      else if (bird.skippedDoses.length > 0) bird.medication_state = 'missing_meds';
       else if (bird.activeMeds.length > 0) bird.medication_state = 'medicated';
       else bird.medication_state = 'no_meds';
     }
@@ -946,6 +1008,7 @@ class PigeonStore {
       dueTodayDoses,
       overdueDoses,
       completedTodayDoses,
+      skippedTodayDoses,
       roomGroups: Array.from(roomsByName.values()).filter(room =>
         room.birds.length > 0 || room.bird_count > 0 || room.activeMeds.length > 0 || room.dueDoses.length > 0 || room.completedDoses.length > 0
       ),

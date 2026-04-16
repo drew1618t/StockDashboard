@@ -166,6 +166,7 @@ const PigeonApp = {
     list.innerHTML = rooms.map(room => {
       const birds = room.birds || [];
       const needsMeds = birds.filter(bird => bird.medication_state === 'needs_meds').length;
+      const missingMeds = birds.filter(bird => bird.medication_state === 'missing_meds').length;
       const medicated = birds.filter(bird => bird.medication_state === 'medicated').length;
       const roomKey = this.roomKey(room);
       return `
@@ -175,11 +176,12 @@ const PigeonApp = {
               <h3>${this.esc(room.location_name)}</h3>
               <div class="muted small">${this.esc(room.bird_count || 0)} birds, ${this.esc(room.active_med_count || 0)} active meds</div>
             </div>
-            <span class="pill ${needsMeds ? 'hot' : 'ok'}">${needsMeds} need meds</span>
+            <span class="pill ${needsMeds ? 'hot' : (missingMeds ? 'missing' : 'ok')}">${needsMeds ? `${needsMeds} need meds` : (missingMeds ? `${missingMeds} missing meds` : '0 need meds')}</span>
           </div>
           <div class="room-status-line">
             <span>${this.esc(birds.length)} pigeons</span>
             <span>${this.esc(medicated)} medicated</span>
+            ${missingMeds ? `<span class="missing-meds-count">${missingMeds} missing meds</span>` : ''}
             <span>${this.esc(birds.filter(bird => bird.medication_state === 'no_meds').length)} no meds</span>
           </div>
         </article>`;
@@ -240,6 +242,7 @@ const PigeonApp = {
     const labels = {
       needs_meds: 'Needs meds',
       medicated: 'Medicated',
+      missing_meds: 'Missing meds',
       no_meds: 'No meds',
     };
     const className = String(bird.medication_state || 'no_meds').replace(/_/g, '-');
@@ -264,6 +267,7 @@ const PigeonApp = {
   renderRoomBirdMedications(bird) {
     const due = bird.dueDoses || [];
     const completed = bird.completedDoses || [];
+    const skipped = bird.skippedDoses || [];
     const active = bird.activeMeds || [];
     const activeIdsWithDoseRows = new Set([...due, ...completed].map(dose => Number(dose.medication_id)));
     const quietActive = active.filter(med => !activeIdsWithDoseRows.has(Number(med.id)));
@@ -273,6 +277,9 @@ const PigeonApp = {
     const completedHtml = completed.length
       ? `<div class="room-bird-med-list"><div class="room-subhead">Given today</div>${completed.map(dose => this.renderCompletedDose(dose)).join('')}</div>`
       : '';
+    const skippedHtml = skipped.length
+      ? `<div class="room-bird-med-list"><div class="room-subhead">No meds today</div>${skipped.map(dose => this.renderSkippedDose(dose)).join('')}</div>`
+      : '';
     const quietHtml = quietActive.length
       ? `<div class="room-bird-med-list"><div class="room-subhead">Active meds</div>${quietActive.map(med => `
         <div class="med-card quiet-med">
@@ -281,13 +288,16 @@ const PigeonApp = {
               <strong>${this.esc(med.name)}</strong>
               <div class="muted small">${this.esc(med.kind)} ${this.esc(med.dosage || '')}</div>
             </div>
-            <span class="pill">${this.esc(med.frequency_per_day)}x/day</span>
+            <div class="row" style="gap:0.4rem">
+              ${med.out_of_stock ? '<span class="pill out-of-stock-pill">No stock</span>' : ''}
+              <span class="pill">${this.esc(med.frequency_per_day)}x/day</span>
+            </div>
           </div>
         </div>
       `).join('')}</div>`
       : '';
-    if (!dueHtml && !completedHtml && !quietHtml) return '<div class="muted small">No active medications.</div>';
-    return dueHtml + completedHtml + quietHtml;
+    if (!dueHtml && !completedHtml && !skippedHtml && !quietHtml) return '<div class="muted small">No active medications.</div>';
+    return dueHtml + completedHtml + skippedHtml + quietHtml;
   },
 
   renderDose(dose) {
@@ -298,7 +308,10 @@ const PigeonApp = {
           <div class="dose-med">${this.esc(dose.kind)}: ${this.esc(dose.name)} ${this.esc(dose.dosage || '')}</div>
           <div class="dose-time ${dose.overdue ? 'overdue' : 'due'}">${dose.overdue ? 'Overdue' : 'Due'}: ${this.esc(this.formatDateTime(dose.scheduled_datetime))}</div>
         </div>
-        <button class="primary" data-action="mark-dose" data-med-id="${Number(dose.medication_id)}" data-log-id="${Number(dose.log_id)}">Mark given</button>
+        <div class="dose-actions">
+          <button class="primary" data-action="mark-dose" data-med-id="${Number(dose.medication_id)}" data-log-id="${Number(dose.log_id)}">Mark given</button>
+          <button class="out-of-stock-btn" data-action="skip-dose" data-log-id="${Number(dose.log_id)}">No meds</button>
+        </div>
       </div>`;
   },
 
@@ -320,6 +333,21 @@ const PigeonApp = {
         <div class="completed-actions">
           <span class="pill medicated">Medicated</span>
           <button class="undo-dose" type="button" data-action="undo-dose" data-log-id="${Number(dose.log_id)}">Not yet</button>
+        </div>
+      </div>`;
+  },
+
+  renderSkippedDose(dose) {
+    return `
+      <div class="dose-row skipped">
+        <div>
+          <div class="dose-bird">${this.esc(dose.bird_name || dose.case_number)}</div>
+          <div class="dose-med">${this.esc(dose.kind)}: ${this.esc(dose.name)} ${this.esc(dose.dosage || '')}</div>
+          <div class="dose-time skipped">Skipped: ${this.esc(this.formatDateTime(dose.scheduled_datetime))}</div>
+        </div>
+        <div class="completed-actions">
+          <span class="pill skipped-pill">No meds</span>
+          <button class="undo-dose" type="button" data-action="undo-skip" data-log-id="${Number(dose.log_id)}">Got meds</button>
         </div>
       </div>`;
   },
@@ -722,6 +750,7 @@ const PigeonApp = {
         <div class="row form-actions">
           <button class="primary" data-action="mark-dose" data-med-id="${Number(med.id)}">Ad-hoc dose</button>
           <div>
+            <button type="button" data-action="toggle-out-of-stock" data-med-id="${Number(med.id)}" data-out-of-stock="${med.out_of_stock ? '1' : '0'}">${med.out_of_stock ? 'Back in stock' : 'Out of stock'}</button>
             <button type="button" data-action="stop-med" data-med-id="${Number(med.id)}">Stop</button>
             <button class="danger" type="button" data-action="delete-med" data-med-id="${Number(med.id)}">Delete</button>
           </div>
@@ -803,6 +832,40 @@ const PigeonApp = {
       body: JSON.stringify({}),
     });
     this.showToast('Dose marked not yet');
+    if (wasOnDetail) {
+      await this.refreshAfterDetailChange();
+      return;
+    }
+    await this.loadAll();
+  },
+
+  async undoSkip(logId) {
+    const wasOnDetail = document.getElementById('view-detail').classList.contains('active');
+    await this.api(`/api/family/pigeons/medication-logs/${logId}/undo-skip`, { method: 'POST' });
+    this.showToast('Back to due — ready to medicate');
+    if (wasOnDetail) { await this.refreshAfterDetailChange(); return; }
+    await this.loadAll();
+  },
+
+  async skipDose(logId) {
+    const wasOnDetail = document.getElementById('view-detail').classList.contains('active');
+    await this.api(`/api/family/pigeons/medication-logs/${logId}/skip-dose`, { method: 'POST' });
+    this.showToast('Dose skipped — out of stock');
+    if (wasOnDetail) {
+      await this.refreshAfterDetailChange();
+      return;
+    }
+    await this.loadAll();
+  },
+
+  async toggleOutOfStock(medId, currentValue) {
+    const wasOnDetail = document.getElementById('view-detail').classList.contains('active');
+    await this.api(`/api/family/pigeons/medications/${medId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ out_of_stock: currentValue ? 0 : 1 }),
+    });
+    this.showToast(currentValue ? 'Marked back in stock' : 'Marked out of stock');
     if (wasOnDetail) {
       await this.refreshAfterDetailChange();
       return;
@@ -988,6 +1051,9 @@ document.addEventListener('click', event => {
   if (action === 'delete-weight') PigeonApp.deleteWeight(target.dataset.weightId);
   if (action === 'mark-dose') PigeonApp.markDoseGiven(target.dataset.medId, target.dataset.logId || null);
   if (action === 'undo-dose') PigeonApp.undoDose(target.dataset.logId);
+  if (action === 'skip-dose') PigeonApp.skipDose(target.dataset.logId);
+  if (action === 'undo-skip') PigeonApp.undoSkip(target.dataset.logId);
+  if (action === 'toggle-out-of-stock') PigeonApp.toggleOutOfStock(target.dataset.medId, Number(target.dataset.outOfStock));
 });
 
 document.addEventListener('DOMContentLoaded', () => PigeonApp.init());
