@@ -332,7 +332,7 @@ const PigeonApp = {
         </div>
         <div class="completed-actions">
           <span class="pill medicated">Medicated</span>
-          <button class="undo-dose" type="button" data-action="undo-dose" data-log-id="${Number(dose.log_id)}">Not yet</button>
+          ${carriedOver ? `<button class="undo-dose" type="button" data-action="dismiss-dose" data-log-id="${Number(dose.log_id)}">Dismiss</button>` : `<button class="undo-dose" type="button" data-action="undo-dose" data-log-id="${Number(dose.log_id)}">Not yet</button>`}
         </div>
       </div>`;
   },
@@ -839,6 +839,14 @@ const PigeonApp = {
     await this.loadAll();
   },
 
+  async dismissDose(logId) {
+    const wasOnDetail = document.getElementById('view-detail').classList.contains('active');
+    await this.api(`/api/family/pigeons/medication-logs/${logId}/dismiss-dose`, { method: 'POST' });
+    this.showToast('Dismissed');
+    if (wasOnDetail) { await this.refreshAfterDetailChange(); return; }
+    await this.loadAll();
+  },
+
   async undoSkip(logId) {
     const wasOnDetail = document.getElementById('view-detail').classList.contains('active');
     await this.api(`/api/family/pigeons/medication-logs/${logId}/undo-skip`, { method: 'POST' });
@@ -1051,6 +1059,7 @@ document.addEventListener('click', event => {
   if (action === 'delete-weight') PigeonApp.deleteWeight(target.dataset.weightId);
   if (action === 'mark-dose') PigeonApp.markDoseGiven(target.dataset.medId, target.dataset.logId || null);
   if (action === 'undo-dose') PigeonApp.undoDose(target.dataset.logId);
+  if (action === 'dismiss-dose') PigeonApp.dismissDose(target.dataset.logId);
   if (action === 'skip-dose') PigeonApp.skipDose(target.dataset.logId);
   if (action === 'undo-skip') PigeonApp.undoSkip(target.dataset.logId);
   if (action === 'toggle-out-of-stock') PigeonApp.toggleOutOfStock(target.dataset.medId, Number(target.dataset.outOfStock));

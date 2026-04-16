@@ -717,6 +717,16 @@ class PigeonStore {
     return this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(logId);
   }
 
+  dismissCarriedDose(logId) {
+    const log = this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(logId);
+    if (!log || !log.given || !log.scheduled_datetime) return null;
+    // Move completed_datetime back to scheduled date so it falls out of "given today"
+    this.db.prepare(`
+      UPDATE pigeon_medication_logs SET completed_datetime = scheduled_datetime WHERE id = ?
+    `).run(logId);
+    return this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(logId);
+  }
+
   skipDose(logId) {
     const log = this.db.prepare('SELECT * FROM pigeon_medication_logs WHERE id = ?').get(logId);
     if (!log) return null;
