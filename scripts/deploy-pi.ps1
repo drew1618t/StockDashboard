@@ -12,9 +12,8 @@ $runtimeDataArgs = $runtimeDataFiles -join ' '
 
 $remoteCommand = @"
 cd $($target.appDir) &&
-runtime_data_files="$runtimeDataArgs" &&
 backup_dir=`$(mktemp -d) &&
-for file in `$runtime_data_files; do
+for file in $runtimeDataArgs; do
   if [ -f "`$file" ]; then
     mkdir -p "`$backup_dir/`$(dirname "`$file")" &&
     cp "`$file" "`$backup_dir/`$file"
@@ -24,7 +23,7 @@ if [ ! -f data/taxes.state.json ] && [ -f data/taxes.json ]; then cp data/taxes.
 (git restore -- data/taxes.json 2>/dev/null || true) &&
 (git restore -- $runtimeDataArgs 2>/dev/null || true) &&
 git pull --ff-only origin $($target.branch) &&
-for file in `$runtime_data_files; do
+for file in $runtimeDataArgs; do
   if [ -f "`$backup_dir/`$file" ]; then
     cp "`$backup_dir/`$file" "`$file"
   fi
