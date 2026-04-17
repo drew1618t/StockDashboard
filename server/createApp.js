@@ -11,7 +11,8 @@ const { createPigeonRoutes } = require('./routes/family/pigeonRoutes');
 const { createPinboardRoutes } = require('./routes/family/pinboardRoutes');
 const { createTaxRoutes } = require('./routes/family/taxRoutes');
 const { createTodoRoutes } = require('./routes/family/todoRoutes');
-const { renderHomePage } = require('./homePage');
+const defaultDataLoader = require('./dataLoader');
+const { getPortfolioPositionCount, renderHomePage } = require('./homePage');
 const { createPortfolioRoutes } = require('./routes/portfolioRoutes');
 const { createRequestRoutes } = require('./routes/requestRoutes');
 const { createStaticPageRoutes } = require('./routes/staticPageRoutes');
@@ -20,6 +21,7 @@ const { createWritingRoutes } = require('./routes/writingRoutes');
 function createApp(options = {}) {
   const app = express();
   const deps = options.dependencies || {};
+  const dataLoader = deps.dataLoader || defaultDataLoader;
   const accessAuth = options.accessAuth || createAccessAuth(options.accessAuthOptions);
   const authErrorMiddleware = options.authErrorHandler || authErrorHandler;
   const requireAuthMiddleware = options.requireAuth || requireAuth;
@@ -36,7 +38,9 @@ function createApp(options = {}) {
   app.use(requireAuthMiddleware);
 
   app.get('/', (req, res) => {
-    res.type('html').send(renderHomePage(req.user));
+    res.type('html').send(renderHomePage(req.user, {
+      dashboardCompanyCount: getPortfolioPositionCount(dataLoader),
+    }));
   });
 
   app.use(

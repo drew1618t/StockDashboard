@@ -2,6 +2,8 @@
 
 This project is a no-build Node/Express website with static browser assets. Keep the architecture simple: server modules own routing, services/stores own data behavior, and `public/` owns browser CSS/JS.
 
+For a map of the current files and ownership levels, see `docs/code-map.md`.
+
 ## Runtime Shape
 
 ```text

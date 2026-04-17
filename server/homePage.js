@@ -1,5 +1,31 @@
-function renderHomePage(user) {
+function getDashboardDescription(companyCount) {
+  const count = Number.isFinite(companyCount) ? companyCount : 0;
+  const companyLabel = count === 1 ? 'company' : 'companies';
+
+  if (count > 0) {
+    return `Real-time growth portfolio analysis. ${count} ${companyLabel} tracked across revenue growth, valuation, profitability, and Saul's investing rules.`;
+  }
+
+  return "Real-time growth portfolio analysis. Portfolio companies tracked across revenue growth, valuation, profitability, and Saul's investing rules.";
+}
+
+function getPortfolioPositionCount(dataLoader) {
+  if (dataLoader && typeof dataLoader.getPortfolioHoldings === 'function') {
+    const holdings = dataLoader.getPortfolioHoldings();
+    if (Array.isArray(holdings) && holdings.length > 0) return holdings.length;
+  }
+
+  if (dataLoader && typeof dataLoader.getCompanies === 'function') {
+    const companies = dataLoader.getCompanies();
+    if (Array.isArray(companies)) return companies.length;
+  }
+
+  return 0;
+}
+
+function renderHomePage(user, options = {}) {
   const roleLabel = user && user.role === 'family' ? 'Family' : 'General';
+  const dashboardDescription = getDashboardDescription(options.dashboardCompanyCount);
   const familyCard = user && user.role === 'family'
     ? `
       <article class="card card--primary" onclick="window.location.href='/family'">
@@ -653,7 +679,7 @@ function renderHomePage(user) {
         <div class="card-stamp">Live</div>
         <h2 class="card-title">Stock Dashboard</h2>
         <div class="card-line"></div>
-        <p class="card-desc">Real-time growth portfolio analysis. Eleven companies tracked across revenue growth, valuation, profitability, and Saul's investing rules.</p>
+        <p class="card-desc">${dashboardDescription}</p>
         <a href="/dashboard" class="card-cta">Enter</a>
         <a href="/dashboard" class="card-link">
           Open Dashboard <i class="arrow">&rarr;</i>
@@ -720,5 +746,7 @@ function renderHomePage(user) {
 }
 
 module.exports = {
+  getDashboardDescription,
+  getPortfolioPositionCount,
   renderHomePage,
 };

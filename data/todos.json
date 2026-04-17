@@ -4,15 +4,6 @@
       "name": "Short Term",
       "items": [
         {
-          "id": "st01",
-          "text": "Email accountant",
-          "done": false,
-          "assignee": "A",
-          "note": null,
-          "createdAt": "2026-03-21T12:00:00.000Z",
-          "completedAt": null
-        },
-        {
           "id": "st02",
           "text": "Email SSDI",
           "done": false,

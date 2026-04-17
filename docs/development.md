@@ -2,6 +2,8 @@
 
 This project is intentionally simple: CommonJS modules, Express, static CSS/JS, and no frontend build step.
 
+Use `docs/code-map.md` for the current file-level tour and `docs/architecture.md` for the intended boundaries.
+
 ## Common Commands
 
 ```powershell

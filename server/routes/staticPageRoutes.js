@@ -1,13 +1,17 @@
 const express = require('express');
 const path = require('path');
 
-const { renderHomePage } = require('../homePage');
+const defaultDataLoader = require('../dataLoader');
+const { getPortfolioPositionCount, renderHomePage } = require('../homePage');
 
-function createStaticPageRoutes() {
+function createStaticPageRoutes(options = {}) {
+  const dataLoader = options.dataLoader || defaultDataLoader;
   const router = express.Router();
 
   router.get('/', (req, res) => {
-    res.type('html').send(renderHomePage(req.user));
+    res.type('html').send(renderHomePage(req.user, {
+      dashboardCompanyCount: getPortfolioPositionCount(dataLoader),
+    }));
   });
 
   router.get('/privacy', (req, res) => {

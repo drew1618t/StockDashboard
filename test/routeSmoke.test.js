@@ -206,6 +206,8 @@ test('home page renders authenticated family links instead of static public inde
     const { res, body } = await request(baseUrl, '/');
     assert.equal(res.status, 200);
     assert.match(body, /Access Tier <strong>Family<\/strong>/);
+    assert.match(body, /1 company tracked/);
+    assert.doesNotMatch(body, /Eleven companies tracked/);
     assert.match(body, /href="\/writing"/);
     assert.doesNotMatch(body, /id="access-role">General/);
   });
