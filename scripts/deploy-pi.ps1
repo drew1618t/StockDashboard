@@ -8,7 +8,7 @@ $runtimeDataFiles = @(
   'data/writing-analytics.json',
   'data/writing.json'
 )
-$runtimeDataArgs = ($runtimeDataFiles | ForEach-Object { "'$_'" }) -join ' '
+$runtimeDataArgs = $runtimeDataFiles -join ' '
 
 $remoteCommand = @"
 cd $($target.appDir) &&
