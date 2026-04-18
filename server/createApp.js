@@ -5,8 +5,10 @@ const path = require('path');
 const { createAccessAuth } = require('./auth/accessAuth');
 const { authErrorHandler, requireAuth, requireRole } = require('./auth/authorize');
 const { securityHeaders } = require('./middleware/securityHeaders');
+const { createAnimalRoutes } = require('./routes/family/animalRoutes');
 const { createFamilyMiscRoutes } = require('./routes/family/miscRoutes');
 const { createFamilyPageRoutes } = require('./routes/family/pageRoutes');
+const { createPetRoutes } = require('./routes/family/petRoutes');
 const { createPigeonRoutes } = require('./routes/family/pigeonRoutes');
 const { createPinboardRoutes } = require('./routes/family/pinboardRoutes');
 const { createTaxRoutes } = require('./routes/family/taxRoutes');
@@ -68,6 +70,8 @@ function createApp(options = {}) {
   app.use(createRequestRoutes(deps));
 
   app.use('/api/family', requireFamily);
+  app.use('/api/family', createAnimalRoutes(deps));
+  app.use('/api/family', createPetRoutes(deps));
   app.use('/api/family', createTaxRoutes(deps));
   app.use('/api/family', createPigeonRoutes(deps));
   app.use('/api/family', createFamilyMiscRoutes(deps));

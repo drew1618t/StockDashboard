@@ -353,6 +353,23 @@
         });
     }
 
+    function loadAnimalSummary() {
+      fetch('/api/family/animals/summary')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var due = data && typeof data.dueTodayCount === 'number' ? data.dueTodayCount : 0;
+          var overdue = data && typeof data.overdueCount === 'number' ? data.overdueCount : 0;
+          var dueEl = document.getElementById('animal-due-count');
+          var medEl = document.getElementById('animal-med-count');
+          if (dueEl) dueEl.textContent = String(due);
+          if (medEl) medEl.textContent = overdue > 0 ? overdue + ' overdue' : due + ' due';
+        })
+        .catch(function() {
+          var dueEl = document.getElementById('animal-due-count');
+          if (dueEl) dueEl.textContent = '--';
+        });
+    }
+
     function toggleTodo(id) {
       fetch('/api/family/todos/' + id + '/toggle', { method: 'PATCH' })
         .then(function() { loadTodos(); });
@@ -540,6 +557,7 @@
     });
 
     loadTodos();
+    loadAnimalSummary();
     document.getElementById('pinboard-input').addEventListener('keydown', function(e) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') addPinboardNote();
     });

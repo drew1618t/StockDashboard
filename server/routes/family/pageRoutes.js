@@ -10,6 +10,7 @@ const {
   renderPersonHealthSectionPage,
   renderPersonImagingStudyPage,
 } = require('../../familyPages');
+const { renderAnimalsPage } = require('../../animalPages');
 const {
   findReportFile,
   getImagingStudy,
@@ -20,14 +21,24 @@ const {
 const {
   DEFAULT_UPLOAD_DIR: PIGEON_UPLOAD_DIR,
 } = require('../../pigeonImport');
+const {
+  DEFAULT_UPLOAD_DIR: PET_UPLOAD_DIR,
+} = require('./petRoutes');
+const { renderPetsPage } = require('../../petPages');
 const { renderPigeonsPage } = require('../../pigeonPages');
 const { isPathUnder } = require('../../utils/pathSafety');
 
 function createFamilyPageRoutes(options = {}) {
   const uploadDir = options.pigeonUploadDir || PIGEON_UPLOAD_DIR;
+  const petUploadDir = options.petUploadDir || PET_UPLOAD_DIR;
   const router = express.Router();
 
   router.use('/pigeons/uploads', express.static(uploadDir, {
+    maxAge: 0,
+    etag: true,
+  }));
+
+  router.use('/animals/pets/uploads', express.static(petUploadDir, {
     maxAge: 0,
     etag: true,
   }));
@@ -37,7 +48,22 @@ function createFamilyPageRoutes(options = {}) {
   });
 
   router.get('/pigeons', (req, res) => {
-    res.type('html').send(renderPigeonsPage(req.user));
+    res.redirect(302, '/family/animals/pigeons');
+  });
+
+  router.get('/animals', (req, res) => {
+    res.type('html').send(renderAnimalsPage(req.user));
+  });
+
+  router.get('/animals/pets', (req, res) => {
+    res.type('html').send(renderPetsPage(req.user));
+  });
+
+  router.get('/animals/pigeons', (req, res) => {
+    res.type('html').send(renderPigeonsPage(req.user, {
+      backHref: '/family/animals',
+      backLabel: 'Animals',
+    }));
   });
 
   router.get('/health', (req, res) => {

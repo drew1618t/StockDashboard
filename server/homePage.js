@@ -41,18 +41,18 @@ function renderHomePage(user, options = {}) {
         </a>
       </article>`
     : '';
-  const pigeonsCard = user && user.role === 'family'
+  const animalsCard = user && user.role === 'family'
     ? `
-      <article class="card" onclick="window.location.href='/family/pigeons'">
+      <article class="card" onclick="window.location.href='/family/animals'">
         <div class="card-corner"></div>
         <div class="card-shimmer"></div>
         <div class="card-stamp">Family</div>
-        <h2 class="card-title">Pigeons</h2>
+        <h2 class="card-title">Animals</h2>
         <div class="card-line"></div>
-        <p class="card-desc">Room-based medicine and supplement tracking for the birds Andrew and Kaili are caring for.</p>
-        <a href="/family/pigeons" class="card-cta">Open</a>
-        <a href="/family/pigeons" class="card-link">
-          Open Pigeons <i class="arrow">&rarr;</i>
+        <p class="card-desc">Medication and care tracking for animals.</p>
+        <a href="/family/animals" class="card-cta">Open</a>
+        <a href="/family/animals" class="card-link">
+          Open Animals <i class="arrow">&rarr;</i>
         </a>
       </article>`
     : '';
@@ -686,7 +686,7 @@ function renderHomePage(user, options = {}) {
         </a>
       </article>
       ${familyCard}
-      ${pigeonsCard}
+      ${animalsCard}
       <article class="card card--placeholder">
         <div class="card-corner"></div>
         <div class="card-shimmer"></div>

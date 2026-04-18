@@ -72,7 +72,7 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = nu
     <nav class="hub-nav">
       <a href="/">Home</a>
       <a href="/dashboard">Stock Dashboard</a>
-      <a href="/family/pigeons">Pigeons</a>
+      <a href="/family/animals">Animals</a>
     </nav>
 
     <!-- Greeting -->
@@ -112,6 +112,22 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = nu
         <div class="health-grid">
           ${andrewCard}
           ${kailiCard}
+        </div>
+      </section>
+
+      <!-- ANIMALS -->
+      <section class="hub-animals panel">
+        <div class="panel-label">Animals <span style="opacity:0.45; font-weight:400; margin-left:8px; font-size:10px;" id="animal-med-count"></span></div>
+        <a class="animal-hub-card" href="/family/animals">
+          <div>
+            <strong>Medication Check</strong>
+            <span>Pets and pigeons due today</span>
+          </div>
+          <div class="animal-hub-count" id="animal-due-count">--</div>
+        </a>
+        <div class="animal-hub-links">
+          <a href="/family/animals/pets">Pets</a>
+          <a href="/family/animals/pigeons">Pigeons</a>
         </div>
       </section>
 

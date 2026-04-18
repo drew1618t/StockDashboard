@@ -10,8 +10,10 @@ function assetVersion(relativePath) {
   }
 }
 
-function renderPigeonsPage(user) {
+function renderPigeonsPage(user, options = {}) {
   const userName = user && user.email ? user.email.split('@')[0] : 'family';
+  const backHref = options.backHref || '/family';
+  const backLabel = options.backLabel || 'Family Hub';
   const cssVersion = assetVersion('css/pigeons.css');
   const jsVersion = assetVersion('js/pigeons.js');
   const chartVersion = assetVersion('vendor/chart.umd.min.js');
@@ -29,7 +31,7 @@ function renderPigeonsPage(user) {
 <body>
   <main class="pigeon-page">
     <div class="topbar">
-      <a href="/family">&larr; Family Hub</a>
+      <a href="${backHref}">&larr; ${backLabel}</a>
       <a href="/">Home</a>
     </div>
     <header>

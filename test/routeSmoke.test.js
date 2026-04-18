@@ -111,6 +111,71 @@ function makeDeps() {
   };
 }
 
+function makeAnimalStoreDeps() {
+  const deps = makeDeps();
+  deps.getPetStore = () => ({
+    getSummary() {
+      return {
+        total: 1,
+        activePets: 1,
+        activeMeds: 1,
+        overdueDoses: [{
+          log_id: 11,
+          pet_id: 1,
+          pet_name: 'Molly',
+          animal_type: 'dog',
+          medication_id: 21,
+          kind: 'preventative',
+          name: 'Flea and tick',
+          dosage: '1 chew',
+          scheduled_datetime: '2026-04-18 09:00:00',
+          overdue: 1,
+        }],
+        dueTodayDoses: [],
+        completedTodayDoses: [],
+      };
+    },
+  });
+  deps.getPigeonStore = () => ({
+    getSummary() {
+      return {
+        total: 1,
+        activeBirds: 1,
+        activeMeds: 1,
+        overdueDoses: [],
+        dueTodayDoses: [{
+          log_id: 12,
+          bird_id: 2,
+          bird_name: 'Blue',
+          case_number: 'PG-1',
+          species: 'Feral Pigeon',
+          medication_id: 22,
+          kind: 'medication',
+          name: 'Baytril',
+          dosage: '0.1ml',
+          scheduled_datetime: '2026-04-18 20:00:00',
+          overdue: 0,
+        }],
+        completedTodayDoses: [{
+          log_id: 13,
+          bird_id: 2,
+          bird_name: 'Blue',
+          case_number: 'PG-1',
+          species: 'Feral Pigeon',
+          medication_id: 23,
+          kind: 'supplement',
+          name: 'Calcium',
+          dosage: 'pinch',
+          scheduled_datetime: '2026-04-18 08:00:00',
+          completed_datetime: '2026-04-18 08:05:00',
+          overdue: 0,
+        }],
+      };
+    },
+  });
+  return deps;
+}
+
 async function withServer(app, fn) {
   const server = http.createServer(app);
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -188,6 +253,59 @@ test('/writing and /family render without crashing', async () => {
     assert.match(family.body, /Taylor Family Hub/);
     assert.match(family.body, /\/css\/familyHub\.css/);
     assert.match(family.body, /\/js\/familyHub\.js/);
+  });
+});
+
+test('/family animals pages render and old pigeons route redirects', async () => {
+  const app = createApp({ accessAuth: makeAuth('family'), dependencies: makeAnimalStoreDeps() });
+  await withServer(app, async baseUrl => {
+    const animals = await request(baseUrl, '/family/animals');
+    assert.equal(animals.res.status, 200);
+    assert.match(animals.body, /<title>Animals<\/title>/);
+    assert.match(animals.body, /\/js\/animals\.js/);
+
+    const pets = await request(baseUrl, '/family/animals/pets');
+    assert.equal(pets.res.status, 200);
+    assert.match(pets.body, /<title>Pets<\/title>/);
+    assert.match(pets.body, /\/js\/pets\.js/);
+
+    const pigeons = await request(baseUrl, '/family/animals/pigeons');
+    assert.equal(pigeons.res.status, 200);
+    assert.match(pigeons.body, /<title>Pigeons<\/title>/);
+    assert.match(pigeons.body, /href="\/family\/animals"/);
+
+    const oldPigeons = await request(baseUrl, '/family/pigeons');
+    assert.equal(oldPigeons.res.status, 302);
+    assert.equal(oldPigeons.res.headers.get('location'), '/family/animals/pigeons');
+  });
+});
+
+test('/api/family/animals/summary returns combined pets and pigeons shape', async () => {
+  const app = createApp({ accessAuth: makeAuth('family'), dependencies: makeAnimalStoreDeps() });
+  await withServer(app, async baseUrl => {
+    const { res, body } = await request(baseUrl, '/api/family/animals/summary');
+    assert.equal(res.status, 200);
+    assert.equal(body.pets.total, 1);
+    assert.equal(body.pigeons.total, 1);
+    assert.equal(body.dueItems.length, 2);
+    assert.equal(body.overdueCount, 1);
+    assert.equal(body.completedItems.length, 1);
+    assert.deepEqual(body.dueItems.map(item => item.source).sort(), ['pet', 'pigeon']);
+  });
+});
+
+test('/family/animals and animals API are blocked for non-family users', async () => {
+  const app = createApp({ accessAuth: makeAuth('general'), dependencies: makeAnimalStoreDeps() });
+  await withServer(app, async baseUrl => {
+    const page = await request(baseUrl, '/family/animals', {
+      headers: { accept: 'application/json' },
+    });
+    assert.equal(page.res.status, 403);
+
+    const api = await request(baseUrl, '/api/family/animals/summary', {
+      headers: { accept: 'application/json' },
+    });
+    assert.equal(api.res.status, 403);
   });
 });
 

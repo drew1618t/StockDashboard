@@ -3,6 +3,8 @@ nul
 .claude/
 data/pigeons.db*
 data/pigeons-uploads/
+data/pets.db*
+data/pets-uploads/
 data/*Positions*.csv
 data/Transaction History _ Charles Schwab.pdf
 data/taxes.state.json
