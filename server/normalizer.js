@@ -99,7 +99,7 @@ function normalizeCompany(raw) {
   const result = {
     ticker: raw.ticker || 'UNKNOWN',
     companyName: raw.company_name || raw.companyName || raw.ticker || '',
-    fetchDate: raw.fetch_date || raw.fetchDate || null,
+    fetchDate: raw.fetch_date || raw.fetchDate || raw.generated_at || null,
 
     // Price & Valuation
     price: extractPrice(q, raw),

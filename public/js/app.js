@@ -116,7 +116,7 @@ const App = {
           portfolioTickers: this.companies.map(c => c.ticker),
           deselectedTickers: this.deselectedTickers,
           comparisonCompanies: this.comparisonCompanies,
-          availableTickers: this.availableTickers.available || [],
+          availableTickers: (this.availableTickers.available || []).map(t => typeof t === 'string' ? t : t.ticker),
           onToggle: (ticker, checked) => this._togglePortfolio(ticker, checked),
           onAddComparison: (ticker) => this._addComparison(ticker),
           onRemoveComparison: (ticker) => this._removeComparison(ticker),
@@ -129,7 +129,11 @@ const App = {
       container.appendChild(dashContainer);
 
       const companies = showSelector ? this.getActiveCompanies() : this.companies;
-      await dashboard.render(dashContainer, companies);
+      if (name === 'deepdive') {
+        await dashboard.render(dashContainer, companies, this.availableTickers);
+      } else {
+        await dashboard.render(dashContainer, companies);
+      }
     } catch (err) {
       console.error(`Error rendering ${name}:`, err);
       container.innerHTML = `<div class="error-state">Error: ${this._formatError(err)}</div>`;

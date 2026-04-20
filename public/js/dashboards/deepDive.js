@@ -5,12 +5,42 @@
 const DeepDiveDashboard = {
   _currentTicker: null,
 
-  async render(container, companies) {
+  _isWithin4Months(fetchDate) {
+    if (!fetchDate) return false;
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - 4);
+    const date = new Date(fetchDate);
+    return date >= cutoff;
+  },
+
+  async render(container, companies, availableTickers) {
     container.innerHTML = '';
     this.destroy();
 
     const section = document.createElement('div');
     section.className = 'dashboard deepdive-dashboard';
+
+    // ── Build grouped dropdown options ──
+    const portfolioOptions = companies.map(c =>
+      `<option value="${c.ticker}">${c.ticker} — ${c.companyName || c.ticker}</option>`
+    ).join('');
+
+    const nonPortfolio = (availableTickers?.available || [])
+      .filter(t => {
+        const obj = typeof t === 'string' ? { ticker: t } : t;
+        return this._isWithin4Months(obj.fetchDate);
+      })
+      .sort((a, b) => {
+        const ta = typeof a === 'string' ? a : a.ticker;
+        const tb = typeof b === 'string' ? b : b.ticker;
+        return ta.localeCompare(tb);
+      });
+
+    const nonPortOptions = nonPortfolio.map(t => {
+      const ticker = typeof t === 'string' ? t : t.ticker;
+      const name = typeof t === 'string' ? t : (t.companyName || t.ticker);
+      return `<option value="${ticker}">${ticker} — ${name}</option>`;
+    }).join('');
 
     // ── Stock Selector ──
     const selectorBar = document.createElement('div');
@@ -19,9 +49,10 @@ const DeepDiveDashboard = {
       <label class="stock-selector-label">
         <span>Select Stock:</span>
         <select id="deepdive-ticker-select">
-          ${companies.map(c =>
-            `<option value="${c.ticker}">${c.ticker} — ${c.companyName || c.ticker}</option>`
-          ).join('')}
+          <optgroup label="My Holdings">
+            ${portfolioOptions}
+          </optgroup>
+          ${nonPortOptions ? `<optgroup label="Other Reports">${nonPortOptions}</optgroup>` : ''}
         </select>
       </label>
     `;

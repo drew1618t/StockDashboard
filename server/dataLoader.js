@@ -195,6 +195,15 @@ function loadCompany(dirPath, ticker) {
     result.normalized = buildFromMarkdownOnly(result.analysis, ticker);
   }
 
+  // Fallback: extract date from markdown filename if fetchDate still null
+  if (result.normalized && !result.normalized.fetchDate && mdPath) {
+    const mdFilename = path.basename(mdPath);
+    const dateMatch = mdFilename.match(/_(\d{4})(\d{2})(\d{2})/);
+    if (dateMatch) {
+      result.normalized.fetchDate = `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`;
+    }
+  }
+
   return result;
 }
 
@@ -409,7 +418,9 @@ function getPortfolioHoldings() {
 function getAvailableTickers() {
   return {
     portfolio: cachedCompanies.map(c => c.ticker),
-    available: Object.keys(cachedNonPortfolio).sort(),
+    available: Object.values(cachedNonPortfolio)
+      .map(c => ({ ticker: c.ticker, companyName: c.companyName, fetchDate: c.fetchDate }))
+      .sort((a, b) => a.ticker.localeCompare(b.ticker)),
   };
 }
 
