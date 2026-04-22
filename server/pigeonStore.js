@@ -31,6 +31,10 @@ function toDateTimeString(date = new Date()) {
   return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 }
 
+function effectiveMedicationClause(alias = 'm') {
+  return `${alias}.active = 1 AND (${alias}.end_date IS NULL OR ${alias}.end_date >= ?)`;
+}
+
 function normalizeText(value) {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
@@ -257,6 +261,7 @@ class PigeonStore {
   }
 
   getLocations() {
+    const today = toDateOnly();
     return this.db.prepare(`
       SELECT l.*,
         (SELECT COUNT(*) FROM pigeon_birds b
@@ -265,11 +270,11 @@ class PigeonStore {
         (SELECT COUNT(*)
           FROM pigeon_medications m
           JOIN pigeon_birds b ON b.id = m.bird_id
-          WHERE b.current_location_id = l.id AND m.active = 1
+          WHERE b.current_location_id = l.id AND ${effectiveMedicationClause('m')}
             AND b.status NOT IN ('released', 'deceased')) as active_med_count
       FROM pigeon_locations l
       ORDER BY CASE WHEN l.name = 'Unassigned' THEN 999999 ELSE l.sort_order END, lower(l.name)
-    `).all();
+    `).all(today);
   }
 
   createLocation(name) {
@@ -375,6 +380,7 @@ class PigeonStore {
   }
 
   listBirds(filters = {}) {
+    const today = toDateOnly();
     const where = [];
     const params = [];
     const status = normalizeText(filters.status);
@@ -402,7 +408,7 @@ class PigeonStore {
     const whereClause = where.length ? `WHERE ${where.join(' AND ')}` : '';
     return this.db.prepare(`
       SELECT b.*, l.name as location_name,
-        (SELECT COUNT(*) FROM pigeon_medications m WHERE m.bird_id = b.id AND m.active = 1) as active_med_count,
+        (SELECT COUNT(*) FROM pigeon_medications m WHERE m.bird_id = b.id AND ${effectiveMedicationClause('m')}) as active_med_count,
         (SELECT photo_path FROM pigeon_photos p WHERE p.bird_id = b.id ORDER BY p.upload_date ASC LIMIT 1) as first_photo
       FROM pigeon_birds b
       LEFT JOIN pigeon_locations l ON l.id = b.current_location_id
@@ -419,7 +425,7 @@ class PigeonStore {
         END,
         lower(COALESCE(l.name, '')),
         lower(COALESCE(b.name, b.case_number))
-    `).all(...params);
+    `).all(today, ...params);
   }
 
   getBirdDetail(id) {
@@ -620,26 +626,42 @@ class PigeonStore {
   }
 
   getMedicationById(id) {
+    const now = toDateTimeString();
+    const today = toDateOnly();
     return mapMedicationRow(this.db.prepare(`
       SELECT m.*,
         (SELECT COUNT(*) FROM pigeon_medication_logs WHERE medication_id = m.id AND given = 1) as doses_given,
         (SELECT COUNT(*) FROM pigeon_medication_logs WHERE medication_id = m.id) as total_doses,
-        (SELECT COUNT(*) FROM pigeon_medication_logs WHERE medication_id = m.id AND given = 0 AND scheduled_datetime < ?) as overdue_count
+        CASE
+          WHEN ${effectiveMedicationClause('m')}
+          THEN (SELECT COUNT(*)
+            FROM pigeon_medication_logs
+            WHERE medication_id = m.id AND given = 0 AND skipped = 0 AND scheduled_datetime < ?)
+          ELSE 0
+        END as overdue_count
       FROM pigeon_medications m
       WHERE m.id = ?
-    `).get(toDateTimeString(), id));
+    `).get(today, now, id));
   }
 
   listBirdMedications(birdId) {
+    const now = toDateTimeString();
+    const today = toDateOnly();
     return this.db.prepare(`
       SELECT m.*,
         (SELECT COUNT(*) FROM pigeon_medication_logs WHERE medication_id = m.id AND given = 1) as doses_given,
         (SELECT COUNT(*) FROM pigeon_medication_logs WHERE medication_id = m.id) as total_doses,
-        (SELECT COUNT(*) FROM pigeon_medication_logs WHERE medication_id = m.id AND given = 0 AND scheduled_datetime < ?) as overdue_count
+        CASE
+          WHEN ${effectiveMedicationClause('m')}
+          THEN (SELECT COUNT(*)
+            FROM pigeon_medication_logs
+            WHERE medication_id = m.id AND given = 0 AND skipped = 0 AND scheduled_datetime < ?)
+          ELSE 0
+        END as overdue_count
       FROM pigeon_medications m
       WHERE m.bird_id = ?
       ORDER BY m.active DESC, m.kind, lower(m.name)
-    `).all(toDateTimeString(), birdId).map(mapMedicationRow);
+    `).all(today, now, birdId).map(mapMedicationRow);
   }
 
   updateMedication(id, updates = {}) {
@@ -747,8 +769,9 @@ class PigeonStore {
   listDueDoses({ overdue = false, dueToday = false } = {}) {
     const now = toDateTimeString();
     const today = toDateOnly();
-    const clauses = ['ml.given = 0', 'ml.skipped = 0', 'm.active = 1'];
+    const clauses = ['ml.given = 0', 'ml.skipped = 0', effectiveMedicationClause('m')];
     const params = [];
+    params.push(today);
     const placeholders = ACTIVE_CARE_STATUSES.map(() => '?').join(', ');
     clauses.push(`b.status IN (${placeholders})`);
     params.push(...ACTIVE_CARE_STATUSES);
@@ -826,6 +849,7 @@ class PigeonStore {
   }
 
   listActiveMedicationsByRoom() {
+    const today = toDateOnly();
     const placeholders = ACTIVE_CARE_STATUSES.map(() => '?').join(', ');
     return this.db.prepare(`
       SELECT m.*, b.id as bird_id, b.name as bird_name, b.case_number, b.species, b.status,
@@ -833,21 +857,22 @@ class PigeonStore {
       FROM pigeon_medications m
       JOIN pigeon_birds b ON b.id = m.bird_id
       LEFT JOIN pigeon_locations l ON l.id = b.current_location_id
-      WHERE m.active = 1 AND b.status IN (${placeholders})
+      WHERE ${effectiveMedicationClause('m')} AND b.status IN (${placeholders})
       ORDER BY COALESCE(l.sort_order, 999999), lower(COALESCE(l.name, 'Unassigned')), lower(COALESCE(b.name, b.case_number)), lower(m.name)
-    `).all(...ACTIVE_CARE_STATUSES);
+    `).all(today, ...ACTIVE_CARE_STATUSES);
   }
 
   listActiveBirdsByRoom() {
+    const today = toDateOnly();
     const placeholders = ACTIVE_CARE_STATUSES.map(() => '?').join(', ');
     return this.db.prepare(`
       SELECT b.*, COALESCE(l.name, 'Unassigned') as location_name,
-        (SELECT COUNT(*) FROM pigeon_medications m WHERE m.bird_id = b.id AND m.active = 1) as active_med_count
+        (SELECT COUNT(*) FROM pigeon_medications m WHERE m.bird_id = b.id AND ${effectiveMedicationClause('m')}) as active_med_count
       FROM pigeon_birds b
       LEFT JOIN pigeon_locations l ON l.id = b.current_location_id
       WHERE b.status IN (${placeholders})
       ORDER BY COALESCE(l.sort_order, 999999), lower(COALESCE(l.name, 'Unassigned')), lower(COALESCE(b.name, b.case_number))
-    `).all(...ACTIVE_CARE_STATUSES);
+    `).all(today, ...ACTIVE_CARE_STATUSES);
   }
 
   addPhoto(birdId, input = {}) {
@@ -884,6 +909,7 @@ class PigeonStore {
   }
 
   getStats() {
+    const today = toDateOnly();
     const byStatus = this.db.prepare(`
       SELECT status, COUNT(*) as count FROM pigeon_birds GROUP BY status ORDER BY status
     `).all();
@@ -903,17 +929,19 @@ class PigeonStore {
       FROM pigeon_medications m
       JOIN pigeon_birds b ON b.id = m.bird_id
       LEFT JOIN pigeon_locations l ON l.id = b.current_location_id
-      WHERE m.active = 1 AND b.status NOT IN ('released', 'deceased')
+      WHERE ${effectiveMedicationClause('m')} AND b.status NOT IN ('released', 'deceased')
       GROUP BY COALESCE(l.name, 'Unassigned')
       ORDER BY count DESC, location_name
-    `).all();
+    `).all(today);
 
     return {
       total: this.db.prepare('SELECT COUNT(*) as count FROM pigeon_birds').get().count,
       activeBirds: this.db.prepare(`
         SELECT COUNT(*) as count FROM pigeon_birds WHERE status IN (${ACTIVE_CARE_STATUSES.map(() => '?').join(', ')})
       `).get(...ACTIVE_CARE_STATUSES).count,
-      activeMeds: this.db.prepare('SELECT COUNT(*) as count FROM pigeon_medications WHERE active = 1').get().count,
+      activeMeds: this.db.prepare(`
+        SELECT COUNT(*) as count FROM pigeon_medications m WHERE ${effectiveMedicationClause('m')}
+      `).get(today).count,
       overdueMeds: this.listDueDoses({ overdue: true }).length,
       byStatus,
       bySpecies,

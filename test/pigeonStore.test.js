@@ -138,6 +138,52 @@ test('pigeon store returns due and overdue room-grouped medication data', () => 
   }
 });
 
+test('expired medications do not count as active or due when the row remains active', () => {
+  const dir = makeTempDir();
+  const store = createPigeonStore({ dbPath: path.join(dir, 'pigeons.db') });
+  try {
+    const room = store.createLocation('Recovery');
+    const bird = store.createBird({
+      name: 'Blue',
+      current_location_id: room.id,
+      status: 'active',
+    });
+
+    const med = store.createMedication(bird.id, {
+      name: 'Baytril',
+      frequency_per_day: 1,
+      start_date: '2000-01-01',
+      end_date: '2000-01-02',
+    });
+
+    const medDetail = store.getMedicationById(med.id);
+    assert.equal(medDetail.active, 1);
+    assert.equal(medDetail.overdue_count, 0);
+
+    assert.equal(store.listDueDoses({ overdue: true }).length, 0);
+    assert.equal(store.listActiveMedicationsByRoom().length, 0);
+
+    const birds = store.listBirds({});
+    assert.equal(birds.find(row => row.id === bird.id).active_med_count, 0);
+
+    const roomRow = store.getLocations().find(row => row.id === room.id);
+    assert.equal(roomRow.active_med_count, 0);
+
+    const summary = store.getSummary();
+    assert.equal(summary.activeMeds, 0);
+    assert.equal(summary.overdueMeds, 0);
+    const roomSummary = summary.roomGroups.find(group => group.location_name === 'Recovery');
+    assert.equal(roomSummary.activeMeds.length, 0);
+    const birdSummary = roomSummary.birds.find(row => row.id === bird.id);
+    assert.equal(birdSummary.medication_state, 'no_meds');
+    assert.equal(birdSummary.activeMeds.length, 0);
+    assert.equal(birdSummary.dueDoses.length, 0);
+  } finally {
+    store.close();
+    cleanupTempDir(dir);
+  }
+});
+
 test('pigeon store records explicit weights and keeps initial weight as a synthetic point', () => {
   const dir = makeTempDir();
   const store = createPigeonStore({ dbPath: path.join(dir, 'pigeons.db') });
