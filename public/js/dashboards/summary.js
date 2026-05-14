@@ -40,6 +40,34 @@ const SummaryDashboard = {
     ]);
     section.appendChild(metricsRow);
 
+    // ── Companies I Own ──
+    const ownedSection = document.createElement('div');
+    ownedSection.className = 'section';
+    ownedSection.innerHTML = '<h2 class="section-title">Companies I Own</h2>';
+
+    SortableTable.render(ownedSection, {
+      columns: [
+        { key: 'ticker', label: 'Company', width: '90px' },
+        { key: '_quality', label: 'Quality', format: v => Fmt.qualityScore(v), align: 'right', width: '90px' },
+        { key: 'revenueYoyPct', label: 'Rev YoY', format: v => Fmt.pct(v, true), align: 'right', width: '80px' },
+        { key: '_pe', label: 'P/E', format: v => v != null ? v.toFixed(1) + 'x' : 'N/A', align: 'right', width: '70px' },
+        { key: '_gav', label: 'GAV', format: v => v != null ? v.toFixed(2) : 'N/A', align: 'right', width: '70px' },
+        { key: 'verdict', label: 'Verdict', format: v => Fmt.verdict(v), width: '110px' },
+      ],
+      data: companies.map(c => ({
+        ...c,
+        _quality: this._qualityScore(c),
+        _pe: this._effectivePe(c),
+        _gav: c.calculated?.gav ?? null,
+      })),
+      defaultSort: '_quality',
+      defaultDir: 'desc',
+      onRowClick: (row) => {
+        window.location.hash = `#deepdive?ticker=${row.ticker}`;
+      },
+    });
+    section.appendChild(ownedSection);
+
     // ── Top Performers Table ──
     const topSection = document.createElement('div');
     topSection.className = 'section';
@@ -162,6 +190,14 @@ const SummaryDashboard = {
     });
     card.appendChild(table);
     return card;
+  },
+
+  _effectivePe(company) {
+    return company.runRatePe || company.trailingPe || company.normalizedPe || null;
+  },
+
+  _qualityScore(company) {
+    return company.qualityScore ?? company.quality_score ?? null;
   },
 
   destroy() {

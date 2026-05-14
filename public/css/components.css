@@ -130,13 +130,17 @@
 .verdict-fail { background: rgba(239, 68, 68, 0.15); color: var(--color-negative); }
 .verdict-unknown { background: rgba(107, 114, 128, 0.15); color: var(--text-muted); }
 
-/* ── Saul Score & Conviction Badges ──────────────────────────────────── */
-.saul-score, .saul-conviction {
+/* ── Saul Score, Quality Score & Conviction Badges ──────────────────────────────────── */
+.saul-score, .quality-score, .saul-conviction {
   display: inline-block;
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 13px;
   font-weight: 700;
+}
+.quality-score {
+  min-width: 38px;
+  text-align: center;
 }
 .score-high { background: rgba(34, 197, 94, 0.2); color: var(--color-positive); }
 .score-mid  { background: rgba(245, 158, 11, 0.15); color: var(--color-warning); }

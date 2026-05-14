@@ -198,6 +198,8 @@ function normalizeCompany(raw) {
     // Evaluation (from dashboard_metrics.json evaluation section)
     verdict: ev.verdict || null,
     convictionScore: safeNum(ev.conviction_score) || null,
+    qualityScore: safeNum(dig(ev, 'quality_score') || dig(raw, 'quality_score')),
+    qualityBreakdown: dig(ev, 'quality_breakdown') || dig(raw, 'quality_breakdown') || null,
     confidenceLevel: ev.confidence_level || null,
     keyStrengths: Array.isArray(ev.key_strengths) ? ev.key_strengths : [],
     keyConcerns: Array.isArray(ev.key_concerns) ? ev.key_concerns : [],

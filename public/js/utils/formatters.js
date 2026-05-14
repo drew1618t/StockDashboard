@@ -74,6 +74,14 @@ const Fmt = {
     return `<span class="saul-score ${cls}">${score}/100</span>`;
   },
 
+  /** Quality score badge (0-100) */
+  qualityScore(score) {
+    if (score === null || score === undefined) return '<span class="quality-score score-low">N/A</span>';
+    const n = Math.round(Number(score));
+    const cls = n >= 80 ? 'score-high' : n >= 60 ? 'score-mid' : 'score-low';
+    return `<span class="quality-score ${cls}">${n}</span>`;
+  },
+
   /** Conviction level badge */
   conviction(level) {
     if (!level) return '<span class="saul-conviction conviction-low">N/A</span>';
