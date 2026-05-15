@@ -4,6 +4,7 @@ $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
 $targetPath = Join-Path $repoRoot 'deploy/pi-target.json'
 $target = Get-Content $targetPath -Raw | ConvertFrom-Json
 $runtimeDataFiles = @(
+  'portfolio.json',
   'data/todos.json',
   'data/writing-analytics.json',
   'data/writing.json'

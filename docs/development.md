@@ -142,6 +142,7 @@ overwrite live app data:
 data/todos.json
 data/writing-analytics.json
 data/writing.json
+portfolio.json
 ```
 
 It also copies legacy `data/taxes.json` to `data/taxes.state.json` on the Pi if the state file
