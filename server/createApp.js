@@ -66,7 +66,7 @@ function createApp(options = {}) {
     });
   });
 
-  app.use(createPortfolioRoutes(deps));
+  app.use(createPortfolioRoutes({ ...deps, requireFamily }));
   app.use(createRequestRoutes(deps));
 
   app.use('/api/family', requireFamily);

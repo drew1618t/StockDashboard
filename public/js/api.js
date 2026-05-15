@@ -57,6 +57,11 @@ const API = {
     return data;
   },
 
+  async refreshLivePortfolio() {
+    this._cache.live_portfolio = null;
+    return this._requestJson('/api/live-portfolio/refresh');
+  },
+
   async getTaxes(forceRefresh = false) {
     const key = 'taxes';
     if (!forceRefresh && this._cache[key]) return this._cache[key];

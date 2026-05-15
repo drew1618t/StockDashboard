@@ -1,7 +1,14 @@
 {
   "holdings": [
-    "ALAB", "APP", "IREN", "ELVA", "SEI", "MU",
-    "CRDO", "PTRN", "FIGR"
+    "ALAB",
+    "APP",
+    "CRDO",
+    "HNGE",
+    "IREN",
+    "MU",
+    "PTRN",
+    "SEI",
+    "SIMO"
   ],
   "_comment": "Auto-synced with Google Sheets live positions. Manual edits are overwritten on next sync."
 }

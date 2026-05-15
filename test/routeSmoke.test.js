@@ -221,6 +221,34 @@ test('/api/portfolio returns portfolio shape', async () => {
   });
 });
 
+test('/api refresh endpoints are family-only', async () => {
+  const generalApp = createApp({ accessAuth: makeAuth('general'), dependencies: makeDeps() });
+  await withServer(generalApp, async baseUrl => {
+    const refresh = await request(baseUrl, '/api/refresh', {
+      headers: { accept: 'application/json' },
+    });
+    assert.equal(refresh.res.status, 403);
+    assert.match(refresh.body.error, /family tier/);
+
+    const liveRefresh = await request(baseUrl, '/api/live-portfolio/refresh', {
+      headers: { accept: 'application/json' },
+    });
+    assert.equal(liveRefresh.res.status, 403);
+    assert.match(liveRefresh.body.error, /family tier/);
+  });
+
+  const familyApp = createApp({ accessAuth: makeAuth('family'), dependencies: makeDeps() });
+  await withServer(familyApp, async baseUrl => {
+    const refresh = await request(baseUrl, '/api/refresh');
+    assert.equal(refresh.res.status, 200);
+    assert.equal(refresh.body.message, 'Data refreshed');
+
+    const liveRefresh = await request(baseUrl, '/api/live-portfolio/refresh');
+    assert.equal(liveRefresh.res.status, 200);
+    assert.deepEqual(liveRefresh.body.stocks, []);
+  });
+});
+
 test('/api/family/taxes is blocked for non-family users and allowed for family users', async () => {
   const generalApp = createApp({ accessAuth: makeAuth('general'), dependencies: makeDeps() });
   await withServer(generalApp, async baseUrl => {

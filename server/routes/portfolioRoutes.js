@@ -1,5 +1,6 @@
 const express = require('express');
 
+const { requireRole } = require('../auth/authorize');
 const defaultDataLoader = require('../dataLoader');
 const defaultSheetsPoller = require('../sheetsPoller');
 
@@ -86,6 +87,7 @@ function overlayLivePrices(companies, sheetsPoller) {
 function createPortfolioRoutes(options = {}) {
   const dataLoader = options.dataLoader || defaultDataLoader;
   const sheetsPoller = options.sheetsPoller || defaultSheetsPoller;
+  const requireFamily = options.requireFamily || requireRole('family');
   const router = express.Router();
 
   router.get('/api/portfolio', (req, res) => {
@@ -111,7 +113,7 @@ function createPortfolioRoutes(options = {}) {
     res.json(dataLoader.getAvailableTickers());
   });
 
-  router.get('/api/refresh', (req, res) => {
+  router.get('/api/refresh', requireFamily, (req, res) => {
     const companies = dataLoader.refresh();
     res.json({
       message: 'Data refreshed',
@@ -124,7 +126,7 @@ function createPortfolioRoutes(options = {}) {
     res.json(sheetsPoller.getLiveData());
   });
 
-  router.get('/api/live-portfolio/refresh', async (req, res) => {
+  router.get('/api/live-portfolio/refresh', requireFamily, async (req, res) => {
     try {
       const data = await sheetsPoller.forceRefresh();
       res.json(data);

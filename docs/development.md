@@ -15,12 +15,22 @@ npm run dev
 `npm run dev` uses Node's watch mode:
 
 ```powershell
-node --watch server/index.js
+node --watch local.js
 ```
 
 ## Local Auth Bypass
 
-Cloudflare Access is required by default. For local development, use the built-in dev override instead of changing route code.
+Cloudflare Access is required by default for `npm start`. For local development, use `npm run dev`;
+it starts `local.js`, bypasses Cloudflare Access, and grants a family-role user.
+
+To test the real Cloudflare Access path locally, use:
+
+```powershell
+npm run dev:access
+```
+
+That script expects the Access environment variables to be configured. You can also use the
+built-in dev override instead of changing route code.
 
 Example family session:
 
@@ -109,13 +119,54 @@ git commit -m "Document site architecture"
 Deploy uses the checked-in script and target config:
 
 ```powershell
+git push origin main
 powershell -ExecutionPolicy Bypass -File scripts\deploy-pi.ps1
 ```
 
-The script deploys the current `origin/main` branch configured in `deploy/pi-target.json`. Push before deploying:
+The target is configured in `deploy/pi-target.json`. The current target is the `portfolio-viz`
+service on the Raspberry Pi at `/home/andrew/StockDashboard`, deploying the `main` branch.
 
-```powershell
-git push origin main
+The script SSHes to the Pi and runs the deploy from the remote checkout:
+
+```text
+git pull --ff-only origin main
+npm install --omit=dev
+sudo systemctl restart portfolio-viz
+systemctl status portfolio-viz --no-pager
 ```
 
-The deploy script restarts the systemd service and prints service status.
+Before pulling, the script preserves runtime-edited JSON files on the Pi so a deploy does not
+overwrite live app data:
+
+```text
+data/todos.json
+data/writing-analytics.json
+data/writing.json
+```
+
+It also copies legacy `data/taxes.json` to `data/taxes.state.json` on the Pi if the state file
+does not exist yet, then restores the tracked `data/taxes.json` before pulling.
+
+## Health Reports On The Pi
+
+Health report documents and health SQLite databases are not pushed by `scripts\deploy-pi.ps1`.
+The health pages read external runtime paths from environment variables in the Pi service env:
+
+```text
+HEALTH_ANDREW_ROOT
+HEALTH_ANDREW_REPORTS_DIR
+HEALTH_ANDREW_DB_PATH
+HEALTH_ANDREW_IMAGING_DIR
+HEALTH_KAILI_ROOT
+HEALTH_KAILI_REPORTS_DIR
+HEALTH_KAILI_DB_PATH
+HEALTH_KAILI_IMAGING_DIR
+HEALTH_PYTHON_BIN
+```
+
+Those values are normally supplied by `/home/andrew/StockDashboard/.env.production`, loaded by
+`systemd/portfolio-viz.service`.
+
+To push new health reports, sync the generated health files to the Pi paths configured in that
+env file, then restart the service if the database or environment changed. There is currently no
+checked-in health sync script.

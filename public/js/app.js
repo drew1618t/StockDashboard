@@ -54,8 +54,16 @@ const App = {
     ChartDefaults.applyTheme(ThemeManager.current);
 
     // Refresh button
-    document.getElementById('refresh-btn')?.addEventListener('click', async () => {
+    const refreshButton = document.getElementById('refresh-btn');
+    if (refreshButton) {
+      const canRefresh = this.user && this.user.role === 'family';
+      refreshButton.hidden = !canRefresh;
+      refreshButton.disabled = !canRefresh;
+    }
+    refreshButton?.addEventListener('click', async () => {
       try {
+        refreshButton.disabled = true;
+        await API.refreshLivePortfolio();
         await API.refresh();
         const data = await API.getPortfolio(true);
         this.companies = (data.companies || []).map(c => ({ ...c, _isComparison: false }));
@@ -63,6 +71,8 @@ const App = {
         this.renderDashboard(this.currentDashboard);
       } catch (err) {
         console.error('Refresh failed:', err);
+      } finally {
+        refreshButton.disabled = false;
       }
     });
 
