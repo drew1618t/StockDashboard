@@ -14,5 +14,6 @@
     "useCapitalLossOffset": true,
     "realizedMode": "confirmed_or_estimate"
   },
+  "manualTransactions": [],
   "saleConfirmations": {}
 }

@@ -116,6 +116,44 @@ test('flags a synthetic sale with no prior basis as needing data', () => {
   assert.equal(fifo.realizedSales[0].closedPosition, true);
 });
 
+test('manual post-export ELVA sale closes current position and realizes short-term gain', { skip: SOURCE_FILE_SKIP }, async () => {
+  const parsed = taxStore._parsePositionsCsv(fs.readFileSync(POSITIONS_PATH, 'utf-8'));
+  const manualTransactions = taxStore._sanitizeManualTransactions([
+    {
+      date: '2026-05-17',
+      type: 'sell',
+      ticker: 'ELVA',
+      description: 'ELECTROVAYA INC F',
+      quantity: 821,
+      price: 9.6601,
+      fees: 0.32,
+      amount: 7930.62,
+    },
+  ]);
+  const currentPositions = taxStore._applyManualSalesToPositions(parsed.positions, manualTransactions, parsed.asOfDate);
+  const parser = new PDFParse({ data: fs.readFileSync(TRANSACTIONS_PATH) });
+
+  try {
+    const result = await parser.getText({ pageJoiner: '\n--- TAX PAGE page_number ---\n' });
+    const transactions = [
+      ...taxStore._parseTransactionsText(result.text),
+      ...manualTransactions,
+    ];
+    const fifo = taxStore._reconstructFifo(transactions, 2026, currentPositions);
+    const elva = fifo.realizedSales.find(sale => sale.ticker === 'ELVA');
+
+    assert.equal(currentPositions.some(position => position.ticker === 'ELVA'), false);
+    assert.equal(elva.quantity, 821);
+    assert.equal(elva.proceeds, 7930.62);
+    assertClose(elva.costBasis, 5997.41);
+    assertClose(elva.gainLossEstimate, 1933.21);
+    assert.equal(elva.holdingTerm, 'short');
+    assert.equal(elva.closedPosition, true);
+  } finally {
+    await parser.destroy();
+  }
+});
+
 test('persists sale confirmation overrides without changing FIFO estimate', { skip: SOURCE_FILE_SKIP }, async () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tax-store-'));
   const tempStatePath = path.join(tempDir, 'taxes.json');

@@ -40,6 +40,7 @@ function getDefaultState() {
       useCapitalLossOffset: true,
       realizedMode: 'confirmed_or_estimate',
     },
+    manualTransactions: [],
     saleConfirmations: {},
   };
 }
@@ -95,6 +96,7 @@ function readData() {
         sourceFiles: { ...defaults.sourceFiles, ...(template.sourceFiles || {}) },
         planner: { ...defaults.planner, ...(template.planner || {}) },
         carryoverLoss: template.carryoverLoss !== undefined ? round2(Number(template.carryoverLoss)) : defaults.carryoverLoss,
+        manualTransactions: Array.isArray(template.manualTransactions) ? template.manualTransactions : [],
         saleConfirmations: template.saleConfirmations || {},
       };
     }
@@ -109,6 +111,9 @@ function readData() {
         ? round2(Number(raw.carryoverLoss))
         : (template.carryoverLoss !== undefined ? round2(Number(template.carryoverLoss)) : defaults.carryoverLoss),
       planner: { ...defaults.planner, ...(template.planner || {}), ...(raw.planner || {}) },
+      manualTransactions: Array.isArray(raw.manualTransactions)
+        ? raw.manualTransactions
+        : (Array.isArray(template.manualTransactions) ? template.manualTransactions : []),
       saleConfirmations: raw.saleConfirmations || template.saleConfirmations || {},
     };
   } catch {
@@ -377,6 +382,66 @@ function _parseTransactionsText(text) {
 
 function createSaleId(sale, sequence) {
   return `${sale.date}:${sale.ticker}:${round4(sale.quantity)}:${round2(sale.proceeds).toFixed(2)}:${sequence}`;
+}
+
+function sanitizeManualTransactions(transactions = []) {
+  if (!Array.isArray(transactions)) return [];
+
+  return transactions
+    .map((tx, index) => {
+      const date = typeof tx.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(tx.date) ? tx.date : null;
+      const type = String(tx.type || '').toLowerCase();
+      const ticker = String(tx.ticker || '').trim().toUpperCase();
+      const quantity = round4(Number(tx.quantity));
+      const price = round4(Number(tx.price));
+      const amount = round2(Number(tx.amount));
+      const fees = tx.fees === undefined || tx.fees === null || tx.fees === '' ? null : round2(Number(tx.fees));
+
+      if (!date || !['buy', 'sell'].includes(type) || !ticker || !quantity || quantity <= 0 || price === null || amount === null) {
+        return null;
+      }
+
+      return {
+        originalIndex: 1000000 + index,
+        date,
+        type,
+        ticker,
+        description: String(tx.description || ticker).trim(),
+        quantity,
+        price,
+        amount,
+        fees,
+        proceeds: type === 'sell' ? amount : null,
+        manual: true,
+        notes: typeof tx.notes === 'string' ? tx.notes.trim() : '',
+      };
+    })
+    .filter(Boolean);
+}
+
+function applyManualSalesToPositions(positions, manualTransactions, asOfDate) {
+  const adjusted = (positions || []).map(position => ({ ...position }));
+
+  manualTransactions
+    .filter(tx => tx.type === 'sell' && (!asOfDate || tx.date > asOfDate))
+    .forEach(tx => {
+      let remaining = tx.quantity;
+      for (const position of adjusted) {
+        if (position.ticker !== tx.ticker || remaining <= 0.00001) continue;
+
+        const consumed = Math.min(position.quantity || 0, remaining);
+        const originalQuantity = position.quantity || 0;
+        const ratio = originalQuantity > 0 ? Math.max(0, (originalQuantity - consumed) / originalQuantity) : 0;
+
+        position.quantity = round4(originalQuantity - consumed);
+        position.marketValue = round2((position.marketValue || 0) * ratio);
+        position.costBasis = round2((position.costBasis || 0) * ratio);
+        position.unrealizedGainLoss = round2((position.unrealizedGainLoss || 0) * ratio);
+        remaining = round4(remaining - consumed);
+      }
+    });
+
+  return adjusted.filter(position => (position.quantity || 0) > 0.00001);
 }
 
 function getHoldingTerm(lots, saleDate) {
@@ -741,10 +806,15 @@ async function getTaxes() {
   const pdfPath = resolveRepoPath(process.env.TAX_TRANSACTION_HISTORY_PDF || state.sourceFiles.transactionHistoryPdf);
 
   const positionsData = _parsePositionsCsv(fs.readFileSync(positionsPath, 'utf-8'));
+  const manualTransactions = sanitizeManualTransactions(state.manualTransactions);
+  const currentPositionRows = applyManualSalesToPositions(positionsData.positions, manualTransactions, positionsData.asOfDate);
   const transactionsText = await extractPdfText(pdfPath);
-  const transactions = _parseTransactionsText(transactionsText);
-  const fifo = _reconstructFifo(transactions, state.taxYear, positionsData.positions);
-  const positions = buildPositions(positionsData.positions, fifo.lotsByTicker, positionsData.asOfDate);
+  const transactions = [
+    ..._parseTransactionsText(transactionsText),
+    ...manualTransactions,
+  ];
+  const fifo = _reconstructFifo(transactions, state.taxYear, currentPositionRows);
+  const positions = buildPositions(currentPositionRows, fifo.lotsByTicker, positionsData.asOfDate);
   const realizedSales = mergeConfirmations(fifo.realizedSales, state.saleConfirmations);
   const attentionItems = buildAttentionItems(realizedSales);
   const planner = computePlanner({ taxYear: state.taxYear, plannerInputs: state.planner, realizedSales });
@@ -757,6 +827,7 @@ async function getTaxes() {
       transactionHistoryPdf: state.sourceFiles.transactionHistoryPdf,
       positionsAsOf: positionsData.asOf,
     },
+    manualTransactions,
     summary: buildSummary(state, positions, positionsData.cash, realizedSales),
     planner,
     positions,
@@ -817,5 +888,7 @@ module.exports = {
   _parsePositionsCsv,
   _parseTransactionsText,
   _reconstructFifo,
+  _sanitizeManualTransactions: sanitizeManualTransactions,
+  _applyManualSalesToPositions: applyManualSalesToPositions,
   _computePlanner: computePlanner,
 };
