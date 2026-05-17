@@ -104,6 +104,14 @@ const API = {
     return data;
   },
 
+  async getNonPortfolioCompanies(forceRefresh = false) {
+    const key = 'nonPortfolioCompanies';
+    if (!forceRefresh && this._cache[key]) return this._cache[key];
+    const data = await this._requestJson('/api/non-portfolio-companies');
+    this._cache[key] = data;
+    return data;
+  },
+
   async requestComparison(ticker) {
     return this._requestJson('/api/requests', {
       method: 'POST',

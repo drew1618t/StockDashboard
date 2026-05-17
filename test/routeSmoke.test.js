@@ -38,6 +38,14 @@ function makeDeps() {
       getAvailableTickers() {
         return { portfolio: ['TEST'], available: ['MOCK'] };
       },
+      getNonPortfolioCompanies() {
+        return [{
+          ticker: 'MOCK',
+          price: 20,
+          qualityScore: 71,
+          calculated: {},
+        }];
+      },
       getPortfolioHoldings() {
         return [{ ticker: 'TEST', shares: 1 }];
       },
@@ -218,6 +226,17 @@ test('/api/portfolio returns portfolio shape', async () => {
     assert.equal(body.count, 1);
     assert.equal(body.companies[0].ticker, 'TEST');
     assert.deepEqual(body.holdings, [{ ticker: 'TEST', shares: 1 }]);
+  });
+});
+
+test('/api/non-portfolio-companies returns watchlist candidates', async () => {
+  const app = createApp({ accessAuth: makeAuth('family'), dependencies: makeDeps() });
+  await withServer(app, async baseUrl => {
+    const { res, body } = await request(baseUrl, '/api/non-portfolio-companies');
+    assert.equal(res.status, 200);
+    assert.equal(body.count, 1);
+    assert.equal(body.companies[0].ticker, 'MOCK');
+    assert.equal(body.companies[0].qualityScore, 71);
   });
 });
 

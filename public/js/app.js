@@ -12,6 +12,7 @@ const App = {
   user: null,
   dashboards: {
     summary: SummaryDashboard,
+    quality: QualityDashboard,
     growth: GrowthDashboard,
     valuation: ValuationDashboard,
     profitability: ProfitabilityDashboard,

@@ -1,6 +1,6 @@
 /**
- * summary.js — Dashboard 5: Portfolio Summary
- * Overview metrics, top performers, Saul compliance, alerts.
+ * summary.js - Portfolio Summary dashboard.
+ * Overview metrics, top performers, holdings table, and alerts.
  */
 const SummaryDashboard = {
   async render(container, companies) {
@@ -9,14 +9,12 @@ const SummaryDashboard = {
     const section = document.createElement('div');
     section.className = 'dashboard summary-dashboard';
 
-    // ── Live Portfolio Section (from Google Sheets) ──
     try {
       await LiveSection.render(section);
     } catch (err) {
       console.warn('[Summary] Live section skipped:', err.message);
     }
 
-    // ── Fundamentals Metrics Bar ──
     const profitable = companies.filter(c => c.currentlyProfitable === true);
     const withGrowth = companies.filter(c => c.revenueYoyPct !== null);
     const avgGrowth = withGrowth.length > 0
@@ -40,7 +38,6 @@ const SummaryDashboard = {
     ]);
     section.appendChild(metricsRow);
 
-    // ── Companies I Own ──
     const ownedSection = document.createElement('div');
     ownedSection.className = 'section';
     ownedSection.innerHTML = '<h2 class="section-title">Companies I Own</h2>';
@@ -68,7 +65,6 @@ const SummaryDashboard = {
     });
     section.appendChild(ownedSection);
 
-    // ── Top Performers Table ──
     const topSection = document.createElement('div');
     topSection.className = 'section';
     topSection.innerHTML = '<h2 class="section-title">Top Performers</h2>';
@@ -76,14 +72,12 @@ const SummaryDashboard = {
     const topGrid = document.createElement('div');
     topGrid.className = 'top-performers-grid';
 
-    // Highest Growth
     const byGrowth = [...withGrowth].sort((a, b) => (b.revenueYoyPct || 0) - (a.revenueYoyPct || 0));
     topGrid.appendChild(this._miniTable('Fastest Growing', byGrowth.slice(0, 5), [
       { key: 'ticker', label: 'Ticker', width: '60px' },
       { key: 'revenueYoyPct', label: 'YoY %', format: v => Fmt.pct(v, true), align: 'right', width: '80px' },
     ]));
 
-    // Best Operating Leverage
     const withLeverage = companies.filter(c => c.calculated?.operatingLeverage !== null);
     const byLeverage = [...withLeverage].sort((a, b) =>
       (b.calculated?.operatingLeverage || 0) - (a.calculated?.operatingLeverage || 0)
@@ -93,7 +87,6 @@ const SummaryDashboard = {
       { key: '_leverage', label: 'Ratio', format: (_, r) => Fmt.multiple(r.calculated?.operatingLeverage), align: 'right', width: '80px' },
     ]));
 
-    // Cheapest by P/E (run-rate preferred)
     const _ePe = c => c.runRatePe || c.trailingPe || c.normalizedPe || null;
     const withPE = companies.filter(c => _ePe(c) !== null);
     const byPE = [...withPE].sort((a, b) => (_ePe(a) || 999) - (_ePe(b) || 999));
@@ -102,7 +95,6 @@ const SummaryDashboard = {
       { key: '_pe', label: 'P/E', format: (_, r) => { const pe = _ePe(r); return pe ? pe.toFixed(1) + 'x' : 'N/A'; }, align: 'right', width: '80px' },
     ]));
 
-    // Best GAV
     const withGav = companies.filter(c => c.calculated?.gav !== null);
     const byGav = [...withGav].sort((a, b) =>
       (a.calculated?.gav || 999) - (b.calculated?.gav || 999)
@@ -115,7 +107,6 @@ const SummaryDashboard = {
     topSection.appendChild(topGrid);
     section.appendChild(topSection);
 
-    // ── Alerts Panel ──
     const alertSection = document.createElement('div');
     alertSection.className = 'section';
     alertSection.innerHTML = '<h2 class="section-title">Alerts & Watch Items</h2>';
@@ -123,30 +114,16 @@ const SummaryDashboard = {
     alertsDiv.className = 'alerts-panel';
 
     const alerts = [];
-
-    // Decelerating stocks
     companies.forEach(c => {
       if (c.calculated?.momentum?.trend === 'decelerating') {
         alerts.push({ type: 'warning', ticker: c.ticker, message: `QoQ momentum decelerating (${Fmt.pct(c.calculated.momentum.delta, true)})` });
       }
-    });
-
-    // Insider selling
-    companies.forEach(c => {
       if (c.recentInsiderSelling) {
         alerts.push({ type: 'info', ticker: c.ticker, message: 'Recent insider selling activity' });
       }
-    });
-
-    // Failed Saul evaluation
-    companies.forEach(c => {
       if (c.verdict === 'DISQUALIFIED' || c.verdict === 'FAIL') {
         alerts.push({ type: 'danger', ticker: c.ticker, message: `Verdict: ${c.verdict}` });
       }
-    });
-
-    // Red flags from markdown
-    companies.forEach(c => {
       (c.redFlags || []).slice(0, 1).forEach(flag => {
         alerts.push({ type: 'warning', ticker: c.ticker, message: flag.substring(0, 120) });
       });
@@ -167,7 +144,6 @@ const SummaryDashboard = {
 
     alertSection.appendChild(alertsDiv);
     section.appendChild(alertSection);
-
     container.appendChild(section);
   },
 

@@ -415,6 +415,12 @@ function getPortfolioHoldings() {
   return portfolioHoldings;
 }
 
+function getNonPortfolioCompanies() {
+  getCompanies();
+  return Object.values(cachedNonPortfolio)
+    .sort((a, b) => a.ticker.localeCompare(b.ticker));
+}
+
 function getAvailableTickers() {
   return {
     portfolio: cachedCompanies.map(c => c.ticker),
@@ -428,6 +434,7 @@ module.exports = {
   loadAll,
   getCompanies,
   getCompany,
+  getNonPortfolioCompanies,
   refresh,
   getLastLoadTime,
   getPortfolioHoldings,

@@ -164,6 +164,33 @@
   .mini-table-card { padding: 10px; }
   .mini-row { font-size: 11px; }
 
+  /* -- Summary quality/watchlist -- */
+  .quality-overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .watchlist-board {
+    grid-template-columns: 1fr;
+  }
+
+  .watchlist-item {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .watchlist-metrics,
+  .watchlist-actions {
+    justify-content: flex-start;
+  }
+
+  .watchlist-expanded-head {
+    grid-template-columns: 1fr;
+  }
+
+  .quality-card {
+    min-height: 0;
+  }
+
   /* -- Business description -- */
   .business-desc { font-size: 12px; }
 

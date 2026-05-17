@@ -113,6 +113,17 @@ function createPortfolioRoutes(options = {}) {
     res.json(dataLoader.getAvailableTickers());
   });
 
+  router.get('/api/non-portfolio-companies', (req, res) => {
+    const companies = typeof dataLoader.getNonPortfolioCompanies === 'function'
+      ? dataLoader.getNonPortfolioCompanies()
+      : [];
+    res.json({
+      companies: overlayLivePrices(companies, sheetsPoller),
+      count: companies.length,
+      lastUpdated: dataLoader.getLastLoadTime(),
+    });
+  });
+
   router.get('/api/refresh', requireFamily, (req, res) => {
     const companies = dataLoader.refresh();
     res.json({
