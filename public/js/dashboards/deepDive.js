@@ -226,7 +226,7 @@ const DeepDiveDashboard = {
       const saulSection = document.createElement('div');
       saulSection.className = 'section';
       saulSection.innerHTML = '<h2 class="section-title">Saul\'s Rules Evaluation</h2>';
-      SaulGrid.render(saulSection, company.saulRules, company.saulSummary);
+      SaulGrid.render(saulSection, company.saulRules, company.saulSummary, company.convictionScore ?? null);
       container.appendChild(saulSection);
     }
 

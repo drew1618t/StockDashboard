@@ -6,8 +6,9 @@ const SaulGrid = {
    * @param {HTMLElement} container
    * @param {Object} saulRules - { R_001: 'PASS', R_002: 'FAIL', ... }
    * @param {Object} [summary] - Computed summary from saulSummary
+   * @param {number|null} [convictionScore] - Pipeline conviction score (0-10)
    */
-  render(container, saulRules, summary) {
+  render(container, saulRules, summary, convictionScore) {
     if (!saulRules || Object.keys(saulRules).length === 0) {
       container.innerHTML = '<div class="empty-state">Saul evaluation not available</div>';
       return;
@@ -71,10 +72,17 @@ const SaulGrid = {
                        summary.score >= 40 ? 'score-mid' : 'score-low';
       const convCls = summary.conviction === 'High' ? 'conviction-high' :
                       summary.conviction === 'Medium' ? 'conviction-mid' : 'conviction-low';
+      let convictionHtml = '';
+      if (convictionScore != null) {
+        const aiConvCls = convictionScore >= 8 ? 'score-high' :
+                          convictionScore >= 6 ? 'score-mid' : 'score-low';
+        convictionHtml = `<span class="saul-score ${aiConvCls}" title="AI pipeline weighted conviction score (0-10)">AI Conviction: ${convictionScore}/10</span>`;
+      }
       html += `
         <div class="saul-summary">
           <span class="saul-score ${scoreCls}">Score: ${summary.score}/100</span>
           <span class="saul-conviction ${convCls}">Conviction: ${summary.conviction}</span>
+          ${convictionHtml}
           <span class="saul-detail">Base: ${summary.baseScore} + Bonus: ${summary.tier2Bonus} \u2212 Penalty: ${summary.warningPenalty}</span>
         </div>
       `;
