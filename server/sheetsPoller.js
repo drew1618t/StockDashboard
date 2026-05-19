@@ -54,6 +54,14 @@ function parseNum(raw) {
   return isNeg ? -n : n;
 }
 
+function parseFirstNum(cols, indexes) {
+  for (const index of indexes) {
+    const value = parseNum(cols[index]);
+    if (value !== null) return value;
+  }
+  return null;
+}
+
 /**
  * Parse the full CSV into a structured portfolio object.
  *
@@ -67,7 +75,7 @@ function parseNum(raw) {
  * Per-stock columns (0-indexed):
  *   0: Ticker   1: Shares   2: Weight%   3: Current price
  *   5: Position value   13: Avg buy price   15: Total gain/loss %
- *   17: Gain/loss $   22: Daily change %
+ *   17: Gain/loss $   21/22: Daily change %
  */
 function parseCSV(csvText) {
   const lines = csvText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -112,7 +120,7 @@ function parseCSV(csvText) {
     const avgBuyPrice = parseNum(cols[13]);
     const positionValue = parseNum(cols[5]);
     const totalGainPct = parseNum(cols[15]);
-    const dayChangePct = parseNum(cols[22]);
+    const dayChangePct = parseFirstNum(cols, [22, 21]);
 
     // Compute gain/loss % from price data if the sheet doesn't have it
     let gainLossPct = totalGainPct;
@@ -162,14 +170,15 @@ function parseCSV(csvText) {
     const cols = rows[i];
     const ticker = (cols[0] || '').trim();
     if (ticker === '') {
-      // Check if this row has a value in col 22 (daily % change)
-      const dayPct = parseNum(cols[22]);
+      // Check if this row has a daily % change. The sheet has shifted this
+      // between adjacent columns as portfolio rows were added.
+      const dayPct = parseFirstNum(cols, [22, 21]);
       if (dayPct !== null) {
         data.portfolioMetrics.dayChangePct = dayPct;
         break;
       }
-      // Or check col 19 for the raw $ change
-      const dayDollar = parseNum(cols[19]);
+      // Or check nearby cells for the raw $ change.
+      const dayDollar = parseFirstNum(cols, [19, 18]);
       if (dayDollar !== null && !data.portfolioMetrics.dayChangePct) {
         // Calculate % from dollar change and total value
         if (data.portfolioMetrics.totalValue) {
@@ -345,4 +354,4 @@ async function forceRefresh() {
   return getLiveData();
 }
 
-module.exports = { startPolling, stopPolling, getLiveData, forceRefresh };
+module.exports = { startPolling, stopPolling, getLiveData, forceRefresh, parseCSV };
