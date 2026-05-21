@@ -423,8 +423,39 @@ function applyManualSalesToPositions(positions, manualTransactions, asOfDate) {
   const adjusted = (positions || []).map(position => ({ ...position }));
 
   manualTransactions
-    .filter(tx => tx.type === 'sell' && (!asOfDate || tx.date > asOfDate))
+    .filter(tx => !asOfDate || tx.date > asOfDate)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.originalIndex - b.originalIndex)
     .forEach(tx => {
+      if (tx.type === 'buy') {
+        const costBasis = round2(Math.abs(tx.amount));
+        const existing = adjusted.find(position => position.ticker === tx.ticker);
+
+        if (existing) {
+          existing.quantity = round4((existing.quantity || 0) + tx.quantity);
+          existing.costBasis = round2((existing.costBasis || 0) + costBasis);
+          existing.marketValue = round2((existing.marketValue || 0) + costBasis);
+          existing.price = tx.price;
+          existing.unrealizedGainLoss = round2((existing.marketValue || 0) - (existing.costBasis || 0));
+          return;
+        }
+
+        adjusted.push({
+          ticker: tx.ticker,
+          description: tx.description || tx.ticker,
+          quantity: tx.quantity,
+          price: tx.price,
+          marketValue: costBasis,
+          costBasis,
+          unrealizedGainLoss: 0,
+          unrealizedGainLossPct: 0,
+          weightPct: null,
+          assetType: 'Equity',
+        });
+        return;
+      }
+
+      if (tx.type !== 'sell') return;
+
       let remaining = tx.quantity;
       for (const position of adjusted) {
         if (position.ticker !== tx.ticker || remaining <= 0.00001) continue;

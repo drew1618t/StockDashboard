@@ -154,6 +154,28 @@ test('manual post-export ELVA sale closes current position and realizes short-te
   }
 });
 
+test('manual post-export buy is included as a current tax position', { skip: SOURCE_FILE_SKIP }, () => {
+  const parsed = taxStore._parsePositionsCsv(fs.readFileSync(POSITIONS_PATH, 'utf-8'));
+  const manualTransactions = taxStore._sanitizeManualTransactions([
+    {
+      date: '2026-05-20',
+      type: 'buy',
+      ticker: 'CRDO',
+      description: 'CREDO TECHNOLOGY GROUP F',
+      quantity: 55,
+      price: 181.02,
+      amount: -9956.10,
+    },
+  ]);
+  const currentPositions = taxStore._applyManualSalesToPositions(parsed.positions, manualTransactions, parsed.asOfDate);
+  const crdo = currentPositions.find(position => position.ticker === 'CRDO');
+
+  assert.equal(crdo.quantity, 55);
+  assertClose(crdo.costBasis, 9956.10);
+  assertClose(crdo.marketValue, 9956.10);
+  assert.equal(crdo.unrealizedGainLoss, 0);
+});
+
 test('persists sale confirmation overrides without changing FIFO estimate', { skip: SOURCE_FILE_SKIP }, async () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tax-store-'));
   const tempStatePath = path.join(tempDir, 'taxes.json');
