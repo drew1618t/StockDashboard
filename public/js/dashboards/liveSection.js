@@ -214,10 +214,13 @@ const LiveSection = {
     const neg = n < 0;
     const abs = Math.abs(n);
     let formatted;
-    if (abs >= 1e6) {
+    if (abs >= 1e7) {
       formatted = '$' + (abs / 1e6).toFixed(2) + 'M';
     } else if (abs >= 1e3) {
-      formatted = '$' + abs.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      formatted = '$' + (abs / 1e3).toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }) + 'K';
     } else {
       formatted = '$' + abs.toFixed(2);
     }
