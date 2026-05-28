@@ -34,6 +34,7 @@ const {
   renderAgentWorkArchivePage,
   renderAgentWorkReportViewerPage,
   renderProjectsPage,
+  renderSecuritySystemPage,
 } = require('../../agentWorkPages');
 const { isPathUnder } = require('../../utils/pathSafety');
 
@@ -81,6 +82,10 @@ function createFamilyPageRoutes(options = {}) {
 
   router.get('/projects/agent-work', (req, res) => {
     res.type('html').send(renderAgentWorkArchivePage(listAgentWorkReports(options)));
+  });
+
+  router.get('/projects/security-system', (req, res) => {
+    res.type('html').send(renderSecuritySystemPage());
   });
 
   router.get('/projects/agent-work/view/:fileName', (req, res) => {

@@ -345,6 +345,11 @@ test('/family projects agent work archive is family-only and serves reports safe
         headers: { accept: 'application/json' },
       });
       assert.equal(blocked.res.status, 403);
+
+      const securityBlocked = await request(baseUrl, '/family/projects/security-system', {
+        headers: { accept: 'application/json' },
+      });
+      assert.equal(securityBlocked.res.status, 403);
     });
 
     const familyApp = createApp({ accessAuth: makeAuth('family'), dependencies: { ...makeDeps(), agentActivityReportsDir: reportsDir } });
@@ -356,6 +361,16 @@ test('/family projects agent work archive is family-only and serves reports safe
       const hub = await request(baseUrl, '/family/projects');
       assert.equal(hub.res.status, 200);
       assert.match(hub.body, /Agent Work Logs/);
+      assert.match(hub.body, /Security System/);
+      assert.match(hub.body, /2 entries/);
+
+      const security = await request(baseUrl, '/family/projects/security-system');
+      assert.equal(security.res.status, 200);
+      assert.match(security.body, /Security System/);
+      assert.match(security.body, /Frigate/);
+      assert.match(security.body, /8 cameras/);
+      assert.match(security.body, /10\.0\.10\.0\/24/);
+      assert.match(security.body, /Lot 23A Map/);
 
       const archive = await request(baseUrl, '/family/projects/agent-work');
       assert.equal(archive.res.status, 200);
