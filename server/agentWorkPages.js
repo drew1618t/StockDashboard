@@ -234,7 +234,7 @@ function renderShell(title, body) {
 <body>
   <header class="top">
     <nav><a href="/">Home</a><span class="dot"></span><a href="/family">Family</a><span class="dot"></span><a href="/family/projects">Projects</a></nav>
-    <div>MMXXVI &middot; Volume II</div>
+    <div>${escapeHtml(new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }))}</div>
   </header>
   ${body}
 </body>
