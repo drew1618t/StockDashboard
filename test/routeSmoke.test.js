@@ -1,6 +1,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('http');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
 
 const { createApp } = require('../server/createApp');
 
@@ -300,6 +303,7 @@ test('/writing and /family render without crashing', async () => {
     assert.match(family.body, /Taylor Family Hub/);
     assert.match(family.body, /\/css\/familyHub\.css/);
     assert.match(family.body, /\/js\/familyHub\.js/);
+    assert.match(family.body, /href="\/family\/projects"/);
   });
 });
 
@@ -325,6 +329,55 @@ test('/family animals pages render and old pigeons route redirects', async () =>
     assert.equal(oldPigeons.res.status, 302);
     assert.equal(oldPigeons.res.headers.get('location'), '/family/animals/pigeons');
   });
+});
+
+test('/family projects agent work archive is family-only and serves reports safely', async () => {
+  const reportsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-work-reports-'));
+  fs.writeFileSync(path.join(reportsDir, 'daily-agent-work-log-2026-05-26.html'), '<!doctype html><title>Daily</title><h1>May 26</h1>');
+  fs.writeFileSync(path.join(reportsDir, 'monthly-agent-work-log-2026-05.html'), '<!doctype html><title>Monthly</title><h1>May</h1>');
+  fs.writeFileSync(path.join(reportsDir, 'yearly-agent-work-log-2026.html'), '<!doctype html><title>Yearly</title><h1>2026</h1>');
+  fs.writeFileSync(path.join(reportsDir, 'not-a-report.html'), '<h1>Ignore</h1>');
+
+  try {
+    const generalApp = createApp({ accessAuth: makeAuth('general'), dependencies: { ...makeDeps(), agentActivityReportsDir: reportsDir } });
+    await withServer(generalApp, async baseUrl => {
+      const blocked = await request(baseUrl, '/family/projects/agent-work', {
+        headers: { accept: 'application/json' },
+      });
+      assert.equal(blocked.res.status, 403);
+    });
+
+    const familyApp = createApp({ accessAuth: makeAuth('family'), dependencies: { ...makeDeps(), agentActivityReportsDir: reportsDir } });
+    await withServer(familyApp, async baseUrl => {
+      const home = await request(baseUrl, '/');
+      assert.equal(home.res.status, 200);
+      assert.match(home.body, /href="\/family\/projects"/);
+
+      const hub = await request(baseUrl, '/family/projects');
+      assert.equal(hub.res.status, 200);
+      assert.match(hub.body, /Agent Work Logs/);
+
+      const archive = await request(baseUrl, '/family/projects/agent-work');
+      assert.equal(archive.res.status, 200);
+      assert.match(archive.body, /Daily 2026-05-26/);
+      assert.match(archive.body, /Monthly 2026-05/);
+      assert.match(archive.body, /Yearly 2026/);
+      assert.doesNotMatch(archive.body, /not-a-report/);
+
+      const viewer = await request(baseUrl, '/family/projects/agent-work/view/daily-agent-work-log-2026-05-26.html');
+      assert.equal(viewer.res.status, 200);
+      assert.match(viewer.body, /viewer-frame/);
+
+      const raw = await request(baseUrl, '/family/projects/agent-work/report/daily-agent-work-log-2026-05-26.html');
+      assert.equal(raw.res.status, 200);
+      assert.match(raw.body, /May 26/);
+
+      const invalid = await request(baseUrl, '/family/projects/agent-work/report/..%2Fsecret.html');
+      assert.equal(invalid.res.status, 404);
+    });
+  } finally {
+    fs.rmSync(reportsDir, { recursive: true, force: true });
+  }
 });
 
 test('/api/family/animals/summary returns combined pets and pigeons shape', async () => {

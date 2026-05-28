@@ -106,7 +106,12 @@ function requireRole(role) {
 
 function authErrorHandler(err, req, res, next) { // eslint-disable-line no-unused-vars
   console.warn(`[auth] rejected path=${req.originalUrl} reason=${err.message}`);
-  return sendUnauthorized(res, req, 401, 'Your Cloudflare Access session could not be verified.');
+  return sendUnauthorized(
+    res,
+    req,
+    401,
+    'The Portfolio Dashboard server received your Cloudflare Access login, but this app rejected it. Ask the site owner to check the app allow list on the Raspberry Pi.'
+  );
 }
 
 module.exports = {

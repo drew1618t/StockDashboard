@@ -72,6 +72,7 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = nu
     <nav class="hub-nav">
       <a href="/">Home</a>
       <a href="/dashboard">Stock Dashboard</a>
+      <a href="/family/projects">Projects</a>
       <a href="/family/animals">Animals</a>
     </nav>
 
