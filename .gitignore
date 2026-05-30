@@ -1,7 +1,7 @@
 node_modules/
 nul
 .claude/
-.env.production
+.env.production*
 backups/
 data/pigeons.db*
 data/pigeons-uploads/
