@@ -43,6 +43,18 @@ function toMillions(rawValue) {
   return n;
 }
 
+function marketCapToMillions(rawValue) {
+  const n = safeNum(rawValue);
+  if (n === null) return null;
+  const abs = Math.abs(n);
+
+  // Market cap fields are sometimes stored as raw dollars and sometimes as
+  // millions. Values between 100k and 1M are far more plausible as millions
+  // for tracked public companies than as sub-$1M total market caps.
+  if (abs >= 1_000_000) return n / 1_000_000;
+  return n;
+}
+
 function dig(obj, ...paths) {
   for (const path of paths) {
     let v = obj;
@@ -252,7 +264,7 @@ function extractMarketCap(q, raw) {
   if (mc === null) return null;
 
   if (typeof mc === 'number') {
-    return toMillions(mc);
+    return marketCapToMillions(mc);
   }
 
   // String parsing
