@@ -58,7 +58,7 @@ const ScatterPlot = {
       plugins: [{
         // Custom plugin to draw ticker labels on points
         id: 'scatterLabels',
-        afterDraw(chart) {
+        afterDatasetsDraw(chart) {
           const ctx = chart.ctx;
           const meta = chart.getDatasetMeta(0);
           const styles = getComputedStyle(document.body);
