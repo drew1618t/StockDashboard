@@ -18,10 +18,10 @@ function renderProjectsPage() {
       <main class="idx">
         <div class="idx-head">
           <span>Index</span>
-          <span>2 entries</span>
+          <span>3 entries</span>
         </div>
 
-        <a href="/family/projects/agent-work" class="entry" data-name="I. Agent Work Logs">
+        <a href="/projects/agent-work" class="entry" data-name="I. Agent Work Logs">
           <div class="num">I.</div>
           <div class="body">
             <h2>Agent Work Logs</h2>
@@ -31,7 +31,7 @@ function renderProjectsPage() {
           <div class="meta"><strong>&rarr;</strong>Open</div>
         </a>
 
-        <a href="/family/projects/security-system" class="entry" data-name="II. Security System">
+        <a href="/projects/security-system" class="entry" data-name="II. Security System">
           <div class="num">II.</div>
           <div class="body">
             <h2>Security System</h2>
@@ -39,6 +39,16 @@ function renderProjectsPage() {
             <div class="tags"><span>Planning</span><span>Map</span><span>NVR</span></div>
           </div>
           <div class="meta"><strong>&rarr;</strong>Status</div>
+        </a>
+
+        <a href="/projects/mosquito-trap" class="entry" data-name="III. Mosquito Trap">
+          <div class="num">III.</div>
+          <div class="body">
+            <h2>DIY CO2 Mosquito Trap</h2>
+            <p>Build plan for an outdoor CO2, lactic acid, light, and airflow mosquito trap for Serra Grande.</p>
+            <div class="tags"><span>Build</span><span>Yard</span><span>Aedes</span></div>
+          </div>
+          <div class="meta"><strong>&rarr;</strong>Plan</div>
         </a>
       </main>
     </div>
@@ -86,7 +96,7 @@ function renderSecuritySystemPage() {
           <p class="project-lead">A read-only snapshot of the Lot 23A security project: where the camera plan, NVR setup, Pi proxy, and installation checklist stand right now.</p>
         </div>
         <nav class="actions">
-          <a href="/family/projects">&larr; Projects</a>
+          <a href="/projects">&larr; Projects</a>
         </nav>
       </div>
 
@@ -229,7 +239,7 @@ function renderAgentWorkArchivePage(reports) {
           <span class="count">${reports.length} report${reports.length === 1 ? '' : 's'}</span>
         </div>
         <input class="search" id="report-search" type="search" placeholder="Search date, month, year, or report type&hellip;" autocomplete="off">
-        <div class="search-foot"><a href="/family/projects">&larr; Back to Projects</a></div>
+        <div class="search-foot"><a href="/projects">&larr; Back to Projects</a></div>
       </aside>
     </div>
 
@@ -256,7 +266,7 @@ function renderAgentWorkReportViewerPage(report) {
         <h1>${escapeHtml(report.label)}</h1>
       </div>
       <nav class="actions">
-        <a href="/family/projects/agent-work">&larr; Archive</a>
+        <a href="/projects/agent-work">&larr; Archive</a>
         <a href="${escapeHtml(report.rawHref)}">Open raw &rarr;</a>
       </nav>
     </div>
@@ -437,7 +447,7 @@ function renderShell(title, body) {
 </head>
 <body>
   <header class="top">
-    <nav><a href="/">Home</a><span class="dot"></span><a href="/family">Family</a><span class="dot"></span><a href="/family/projects">Projects</a></nav>
+    <nav><a href="/">Home</a><span class="dot"></span><a href="/family">Family</a><span class="dot"></span><a href="/projects">Projects</a></nav>
     <div>${escapeHtml(new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }))}</div>
   </header>
   ${body}

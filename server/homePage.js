@@ -687,15 +687,15 @@ function renderHomePage(user, options = {}) {
       </article>
       ${familyCard}
       ${animalsCard}
-      <article class="card" onclick="window.location.href='/family/projects'">
+      <article class="card" onclick="window.location.href='/projects'">
         <div class="card-corner"></div>
         <div class="card-shimmer"></div>
         <div class="card-stamp">Family</div>
         <h2 class="card-title">Projects</h2>
         <div class="card-line"></div>
         <p class="card-desc">Code, experiments, work logs, and things being built.</p>
-        <a href="/family/projects" class="card-cta">Open</a>
-        <a href="/family/projects" class="card-link">
+        <a href="/projects" class="card-cta">Open</a>
+        <a href="/projects" class="card-link">
           View projects <i class="arrow">&rarr;</i>
         </a>
       </article>

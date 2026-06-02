@@ -26,16 +26,6 @@ const {
 } = require('./petRoutes');
 const { renderPetsPage } = require('../../petPages');
 const { renderPigeonsPage } = require('../../pigeonPages');
-const {
-  findAgentWorkReport,
-  listAgentWorkReports,
-} = require('../../agentWorkReports');
-const {
-  renderAgentWorkArchivePage,
-  renderAgentWorkReportViewerPage,
-  renderProjectsPage,
-  renderSecuritySystemPage,
-} = require('../../agentWorkPages');
 const { isPathUnder } = require('../../utils/pathSafety');
 
 function createFamilyPageRoutes(options = {}) {
@@ -74,38 +64,6 @@ function createFamilyPageRoutes(options = {}) {
       backHref: '/family/animals',
       backLabel: 'Animals',
     }));
-  });
-
-  router.get('/projects', (req, res) => {
-    res.type('html').send(renderProjectsPage());
-  });
-
-  router.get('/projects/agent-work', (req, res) => {
-    res.type('html').send(renderAgentWorkArchivePage(listAgentWorkReports(options)));
-  });
-
-  router.get('/projects/security-system', (req, res) => {
-    res.type('html').send(renderSecuritySystemPage());
-  });
-
-  router.get('/projects/agent-work/view/:fileName', (req, res) => {
-    const report = findAgentWorkReport(req.params.fileName, options);
-    if (!report) {
-      return res.status(404).type('html').send(
-        renderFamilySectionPage('Report Not Found', 'The requested agent work report was not found.')
-      );
-    }
-    res.type('html').send(renderAgentWorkReportViewerPage(report));
-  });
-
-  router.get('/projects/agent-work/report/:fileName', (req, res) => {
-    const report = findAgentWorkReport(req.params.fileName, options);
-    if (!report || !isPathUnder(options.agentActivityReportsDir || process.env.AGENT_ACTIVITY_REPORTS_DIR || '/home/andrew/.openclaw/workspace/agent-activity/reports', report.fullPath)) {
-      return res.status(404).type('html').send(
-        renderFamilySectionPage('Report Not Found', 'The requested agent work report was not found.')
-      );
-    }
-    return res.sendFile(report.fullPath);
   });
 
   router.get('/health', (req, res) => {

@@ -54,8 +54,8 @@ function reportFromFileName(reportsDir, fileName) {
     label,
     fileName,
     fullPath: path.join(reportsDir, fileName),
-    href: `/family/projects/agent-work/view/${encodeURIComponent(fileName)}`,
-    rawHref: `/family/projects/agent-work/report/${encodeURIComponent(fileName)}`,
+    href: `/projects/agent-work/view/${encodeURIComponent(fileName)}`,
+    rawHref: `/projects/agent-work/report/${encodeURIComponent(fileName)}`,
     sortKey: `${label}-${type}`,
   };
 }

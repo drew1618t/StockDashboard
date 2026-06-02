@@ -303,7 +303,7 @@ test('/writing and /family render without crashing', async () => {
     assert.match(family.body, /Taylor Family Hub/);
     assert.match(family.body, /\/css\/familyHub\.css/);
     assert.match(family.body, /\/js\/familyHub\.js/);
-    assert.match(family.body, /href="\/family\/projects"/);
+    assert.match(family.body, /href="\/projects"/);
   });
 });
 
@@ -331,7 +331,7 @@ test('/family animals pages render and old pigeons route redirects', async () =>
   });
 });
 
-test('/family projects agent work archive is family-only and serves reports safely', async () => {
+test('/projects pages are visible to authenticated users while agent work logs are family-only', async () => {
   const reportsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-work-reports-'));
   fs.writeFileSync(path.join(reportsDir, 'daily-agent-work-log-2026-05-26.html'), '<!doctype html><title>Daily</title><h1>May 26</h1>');
   fs.writeFileSync(path.join(reportsDir, 'monthly-agent-work-log-2026-05.html'), '<!doctype html><title>Monthly</title><h1>May</h1>');
@@ -341,30 +341,54 @@ test('/family projects agent work archive is family-only and serves reports safe
   try {
     const generalApp = createApp({ accessAuth: makeAuth('general'), dependencies: { ...makeDeps(), agentActivityReportsDir: reportsDir } });
     await withServer(generalApp, async baseUrl => {
-      const blocked = await request(baseUrl, '/family/projects/agent-work', {
+      const hub = await request(baseUrl, '/projects');
+      assert.equal(hub.res.status, 200);
+      assert.match(hub.body, /Agent Work Logs/);
+      assert.match(hub.body, /Security System/);
+      assert.match(hub.body, /DIY CO2 Mosquito Trap/);
+      assert.match(hub.body, /3 entries/);
+
+      const security = await request(baseUrl, '/projects/security-system');
+      assert.equal(security.res.status, 200);
+      assert.match(security.body, /Security System/);
+
+      const mosquitoTrap = await request(baseUrl, '/projects/mosquito-trap');
+      assert.equal(mosquitoTrap.res.status, 200);
+      assert.match(mosquitoTrap.body, /Mosquito Trap/);
+
+      const legacyHub = await request(baseUrl, '/family/projects');
+      assert.equal(legacyHub.res.status, 302);
+      assert.equal(legacyHub.res.headers.get('location'), '/projects');
+
+      const legacySecurity = await request(baseUrl, '/family/projects/security-system');
+      assert.equal(legacySecurity.res.status, 302);
+      assert.equal(legacySecurity.res.headers.get('location'), '/projects/security-system');
+
+      const blocked = await request(baseUrl, '/projects/agent-work', {
         headers: { accept: 'application/json' },
       });
       assert.equal(blocked.res.status, 403);
 
-      const securityBlocked = await request(baseUrl, '/family/projects/security-system', {
+      const reportBlocked = await request(baseUrl, '/projects/agent-work/report/daily-agent-work-log-2026-05-26.html', {
         headers: { accept: 'application/json' },
       });
-      assert.equal(securityBlocked.res.status, 403);
+      assert.equal(reportBlocked.res.status, 403);
     });
 
     const familyApp = createApp({ accessAuth: makeAuth('family'), dependencies: { ...makeDeps(), agentActivityReportsDir: reportsDir } });
     await withServer(familyApp, async baseUrl => {
       const home = await request(baseUrl, '/');
       assert.equal(home.res.status, 200);
-      assert.match(home.body, /href="\/family\/projects"/);
+      assert.match(home.body, /href="\/projects"/);
 
-      const hub = await request(baseUrl, '/family/projects');
+      const hub = await request(baseUrl, '/projects');
       assert.equal(hub.res.status, 200);
       assert.match(hub.body, /Agent Work Logs/);
       assert.match(hub.body, /Security System/);
-      assert.match(hub.body, /2 entries/);
+      assert.match(hub.body, /DIY CO2 Mosquito Trap/);
+      assert.match(hub.body, /3 entries/);
 
-      const security = await request(baseUrl, '/family/projects/security-system');
+      const security = await request(baseUrl, '/projects/security-system');
       assert.equal(security.res.status, 200);
       assert.match(security.body, /Security System/);
       assert.match(security.body, /Frigate/);
@@ -372,22 +396,26 @@ test('/family projects agent work archive is family-only and serves reports safe
       assert.match(security.body, /10\.0\.10\.0\/24/);
       assert.match(security.body, /Lot 23A Map/);
 
-      const archive = await request(baseUrl, '/family/projects/agent-work');
+      const archive = await request(baseUrl, '/projects/agent-work');
       assert.equal(archive.res.status, 200);
       assert.match(archive.body, /Daily 2026-05-26/);
       assert.match(archive.body, /Monthly 2026-05/);
       assert.match(archive.body, /Yearly 2026/);
       assert.doesNotMatch(archive.body, /not-a-report/);
 
-      const viewer = await request(baseUrl, '/family/projects/agent-work/view/daily-agent-work-log-2026-05-26.html');
+      const viewer = await request(baseUrl, '/projects/agent-work/view/daily-agent-work-log-2026-05-26.html');
       assert.equal(viewer.res.status, 200);
       assert.match(viewer.body, /viewer-frame/);
 
-      const raw = await request(baseUrl, '/family/projects/agent-work/report/daily-agent-work-log-2026-05-26.html');
+      const raw = await request(baseUrl, '/projects/agent-work/report/daily-agent-work-log-2026-05-26.html');
       assert.equal(raw.res.status, 200);
       assert.match(raw.body, /May 26/);
 
-      const invalid = await request(baseUrl, '/family/projects/agent-work/report/..%2Fsecret.html');
+      const legacyArchive = await request(baseUrl, '/family/projects/agent-work');
+      assert.equal(legacyArchive.res.status, 302);
+      assert.equal(legacyArchive.res.headers.get('location'), '/projects/agent-work');
+
+      const invalid = await request(baseUrl, '/projects/agent-work/report/..%2Fsecret.html');
       assert.equal(invalid.res.status, 404);
     });
   } finally {

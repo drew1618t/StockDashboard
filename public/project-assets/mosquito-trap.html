@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIY CO₂ Mosquito Trap — Build Plan</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a18; padding: 2rem 1rem; line-height: 1.6; }
+  .container { max-width: 780px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.25rem; }
+  .subtitle { font-size: 14px; color: #5f5e5a; margin-bottom: 2rem; }
+  .section { margin-bottom: 2.5rem; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #888780; margin-bottom: 0.75rem; }
+  .card { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 1rem 1.25rem; }
+  .card + .card { margin-top: 10px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .metric-card { background: #f1efe8; border-radius: 8px; padding: 1rem; }
+  .metric-label { font-size: 12px; color: #5f5e5a; margin-bottom: 4px; }
+  .metric-value { font-size: 22px; font-weight: 500; }
+  .metric-sub { font-size: 12px; color: #888780; margin-top: 2px; }
+  .component-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid rgba(0,0,0,0.08); }
+  .component-row:last-of-type { border-bottom: none; padding-bottom: 0; }
+  .comp-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
+  .comp-body { flex: 1; }
+  .comp-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .comp-detail { font-size: 13px; color: #5f5e5a; margin-bottom: 2px; }
+  .comp-source { font-size: 12px; color: #888780; }
+  .comp-price { font-size: 13px; font-weight: 500; white-space: nowrap; margin-left: auto; padding-left: 12px; flex-shrink: 0; }
+  .comp-price-sub { font-weight: 400; font-size: 11px; color: #888780; }
+  .total-row { display: flex; justify-content: space-between; align-items: baseline; padding-top: 10px; border-top: 0.5px solid rgba(0,0,0,0.12); margin-top: 8px; }
+  .total-label { font-size: 14px; font-weight: 500; }
+  .total-value { font-size: 18px; font-weight: 500; }
+  .step-row { display: flex; gap: 14px; padding: 12px 0; border-bottom: 0.5px solid rgba(0,0,0,0.08); }
+  .step-row:last-child { border-bottom: none; }
+  .step-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; background: #e1f5ee; color: #0f6e56; }
+  .step-body { flex: 1; padding-top: 3px; }
+  .step-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .step-desc { font-size: 13px; color: #5f5e5a; line-height: 1.5; }
+  .phase-badge { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 6px; background: #e6f1fb; color: #185fa5; margin-left: 6px; vertical-align: middle; }
+  .tip-row { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; }
+  .tip-icon { color: #1d9e75; font-size: 14px; margin-top: 2px; flex-shrink: 0; }
+  .tip-warn { color: #ba7517; font-size: 14px; margin-top: 2px; flex-shrink: 0; }
+  .tip-text { font-size: 13px; color: #5f5e5a; line-height: 1.5; }
+  .tip-title { font-size: 13px; font-weight: 500; margin-bottom: 10px; }
+  .catch-card { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 12px; padding: 1rem; }
+  .catch-card.high { border-top: 2px solid #1d9e75; }
+  .catch-card.med { border-top: 2px solid #5dcaa5; }
+  .catch-card.low { border-top: 2px solid #b4b2a9; }
+  .catch-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .catch-desc { font-size: 12px; color: #5f5e5a; }
+  .diagram-wrap { background: #f1efe8; border-radius: 12px; padding: 1.5rem; display: flex; justify-content: center; overflow-x: auto; }
+  svg text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>DIY CO₂ Mosquito Trap</h1>
+  <p class="subtitle">Serra Grande, Niterói — build plan for Aedes aegypti control</p>
+
+  <div class="section">
+    <p class="section-label">Overview</p>
+    <div class="grid-3">
+      <div class="metric-card">
+        <p class="metric-label">Estimated build cost</p>
+        <p class="metric-value">R$400–500</p>
+        <p class="metric-sub">one-time, all local parts</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-label">Running cost</p>
+        <p class="metric-value">~R$60–80</p>
+        <p class="metric-sub">per month, CO₂ refill</p>
+      </div>
+      <div class="metric-card">
+        <p class="metric-label">Effective range</p>
+        <p class="metric-value">~700 m²</p>
+        <p class="metric-sub">with CO₂ + lactic acid</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">How it works</p>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 580 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px">
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#1D9E75"/>
+          </marker>
+          <marker id="arr-gray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#888780"/>
+          </marker>
+        </defs>
+        <rect x="2" y="60" width="90" height="60" rx="6" fill="#E1F5EE" stroke="#5DCAA5" stroke-width="0.5"/>
+        <text x="47" y="84" text-anchor="middle" font-size="11" font-weight="500" fill="#085041">CO₂</text>
+        <text x="47" y="99" text-anchor="middle" font-size="11" fill="#085041">cylinder</text>
+        <text x="47" y="113" text-anchor="middle" font-size="10" fill="#0F6E56">+ regulator</text>
+        <line x1="92" y1="90" x2="148" y2="90" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="150" y="60" width="80" height="60" rx="6" fill="#E6F1FB" stroke="#85B7EB" stroke-width="0.5"/>
+        <text x="190" y="84" text-anchor="middle" font-size="11" font-weight="500" fill="#0C447C">bubble</text>
+        <text x="190" y="99" text-anchor="middle" font-size="11" fill="#0C447C">counter</text>
+        <text x="190" y="113" text-anchor="middle" font-size="10" fill="#185FA5">visual check</text>
+        <line x1="230" y1="90" x2="286" y2="90" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="288" y="50" width="100" height="80" rx="6" fill="#FAEEDA" stroke="#FAC775" stroke-width="0.5"/>
+        <text x="338" y="77" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">PVC funnel</text>
+        <text x="338" y="92" text-anchor="middle" font-size="10" fill="#854F0B">CO₂ nozzle at rim</text>
+        <text x="338" y="106" text-anchor="middle" font-size="10" fill="#854F0B">lactic acid wick</text>
+        <text x="338" y="120" text-anchor="middle" font-size="10" fill="#854F0B">inside mouth</text>
+        <line x1="388" y1="90" x2="434" y2="90" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="436" y="60" width="70" height="60" rx="6" fill="#E1F5EE" stroke="#5DCAA5" stroke-width="0.5"/>
+        <text x="471" y="84" text-anchor="middle" font-size="11" font-weight="500" fill="#085041">fan ×2</text>
+        <text x="471" y="99" text-anchor="middle" font-size="11" fill="#085041">mesh</text>
+        <text x="471" y="113" text-anchor="middle" font-size="10" fill="#0F6E56">catch bag</text>
+        <text x="338" y="168" text-anchor="middle" font-size="10" fill="#888780">mosquitoes follow CO₂ plume inward → fan suction captures them → bag traps them</text>
+        <path d="M338 50 Q338 22 280 22" stroke="#888780" stroke-width="1" stroke-dasharray="3,2" fill="none" marker-end="url(#arr-gray)"/>
+        <text x="245" y="18" text-anchor="middle" font-size="10" fill="#888780">CO₂ plume outward</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Components &amp; sourcing</p>
+    <div class="card">
+
+      <div class="component-row">
+        <div class="comp-icon" style="background:#e1f5ee">🪣</div>
+        <div class="comp-body">
+          <p class="comp-name">CO₂ cylinder — 10 kg</p>
+          <p class="comp-detail">Bar/restaurant grade. Rent cylinder, pay refills only.</p>
+          <p class="comp-source">Distribuidora de gás industrial, Niterói — search "CO₂ chopp"</p>
+        </div>
+        <span class="comp-price">R$60–80 <span class="comp-price-sub">refill</span></span>
+      </div>
+
+      <div class="component-row">
+        <div class="comp-icon" style="background:#e6f1fb">🎛️</div>
+        <div class="comp-body">
+          <p class="comp-name">CO₂ regulator with needle valve + dual gauge</p>
+          <p class="comp-detail">Aquarium planted-tank type. Controls flow rate, shows cylinder level.</p>
+          <p class="comp-source">Loja de aquarismo, Niterói — search "regulador CO₂ aquário"</p>
+        </div>
+        <span class="comp-price">R$80–200</span>
+      </div>
+
+      <div class="component-row">
+        <div class="comp-icon" style="background:#faeeda">🫧</div>
+        <div class="comp-body">
+          <p class="comp-name">Bubble counter</p>
+          <p class="comp-detail">Inline visual flow indicator. Fills with water, CO₂ bubbles through it.</p>
+          <p class="comp-source">Any aquarium shop — standard planted-tank accessory</p>
+        </div>
+        <span class="comp-price">R$10–20</span>
+      </div>
+
+      <div class="component-row">
+        <div class="comp-icon" style="background:#e1f5ee">〰️</div>
+        <div class="comp-body">
+          <p class="comp-name">CO₂ airline tubing — 4mm, ~3m</p>
+          <p class="comp-detail">Flexible clear tubing from regulator to trap nozzle.</p>
+          <p class="comp-source">Aquarium shop — sold by the meter</p>
+        </div>
+        <span class="comp-price">R$10–15</span>
+      </div>
+
+      <div class="component-row">
+        <div class="comp-icon" style="background:#e6f1fb">🔺</div>
+        <div class="comp-body">
+          <p class="comp-name">PVC reducer funnel — 150mm → 75mm</p>
+          <p class="comp-detail">The trap body. Large end faces out, narrow end mounts the fan.</p>
+          <p class="comp-source">Loja de materiais hidráulicos — standard esgoto/pluvial fitting</p>
+        </div>
+        <span class="comp-price">R$20–40</span>
+      </div>
+
+      <div class="component-row">
+        <div class="comp-icon" style="background:#faeeda">💨</div>
+        <div class="comp-body">
+          <p class="comp-name">High static-pressure fan — 120mm (×2)</p>
+          <p class="comp-detail">Arctic P12 or equivalent. Min 2.0 mmH₂O static pressure. Two fans stacked in series for best suction.</p>
+          <p class="comp-source">Mercado Livre — search "Arctic P12" or "fan 120mm pressão estática"</p>
+        </div>
+        <span class="comp-price">R$60–100 <span class="comp-price-sub">each</span></span>
+      </div>
+
+      <div class="component-row">
+        <div class="comp-icon" style="background:#e1f5ee">🔌</div>
+        <div class="comp-body">
+          <p class="comp-name">12V DC power adapter — 2A minimum</p>
+          <p class="comp-detail">Powers both fans. Standard barrel connector.</p>
+          <p class="comp-source">Mercado Livre or any electronics shop</p>
+        </div>
+        <span class="comp-price">R$20–40</span>
+      </div>
+
+      <div class="component-row">
+        <div class="comp-icon" style="background:#faeeda">🕸️</div>
+        <div class="comp-body">
+          <p class="comp-name">Fine mesh nylon bag — ~1mm mesh</p>
+          <p class="comp-detail">Catch bag. Air passes through, mosquitoes trapped inside.</p>
+          <p class="comp-source">Tecidos/malhas shop or Mercado Livre — search "malha nylon fina"</p>
+        </div>
+        <span class="comp-price">R$15–30</span>
+      </div>
+
+      <div class="component-row">
+        <div class="comp-icon" style="background:#e6f1fb">💧</div>
+        <div class="comp-body">
+          <p class="comp-name">Lactic acid — pharmacy grade</p>
+          <p class="comp-detail">Primary Aedes aegypti attractant. Cotton wick in small vial. Replace every 2–3 weeks.</p>
+          <p class="comp-source">Farmácia de manipulação, Niterói — standard ingredient</p>
+        </div>
+        <span class="comp-price">R$20–30</span>
+      </div>
+
+      <div class="total-row">
+        <span class="total-label">Estimated total (one-time build)</span>
+        <span class="total-value">R$335–555</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Assembly steps</p>
+    <div class="card">
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <p class="step-title">Mount fans to PVC reducer <span class="phase-badge">mechanical</span></p>
+          <p class="step-desc">Stack two 120mm fans at the narrow (75mm) end of the PVC reducer, both oriented to pull air inward through the funnel. Secure with zip ties or M4 bolts through the fan frame corners. Use a rubber gasket or silicone sealant to close the gap and maximize suction.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <p class="step-title">Attach catch bag <span class="phase-badge">mechanical</span></p>
+          <p class="step-desc">Tie the nylon mesh bag to the fan outlet side (downstream of the fan). Hang loosely — don't pack it tight or airflow resistance drops and suction weakens. A cable tie around the fan frame works.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <p class="step-title">Install CO₂ nozzle at funnel rim <span class="phase-badge">CO₂</span></p>
+          <p class="step-desc">Drill a 4mm hole in the wide rim of the PVC reducer. Push airline tubing through and angle the end ~30–45 degrees outward and downward — pointing away from the funnel center. Seal around tubing with silicone.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <p class="step-title">Add lactic acid wick <span class="phase-badge">attractant</span></p>
+          <p class="step-desc">Fill a small 10–20ml glass vial halfway with lactic acid. Place a cotton wick with exposed end outside the vial. Mount just inside the funnel mouth with a zip tie or wire. Replace every 2–3 weeks.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <p class="step-title">Connect CO₂ line <span class="phase-badge">CO₂</span></p>
+          <p class="step-desc">Regulator screws onto cylinder valve. Bubble counter goes inline between regulator output and the airline tubing. Check all connections with soapy water. Set needle valve to ~1 bubble per second, which approximates 0.5 kg/day flow rate.</p>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <p class="step-title">Wire and power up <span class="phase-badge">electrical</span></p>
+          <p class="step-desc">Connect both fans in parallel to the 12V/2A+ adapter. Run cable to outdoor outlet. Confirm both fans spin and you can feel suction at the wide funnel mouth. Done.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">Placement &amp; operation</p>
+    <div class="grid-2">
+      <div class="card">
+        <p class="tip-title">📍 Placement</p>
+        <div class="tip-row"><span class="tip-icon">✓</span><p class="tip-text">BBQ area corner, where two stone walls meet — maximizes wind protection and rain cover</p></div>
+        <div class="tip-row"><span class="tip-icon">✓</span><p class="tip-text">Funnel mouth facing outward toward garden and vegetation</p></div>
+        <div class="tip-row"><span class="tip-icon">✓</span><p class="tip-text">CO₂ cylinder on far side from BBQ pit</p></div>
+        <div class="tip-row"><span class="tip-icon">✓</span><p class="tip-text">Shaded position preferred — Aedes rest near cool shaded spots</p></div>
+        <div class="tip-row"><span class="tip-warn">⚠</span><p class="tip-text">Turn off during active grilling. Back on after.</p></div>
+      </div>
+      <div class="card">
+        <p class="tip-title">⏱ Operation schedule</p>
+        <div class="tip-row"><span class="tip-icon">✓</span><p class="tip-text">First 4–6 weeks: run 24/7 to break the breeding cycle</p></div>
+        <div class="tip-row"><span class="tip-icon">✓</span><p class="tip-text">After population drops: peak hours only — 5–9am and 5–9pm — saves ~65% CO₂</p></div>
+        <div class="tip-row"><span class="tip-icon">✓</span><p class="tip-text">Empty catch bag every 2–3 days — tie closed, dispose, replace</p></div>
+        <div class="tip-row"><span class="tip-icon">✓</span><p class="tip-text">Replace lactic acid wick every 2–3 weeks</p></div>
+        <div class="tip-row"><span class="tip-icon">✓</span><p class="tip-text">Check bubble counter daily — no bubbles means check connections or cylinder level</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="section-label">What it catches</p>
+    <div class="grid-3">
+      <div class="catch-card high">
+        <p class="catch-name">Aedes aegypti</p>
+        <p class="catch-desc">Dengue / Zika / Chikungunya vector. Primary target. Highly responsive to CO₂ + lactic acid.</p>
+      </div>
+      <div class="catch-card high">
+        <p class="catch-name">Maruins (midges)</p>
+        <p class="catch-desc">Extremely CO₂-responsive. Likely second-highest catch. Significant nuisance reduction.</p>
+      </div>
+      <div class="catch-card med">
+        <p class="catch-name">Pigeon flies</p>
+        <p class="catch-desc">Hippoboscid ectoparasites. Catchable when dispersing. Benefit for wildlife rehab operation.</p>
+      </div>
+      <div class="catch-card med">
+        <p class="catch-name">Mutucas (horse flies)</p>
+        <p class="catch-desc">CO₂-responsive biting flies. Moderate catch rate.</p>
+      </div>
+      <div class="catch-card low">
+        <p class="catch-name">Moths / beetles</p>
+        <p class="catch-desc">Incidental only. No UV = not actively attracted. Low bycatch.</p>
+      </div>
+      <div class="catch-card low">
+        <p class="catch-name">Bees / butterflies</p>
+        <p class="catch-desc">Not host-seeking. Zero bycatch. Safe for wildlife.</p>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:12px;color:#888780;text-align:center;margin-top:2rem">Generated with Claude · Serra Grande build plan</p>
+
+</div>
+</body>
+</html>
