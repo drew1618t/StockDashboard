@@ -334,6 +334,7 @@ test('/family animals pages render and old pigeons route redirects', async () =>
 test('/projects pages are visible to authenticated users while agent work logs are family-only', async () => {
   const reportsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent-work-reports-'));
   fs.writeFileSync(path.join(reportsDir, 'daily-agent-work-log-2026-05-26.html'), '<!doctype html><title>Daily</title><h1>May 26</h1>');
+  fs.writeFileSync(path.join(reportsDir, 'weekly-agent-work-log-2026-05-25-to-2026-05-31.html'), '<!doctype html><title>Weekly</title><h1>Week</h1>');
   fs.writeFileSync(path.join(reportsDir, 'monthly-agent-work-log-2026-05.html'), '<!doctype html><title>Monthly</title><h1>May</h1>');
   fs.writeFileSync(path.join(reportsDir, 'yearly-agent-work-log-2026.html'), '<!doctype html><title>Yearly</title><h1>2026</h1>');
   fs.writeFileSync(path.join(reportsDir, 'not-a-report.html'), '<h1>Ignore</h1>');
@@ -399,6 +400,7 @@ test('/projects pages are visible to authenticated users while agent work logs a
       const archive = await request(baseUrl, '/projects/agent-work');
       assert.equal(archive.res.status, 200);
       assert.match(archive.body, /Daily 2026-05-26/);
+      assert.match(archive.body, /Weekly 2026-05-25 to 2026-05-31/);
       assert.match(archive.body, /Monthly 2026-05/);
       assert.match(archive.body, /Yearly 2026/);
       assert.doesNotMatch(archive.body, /not-a-report/);
@@ -410,6 +412,10 @@ test('/projects pages are visible to authenticated users while agent work logs a
       const raw = await request(baseUrl, '/projects/agent-work/report/daily-agent-work-log-2026-05-26.html');
       assert.equal(raw.res.status, 200);
       assert.match(raw.body, /May 26/);
+
+      const weeklyRaw = await request(baseUrl, '/projects/agent-work/report/weekly-agent-work-log-2026-05-25-to-2026-05-31.html');
+      assert.equal(weeklyRaw.res.status, 200);
+      assert.match(weeklyRaw.body, /Week/);
 
       const legacyArchive = await request(baseUrl, '/family/projects/agent-work');
       assert.equal(legacyArchive.res.status, 302);

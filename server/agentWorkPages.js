@@ -1,6 +1,11 @@
 const { escapeHtml } = require('./utils/html');
 const { groupReportsByYearMonth } = require('./agentWorkReports');
 
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+
 function renderProjectsPage() {
   return renderShell('Projects', `
     <div class="spread">
@@ -25,7 +30,7 @@ function renderProjectsPage() {
           <div class="num">I.</div>
           <div class="body">
             <h2>Agent Work Logs</h2>
-            <p>Daily, monthly, and yearly summaries of Codex and Claude work &mdash; a searchable archive of every agent-assisted session.</p>
+            <p>Daily, weekly, monthly, and yearly summaries of Codex and Claude work &mdash; a searchable archive of every agent-assisted session.</p>
             <div class="tags"><span>Archive</span><span>Live</span></div>
           </div>
           <div class="meta"><strong>&rarr;</strong>Open</div>
@@ -205,7 +210,182 @@ function renderSecurityMap() {
   `;
 }
 
+function reportTitle(report) {
+  return report.type === 'daily'
+    ? `Daily ${report.label}`
+    : report.type === 'weekly'
+      ? `Weekly ${report.label}`
+      : report.type === 'monthly'
+        ? `Monthly ${report.label}`
+        : `Yearly ${report.label}`;
+}
+
+function shortMonth(month) {
+  return MONTH_NAMES[Number(month) - 1].slice(0, 3);
+}
+
+function shelfWhenLabel(report) {
+  if (report.type === 'daily') {
+    return `${shortMonth(report.month)} ${Number(report.day)}, ${report.year}`;
+  }
+  if (report.type === 'weekly') {
+    const sameMonth = report.month === report.endMonth && report.year === report.endYear;
+    return sameMonth
+      ? `${shortMonth(report.month)} ${Number(report.day)} &ndash; ${Number(report.endDay)}`
+      : `${shortMonth(report.month)} ${Number(report.day)} &ndash; ${shortMonth(report.endMonth)} ${Number(report.endDay)}`;
+  }
+  if (report.type === 'monthly') {
+    return `${MONTH_NAMES[Number(report.month) - 1]} ${report.year}`;
+  }
+  return report.year;
+}
+
+function reportEndDate(report) {
+  if (report.type === 'daily') return Date.UTC(+report.year, +report.month - 1, +report.day);
+  if (report.type === 'weekly') return Date.UTC(+report.endYear, +report.endMonth - 1, +report.endDay);
+  if (report.type === 'monthly') return Date.UTC(+report.year, +report.month, 0);
+  return Date.UTC(+report.year, 11, 31);
+}
+
+function agoLabel(report, now) {
+  const diff = Math.floor((now - reportEndDate(report)) / 86400000);
+  if (diff <= 0) return 'today';
+  if (diff === 1) return 'yesterday';
+  if (diff < 7) return `${diff} days ago`;
+  if (diff < 14) return 'last week';
+  if (diff < 30) return `${Math.round(diff / 7)} weeks ago`;
+  if (diff < 60) return 'last month';
+  if (diff < 365) return `${Math.round(diff / 30)} months ago`;
+  if (diff < 730) return 'last year';
+  return `${Math.round(diff / 365)} years ago`;
+}
+
+function renderLatestShelf(reports, now) {
+  const latestByType = {};
+  for (const report of reports) {
+    if (!latestByType[report.type]) latestByType[report.type] = report;
+  }
+  const cards = ['daily', 'weekly', 'monthly', 'yearly']
+    .filter(type => latestByType[type])
+    .map(type => {
+      const report = latestByType[type];
+      return `
+        <a href="${escapeHtml(report.href)}" class="shelf-card">
+          <span class="corner tl"></span><span class="corner br"></span>
+          <div class="type">${escapeHtml(type)}</div>
+          <div class="when">${shelfWhenLabel(report)}</div>
+          <div class="ago">${escapeHtml(agoLabel(report, now))}</div>
+        </a>
+      `;
+    });
+  if (!cards.length) return '';
+  return `
+    <section class="shelf">
+      <div class="shelf-head"><span>Most Recent</span><span>One of each</span></div>
+      <div class="shelf-grid">${cards.join('')}</div>
+    </section>
+  `;
+}
+
+function renderCalendarPane(reports, now) {
+  const months = new Map();
+  for (const report of reports) {
+    if (report.type !== 'daily') continue;
+    const key = `${report.year}-${report.month}`;
+    if (!months.has(key)) months.set(key, new Map());
+    months.get(key).set(Number(report.day), report.href);
+  }
+  if (!months.size) {
+    return `
+      <aside class="cal-pane">
+        <div class="pane-head"><span>Calendar</span></div>
+        <p class="cal-empty">No daily logs yet.</p>
+      </aside>
+    `;
+  }
+
+  const today = new Date(now);
+  const todayKey = {
+    year: today.getUTCFullYear(),
+    month: today.getUTCMonth() + 1,
+    day: today.getUTCDate(),
+  };
+
+  const keys = [...months.keys()].sort().reverse();
+  const blocks = keys.map((key, index) => {
+    const [year, month] = key.split('-').map(Number);
+    const label = `${MONTH_NAMES[month - 1]} ${year}`;
+    return `
+      <div class="mc-block" data-cal-block data-label="${escapeHtml(label)}"${index === 0 ? '' : ' hidden'}>
+        <div class="mc-dow"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+        ${renderCalendarWeeks(year, month, months.get(key), todayKey)}
+      </div>
+    `;
+  });
+
+  const firstKey = keys[0].split('-').map(Number);
+  return `
+    <aside class="cal-pane">
+      <div class="pane-head">
+        <span id="cal-label">${escapeHtml(`${MONTH_NAMES[firstKey[1] - 1]} ${firstKey[0]}`)}</span>
+        <span class="mc-nav"><span id="cal-prev" title="earlier">&larr;</span><span id="cal-next" title="later">&rarr;</span></span>
+      </div>
+      ${blocks.join('')}
+    </aside>
+  `;
+}
+
+function renderCalendarWeeks(year, month, days, todayKey) {
+  const startDow = (new Date(Date.UTC(year, month - 1, 1)).getUTCDay() + 6) % 7;
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const cells = [];
+  for (let i = 0; i < startDow; i++) cells.push('<span class="mc-day blank"></span>');
+  for (let day = 1; day <= daysInMonth; day++) {
+    const href = days.get(day);
+    const isToday = todayKey.year === year && todayKey.month === month && todayKey.day === day;
+    const todayClass = isToday ? ' today' : '';
+    if (href) {
+      cells.push(`<a class="mc-day has${todayClass}" href="${escapeHtml(href)}">${day}</a>`);
+    } else {
+      cells.push(`<span class="mc-day${todayClass}">${day}</span>`);
+    }
+  }
+  while (cells.length % 7) cells.push('<span class="mc-day blank"></span>');
+  const weeks = [];
+  for (let i = 0; i < cells.length; i += 7) {
+    weeks.push(`<div class="mc-week">${cells.slice(i, i + 7).join('')}</div>`);
+  }
+  return weeks.join('');
+}
+
+function renderMonthGroup(month) {
+  const heading = month.month === 'year' ? 'Yearly Summary' : MONTH_NAMES[Number(month.month) - 1];
+  const dailies = month.reports.filter(report => report.type === 'daily');
+  const others = month.reports.filter(report => report.type !== 'daily');
+  const othersMarkup = others.length
+    ? `<div class="report-grid">${others.map(renderReportCard).join('')}</div>`
+    : '';
+  const dailiesMarkup = dailies.length
+    ? `
+      <button class="daily-toggle" data-daily-toggle onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+        <span>Show ${dailies.length} daily log${dailies.length === 1 ? '' : 's'}</span><span class="chev">&rarr;</span>
+      </button>
+      <div class="daily-wrap" data-daily-wrap>
+        <div class="report-grid">${dailies.map(renderReportCard).join('')}</div>
+      </div>
+    `
+    : '';
+  return `
+    <div class="month-group">
+      <h3>${escapeHtml(heading)}</h3>
+      ${othersMarkup}
+      ${dailiesMarkup}
+    </div>
+  `;
+}
+
 function renderAgentWorkArchivePage(reports) {
+  const now = Date.now();
   const groups = groupReportsByYearMonth(reports);
   const reportMarkup = groups.map(group => `
     <section class="year-group">
@@ -213,14 +393,7 @@ function renderAgentWorkArchivePage(reports) {
         <div class="year-numeral">${escapeHtml(group.year)}</div>
         <div class="year-rule"></div>
       </div>
-      ${group.months.map(month => `
-        <div class="month-group">
-          <h3>${month.month === 'year' ? 'Yearly Summary' : escapeHtml(month.month)}</h3>
-          <div class="report-grid">
-            ${month.reports.map(renderReportCard).join('')}
-          </div>
-        </div>
-      `).join('')}
+      ${group.months.map(month => renderMonthGroup(month)).join('')}
     </section>
   `).join('');
 
@@ -230,7 +403,7 @@ function renderAgentWorkArchivePage(reports) {
         <div class="kicker">Projects &middot; I.</div>
         <div class="rule"></div>
         <h1>Agent <em>Work</em> Logs.</h1>
-        <p class="stand">Daily, monthly, and yearly records of agent-assisted work &mdash; searchable by date, month, year, or report type.</p>
+        <p class="stand">Daily, weekly, monthly, and yearly records of agent-assisted work.</p>
       </aside>
 
       <aside class="search-pane">
@@ -239,20 +412,69 @@ function renderAgentWorkArchivePage(reports) {
           <span class="count">${reports.length} report${reports.length === 1 ? '' : 's'}</span>
         </div>
         <input class="search" id="report-search" type="search" placeholder="Search date, month, year, or report type&hellip;" autocomplete="off">
+        <div class="tabs" id="type-tabs">
+          <button class="tab active" data-type="all">All</button>
+          <button class="tab" data-type="daily">Daily</button>
+          <button class="tab" data-type="weekly">Weekly</button>
+          <button class="tab" data-type="monthly">Monthly</button>
+          <button class="tab" data-type="yearly">Yearly</button>
+        </div>
         <div class="search-foot"><a href="/projects">&larr; Back to Projects</a></div>
       </aside>
+
+      ${renderCalendarPane(reports, now)}
     </div>
+
+    ${renderLatestShelf(reports, now)}
 
     ${reports.length ? reportMarkup : '<section class="empty">No agent work reports found yet.</section>'}
 
     <script>
       const input = document.getElementById('report-search');
-      input?.addEventListener('input', () => {
-        const query = input.value.trim().toLowerCase();
+      const tabs = document.querySelectorAll('#type-tabs .tab');
+      let activeType = 'all';
+
+      function applyFilters() {
+        const query = input ? input.value.trim().toLowerCase() : '';
         document.querySelectorAll('[data-report-card]').forEach(card => {
-          card.hidden = query && !card.dataset.search.includes(query);
+          const typeOk = activeType === 'all' || card.dataset.type === activeType;
+          const queryOk = !query || card.dataset.search.includes(query);
+          card.hidden = !(typeOk && queryOk);
+        });
+        document.querySelectorAll('[data-daily-wrap]').forEach(wrap => {
+          wrap.classList.toggle('open', activeType === 'daily' || query.length > 0);
+        });
+        document.querySelectorAll('[data-daily-toggle]').forEach(btn => {
+          btn.style.display = ((activeType === 'all' || activeType === 'daily') && !query) ? '' : 'none';
+          btn.classList.toggle('open', activeType === 'daily');
+        });
+      }
+
+      input?.addEventListener('input', applyFilters);
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          activeType = tab.dataset.type;
+          applyFilters();
         });
       });
+
+      const calBlocks = [...document.querySelectorAll('[data-cal-block]')];
+      const calLabel = document.getElementById('cal-label');
+      const calPrev = document.getElementById('cal-prev');
+      const calNext = document.getElementById('cal-next');
+      let calIdx = 0;
+      function showCal(i) {
+        calIdx = i;
+        calBlocks.forEach((block, j) => { block.hidden = j !== i; });
+        if (calLabel) calLabel.textContent = calBlocks[i].dataset.label;
+        if (calPrev) calPrev.style.opacity = i === calBlocks.length - 1 ? '.3' : '1';
+        if (calNext) calNext.style.opacity = i === 0 ? '.3' : '1';
+      }
+      calPrev?.addEventListener('click', () => { if (calIdx < calBlocks.length - 1) showCal(calIdx + 1); });
+      calNext?.addEventListener('click', () => { if (calIdx > 0) showCal(calIdx - 1); });
+      if (calBlocks.length) showCal(0);
     </script>
   `);
 }
@@ -275,16 +497,11 @@ function renderAgentWorkReportViewerPage(report) {
 }
 
 function renderReportCard(report) {
-  const title = report.type === 'daily'
-    ? `Daily ${report.label}`
-    : report.type === 'monthly'
-      ? `Monthly ${report.label}`
-      : `Yearly ${report.label}`;
   const search = `${report.type} ${report.label} ${report.year} ${report.month || ''} ${report.day || ''}`.toLowerCase();
   return `
-    <a class="report-card" href="${escapeHtml(report.href)}" data-report-card data-search="${escapeHtml(search)}">
+    <a class="report-card" href="${escapeHtml(report.href)}" data-report-card data-type="${escapeHtml(report.type)}" data-search="${escapeHtml(search)}">
       <span class="rc-type">${escapeHtml(report.type)}</span>
-      <strong class="rc-title">${escapeHtml(title)}</strong>
+      <strong class="rc-title">${escapeHtml(reportTitle(report))}</strong>
       <small class="rc-file">${escapeHtml(report.fileName)}</small>
     </a>
   `;
@@ -343,9 +560,9 @@ function renderShell(title, body) {
     .entry .meta{text-align:right;font-family:'Cormorant SC',serif;font-size:10px;letter-spacing:.2em;color:var(--muted);white-space:nowrap}
     .entry .meta strong{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:1.35rem;letter-spacing:0;color:var(--ink);text-transform:none;margin-bottom:2px}
     .placeholder{padding:28px 0;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:1rem;text-align:center}
-    .archive-hero{max-width:1440px;margin:0 auto;padding:48px 56px 32px;display:grid;grid-template-columns:1fr 380px;gap:64px;align-items:start}
-    .search-pane{background:var(--paper-soft);border:1px solid var(--brass-soft);padding:24px 22px;align-self:start}
-    .search-head{display:flex;justify-content:space-between;align-items:center;font-family:'Cormorant SC',serif;font-size:10.5px;letter-spacing:.26em;color:var(--brass);padding-bottom:14px;border-bottom:1px solid var(--brass-soft);margin-bottom:14px}
+    .archive-hero{max-width:1440px;margin:0 auto;padding:48px 56px 24px;display:grid;grid-template-columns:1fr 340px 280px;gap:48px;align-items:start}
+    .search-pane,.cal-pane{background:var(--paper-soft);border:1px solid var(--brass-soft);padding:24px 22px;align-self:start}
+    .search-head,.pane-head{display:flex;justify-content:space-between;align-items:center;font-family:'Cormorant SC',serif;font-size:10.5px;letter-spacing:.26em;color:var(--brass);padding-bottom:14px;border-bottom:1px solid var(--brass-soft);margin-bottom:14px}
     .search-head .count{color:var(--muted)}
     .search{width:100%;padding:12px 14px;border:1px solid var(--brass-soft);background:var(--paper-warm);border-radius:0;font:inherit;font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--ink);transition:border-color .2s ease}
     .search::placeholder{color:var(--muted);font-style:italic}
@@ -353,11 +570,38 @@ function renderShell(title, body) {
     .search-foot{margin-top:14px;font-family:'Cormorant SC',serif;font-size:10.5px;letter-spacing:.22em}
     .search-foot a{color:var(--brass)}
     .search-foot a:hover{color:var(--brass-deep)}
-    .year-group{max-width:1440px;margin:0 auto;padding:32px 56px 0}
-    .year-head{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;margin-bottom:24px}
+    .tabs{display:flex;gap:4px;margin-top:14px;flex-wrap:wrap}
+    .tab{font-family:'Cormorant SC',serif;font-size:10.5px;letter-spacing:.2em;color:var(--muted);padding:7px 12px;border:1px solid transparent;background:none;cursor:pointer;transition:all .2s}
+    .tab:hover{color:var(--brass-deep)}
+    .tab.active{color:var(--brass-deep);border-color:var(--brass);background:var(--paper-warm)}
+    .mc-nav{display:flex;gap:10px}
+    .mc-nav span{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--brass-deep);cursor:pointer;font-size:1rem;line-height:1;letter-spacing:0;user-select:none}
+    .mc-nav span:hover{color:var(--ink)}
+    .mc-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-family:'Cormorant SC',serif;font-size:8.5px;letter-spacing:.08em;color:var(--muted);text-align:center;margin-bottom:3px}
+    .mc-week{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:2px}
+    .mc-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--muted);background:var(--paper-warm)}
+    .mc-day.has{background:var(--brass-soft);color:var(--ink);font-weight:500;transition:all .15s}
+    .mc-day.has:hover{background:var(--brass);color:#fff}
+    .mc-day.blank{background:none}
+    .mc-day.today{outline:1px solid var(--brass-deep);outline-offset:-1px}
+    .cal-empty{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted)}
+    .shelf{max-width:1440px;margin:0 auto;padding:8px 56px}
+    .shelf-head{font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.26em;color:var(--muted);display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--brass-soft);margin-bottom:16px}
+    .shelf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .shelf-card{position:relative;background:var(--paper-warm);border:1px solid var(--brass-soft);padding:20px;transition:all .25s}
+    .shelf-card:hover{background:#FBF6EB;border-color:var(--brass)}
+    .shelf-card .corner{position:absolute;width:12px;height:12px;border:1.5px solid var(--brass);transition:all .3s}
+    .shelf-card .tl{top:-1px;left:-1px;border-right:none;border-bottom:none}
+    .shelf-card .br{bottom:-1px;right:-1px;border-left:none;border-top:none}
+    .shelf-card:hover .corner{width:18px;height:18px;border-color:var(--brass-deep)}
+    .shelf-card .type{font-family:'Cormorant SC',serif;font-size:10px;letter-spacing:.24em;color:var(--brass);text-transform:capitalize}
+    .shelf-card .when{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:1.35rem;margin-top:6px}
+    .shelf-card .ago{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;color:var(--muted);font-size:.95rem;margin-top:2px}
+    .year-group{max-width:1440px;margin:0 auto;padding:28px 56px 0}
+    .year-head{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;margin-bottom:20px}
     .year-numeral{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:3.2rem;line-height:1;color:var(--brass);letter-spacing:-0.01em}
     .year-rule{height:1px;background:var(--brass-soft)}
-    .month-group{margin-bottom:32px}
+    .month-group{margin-bottom:26px}
     .month-group h3{font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.28em;color:var(--muted);font-weight:400;padding-bottom:10px;border-bottom:1px solid var(--brass-soft);margin-bottom:14px}
     .report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
     .report-card{background:var(--paper-warm);border:1px solid var(--brass-soft);padding:16px 18px;display:flex;flex-direction:column;gap:6px;transition:background .2s ease,border-color .2s ease}
@@ -365,6 +609,12 @@ function renderShell(title, body) {
     .rc-type{font-family:'Cormorant SC',serif;font-size:10px;letter-spacing:.24em;color:var(--brass);text-transform:capitalize}
     .rc-title{font-family:'Cormorant Garamond',serif;font-weight:500;font-style:normal;font-size:1.15rem;letter-spacing:-0.005em;color:var(--ink)}
     .rc-file{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);overflow-wrap:anywhere;letter-spacing:0}
+    .daily-toggle{font-family:'Cormorant SC',serif;font-size:10.5px;letter-spacing:.22em;color:var(--brass-deep);background:none;border:1px solid var(--brass-soft);padding:10px 16px;cursor:pointer;width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;margin-top:12px;transition:border-color .2s ease,background .2s ease}
+    .daily-toggle:hover{border-color:var(--brass);background:var(--paper-warm)}
+    .daily-toggle .chev{font-family:'Cormorant Garamond',serif;font-style:italic;transition:transform .25s}
+    .daily-toggle.open .chev{transform:rotate(90deg)}
+    .daily-wrap{display:none;margin-top:12px}
+    .daily-wrap.open{display:block}
     .empty{max-width:1440px;margin:0 auto;padding:64px 56px;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:1.2rem}
     .viewer-head{max-width:1440px;margin:0 auto;padding:36px 56px 18px;display:flex;justify-content:space-between;align-items:flex-end;gap:32px;border-bottom:1px solid var(--brass-soft)}
     .viewer-head .kicker{font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.3em;color:var(--brass);text-transform:capitalize}
@@ -423,10 +673,16 @@ function renderShell(title, body) {
     .notes-panel p+p{margin-top:12px}
     .notes-panel strong{color:var(--ink);font-weight:500}
     [hidden]{display:none !important}
+    @media(max-width:1180px){
+      .archive-hero{grid-template-columns:1fr 1fr;gap:32px}
+      .archive-hero .mast{grid-column:1/-1}
+    }
     @media(max-width:1000px){
       .spread{grid-template-columns:1fr;gap:32px;padding:32px 24px}
       .spread .mast{position:static;padding-right:0;border-right:none;border-bottom:1px solid var(--brass-soft);padding-bottom:24px}
-      .archive-hero{grid-template-columns:1fr;gap:32px;padding:32px 24px 24px}
+      .archive-hero{padding:32px 24px 16px}
+      .shelf{padding:8px 24px}
+      .shelf-grid{grid-template-columns:repeat(2,1fr)}
       .year-group{padding:24px 24px 0}
       .top{padding:16px 24px}
       .viewer-head{flex-direction:column;align-items:flex-start;padding:24px}
@@ -435,9 +691,14 @@ function renderShell(title, body) {
       .project-section{padding:24px 24px 0}
       .project-section.split{grid-template-columns:1fr}
     }
+    @media(max-width:680px){
+      .archive-hero{grid-template-columns:1fr}
+      .archive-hero .mast{grid-column:auto}
+    }
     @media(max-width:640px){
       .entry{grid-template-columns:44px 1fr;gap:14px}
       .entry .meta{grid-column:2;text-align:left}
+      .shelf-grid{grid-template-columns:1fr 1fr}
       .status-grid{grid-template-columns:1fr}
       .section-title{display:block}
       .section-title small{margin-top:6px}
