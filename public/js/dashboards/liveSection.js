@@ -5,6 +5,9 @@
  */
 const LiveSection = {
   _refreshTimer: null,
+  _loadingRetryTimer: null,
+  _loadingRetryDelayMs: 2500,
+  _maxLoadingRetries: 12,
 
   /**
    * Render the live section into a container element.
@@ -12,6 +15,8 @@ const LiveSection = {
    * @returns {HTMLElement|null} The rendered section, or null on failure
    */
   async render(container) {
+    this._clearLoadingRetry();
+
     let liveData;
     try {
       liveData = await API.getLivePortfolio();
@@ -20,10 +25,27 @@ const LiveSection = {
       return null;
     }
 
-    if (liveData.loading || !liveData.stocks || liveData.stocks.length === 0) {
-      return null; // Skip rendering if data isn't ready yet
+    if (!this._hasRenderableData(liveData)) {
+      const section = this._buildLoadingSection();
+      container.appendChild(section);
+      this._scheduleLoadingRetry(section, 1);
+      return section;
     }
 
+    const section = this._buildSection(liveData);
+    container.appendChild(section);
+
+    // Start auto-refresh
+    this._startAutoRefresh();
+
+    return section;
+  },
+
+  _hasRenderableData(liveData) {
+    return Boolean(liveData && Array.isArray(liveData.stocks) && liveData.stocks.length > 0);
+  },
+
+  _buildSection(liveData) {
     const section = document.createElement('div');
     section.className = 'live-section';
     section.id = 'live-section';
@@ -48,10 +70,33 @@ const LiveSection = {
     // ── Daily Movers ──
     this._renderMovers(section, liveData);
 
-    container.appendChild(section);
+    return section;
+  },
 
-    // Start auto-refresh
-    this._startAutoRefresh();
+  _buildLoadingSection() {
+    const section = document.createElement('div');
+    section.className = 'live-section live-section-loading';
+    section.id = 'live-section';
+
+    const header = document.createElement('div');
+    header.className = 'section live-section-header';
+    header.innerHTML = `
+      <h2 class="section-title">
+        Live Portfolio
+        <span class="live-freshness" id="live-freshness">Fetching live data...</span>
+      </h2>
+    `;
+    section.appendChild(header);
+
+    const metricsRow = document.createElement('div');
+    metricsRow.className = 'section';
+    MetricCard.renderRow(metricsRow, [
+      { label: 'Portfolio Value', value: 'Loading', subtext: 'Waiting for Google Sheets' },
+      { label: "Today's Change", value: 'N/A' },
+      { label: 'YTD Return', value: 'N/A' },
+      { label: 'vs S&P 500', value: 'N/A' },
+    ]);
+    section.appendChild(metricsRow);
 
     return section;
   },
@@ -188,11 +233,11 @@ const LiveSection = {
     this._refreshTimer = setInterval(async () => {
       console.log('[LiveSection] Auto-refreshing...');
       try {
-        API._cache.live_portfolio = null; // clear cache to force re-fetch
         const liveData = await API.getLivePortfolio(true);
-        // Update freshness indicator
-        const el = document.getElementById('live-freshness');
-        if (el) el.textContent = this._freshness(liveData.lastFetchTime);
+        if (this._hasRenderableData(liveData)) {
+          const section = document.getElementById('live-section');
+          if (section) section.replaceWith(this._buildSection(liveData));
+        }
       } catch (err) {
         console.warn('[LiveSection] Auto-refresh failed:', err.message);
       }
@@ -204,6 +249,43 @@ const LiveSection = {
       clearInterval(this._refreshTimer);
       this._refreshTimer = null;
     }
+    this._clearLoadingRetry();
+  },
+
+  _clearLoadingRetry() {
+    if (this._loadingRetryTimer) {
+      clearTimeout(this._loadingRetryTimer);
+      this._loadingRetryTimer = null;
+    }
+  },
+
+  _scheduleLoadingRetry(section, attempt) {
+    this._clearLoadingRetry();
+
+    if (attempt > this._maxLoadingRetries) {
+      const el = section.querySelector('#live-freshness');
+      if (el) el.textContent = 'Live data delayed';
+      return;
+    }
+
+    this._loadingRetryTimer = setTimeout(async () => {
+      this._loadingRetryTimer = null;
+
+      try {
+        const liveData = await API.getLivePortfolio(true);
+        if (this._hasRenderableData(liveData)) {
+          section.replaceWith(this._buildSection(liveData));
+          this._startAutoRefresh();
+          return;
+        }
+      } catch (err) {
+        console.warn('[LiveSection] Live data retry failed:', err.message);
+      }
+
+      const el = section.querySelector('#live-freshness');
+      if (el) el.textContent = `Fetching live data... (${attempt + 1})`;
+      this._scheduleLoadingRetry(section, attempt + 1);
+    }, this._loadingRetryDelayMs);
   },
 
   // ── Formatters ──
