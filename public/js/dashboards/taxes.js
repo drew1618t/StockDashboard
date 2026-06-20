@@ -205,7 +205,7 @@ const TaxesDashboard = {
         <div class="tax-attention-item">
           <span class="alert-ticker">${this._escape(item.ticker)}</span>
           <span>${this._escape(item.message)}</span>
-          <span class="${this._gainTextClass(item.sale.gainLossEstimate)}">${this._money(item.sale.gainLossEstimate)}</span>
+          <span class="${this._gainTextClass(item.sale?.gainLossEstimate)}">${item.sale ? this._money(item.sale.gainLossEstimate) : this._trackingGapValue(item)}</span>
         </div>
       `).join('');
     }
@@ -224,8 +224,10 @@ const TaxesDashboard = {
         { key: 'quantity', label: 'Qty', format: v => Fmt.num(v, 0), align: 'right', width: '70px' },
         { key: 'shortQuantity', label: 'Short sh', format: v => Fmt.num(v || 0, 0), align: 'right', width: '85px' },
         { key: 'longQuantity', label: 'Long sh', format: v => Fmt.num(v || 0, 0), align: 'right', width: '85px' },
+        { key: 'unknownQuantity', label: 'Basis gap sh', format: v => Fmt.num(v || 0, 0), align: 'right', width: '95px' },
         { key: 'shortUnrealizedGainLoss', label: 'Short P/L', format: v => `<span class="${this._gainTextClass(v)}">${this._money(v || 0)}</span>`, align: 'right', width: '105px' },
         { key: 'longUnrealizedGainLoss', label: 'Long P/L', format: v => `<span class="${this._gainTextClass(v)}">${this._money(v || 0)}</span>`, align: 'right', width: '105px' },
+        { key: 'unknownUnrealizedGainLoss', label: 'Basis gap P/L', format: v => `<span class="${this._gainTextClass(v)}">${this._money(v || 0)}</span>`, align: 'right', width: '110px' },
         { key: 'acquiredDate', label: 'Acquired', format: v => v || 'N/A', width: '105px' },
         { key: 'holdingTerm', label: 'Term', format: v => this._termPill(v), width: '90px' },
         { key: 'nextLongTermDate', label: 'Long On', format: v => v || 'Already long', width: '110px' },
@@ -380,7 +382,7 @@ const TaxesDashboard = {
     return `
       <div class="tax-lot-list">
         ${lots.map(lot => `
-          <div>${this._escape(lot.acquiredDate)} &middot; ${Fmt.num(lot.quantity, 0)} sh &middot; ${this._escape(this._formatTerm(lot.holdingTerm))}${lot.holdingTerm === 'short' ? ` &middot; long ${this._escape(lot.longTermDate)}` : ''}</div>
+          <div>${this._escape(lot.acquiredDate || 'Needs basis')} &middot; ${Fmt.num(lot.quantity, 0)} sh &middot; ${this._escape(this._formatTerm(lot.holdingTerm))}${lot.holdingTerm === 'short' ? ` &middot; long ${this._escape(lot.longTermDate)}` : ''}</div>
         `).join('')}
       </div>
     `;
@@ -414,6 +416,12 @@ const TaxesDashboard = {
     if (n > 0) return 'tax-gain';
     if (n < 0) return 'tax-loss';
     return '';
+  },
+
+  _trackingGapValue(item) {
+    if (item.quantityDiff != null) return `${Fmt.num(item.quantityDiff, 0)} sh`;
+    if (item.liveQuantity != null) return `${Fmt.num(item.liveQuantity, 0)} sh`;
+    return item.marketValue != null ? this._money(item.marketValue) : 'Needs basis';
   },
 
   _money(value) {

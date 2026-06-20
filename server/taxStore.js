@@ -6,6 +6,7 @@ const usFederalTax = require('./usFederalTax');
 const DEFAULT_TAXES_STATE_PATH = path.join(__dirname, '..', 'data', 'taxes.state.json');
 const DEFAULT_TAXES_TEMPLATE_PATH = path.join(__dirname, '..', 'data', 'taxes.template.json');
 const LEGACY_TAXES_PATH = path.join(__dirname, '..', 'data', 'taxes.json');
+const PORTFOLIO_PATH = path.join(__dirname, '..', 'portfolio.json');
 
 function getCurrentTaxYear(lastFiledTaxYear = null, now = new Date()) {
   const override = Number(process.env.TAX_YEAR);
@@ -63,6 +64,13 @@ function readJsonIfExists(filePath) {
   } catch {
     return null;
   }
+}
+
+function readPortfolioHoldings() {
+  const config = readJsonIfExists(PORTFOLIO_PATH);
+  return Array.isArray(config?.holdings)
+    ? config.holdings.map(ticker => String(ticker || '').trim().toUpperCase()).filter(Boolean)
+    : [];
 }
 
 function round2(value) {
@@ -752,8 +760,152 @@ function buildPositions(positions, lotsByTicker, asOfDate) {
   });
 }
 
-function buildAttentionItems(realizedSales) {
-  return realizedSales
+function cloneLotForLive(lot) {
+  return {
+    ...lot,
+    quantity: round4(lot.quantity),
+    costBasis: round2(lot.costBasis),
+  };
+}
+
+function rebuildPositionFromLots(position, lots, liveStock = null) {
+  const price = liveStock?.currentPrice || position.price || null;
+  const marketValue = liveStock?.positionValue != null
+    ? round2(liveStock.positionValue)
+    : round2(lots.reduce((sum, lot) => sum + (lot.marketValue || 0), 0));
+  const costBasis = round2(lots.reduce((sum, lot) => sum + (lot.costBasis || 0), 0));
+  const unrealizedGainLoss = marketValue !== null && costBasis !== null ? round2(marketValue - costBasis) : null;
+  const quantity = liveStock?.shares != null
+    ? round4(liveStock.shares)
+    : round4(lots.reduce((sum, lot) => sum + (lot.quantity || 0), 0));
+  const shortLots = lots.filter(lot => lot.holdingTerm === 'short');
+  const longLots = lots.filter(lot => lot.holdingTerm === 'long');
+  const unknownLots = lots.filter(lot => lot.holdingTerm !== 'short' && lot.holdingTerm !== 'long');
+
+  return {
+    ...position,
+    quantity,
+    price,
+    marketValue,
+    costBasis,
+    unrealizedGainLoss,
+    unrealizedGainLossPct: costBasis ? round2((unrealizedGainLoss / costBasis) * 100) : null,
+    lots,
+    lotCount: lots.length,
+    holdingTerm: aggregateTerm(lots.map(lot => lot.holdingTerm)),
+    shortQuantity: round4(shortLots.reduce((sum, lot) => sum + (lot.quantity || 0), 0)),
+    longQuantity: round4(longLots.reduce((sum, lot) => sum + (lot.quantity || 0), 0)),
+    unknownQuantity: round4(unknownLots.reduce((sum, lot) => sum + (lot.quantity || 0), 0)),
+    shortUnrealizedGainLoss: round2(shortLots.reduce((sum, lot) => sum + (lot.unrealizedGainLoss || 0), 0)),
+    longUnrealizedGainLoss: round2(longLots.reduce((sum, lot) => sum + (lot.unrealizedGainLoss || 0), 0)),
+    unknownUnrealizedGainLoss: round2(unknownLots.reduce((sum, lot) => sum + (lot.unrealizedGainLoss || 0), 0)),
+  };
+}
+
+function createUnknownLiveLot(liveStock, quantity) {
+  const costBasis = liveStock.avgBuyPrice ? round2(quantity * liveStock.avgBuyPrice) : null;
+  const marketValue = liveStock.currentPrice ? round2(quantity * liveStock.currentPrice) : null;
+  return {
+    acquiredDate: null,
+    quantity: round4(quantity),
+    originalQuantity: round4(quantity),
+    unitCost: liveStock.avgBuyPrice ? round4(liveStock.avgBuyPrice) : null,
+    costBasis,
+    holdingTerm: 'unknown',
+    longTermDate: null,
+    marketValue,
+    unrealizedGainLoss: marketValue !== null && costBasis !== null ? round2(marketValue - costBasis) : null,
+    needsBasis: true,
+  };
+}
+
+function reconcilePositionsWithLive(positions, liveStocks = [], portfolioHoldings = []) {
+  const liveByTicker = new Map((liveStocks || []).map(stock => [stock.ticker, stock]));
+  const positionByTicker = new Map((positions || []).map(position => [position.ticker, position]));
+  const trackedTickers = new Set([
+    ...portfolioHoldings,
+    ...liveByTicker.keys(),
+    ...positionByTicker.keys(),
+  ]);
+  const trackingGaps = [];
+  const reconciled = [];
+
+  [...trackedTickers].sort().forEach(ticker => {
+    const position = positionByTicker.get(ticker);
+    const liveStock = liveByTicker.get(ticker);
+
+    if (!liveStock) {
+      if (position) reconciled.push(position);
+      return;
+    }
+
+    if (!position) {
+      const lot = createUnknownLiveLot(liveStock, liveStock.shares || 0);
+      const liveOnly = rebuildPositionFromLots({
+        ticker,
+        description: ticker,
+        assetType: 'Equity',
+        trackingStatus: 'missing-basis',
+      }, [lot], liveStock);
+      liveOnly.needsBasis = true;
+      liveOnly.unmatchedLiveQuantity = round4(liveStock.shares || 0);
+      reconciled.push(liveOnly);
+      trackingGaps.push({
+        type: 'missing-current-position',
+        severity: 'danger',
+        ticker,
+        liveQuantity: round4(liveStock.shares || 0),
+        taxQuantity: 0,
+        marketValue: round2(liveStock.positionValue || 0),
+        message: `${ticker} is in the live portfolio but has no tax lots. Add/import transactions for basis.`,
+      });
+      return;
+    }
+
+    const taxQuantity = Number(position.quantity || 0);
+    const liveQuantity = Number(liveStock.shares || 0);
+    const quantityDiff = round4(liveQuantity - taxQuantity);
+    let lots = (position.lots || []).map(cloneLotForLive);
+
+    if (Math.abs(quantityDiff) > 0.0001) {
+      trackingGaps.push({
+        type: 'quantity-mismatch',
+        severity: 'warning',
+        ticker,
+        liveQuantity: round4(liveQuantity),
+        taxQuantity: round4(taxQuantity),
+        quantityDiff,
+        marketValue: round2(liveStock.positionValue || 0),
+        message: `${ticker} live shares (${round4(liveQuantity)}) do not match tax lots (${round4(taxQuantity)}). Add/import missing trades for basis.`,
+      });
+
+      if (quantityDiff > 0) {
+        lots.push(createUnknownLiveLot(liveStock, quantityDiff));
+      }
+    }
+
+    if (liveStock.currentPrice) {
+      lots = lots.map(lot => {
+        const marketValue = round2((lot.quantity || 0) * liveStock.currentPrice);
+        return {
+          ...lot,
+          marketValue,
+          unrealizedGainLoss: marketValue !== null && lot.costBasis !== null ? round2(marketValue - lot.costBasis) : null,
+        };
+      });
+    }
+
+    const next = rebuildPositionFromLots(position, lots, liveStock);
+    next.needsBasis = lots.some(lot => lot.needsBasis);
+    next.unmatchedLiveQuantity = quantityDiff > 0 ? quantityDiff : 0;
+    reconciled.push(next);
+  });
+
+  return { positions: reconciled, trackingGaps };
+}
+
+function buildAttentionItems(realizedSales, trackingGaps = []) {
+  const saleItems = realizedSales
     .filter(sale => sale.needsData || sale.needsConfirmation)
     .map(sale => ({
       id: sale.id,
@@ -766,6 +918,11 @@ function buildAttentionItems(realizedSales) {
         : `${sale.ticker} left the portfolio and needs tax gain/loss confirmation.`,
       sale,
     }));
+  const trackingItems = trackingGaps.map((gap, index) => ({
+    id: `tracking:${gap.ticker}:${index}`,
+    ...gap,
+  }));
+  return [...trackingItems, ...saleItems];
 }
 
 function buildSummary(state, currentPositions, cash, realizedSales) {
@@ -951,9 +1108,15 @@ async function getTaxes() {
   const currentPositionTransactions = dedupedTransactions.filter(tx => !positionsData.asOfDate || tx.date > positionsData.asOfDate);
   const currentPositionRows = applyManualSalesToPositions(positionsData.positions, currentPositionTransactions, positionsData.asOfDate);
   const fifo = _reconstructFifo(dedupedTransactions, state.taxYear, currentPositionRows);
-  const positions = buildPositions(currentPositionRows, fifo.lotsByTicker, positionsData.asOfDate);
+  const rawPositions = buildPositions(currentPositionRows, fifo.lotsByTicker, positionsData.asOfDate);
+  const sheetsPoller = require('./sheetsPoller');
+  const livePortfolio = sheetsPoller.getLiveData();
+  const liveStocks = Array.isArray(livePortfolio?.stocks) ? livePortfolio.stocks : [];
+  const portfolioHoldings = readPortfolioHoldings();
+  const positionReconciliation = reconcilePositionsWithLive(rawPositions, liveStocks, portfolioHoldings);
+  const positions = positionReconciliation.positions;
   const realizedSales = mergeConfirmations(fifo.realizedSales, state.saleConfirmations);
-  const attentionItems = buildAttentionItems(realizedSales);
+  const attentionItems = buildAttentionItems(realizedSales, positionReconciliation.trackingGaps);
   const planner = computePlanner({ taxYear: state.taxYear, plannerInputs: state.planner, realizedSales });
 
   return {
@@ -966,6 +1129,7 @@ async function getTaxes() {
       positionsAsOf: positionsData.asOf,
     },
     manualTransactions,
+    trackingGaps: positionReconciliation.trackingGaps,
     summary: buildSummary(state, positions, positionsData.cash, realizedSales),
     planner,
     positions,
@@ -1028,6 +1192,7 @@ module.exports = {
   _parseTransactionsCsv,
   _dedupeTransactions: dedupeTransactions,
   _reconstructFifo,
+  _reconcilePositionsWithLive: reconcilePositionsWithLive,
   _sanitizeManualTransactions: sanitizeManualTransactions,
   _applyManualSalesToPositions: applyManualSalesToPositions,
   _computePlanner: computePlanner,

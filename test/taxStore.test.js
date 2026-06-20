@@ -243,6 +243,57 @@ test('current term buckets reconcile to current unrealized totals', { skip: HAS_
   assertClose(bucketUnrealized, taxes.summary.currentUnrealizedGainLoss, 0.05);
 });
 
+test('live portfolio reconciliation adds missing positions and flags quantity gaps', () => {
+  const result = taxStore._reconcilePositionsWithLive([
+    {
+      ticker: 'CRDO',
+      quantity: 97,
+      price: 200,
+      marketValue: 19400,
+      costBasis: 10000,
+      unrealizedGainLoss: 9400,
+      lots: [
+        {
+          acquiredDate: '2026-05-20',
+          quantity: 97,
+          costBasis: 10000,
+          holdingTerm: 'short',
+          marketValue: 19400,
+          unrealizedGainLoss: 9400,
+        },
+      ],
+    },
+  ], [
+    {
+      ticker: 'CRDO',
+      shares: 100,
+      currentPrice: 210,
+      avgBuyPrice: 150,
+      positionValue: 21000,
+    },
+    {
+      ticker: 'SIMO',
+      shares: 219,
+      currentPrice: 321.66,
+      avgBuyPrice: 227,
+      positionValue: 70443.54,
+    },
+  ], ['CRDO', 'SIMO']);
+
+  const crdo = result.positions.find(position => position.ticker === 'CRDO');
+  const simo = result.positions.find(position => position.ticker === 'SIMO');
+
+  assert.equal(result.trackingGaps.length, 2);
+  assert.equal(result.trackingGaps.some(gap => gap.ticker === 'SIMO' && gap.type === 'missing-current-position'), true);
+  assert.equal(result.trackingGaps.some(gap => gap.ticker === 'CRDO' && gap.type === 'quantity-mismatch'), true);
+  assert.equal(crdo.quantity, 100);
+  assert.equal(crdo.unknownQuantity, 3);
+  assert.equal(simo.quantity, 219);
+  assert.equal(simo.needsBasis, true);
+  assert.equal(simo.lots[0].holdingTerm, 'unknown');
+  assertClose(simo.costBasis, 49713);
+});
+
 test('persists sale confirmation overrides without changing FIFO estimate', { skip: SOURCE_FILE_SKIP }, async () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tax-store-'));
   const tempStatePath = path.join(tempDir, 'taxes.json');
