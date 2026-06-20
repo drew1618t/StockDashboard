@@ -937,6 +937,117 @@ img.bird-photo { object-fit: cover; display: block; }
   font-weight: 600;
 }
 
+/* Egg Cycle Tracker */
+.egg-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.egg-predictions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.egg-prediction-card {
+  background: rgba(255, 255, 245, 0.58);
+  border-radius: var(--radius);
+  padding: 10px;
+}
+
+.egg-prediction-card.hot {
+  background: var(--brick-light);
+}
+
+.egg-prediction-card span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.egg-prediction-card strong {
+  display: block;
+  margin-top: 2px;
+  font-family: 'Lora', serif;
+  font-size: 0.94rem;
+}
+
+.egg-prediction-card p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.egg-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.egg-form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.egg-list {
+  display: grid;
+  gap: 0;
+}
+
+.egg-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px dashed var(--rule);
+}
+
+.egg-row.open {
+  border-left: 4px solid var(--brick);
+  padding-left: 10px;
+  background: rgba(255, 255, 245, 0.45);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.egg-date {
+  color: var(--forest);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.egg-date.second {
+  margin-top: 2px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.egg-notes {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+}
+
+.egg-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.egg-actions button {
+  min-height: 34px;
+  padding: 4px 10px;
+}
+
 /* ── Bottom Navigation ──────────────────────────────── */
 .bottom-nav {
   position: fixed;
@@ -1063,6 +1174,10 @@ img.bird-photo { object-fit: cover; display: block; }
   .bird-icon { width: 24px; height: 24px; }
   .room-add { flex-direction: column; }
   .weight-form { grid-template-columns: 1fr; }
+  .egg-form { grid-template-columns: 1fr; }
+  .egg-predictions { grid-template-columns: 1fr; }
+  .egg-row { flex-direction: column; }
+  .egg-actions { justify-content: flex-start; }
   .dose-row { flex-direction: column; gap: 6px; }
   .dose-row button { width: 100%; }
   .completed-actions { align-items: flex-end; }

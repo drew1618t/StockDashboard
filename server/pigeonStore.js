@@ -66,6 +66,35 @@ function normalizeDateOnly(value) {
   return clean;
 }
 
+function normalizeSex(value) {
+  const clean = normalizeText(value);
+  if (clean === 'male' || clean === 'female') return clean;
+  return 'unknown';
+}
+
+function addDays(dateString, days) {
+  const date = new Date(`${dateString}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return null;
+  date.setDate(date.getDate() + days);
+  return toDateOnly(date);
+}
+
+function diffDays(startDate, endDate) {
+  const start = new Date(`${startDate}T00:00:00`);
+  const end = new Date(`${endDate}T00:00:00`);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
+  return Math.round((end - start) / (24 * 60 * 60 * 1000));
+}
+
+function medianNumber(values) {
+  if (!values.length) return null;
+  const sorted = values.slice().sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2
+    ? sorted[middle]
+    : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
 function doseHoursForFrequency(frequency) {
   const freq = parsePositiveInt(frequency, 1);
   if (freq === 1) return [9];
@@ -142,6 +171,7 @@ class PigeonStore {
         case_number TEXT UNIQUE NOT NULL,
         name TEXT,
         species TEXT NOT NULL DEFAULT 'Unknown',
+        sex TEXT NOT NULL DEFAULT 'unknown',
         intake_date TEXT NOT NULL,
         location_found TEXT,
         current_location_id INTEGER REFERENCES pigeon_locations(id) ON DELETE SET NULL,
@@ -203,6 +233,17 @@ class PigeonStore {
         UNIQUE(bird_id, weight_date)
       );
 
+      CREATE TABLE IF NOT EXISTS pigeon_egg_cycles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bird_id INTEGER NOT NULL REFERENCES pigeon_birds(id) ON DELETE CASCADE,
+        first_egg_date TEXT NOT NULL,
+        second_egg_date TEXT,
+        notes TEXT,
+        created_at TEXT DEFAULT (datetime('now')),
+        updated_at TEXT DEFAULT (datetime('now')),
+        UNIQUE(bird_id, first_egg_date)
+      );
+
       CREATE TABLE IF NOT EXISTS pigeon_note_logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         bird_id INTEGER NOT NULL REFERENCES pigeon_birds(id) ON DELETE CASCADE,
@@ -221,11 +262,14 @@ class PigeonStore {
       CREATE INDEX IF NOT EXISTS idx_pigeon_photos_bird ON pigeon_photos(bird_id);
       CREATE INDEX IF NOT EXISTS idx_pigeon_weight_logs_bird ON pigeon_weight_logs(bird_id);
       CREATE INDEX IF NOT EXISTS idx_pigeon_weight_logs_date ON pigeon_weight_logs(weight_date);
+      CREATE INDEX IF NOT EXISTS idx_pigeon_egg_cycles_bird ON pigeon_egg_cycles(bird_id);
+      CREATE INDEX IF NOT EXISTS idx_pigeon_egg_cycles_first ON pigeon_egg_cycles(first_egg_date);
       CREATE INDEX IF NOT EXISTS idx_pigeon_note_logs_bird ON pigeon_note_logs(bird_id);
       CREATE INDEX IF NOT EXISTS idx_pigeon_note_logs_date ON pigeon_note_logs(note_date);
     `);
 
     // Migrations for existing DBs
+    try { this.db.exec(`ALTER TABLE pigeon_birds ADD COLUMN sex TEXT NOT NULL DEFAULT 'unknown'`); } catch (_) {}
     try { this.db.exec(`ALTER TABLE pigeon_medications ADD COLUMN out_of_stock INTEGER DEFAULT 0`); } catch (_) {}
     try { this.db.exec(`ALTER TABLE pigeon_medication_logs ADD COLUMN skipped INTEGER DEFAULT 0`); } catch (_) {}
 
@@ -312,15 +356,16 @@ class PigeonStore {
 
     const result = this.db.prepare(`
       INSERT INTO pigeon_birds (
-        case_number, name, species, intake_date, location_found, current_location_id,
+        case_number, name, species, sex, intake_date, location_found, current_location_id,
         initial_condition, initial_weight, status, release_date, death_date, death_cause,
         notes, breathing, hydration, weight_assessment, injury_type, alert_level
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       caseNumber,
       normalizeText(input.name),
       normalizeText(input.species) || 'Unknown',
+      normalizeSex(input.sex),
       intakeDate,
       normalizeText(input.location_found),
       locationId,
@@ -346,7 +391,7 @@ class PigeonStore {
     if (!bird) return null;
 
     const allowed = [
-      'name', 'species', 'intake_date', 'location_found', 'initial_condition',
+      'name', 'species', 'sex', 'intake_date', 'location_found', 'initial_condition',
       'initial_weight', 'status', 'release_date', 'death_date', 'death_cause',
       'notes', 'breathing', 'hydration', 'weight_assessment', 'injury_type',
       'alert_level', 'current_location_id',
@@ -361,7 +406,9 @@ class PigeonStore {
     for (const field of allowed) {
       if (updates[field] !== undefined) {
         sets.push(`${field} = ?`);
-        values.push(field === 'initial_weight' ? parseFloatOrNull(updates[field]) : updates[field]);
+        if (field === 'initial_weight') values.push(parseFloatOrNull(updates[field]));
+        else if (field === 'sex') values.push(normalizeSex(updates[field]));
+        else values.push(updates[field]);
       }
     }
 
@@ -434,6 +481,8 @@ class PigeonStore {
     bird.medications = this.listBirdMedications(id);
     bird.photos = this.listBirdPhotos(id);
     bird.weights = this.listBirdWeights(id);
+    bird.eggCycles = this.listBirdEggCycles(id);
+    bird.eggPrediction = this.getBirdEggPrediction(id);
     bird.noteLogs = this.listBirdNotes(id);
     return bird;
   }
@@ -573,6 +622,147 @@ class PigeonStore {
     if (!weight) return null;
     this.db.prepare('DELETE FROM pigeon_weight_logs WHERE id = ?').run(weightId);
     return weight;
+  }
+
+  listBirdEggCycles(birdId) {
+    const bird = this.getBirdById(birdId);
+    if (!bird) return [];
+
+    return this.db.prepare(`
+      SELECT id, bird_id, first_egg_date, second_egg_date, notes, created_at, updated_at
+      FROM pigeon_egg_cycles
+      WHERE bird_id = ?
+      ORDER BY first_egg_date ASC, id ASC
+    `).all(birdId);
+  }
+
+  getEggCycleById(id) {
+    return this.db.prepare(`
+      SELECT id, bird_id, first_egg_date, second_egg_date, notes, created_at, updated_at
+      FROM pigeon_egg_cycles
+      WHERE id = ?
+    `).get(id);
+  }
+
+  addBirdEggCycle(birdId, input = {}) {
+    const bird = this.getBirdById(birdId);
+    if (!bird) return null;
+
+    const firstEggDate = normalizeDateOnly(input.first_egg_date);
+    const secondEggRaw = normalizeText(input.second_egg_date);
+    const secondEggDate = secondEggRaw ? normalizeDateOnly(secondEggRaw) : null;
+    if (!firstEggDate) return null;
+    if (secondEggRaw && !secondEggDate) return null;
+    if (secondEggDate && diffDays(firstEggDate, secondEggDate) < 0) return null;
+
+    this.db.prepare(`
+      INSERT INTO pigeon_egg_cycles (bird_id, first_egg_date, second_egg_date, notes)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(bird_id, first_egg_date) DO UPDATE SET
+        second_egg_date = COALESCE(excluded.second_egg_date, second_egg_date),
+        notes = COALESCE(excluded.notes, notes),
+        updated_at = datetime('now')
+    `).run(
+      birdId,
+      firstEggDate,
+      secondEggDate,
+      normalizeText(input.notes)
+    );
+
+    return this.db.prepare(`
+      SELECT id, bird_id, first_egg_date, second_egg_date, notes, created_at, updated_at
+      FROM pigeon_egg_cycles
+      WHERE bird_id = ? AND first_egg_date = ?
+    `).get(birdId, firstEggDate);
+  }
+
+  updateEggCycle(cycleId, input = {}) {
+    const cycle = this.getEggCycleById(cycleId);
+    if (!cycle) return null;
+
+    const firstEggDate = input.first_egg_date !== undefined
+      ? normalizeDateOnly(input.first_egg_date)
+      : cycle.first_egg_date;
+    let secondEggDate = cycle.second_egg_date;
+    if (input.second_egg_date !== undefined) {
+      const secondEggRaw = normalizeText(input.second_egg_date);
+      secondEggDate = secondEggRaw ? normalizeDateOnly(secondEggRaw) : null;
+      if (secondEggRaw && !secondEggDate) return null;
+    }
+    const notes = input.notes !== undefined ? normalizeText(input.notes) : cycle.notes;
+
+    if (!firstEggDate) return null;
+    if (secondEggDate && diffDays(firstEggDate, secondEggDate) < 0) return null;
+
+    try {
+      this.db.prepare(`
+        UPDATE pigeon_egg_cycles
+        SET first_egg_date = ?, second_egg_date = ?, notes = ?, updated_at = datetime('now')
+        WHERE id = ?
+      `).run(firstEggDate, secondEggDate, notes, cycleId);
+    } catch (err) {
+      return null;
+    }
+
+    return this.getEggCycleById(cycleId);
+  }
+
+  deleteEggCycle(cycleId) {
+    const cycle = this.getEggCycleById(cycleId);
+    if (!cycle) return null;
+    this.db.prepare('DELETE FROM pigeon_egg_cycles WHERE id = ?').run(cycleId);
+    return cycle;
+  }
+
+  getBirdEggPrediction(birdId) {
+    const bird = this.getBirdById(birdId);
+    if (!bird) return null;
+
+    const sex = normalizeSex(bird.sex);
+    const cycles = this.listBirdEggCycles(birdId);
+    const latestCycle = cycles.length ? cycles[cycles.length - 1] : null;
+    const intervals = [];
+
+    for (let i = 1; i < cycles.length; i += 1) {
+      const days = diffDays(cycles[i - 1].first_egg_date, cycles[i].first_egg_date);
+      if (days !== null && days > 0) intervals.push(days);
+    }
+
+    let secondEgg = null;
+    if (latestCycle && !latestCycle.second_egg_date) {
+      secondEgg = {
+        cycle_id: latestCycle.id,
+        first_egg_date: latestCycle.first_egg_date,
+        expected_start_date: addDays(latestCycle.first_egg_date, 2),
+        expected_end_date: addDays(latestCycle.first_egg_date, 3),
+      };
+    }
+
+    let nextCycle = null;
+    const medianCycleDays = medianNumber(intervals);
+    if (latestCycle && medianCycleDays !== null) {
+      const expectedDays = Math.max(1, Math.round(medianCycleDays));
+      nextCycle = {
+        from_cycle_id: latestCycle.id,
+        last_first_egg_date: latestCycle.first_egg_date,
+        median_cycle_days: medianCycleDays,
+        expected_date: addDays(latestCycle.first_egg_date, expectedDays),
+        expected_start_date: addDays(latestCycle.first_egg_date, Math.max(1, expectedDays - 2)),
+        expected_end_date: addDays(latestCycle.first_egg_date, expectedDays + 2),
+        interval_count: intervals.length,
+      };
+    }
+
+    return {
+      enabled: sex === 'female',
+      sex,
+      cycle_count: cycles.length,
+      completed_cycle_count: cycles.filter(cycle => cycle.second_egg_date).length,
+      open_cycle_count: cycles.filter(cycle => !cycle.second_egg_date).length,
+      intervals_days: intervals,
+      second_egg: secondEgg,
+      next_cycle: nextCycle,
+    };
   }
 
   createMedication(birdId, input = {}) {

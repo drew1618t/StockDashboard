@@ -256,6 +256,76 @@ test('explicit weight on intake date replaces the synthetic initial weight point
   }
 });
 
+test('pigeon store records sex, egg cycles, and egg predictions for females', () => {
+  const dir = makeTempDir();
+  const store = createPigeonStore({ dbPath: path.join(dir, 'pigeons.db') });
+  try {
+    const bird = store.createBird({
+      name: 'Pearl',
+      sex: 'female',
+      intake_date: '2026-04-01',
+      status: 'active',
+    });
+
+    assert.equal(bird.sex, 'female');
+
+    const firstCycle = store.addBirdEggCycle(bird.id, {
+      first_egg_date: '2026-04-01',
+      notes: 'First logged cycle.',
+    });
+    assert.equal(firstCycle.second_egg_date, null);
+
+    let detail = store.getBirdDetail(bird.id);
+    assert.equal(detail.eggCycles.length, 1);
+    assert.equal(detail.eggPrediction.enabled, true);
+    assert.deepEqual(detail.eggPrediction.second_egg, {
+      cycle_id: firstCycle.id,
+      first_egg_date: '2026-04-01',
+      expected_start_date: '2026-04-03',
+      expected_end_date: '2026-04-04',
+    });
+    assert.equal(detail.eggPrediction.next_cycle, null);
+
+    const completedFirst = store.updateEggCycle(firstCycle.id, {
+      second_egg_date: '2026-04-02',
+    });
+    assert.equal(completedFirst.second_egg_date, '2026-04-02');
+
+    store.addBirdEggCycle(bird.id, {
+      first_egg_date: '2026-04-30',
+      second_egg_date: '2026-05-02',
+    });
+
+    detail = store.getBirdDetail(bird.id);
+    assert.deepEqual(detail.eggPrediction.intervals_days, [29]);
+    assert.deepEqual(detail.eggPrediction.next_cycle, {
+      from_cycle_id: detail.eggCycles[1].id,
+      last_first_egg_date: '2026-04-30',
+      median_cycle_days: 29,
+      expected_date: '2026-05-29',
+      expected_start_date: '2026-05-27',
+      expected_end_date: '2026-05-31',
+      interval_count: 1,
+    });
+
+    assert.equal(store.addBirdEggCycle(bird.id, {
+      first_egg_date: '2026-06-01',
+      second_egg_date: '2026-05-31',
+    }), null);
+
+    const deleted = store.deleteEggCycle(firstCycle.id);
+    assert.equal(deleted.id, firstCycle.id);
+    assert.equal(store.getBirdDetail(bird.id).eggCycles.length, 1);
+
+    const unknown = store.updateBird(bird.id, { sex: 'not sure' });
+    assert.equal(unknown.sex, 'unknown');
+    assert.equal(store.getBirdDetail(bird.id).eggPrediction.enabled, false);
+  } finally {
+    store.close();
+    cleanupTempDir(dir);
+  }
+});
+
 test('pigeon store records, updates, and deletes dated notes', () => {
   const dir = makeTempDir();
   const store = createPigeonStore({ dbPath: path.join(dir, 'pigeons.db') });

@@ -17,6 +17,7 @@ const PigeonApp = {
     birdLoadTimer: null,
     weightChart: null,
     editingNoteId: null,
+    editingEggCycleId: null,
     roomModalRoomKey: null,
     expandedRoomBirdIds: {},
   },
@@ -127,6 +128,21 @@ const PigeonApp = {
   statusChip(status) {
     const meta = this.statusMeta(status);
     return `<span class="status-chip ${meta.className}">${this.statusDotSvg(status)}${this.esc(meta.label)}</span>`;
+  },
+
+  sexLabel(sex) {
+    const labels = {
+      female: 'Female',
+      male: 'Male',
+      unknown: 'Unknown sex',
+    };
+    return labels[sex] || labels.unknown;
+  },
+
+  sexOptions(selected = 'unknown') {
+    return ['unknown', 'female', 'male']
+      .map(sex => `<option value="${sex}"${sex === selected ? ' selected' : ''}>${this.esc(this.sexLabel(sex))}</option>`)
+      .join('');
   },
 
   birdIconSvg() {
@@ -369,6 +385,7 @@ const PigeonApp = {
     return `
       <label>Name <input name="name" value="${this.esc(bird.name || '')}" placeholder="Bird name"></label>
       <label>Species <input name="species" value="${this.esc(bird.species || 'Feral Pigeon')}"></label>
+      <label>Sex <select name="sex">${this.sexOptions(bird.sex || 'unknown')}</select></label>
       <label>Room <select name="current_location_id">${this.renderLocationOptions(bird.current_location_id || '', false)}</select></label>
       <label>Status <select name="status">${this.statusOptions(bird.status || 'active')}</select></label>
       <label>Intake date <input type="date" name="intake_date" value="${this.esc(bird.intake_date || this.today())}"></label>
@@ -530,6 +547,7 @@ const PigeonApp = {
 
   async openBird(id) {
     this.state.editingNoteId = null;
+    this.state.editingEggCycleId = null;
     this.state.currentBird = await this.api(`/api/family/pigeons/birds/${id}`);
     this.renderBirdDetail();
     this.showView('detail');
@@ -543,8 +561,14 @@ const PigeonApp = {
     const metaParts = [
       this.esc(b.case_number),
       this.esc(b.species),
+      this.esc(this.sexLabel(b.sex || 'unknown')),
       this.esc(b.location_name || 'Unassigned'),
     ];
+    const eggSection = b.sex === 'female'
+      ? `
+      <div class="section-head"><div><h3>Egg Cycle</h3><p>Track eggs and the next expected cycle.</p></div></div>
+      ${this.renderEggTracker()}`
+      : '';
     document.getElementById('bird-detail').innerHTML = `
       <div class="section-head">
         <div>
@@ -564,6 +588,7 @@ const PigeonApp = {
       ${this.renderNoteTracker()}
       <div class="section-head"><div><h3>Weight</h3><p>Track gram changes over time.</p></div></div>
       ${this.renderWeightTracker()}
+      ${eggSection}
       <div class="section-head"><div><h3>Meds and supplements</h3><p>Stop or delete a medication when the plan changes.</p></div></div>
       ${this.medicationForm()}
       <div class="med-list">${meds}</div>
@@ -573,6 +598,8 @@ const PigeonApp = {
     document.querySelector('[data-form="edit-bird"]').addEventListener('submit', event => this.updateBird(event));
     document.querySelector('[data-form="dated-note"]').addEventListener('submit', event => this.saveDatedNote(event));
     document.querySelector('[data-form="add-weight"]').addEventListener('submit', event => this.addWeight(event));
+    const eggCycleForm = document.querySelector('[data-form="egg-cycle"]');
+    if (eggCycleForm) eggCycleForm.addEventListener('submit', event => this.saveEggCycle(event));
     document.querySelector('[data-form="add-medication"]').addEventListener('submit', event => this.addMedication(event));
     document.querySelector('[data-form="upload-photo"]').addEventListener('submit', event => this.uploadPhoto(event));
     this.renderWeightChart(b.weights || []);
@@ -702,6 +729,98 @@ const PigeonApp = {
         },
       },
     });
+  },
+
+  daysBetween(startDate, endDate) {
+    const start = new Date(`${startDate}T00:00:00`);
+    const end = new Date(`${endDate}T00:00:00`);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
+    return Math.round((end - start) / (24 * 60 * 60 * 1000));
+  },
+
+  dateRangeLabel(startDate, endDate) {
+    if (!startDate && !endDate) return '';
+    if (!endDate || startDate === endDate) return this.esc(startDate);
+    return `${this.esc(startDate)} to ${this.esc(endDate)}`;
+  },
+
+  renderEggPrediction() {
+    const prediction = (this.state.currentBird && this.state.currentBird.eggPrediction) || {};
+    const cycles = (this.state.currentBird && this.state.currentBird.eggCycles) || [];
+    if (!prediction.enabled) return '';
+    if (!cycles.length) {
+      return '<div class="egg-predictions"><div class="egg-prediction-card muted"><span>Prediction</span><strong>No cycles yet</strong><p>Add the first cycle to start tracking.</p></div></div>';
+    }
+
+    const cards = [];
+    if (prediction.second_egg) {
+      cards.push(`
+        <div class="egg-prediction-card hot">
+          <span>Second egg</span>
+          <strong>${this.dateRangeLabel(prediction.second_egg.expected_start_date, prediction.second_egg.expected_end_date)}</strong>
+          <p>First egg was ${this.esc(prediction.second_egg.first_egg_date)}.</p>
+        </div>`);
+    }
+
+    if (prediction.next_cycle) {
+      const median = Number(prediction.next_cycle.median_cycle_days || 0);
+      const medianLabel = Number.isInteger(median) ? `${median}` : `${median.toFixed(1)}`;
+      cards.push(`
+        <div class="egg-prediction-card">
+          <span>Next cycle</span>
+          <strong>${this.dateRangeLabel(prediction.next_cycle.expected_start_date, prediction.next_cycle.expected_end_date)}</strong>
+          <p>Based on ${this.esc(medianLabel)} days between first eggs.</p>
+        </div>`);
+    } else {
+      cards.push(`
+        <div class="egg-prediction-card">
+          <span>Next cycle</span>
+          <strong>Needs another cycle</strong>
+          <p>Cycle prediction starts after two first-egg dates.</p>
+        </div>`);
+    }
+
+    return `<div class="egg-predictions">${cards.join('')}</div>`;
+  },
+
+  renderEggTracker() {
+    const cycles = (this.state.currentBird && this.state.currentBird.eggCycles) || [];
+    const editingCycle = cycles.find(cycle => String(cycle.id) === String(this.state.editingEggCycleId));
+    const isEditing = !!editingCycle;
+    const rows = cycles.length
+      ? cycles.slice().reverse().map(cycle => {
+        const gap = cycle.second_egg_date ? this.daysBetween(cycle.first_egg_date, cycle.second_egg_date) : null;
+        const gapText = gap === null ? '' : ` (${gap} day${gap === 1 ? '' : 's'} later)`;
+        return `
+          <article class="egg-row ${cycle.second_egg_date ? '' : 'open'}">
+            <div>
+              <div class="egg-date">First egg: ${this.esc(cycle.first_egg_date)}</div>
+              <div class="egg-date second">Second egg: ${cycle.second_egg_date ? `${this.esc(cycle.second_egg_date)}${gapText}` : 'Not recorded'}</div>
+              ${cycle.notes ? `<div class="egg-notes">${this.esc(cycle.notes)}</div>` : ''}
+            </div>
+            <div class="egg-actions">
+              <button type="button" data-action="edit-egg-cycle" data-cycle-id="${Number(cycle.id)}">Edit</button>
+              <button class="danger" type="button" data-action="delete-egg-cycle" data-cycle-id="${Number(cycle.id)}">Delete</button>
+            </div>
+          </article>`;
+      }).join('')
+      : '<div class="panel muted">No egg cycles yet.</div>';
+
+    return `
+      <section class="panel egg-panel">
+        ${this.renderEggPrediction()}
+        <form class="egg-form" data-form="egg-cycle">
+          <input type="hidden" name="cycle_id" value="${isEditing ? Number(editingCycle.id) : ''}">
+          <label>First egg <input type="date" name="first_egg_date" value="${this.esc(isEditing ? editingCycle.first_egg_date : this.today())}" required></label>
+          <label>Second egg <input type="date" name="second_egg_date" value="${this.esc(isEditing ? editingCycle.second_egg_date || '' : '')}"></label>
+          <label class="span-3">Notes <textarea name="notes">${this.esc(isEditing ? editingCycle.notes || '' : '')}</textarea></label>
+          <div class="egg-form-actions">
+            <button class="primary" type="submit">${isEditing ? 'Save cycle' : 'Add cycle'}</button>
+            ${isEditing ? '<button type="button" data-action="cancel-egg-cycle-edit">Cancel</button>' : ''}
+          </div>
+        </form>
+        <div class="egg-list">${rows}</div>
+      </section>`;
   },
 
   medicationForm() {
@@ -984,6 +1103,63 @@ const PigeonApp = {
     await this.refreshAfterDetailChange();
   },
 
+  startEditEggCycle(id) {
+    this.state.editingEggCycleId = Number(id);
+    this.renderBirdDetail();
+  },
+
+  cancelEggCycleEdit() {
+    this.state.editingEggCycleId = null;
+    this.renderBirdDetail();
+  },
+
+  async saveEggCycle(event) {
+    event.preventDefault();
+    if (!this.state.currentBird) return;
+
+    const data = this.formToObject(event.target);
+    const isEditing = !!data.cycle_id;
+    try {
+      if (isEditing) {
+        await this.api(`/api/family/pigeons/egg-cycles/${data.cycle_id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_egg_date: data.first_egg_date,
+            second_egg_date: data.second_egg_date || '',
+            notes: data.notes || '',
+          }),
+        });
+        this.showToast('Egg cycle updated');
+      } else {
+        await this.api(`/api/family/pigeons/birds/${this.state.currentBird.id}/egg-cycles`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_egg_date: data.first_egg_date,
+            second_egg_date: data.second_egg_date || '',
+            notes: data.notes || '',
+          }),
+        });
+        this.showToast('Egg cycle saved');
+      }
+
+      this.state.editingEggCycleId = null;
+      await this.refreshAfterDetailChange();
+    } catch (err) {
+      this.showToast(err.message);
+    }
+  },
+
+  async deleteEggCycle(id) {
+    const ok = await this.confirmModal('Delete egg cycle', 'Delete this egg cycle?', 'Delete');
+    if (!ok) return;
+    await this.api(`/api/family/pigeons/egg-cycles/${id}`, { method: 'DELETE' });
+    this.showToast('Egg cycle deleted');
+    this.state.editingEggCycleId = null;
+    await this.refreshAfterDetailChange();
+  },
+
   async refreshAfterDetailChange() {
     const birdId = this.state.currentBird && this.state.currentBird.id;
     await this.loadAll();
@@ -1057,6 +1233,9 @@ document.addEventListener('click', event => {
   if (action === 'cancel-note-edit') PigeonApp.cancelNoteEdit();
   if (action === 'delete-note') PigeonApp.deleteNote(target.dataset.noteId);
   if (action === 'delete-weight') PigeonApp.deleteWeight(target.dataset.weightId);
+  if (action === 'edit-egg-cycle') PigeonApp.startEditEggCycle(target.dataset.cycleId);
+  if (action === 'cancel-egg-cycle-edit') PigeonApp.cancelEggCycleEdit();
+  if (action === 'delete-egg-cycle') PigeonApp.deleteEggCycle(target.dataset.cycleId);
   if (action === 'mark-dose') PigeonApp.markDoseGiven(target.dataset.medId, target.dataset.logId || null);
   if (action === 'undo-dose') PigeonApp.undoDose(target.dataset.logId);
   if (action === 'dismiss-dose') PigeonApp.dismissDose(target.dataset.logId);

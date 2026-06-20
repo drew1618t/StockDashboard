@@ -132,6 +132,15 @@ function createPigeonRoutes(options = {}) {
     res.status(201).json(weight);
   });
 
+  router.post('/pigeons/birds/:id/egg-cycles', (req, res) => {
+    const store = getPigeonStore();
+    const bird = store.getBirdById(req.params.id);
+    if (!bird) return res.status(404).json({ error: 'Bird not found' });
+    const cycle = store.addBirdEggCycle(req.params.id, req.body);
+    if (!cycle) return res.status(400).json({ error: 'Valid first egg date and optional second egg date are required' });
+    res.status(201).json(cycle);
+  });
+
   router.patch('/pigeons/medications/:medId', (req, res) => {
     const medication = getPigeonStore().updateMedication(req.params.medId, req.body);
     if (!medication) return res.status(404).json({ error: 'Medication not found' });
@@ -210,6 +219,20 @@ function createPigeonRoutes(options = {}) {
   router.delete('/pigeons/weights/:weightId', (req, res) => {
     const weight = getPigeonStore().deleteBirdWeight(req.params.weightId);
     if (!weight) return res.status(404).json({ error: 'Weight not found' });
+    res.json({ deleted: true });
+  });
+
+  router.patch('/pigeons/egg-cycles/:cycleId', (req, res) => {
+    const store = getPigeonStore();
+    if (!store.getEggCycleById(req.params.cycleId)) return res.status(404).json({ error: 'Egg cycle not found' });
+    const cycle = store.updateEggCycle(req.params.cycleId, req.body);
+    if (!cycle) return res.status(400).json({ error: 'Valid egg cycle dates are required' });
+    res.json(cycle);
+  });
+
+  router.delete('/pigeons/egg-cycles/:cycleId', (req, res) => {
+    const cycle = getPigeonStore().deleteEggCycle(req.params.cycleId);
+    if (!cycle) return res.status(404).json({ error: 'Egg cycle not found' });
     res.json({ deleted: true });
   });
 
