@@ -433,9 +433,23 @@ function getTransactionKey(tx) {
   ].join(':');
 }
 
+function getEconomicTransactionKey(tx) {
+  return [
+    tx.type,
+    tx.ticker,
+    round4(tx.quantity),
+    round2(tx.amount !== undefined && tx.amount !== null ? tx.amount : tx.proceeds),
+  ].join(':');
+}
+
 function dedupeTransactions(transactions) {
   const seen = new Set();
+  const officialEconomicKeys = new Set((transactions || [])
+    .filter(tx => !tx.manual)
+    .map(getEconomicTransactionKey));
+
   return (transactions || []).filter(tx => {
+    if (tx.manual && officialEconomicKeys.has(getEconomicTransactionKey(tx))) return false;
     const key = getTransactionKey(tx);
     if (seen.has(key)) return false;
     seen.add(key);
@@ -1012,6 +1026,7 @@ module.exports = {
   _parsePositionsCsv,
   _parseTransactionsText,
   _parseTransactionsCsv,
+  _dedupeTransactions: dedupeTransactions,
   _reconstructFifo,
   _sanitizeManualTransactions: sanitizeManualTransactions,
   _applyManualSalesToPositions: applyManualSalesToPositions,

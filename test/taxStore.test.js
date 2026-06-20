@@ -173,6 +173,42 @@ test('manual post-export ELVA sale closes current position and realizes short-te
   }
 });
 
+test('official CSV sale suppresses stale manual sale with the same economics', { skip: SOURCE_FILE_SKIP }, async () => {
+  const parsed = taxStore._parsePositionsCsv(fs.readFileSync(POSITIONS_PATH, 'utf-8'));
+  const staleManualTransactions = taxStore._sanitizeManualTransactions([
+    {
+      date: '2026-05-17',
+      type: 'sell',
+      ticker: 'ELVA',
+      description: 'ELECTROVAYA INC F',
+      quantity: 821,
+      price: 9.6601,
+      fees: 0.32,
+      amount: 7930.62,
+    },
+  ]);
+  const officialTransactions = taxStore._parseTransactionsCsv([
+    '"Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount"',
+    '"05/15/2026","Sell","ELVA","ELECTROVAYA INC F","821","$9.6601","$0.32","$7930.62"',
+  ].join('\n'));
+  const currentPositions = taxStore._applyManualSalesToPositions(parsed.positions, [
+    ...officialTransactions,
+    ...staleManualTransactions,
+  ], parsed.asOfDate);
+  const transactions = [
+    ...taxStore._parseTransactionsText(await extractTransactionText()),
+    ...officialTransactions,
+    ...staleManualTransactions,
+  ];
+  const fifo = taxStore._reconstructFifo(taxStore._dedupeTransactions(transactions), 2026, currentPositions);
+  const elvaSales = fifo.realizedSales.filter(sale => sale.ticker === 'ELVA');
+
+  assert.equal(elvaSales.length, 1);
+  assert.equal(elvaSales[0].date, '2026-05-15');
+  assert.equal(elvaSales[0].matchedLots[0].acquiredDate, '2025-10-14');
+  assertClose(elvaSales[0].costBasis, 5997.41);
+});
+
 test('manual post-export buy is included as a current tax position', { skip: SOURCE_FILE_SKIP }, () => {
   const parsed = taxStore._parsePositionsCsv(fs.readFileSync(POSITIONS_PATH, 'utf-8'));
   const manualTransactions = taxStore._sanitizeManualTransactions([

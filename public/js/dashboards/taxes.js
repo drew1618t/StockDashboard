@@ -291,6 +291,7 @@ const TaxesDashboard = {
         { key: 'costBasis', label: 'FIFO Cost', format: v => v == null ? 'Needs data' : this._money(v), align: 'right', width: '105px' },
         { key: 'gainLossEstimate', label: 'FIFO P/L', format: v => `<span class="${this._gainTextClass(v)}">${this._money(v)}</span>`, align: 'right', width: '105px' },
         { key: 'holdingTerm', label: 'Term', format: v => this._termPill(v), width: '90px' },
+        { key: '_matchedLots', label: 'FIFO Lots', format: (_, row) => this._matchedLotSummary(row.matchedLots), width: '250px', sortable: false },
         { key: 'needsConfirmation', label: 'Status', format: (_, row) => this._statusPill(row), width: '120px', sortable: false },
         { key: '_confirm', label: 'Confirm', format: (_, row) => this._saleActions(row), width: '250px', sortable: false },
       ],
@@ -380,6 +381,17 @@ const TaxesDashboard = {
       <div class="tax-lot-list">
         ${lots.map(lot => `
           <div>${this._escape(lot.acquiredDate)} &middot; ${Fmt.num(lot.quantity, 0)} sh &middot; ${this._escape(this._formatTerm(lot.holdingTerm))}${lot.holdingTerm === 'short' ? ` &middot; long ${this._escape(lot.longTermDate)}` : ''}</div>
+        `).join('')}
+      </div>
+    `;
+  },
+
+  _matchedLotSummary(lots) {
+    if (!lots || lots.length === 0) return '<span class="tax-lot-list">No FIFO lots matched</span>';
+    return `
+      <div class="tax-lot-list">
+        ${lots.map(lot => `
+          <div>${this._escape(lot.acquiredDate)} &middot; ${Fmt.num(lot.quantity, 0)} sh &middot; ${this._money(lot.costBasis)} cost</div>
         `).join('')}
       </div>
     `;
