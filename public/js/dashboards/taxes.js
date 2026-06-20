@@ -247,7 +247,42 @@ const TaxesDashboard = {
     el.className = 'section';
     el.innerHTML = '<h2 class="section-title">Realized Sales</h2>';
 
-    SortableTable.render(el, {
+    const groups = [
+      { title: 'Short-term realized', term: 'short' },
+      { title: 'Long-term realized', term: 'long' },
+      { title: 'Mixed-term realized', term: 'mixed' },
+      { title: 'Needs basis data', predicate: sale => sale.needsData },
+    ];
+
+    groups.forEach(group => {
+      const rows = (data.realizedSales || []).filter(sale => {
+        if (group.predicate) return group.predicate(sale);
+        return !sale.needsData && sale.holdingTerm === group.term;
+      });
+      if (!rows.length) return;
+      this._renderSalesGroup(el, group.title, rows);
+    });
+
+    section.appendChild(el);
+  },
+
+  _renderSalesGroup(container, title, rows) {
+    const proceeds = rows.reduce((sum, sale) => sum + Number(sale.proceeds || 0), 0);
+    const costBasis = rows.reduce((sum, sale) => sum + Number(sale.costBasis || 0), 0);
+    const gainLoss = rows.reduce((sum, sale) => sum + Number(sale.gainLossEstimate || 0), 0);
+    const group = document.createElement('div');
+    group.className = 'tax-realized-group';
+    group.innerHTML = `
+      <div class="tax-realized-group-head">
+        <h3>${this._escape(title)}</h3>
+        <span>${rows.length} sale${rows.length === 1 ? '' : 's'}</span>
+        <span>${this._escape(this._money(proceeds))} proceeds</span>
+        <span>${this._escape(this._money(costBasis))} FIFO cost</span>
+        <span class="${this._gainTextClass(gainLoss)}">${this._escape(this._money(gainLoss))} P/L</span>
+      </div>
+    `;
+
+    SortableTable.render(group, {
       columns: [
         { key: 'date', label: 'Date', width: '95px' },
         { key: 'ticker', label: 'Ticker', width: '70px' },
@@ -259,12 +294,12 @@ const TaxesDashboard = {
         { key: 'needsConfirmation', label: 'Status', format: (_, row) => this._statusPill(row), width: '120px', sortable: false },
         { key: '_confirm', label: 'Confirm', format: (_, row) => this._saleActions(row), width: '250px', sortable: false },
       ],
-      data: data.realizedSales,
+      data: rows,
       defaultSort: 'date',
       defaultDir: 'asc',
     });
 
-    section.appendChild(el);
+    container.appendChild(group);
   },
 
   async _handleClick(event, container) {

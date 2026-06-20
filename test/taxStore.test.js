@@ -9,6 +9,7 @@ const taxStore = require('../server/taxStore');
 
 const POSITIONS_PATH = path.join(__dirname, '..', 'data', 'Drew Individual-Positions-2026-04-13-083744.csv');
 const TRANSACTIONS_PATH = path.join(__dirname, '..', 'data', 'Transaction History _ Charles Schwab.pdf');
+const TRANSACTIONS_CSV_PATH = path.join(__dirname, '..', 'data', 'Drew_Individual_XXX893_Transactions_20260620-104430.csv');
 const HAS_SOURCE_FILES = fs.existsSync(POSITIONS_PATH) && fs.existsSync(TRANSACTIONS_PATH);
 const SOURCE_FILE_SKIP = HAS_SOURCE_FILES ? false : 'Schwab tax source files are not present in this checkout';
 
@@ -53,6 +54,24 @@ test('parses equity buys and sells from Schwab transaction history text', { skip
   assert.ok(sells2026.some(tx => tx.ticker === 'DAVE' && tx.quantity === 61));
   assert.ok(sells2026.some(tx => tx.ticker === 'CRMD' && tx.quantity === 4333));
   assert.equal(transactions.some(tx => tx.type === 'sell to close'), false);
+  assert.equal(transactions.some(tx => tx.ticker === 'SCHWAB1'), false);
+});
+
+test('parses equity buys and sells from Schwab transaction CSV', { skip: fs.existsSync(TRANSACTIONS_CSV_PATH) ? false : 'Schwab transaction CSV is not present in this checkout' }, () => {
+  const transactions = taxStore._parseTransactionsCsv(fs.readFileSync(TRANSACTIONS_CSV_PATH, 'utf-8'));
+  const sells = transactions.filter(tx => tx.type === 'sell');
+  const buys = transactions.filter(tx => tx.type === 'buy');
+  const alab = sells.find(tx => tx.ticker === 'ALAB' && tx.date === '2026-06-15');
+  const ogi = sells.find(tx => tx.ticker === 'OGI');
+  const oust = buys.find(tx => tx.ticker === 'OUST');
+
+  assert.equal(transactions.length, 22);
+  assert.equal(alab.quantity, 50);
+  assert.equal(alab.price, 394.955);
+  assert.equal(alab.fees, 0.42);
+  assert.equal(alab.proceeds, 19747.33);
+  assert.equal(ogi.quantity, 5155);
+  assert.equal(oust.amount, -1040.88);
   assert.equal(transactions.some(tx => tx.ticker === 'SCHWAB1'), false);
 });
 
@@ -174,6 +193,18 @@ test('manual post-export buy is included as a current tax position', { skip: SOU
   assertClose(crdo.costBasis, 9956.10);
   assertClose(crdo.marketValue, 9956.10);
   assert.equal(crdo.unrealizedGainLoss, 0);
+});
+
+test('current term buckets reconcile to current unrealized totals', { skip: HAS_SOURCE_FILES && fs.existsSync(TRANSACTIONS_CSV_PATH) ? false : 'Schwab tax source files are not present in this checkout' }, async () => {
+  const taxes = await taxStore.getTaxes();
+  const buckets = taxes.summary.currentTermBreakdown;
+  const bucketMarketValue = buckets.shortTerm.marketValue + buckets.longTerm.marketValue + buckets.unknownTerm.marketValue;
+  const bucketCostBasis = buckets.shortTerm.costBasis + buckets.longTerm.costBasis + buckets.unknownTerm.costBasis;
+  const bucketUnrealized = buckets.shortTerm.unrealizedGainLoss + buckets.longTerm.unrealizedGainLoss + buckets.unknownTerm.unrealizedGainLoss;
+
+  assertClose(bucketMarketValue, taxes.summary.currentMarketValue, 0.05);
+  assertClose(bucketCostBasis, taxes.summary.currentCostBasis, 0.05);
+  assertClose(bucketUnrealized, taxes.summary.currentUnrealizedGainLoss, 0.05);
 });
 
 test('persists sale confirmation overrides without changing FIFO estimate', { skip: SOURCE_FILE_SKIP }, async () => {

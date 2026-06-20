@@ -2,7 +2,8 @@
   "method": "fifo",
   "sourceFiles": {
     "positionsCsv": "data/Drew Individual-Positions-2026-04-13-083744.csv",
-    "transactionHistoryPdf": "data/Transaction History _ Charles Schwab.pdf"
+    "transactionHistoryPdf": "data/Transaction History _ Charles Schwab.pdf",
+    "transactionHistoryCsv": "data/Drew_Individual_XXX893_Transactions_20260620-104430.csv"
   },
   "carryoverLoss": 0,
   "lastFiledTaxYear": 2025,

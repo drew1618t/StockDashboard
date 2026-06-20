@@ -29,6 +29,7 @@ function getDefaultState() {
     sourceFiles: {
       positionsCsv: 'data/Drew Individual-Positions-2026-04-13-083744.csv',
       transactionHistoryPdf: 'data/Transaction History _ Charles Schwab.pdf',
+      transactionHistoryCsv: null,
     },
     carryoverLoss: 0,
     lastFiledTaxYear: null,
@@ -380,6 +381,68 @@ function _parseTransactionsText(text) {
   return transactions;
 }
 
+function _parseTransactionsCsv(text, originalIndexOffset = 500000) {
+  const lines = String(text || '').split(/\r?\n/).filter(line => line.trim());
+  if (lines.length < 2) return [];
+
+  const header = splitCsvRow(lines[0]);
+  const rows = lines.slice(1).map(splitCsvRow);
+
+  return rows
+    .map((cols, index) => {
+      const row = {};
+      header.forEach((key, colIndex) => {
+        if (key) row[key] = cols[colIndex] || '';
+      });
+
+      const action = String(row.Action || '').trim().toLowerCase();
+      if (!['buy', 'sell'].includes(action)) return null;
+
+      const date = normalizeDate(row.Date);
+      const ticker = String(row.Symbol || '').trim().toUpperCase();
+      const quantity = parseNumber(row.Quantity);
+      const price = parseMoneyToken(row.Price);
+      const fees = parseMoneyToken(row['Fees & Comm']);
+      const amount = parseMoneyToken(row.Amount);
+      if (!date || !ticker || !quantity || quantity <= 0 || price === null || amount === null) return null;
+
+      return {
+        originalIndex: originalIndexOffset + index,
+        date,
+        type: action,
+        ticker,
+        description: String(row.Description || ticker).trim(),
+        quantity,
+        price: round4(price),
+        fees,
+        amount: round2(amount),
+        proceeds: action === 'sell' ? round2(amount) : null,
+        source: 'csv',
+      };
+    })
+    .filter(Boolean);
+}
+
+function getTransactionKey(tx) {
+  return [
+    tx.date,
+    tx.type,
+    tx.ticker,
+    round4(tx.quantity),
+    round2(tx.amount !== undefined && tx.amount !== null ? tx.amount : tx.proceeds),
+  ].join(':');
+}
+
+function dedupeTransactions(transactions) {
+  const seen = new Set();
+  return (transactions || []).filter(tx => {
+    const key = getTransactionKey(tx);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function createSaleId(sale, sequence) {
   return `${sale.date}:${sale.ticker}:${round4(sale.quantity)}:${round2(sale.proceeds).toFixed(2)}:${sequence}`;
 }
@@ -609,10 +672,16 @@ function mergeConfirmations(realizedSales, confirmations) {
 
 function buildPositions(positions, lotsByTicker, asOfDate) {
   return positions.map(position => {
+    const positionQuantity = Number(position.quantity || 0);
+    const marketValuePerShare = positionQuantity > 0 && position.marketValue !== null && position.marketValue !== undefined
+      ? Number(position.marketValue || 0) / positionQuantity
+      : null;
     const lots = (lotsByTicker[position.ticker] || []).map(lot => {
       const holdingTerm = getLotTerm(lot.acquiredDate, asOfDate);
       const longTermDate = lot.acquiredDate ? addDays(lot.acquiredDate, 366) : null;
-      const marketValue = position.price ? round2(lot.quantity * position.price) : null;
+      const marketValue = marketValuePerShare !== null
+        ? round2(lot.quantity * marketValuePerShare)
+        : (position.price ? round2(lot.quantity * position.price) : null);
       const unrealizedGainLoss = marketValue !== null && lot.costBasis !== null
         ? round2(marketValue - lot.costBasis)
         : null;
@@ -640,9 +709,22 @@ function buildPositions(positions, lotsByTicker, asOfDate) {
     const longUnrealizedGainLoss = round2(lots
       .filter(lot => lot.holdingTerm === 'long')
       .reduce((sum, lot) => sum + (lot.unrealizedGainLoss || 0), 0));
+    const fifoMarketValue = lots.length
+      ? round2(lots.reduce((sum, lot) => sum + (lot.marketValue || 0), 0))
+      : position.marketValue;
+    const fifoCostBasis = lots.length
+      ? round2(lots.reduce((sum, lot) => sum + (lot.costBasis || 0), 0))
+      : position.costBasis;
+    const fifoUnrealizedGainLoss = lots.length && fifoMarketValue !== null && fifoCostBasis !== null
+      ? round2(fifoMarketValue - fifoCostBasis)
+      : position.unrealizedGainLoss;
 
     return {
       ...position,
+      marketValue: fifoMarketValue,
+      costBasis: fifoCostBasis,
+      unrealizedGainLoss: fifoUnrealizedGainLoss,
+      unrealizedGainLossPct: fifoCostBasis ? round2((fifoUnrealizedGainLoss / fifoCostBasis) * 100) : position.unrealizedGainLossPct,
       acquiredDate: earliestAcquiredDate,
       holdingTerm: aggregateTerm(lots.map(lot => lot.holdingTerm)),
       nextLongTermDate,
@@ -835,16 +917,26 @@ async function getTaxes() {
   const state = readData();
   const positionsPath = resolveRepoPath(process.env.TAX_POSITIONS_CSV || state.sourceFiles.positionsCsv);
   const pdfPath = resolveRepoPath(process.env.TAX_TRANSACTION_HISTORY_PDF || state.sourceFiles.transactionHistoryPdf);
+  const csvPath = process.env.TAX_TRANSACTION_HISTORY_CSV || state.sourceFiles.transactionHistoryCsv;
 
   const positionsData = _parsePositionsCsv(fs.readFileSync(positionsPath, 'utf-8'));
   const manualTransactions = sanitizeManualTransactions(state.manualTransactions);
-  const currentPositionRows = applyManualSalesToPositions(positionsData.positions, manualTransactions, positionsData.asOfDate);
-  const transactionsText = await extractPdfText(pdfPath);
-  const transactions = [
-    ..._parseTransactionsText(transactionsText),
-    ...manualTransactions,
-  ];
-  const fifo = _reconstructFifo(transactions, state.taxYear, currentPositionRows);
+  const transactions = [];
+  if (pdfPath && fs.existsSync(pdfPath)) {
+    const transactionsText = await extractPdfText(pdfPath);
+    transactions.push(..._parseTransactionsText(transactionsText));
+  }
+  if (csvPath) {
+    const resolvedCsvPath = resolveRepoPath(csvPath);
+    if (fs.existsSync(resolvedCsvPath)) {
+      transactions.push(..._parseTransactionsCsv(fs.readFileSync(resolvedCsvPath, 'utf-8')));
+    }
+  }
+  transactions.push(...manualTransactions);
+  const dedupedTransactions = dedupeTransactions(transactions);
+  const currentPositionTransactions = dedupedTransactions.filter(tx => !positionsData.asOfDate || tx.date > positionsData.asOfDate);
+  const currentPositionRows = applyManualSalesToPositions(positionsData.positions, currentPositionTransactions, positionsData.asOfDate);
+  const fifo = _reconstructFifo(dedupedTransactions, state.taxYear, currentPositionRows);
   const positions = buildPositions(currentPositionRows, fifo.lotsByTicker, positionsData.asOfDate);
   const realizedSales = mergeConfirmations(fifo.realizedSales, state.saleConfirmations);
   const attentionItems = buildAttentionItems(realizedSales);
@@ -856,6 +948,7 @@ async function getTaxes() {
     sources: {
       positionsCsv: state.sourceFiles.positionsCsv,
       transactionHistoryPdf: state.sourceFiles.transactionHistoryPdf,
+      transactionHistoryCsv: state.sourceFiles.transactionHistoryCsv,
       positionsAsOf: positionsData.asOf,
     },
     manualTransactions,
@@ -918,6 +1011,7 @@ module.exports = {
   updatePlanner,
   _parsePositionsCsv,
   _parseTransactionsText,
+  _parseTransactionsCsv,
   _reconstructFifo,
   _sanitizeManualTransactions: sanitizeManualTransactions,
   _applyManualSalesToPositions: applyManualSalesToPositions,
