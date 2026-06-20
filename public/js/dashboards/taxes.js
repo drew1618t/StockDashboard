@@ -201,16 +201,22 @@ const TaxesDashboard = {
     if (!data.attentionItems.length) {
       panel.innerHTML = '<div class="alert alert-info">No tax rows need confirmation.</div>';
     } else {
-      panel.innerHTML = data.attentionItems.map(item => `
-        <div class="tax-attention-item">
-          <span class="alert-ticker">${this._escape(item.ticker)}</span>
-          <span>${this._escape(item.message)}</span>
-          <span class="${this._gainTextClass(item.sale?.gainLossEstimate)}">${item.sale ? this._money(item.sale.gainLossEstimate) : this._trackingGapValue(item)}</span>
-        </div>
-      `).join('');
+      panel.innerHTML = data.attentionItems.map(item => this._attentionItemMarkup(item)).join('');
     }
     el.appendChild(panel);
     section.appendChild(el);
+  },
+
+  _attentionItemMarkup(item) {
+    const gainLoss = item.sale ? item.sale.gainLossEstimate : null;
+    const value = item.sale ? this._money(gainLoss) : this._trackingGapValue(item);
+    return `
+      <div class="tax-attention-item">
+        <span class="alert-ticker">${this._escape(item.ticker)}</span>
+        <span>${this._escape(item.message)}</span>
+        <span class="${this._gainTextClass(gainLoss)}">${this._escape(value)}</span>
+      </div>
+    `;
   },
 
   _renderPositions(section, data) {
