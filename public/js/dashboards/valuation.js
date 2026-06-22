@@ -57,6 +57,7 @@ const ValuationDashboard = {
         yLabel: 'Run-Rate P/E',
         xScale: scatterScales?.xScale || undefined,
         yScale: scatterScales?.yScale || undefined,
+        outlierInfo: scatterScales?.outlierInfo || undefined,
       });
     }, 50);
 
