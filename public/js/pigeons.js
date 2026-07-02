@@ -671,6 +671,21 @@ const PigeonApp = {
       </section>`;
   },
 
+  dateOnlyToDayNumber(value) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || ''));
+    if (!match) return null;
+    const year = Number(match[1]);
+    const month = Number(match[2]) - 1;
+    const day = Number(match[3]);
+    return Date.UTC(year, month, day) / (24 * 60 * 60 * 1000);
+  },
+
+  formatDayNumberDate(value) {
+    const dayNumber = Math.round(Number(value));
+    if (!Number.isFinite(dayNumber)) return '';
+    return new Date(dayNumber * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  },
+
   renderWeightChart(weights) {
     if (this.state.weightChart) {
       this.state.weightChart.destroy();
@@ -679,20 +694,45 @@ const PigeonApp = {
     const canvas = document.getElementById('weight-chart');
     if (!canvas || !window.Chart) return;
 
-    const labels = weights.map(weight => weight.weight_date);
-    const data = weights.map(weight => Number(weight.weight_grams));
+    const points = weights
+      .map(weight => ({
+        x: this.dateOnlyToDayNumber(weight.weight_date),
+        y: Number(weight.weight_grams),
+        weight_date: weight.weight_date,
+      }))
+      .filter(point => Number.isFinite(point.x) && Number.isFinite(point.y))
+      .sort((a, b) => a.x - b.x);
+    points.forEach((point, index) => {
+      point.days_since_previous = index > 0 ? Math.round(point.x - points[index - 1].x) : null;
+    });
+
     const styles = getComputedStyle(document.body);
     const lineColor = styles.getPropertyValue('--leaf').trim() || '#2F7D52';
     const textColor = styles.getPropertyValue('--forest').trim() || '#2D4A3E';
     const gridColor = styles.getPropertyValue('--rule-dark').trim() || 'rgba(45, 74, 62, 0.25)';
+    const xScale = {
+      type: 'linear',
+      grid: { color: gridColor },
+      ticks: {
+        color: textColor,
+        maxRotation: 0,
+        autoSkip: true,
+        maxTicksLimit: Math.min(6, Math.max(2, points.length)),
+        callback: value => this.formatDayNumberDate(value),
+      },
+    };
+    if (points.length === 1) {
+      xScale.min = points[0].x - 1;
+      xScale.max = points[0].x + 1;
+      xScale.ticks.stepSize = 1;
+    }
 
     this.state.weightChart = new Chart(canvas.getContext('2d'), {
       type: 'line',
       data: {
-        labels,
         datasets: [{
           label: 'Weight (g)',
-          data,
+          data: points,
           borderColor: lineColor,
           backgroundColor: `${lineColor}22`,
           pointBackgroundColor: lineColor,
@@ -713,14 +753,17 @@ const PigeonApp = {
           tooltip: {
             callbacks: {
               label: context => `${context.parsed.y}g`,
+              title: items => items.length ? this.formatDayNumberDate(items[0].parsed.x) : '',
+              afterLabel: context => {
+                const gap = context.raw && context.raw.days_since_previous;
+                if (!gap) return '';
+                return gap === 1 ? '1 day since previous' : `${gap} days since previous`;
+              },
             },
           },
         },
         scales: {
-          x: {
-            grid: { color: gridColor },
-            ticks: { color: textColor, maxRotation: 0, autoSkip: true },
-          },
+          x: xScale,
           y: {
             beginAtZero: false,
             grid: { color: gridColor },
