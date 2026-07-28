@@ -12,6 +12,7 @@ const TaxesDashboard = {
     const section = document.createElement('div');
     section.className = 'dashboard taxes-dashboard';
 
+    PrivateNav.render(section, 'taxes');
     this._renderHeader(section, this._data);
     this._renderMetrics(section, this._data);
     this._renderTermBreakdown(section, this._data);

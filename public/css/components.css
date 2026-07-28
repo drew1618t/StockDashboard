@@ -1210,8 +1210,14 @@
 
 /* -- Family Investing --------------------------------------------------- */
 .family-investing-dashboard {
+  width: 100%;
+  min-width: 0;
   max-width: 1180px;
   margin: 0 auto;
+}
+
+.family-investing-dashboard > * {
+  min-width: 0;
 }
 
 .family-investing-header {
@@ -1256,6 +1262,9 @@
 
 .family-investing-tabs {
   display: flex;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   flex-direction: row;
   gap: 4px;
   padding: 6px;
@@ -1361,4 +1370,178 @@
 
 .family-investing-privacy strong {
   color: var(--text-primary);
+}
+
+/* -- Private workbook pages --------------------------------------------- */
+.private-workbook-dashboard {
+  width: 100%;
+  min-width: 0;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.private-workbook-dashboard > * {
+  min-width: 0;
+}
+
+.private-page-nav {
+  position: sticky;
+  top: 58px;
+  z-index: 8;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--bg-primary) 72%, transparent);
+}
+
+.private-workbook-header p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.private-workbook-kicker {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.private-table-scroll {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-card);
+  -webkit-overflow-scrolling: touch;
+}
+
+.private-data-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.private-data-table th,
+.private-data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.private-data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.private-data-table th:first-child,
+.private-data-table td:first-child,
+.private-data-table th:nth-child(2),
+.private-data-table td:nth-child(2) {
+  text-align: left;
+}
+
+.private-data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.private-data-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.private-pattern-list {
+  display: grid;
+  gap: 8px;
+}
+
+.private-pattern {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-card);
+}
+
+.private-pattern > span {
+  display: flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, var(--border-color));
+  border-radius: 50%;
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.private-pattern h3 {
+  margin: 0 0 5px;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.private-pattern p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.private-workbook-download {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--gap-lg);
+  padding: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-secondary);
+}
+
+.private-workbook-download h2 {
+  margin: 0 0 8px;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.private-workbook-download p,
+.private-workbook-download ul {
+  max-width: 760px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.private-workbook-download ul {
+  padding-left: 18px;
+}
+
+.private-download-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.private-workbook-download .family-investing-action {
+  margin-top: 0;
 }

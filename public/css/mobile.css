@@ -218,6 +218,24 @@
     overflow-wrap: anywhere;
   }
 
+  .private-page-nav {
+    position: static;
+    top: auto;
+    scrollbar-width: none;
+  }
+
+  .private-page-nav::-webkit-scrollbar { display: none; }
+
+  .private-workbook-download {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .private-download-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   /* -- Business description -- */
   .business-desc { font-size: 12px; }
 
@@ -298,6 +316,28 @@
   .family-investing-card-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .private-data-table {
+    min-width: 680px;
+  }
+
+  .private-data-table th,
+  .private-data-table td {
+    padding: 8px 10px;
+  }
+
+  .private-data-table th:first-child,
+  .private-data-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--bg-card);
+  }
+
+  .private-data-table th:first-child {
+    z-index: 3;
+    background: var(--bg-secondary);
   }
 
   /* -- P/E compression -- */

@@ -20,6 +20,8 @@ const App = {
     taxes: TaxesDashboard,
     private: FamilyInvestingDashboard,
     family: FamilyInvestingDashboard,
+    'private-tracker': PrivateTrackerDashboard,
+    'private-study': PrivateStudyDashboard,
   },
 
   /** Dashboards that show the company selector bar */
@@ -89,8 +91,11 @@ const App = {
     this.renderDashboard(hash);
 
     // Update nav active state
+    const primaryDashboard = ['taxes', 'private-tracker', 'private-study', 'family'].includes(hash)
+      ? 'private'
+      : hash;
     document.querySelectorAll('.nav-link').forEach(link => {
-      link.classList.toggle('active', link.dataset.dashboard === hash);
+      link.classList.toggle('active', link.dataset.dashboard === primaryDashboard);
     });
   },
 
@@ -111,7 +116,10 @@ const App = {
       return;
     }
 
-    if ((name === 'taxes' || name === 'private' || name === 'family') && (!this.user || this.user.role !== 'family')) {
+    if (
+      ['taxes', 'private', 'family', 'private-tracker', 'private-study'].includes(name)
+      && (!this.user || this.user.role !== 'family')
+    ) {
       container.innerHTML = '<div class="error-state">Your account is authenticated, but this page is restricted to the family tier.</div>';
       return;
     }

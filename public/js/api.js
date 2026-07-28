@@ -70,6 +70,14 @@ const API = {
     return data;
   },
 
+  async getPrivateInvestment(viewName, forceRefresh = false) {
+    const key = `private_investment_${viewName}`;
+    if (!forceRefresh && this._cache[key]) return this._cache[key];
+    const data = await this._requestJson(`/api/family/investments/${encodeURIComponent(viewName)}`);
+    this._cache[key] = data;
+    return data;
+  },
+
   async updateTaxCarryover(taxYear, amount) {
     this._cache.taxes = null;
     return this._requestJson('/api/family/taxes/carryover', {

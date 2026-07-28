@@ -316,7 +316,42 @@ test('/dashboard separates private investing from the Family Hub and keeps taxes
     assert.match(dashboard.body, /href="#private"[^>]+data-dashboard="private"/);
     assert.match(dashboard.body, /href="\/family"[^>]+id="family-hub-nav-link"/);
     assert.match(dashboard.body, /\/js\/dashboards\/familyInvesting\.js/);
+    assert.match(dashboard.body, /\/js\/components\/privateNav\.js/);
+    assert.match(dashboard.body, /\/js\/dashboards\/privateTracker\.js/);
+    assert.match(dashboard.body, /\/js\/dashboards\/privateStudy\.js/);
     assert.doesNotMatch(dashboard.body, /id="taxes-nav-link"/);
+  });
+});
+
+test('/api/family/investments exposes protected private workbook summaries', async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'private-investment-data-'));
+  fs.writeFileSync(path.join(dataDir, 'tracker.json'), JSON.stringify({
+    asOf: '2026-07-28',
+    summary: { totalPortfolio: 123 },
+  }));
+  const dependencies = { ...makeDeps(), privateInvestmentDataDir: dataDir };
+
+  const generalApp = createApp({ accessAuth: makeAuth('general'), dependencies });
+  await withServer(generalApp, async baseUrl => {
+    const result = await request(baseUrl, '/api/family/investments/tracker', {
+      headers: { accept: 'application/json' },
+    });
+    assert.equal(result.res.status, 403);
+    assert.match(result.body.error, /family tier/);
+  });
+
+  const familyApp = createApp({ accessAuth: makeAuth('family'), dependencies });
+  await withServer(familyApp, async baseUrl => {
+    const tracker = await request(baseUrl, '/api/family/investments/tracker');
+    assert.equal(tracker.res.status, 200);
+    assert.equal(tracker.body.summary.totalPortfolio, 123);
+    assert.equal(tracker.res.headers.get('cache-control'), 'private, no-store');
+
+    const unknown = await request(baseUrl, '/api/family/investments/unknown');
+    assert.equal(unknown.res.status, 404);
+
+    const missing = await request(baseUrl, '/api/family/investments/study');
+    assert.equal(missing.res.status, 503);
   });
 });
 

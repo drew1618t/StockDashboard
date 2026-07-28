@@ -20,13 +20,6 @@ const FamilyInvestingDashboard = {
         <a class="family-investing-hub-link" href="/family">Open Family Hub &rarr;</a>
       </div>
 
-      <nav class="family-investing-tabs" aria-label="Family investing">
-        <a class="active" href="#private" aria-current="page">Overview</a>
-        <a href="#taxes">Taxes</a>
-        <a href="/family/investments/files/tracker">Account Tracker</a>
-        <a href="/family/investments/files/study">Success Study</a>
-      </nav>
-
       <div class="family-investing-grid">
         <article class="family-investing-card family-investing-card--featured">
           <div class="family-investing-card-label">Planning tool</div>
@@ -39,7 +32,7 @@ const FamilyInvestingDashboard = {
           <div class="family-investing-card-label">Living record</div>
           <h3>Four-Account Portfolio Tracker</h3>
           <p>Balances, account allocation, consolidated holdings, transaction history, and reconciliation checks.</p>
-          <a class="family-investing-action" href="/family/investments/files/tracker">Download workbook</a>
+          <a class="family-investing-action" href="#private-tracker">View account tracker</a>
         </article>
 
         <article class="family-investing-card">
@@ -47,7 +40,7 @@ const FamilyInvestingDashboard = {
           <h3>Investment Success Study</h3>
           <p>The complete account-level first-buy-to-peak analysis, exclusions, and methodology.</p>
           <div class="family-investing-card-actions">
-            <a class="family-investing-action" href="/family/investments/files/study">Download workbook</a>
+            <a class="family-investing-action" href="#private-study">View success study</a>
             <a class="family-investing-text-link" href="/writing/investment-winners-what-the-data-says">Read public lesson</a>
           </div>
         </article>
@@ -59,6 +52,8 @@ const FamilyInvestingDashboard = {
       </div>
     `;
 
+    PrivateNav.render(section, 'overview');
+    section.insertBefore(section.lastElementChild, section.children[1]);
     container.appendChild(section);
   },
 
