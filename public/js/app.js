@@ -18,6 +18,7 @@ const App = {
     profitability: ProfitabilityDashboard,
     deepdive: DeepDiveDashboard,
     taxes: TaxesDashboard,
+    private: FamilyInvestingDashboard,
     family: FamilyInvestingDashboard,
   },
 
@@ -110,7 +111,7 @@ const App = {
       return;
     }
 
-    if ((name === 'taxes' || name === 'family') && (!this.user || this.user.role !== 'family')) {
+    if ((name === 'taxes' || name === 'private' || name === 'family') && (!this.user || this.user.role !== 'family')) {
       container.innerHTML = '<div class="error-state">Your account is authenticated, but this page is restricted to the family tier.</div>';
       return;
     }
@@ -154,14 +155,18 @@ const App = {
 
   _applyUserContext() {
     const userEl = document.getElementById('header-user');
-    const familyLink = document.getElementById('family-nav-link');
+    const privateLink = document.getElementById('private-nav-link');
+    const familyHubLink = document.getElementById('family-hub-nav-link');
     if (userEl && this.user) {
       userEl.hidden = false;
       const masked = this.user.email ? this.user.email.slice(0, 4) + '••••' : '';
       userEl.textContent = `${this.user.role.toUpperCase()} • ${masked}`;
     }
-    if (familyLink) {
-      familyLink.hidden = !this.user || this.user.role !== 'family';
+    if (privateLink) {
+      privateLink.hidden = !this.user || this.user.role !== 'family';
+    }
+    if (familyHubLink) {
+      familyHubLink.hidden = !this.user || this.user.role !== 'family';
     }
   },
 

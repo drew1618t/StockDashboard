@@ -194,9 +194,9 @@ function renderFamilyInvestmentsPage(options = {}) {
 <body>
   <main class="shell">
     <header class="topbar">
-      <a class="brand" href="/dashboard#family">Portfolio Viz</a>
+      <a class="brand" href="/dashboard#private">Portfolio Viz</a>
       <nav aria-label="Family portfolio">
-        <a href="/dashboard#family">Family Investing</a>
+        <a href="/dashboard#private">Private Investing</a>
         <a href="/writing/investment-winners-what-the-data-says">Public study</a>
         <a href="/family" aria-current="page">Family Hub</a>
       </nav>

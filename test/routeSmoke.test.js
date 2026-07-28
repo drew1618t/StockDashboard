@@ -304,16 +304,17 @@ test('/writing and /family render without crashing', async () => {
     assert.match(family.body, /\/css\/familyHub\.css/);
     assert.match(family.body, /\/js\/familyHub\.js/);
     assert.match(family.body, /href="\/projects"/);
-    assert.match(family.body, /href="\/dashboard#family"/);
+    assert.match(family.body, /href="\/dashboard#private"/);
   });
 });
 
-test('/dashboard exposes one family entry and keeps taxes in the family investing subsection', async () => {
+test('/dashboard separates private investing from the Family Hub and keeps taxes in Private', async () => {
   const app = createApp({ accessAuth: makeAuth('family'), dependencies: makeDeps() });
   await withServer(app, async baseUrl => {
     const dashboard = await request(baseUrl, '/dashboard');
     assert.equal(dashboard.res.status, 200);
-    assert.match(dashboard.body, /href="#family"[^>]+data-dashboard="family"/);
+    assert.match(dashboard.body, /href="#private"[^>]+data-dashboard="private"/);
+    assert.match(dashboard.body, /href="\/family"[^>]+id="family-hub-nav-link"/);
     assert.match(dashboard.body, /\/js\/dashboards\/familyInvesting\.js/);
     assert.doesNotMatch(dashboard.body, /id="taxes-nav-link"/);
   });

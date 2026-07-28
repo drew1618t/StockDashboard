@@ -21,7 +21,7 @@ const FamilyInvestingDashboard = {
       </div>
 
       <nav class="family-investing-tabs" aria-label="Family investing">
-        <a class="active" href="#family" aria-current="page">Overview</a>
+        <a class="active" href="#private" aria-current="page">Overview</a>
         <a href="#taxes">Taxes</a>
         <a href="/family/investments/files/tracker">Account Tracker</a>
         <a href="/family/investments/files/study">Success Study</a>
