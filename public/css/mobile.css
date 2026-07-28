@@ -23,6 +23,13 @@
     gap: 6px;
   }
 
+  .theme-onyx #dashboard-content,
+  .theme-ivory-ink #dashboard-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 24px 20px;
+  }
+
   .home-link { display: none; }        /* free up space */
   .header-meta { display: none; }      /* hide "11 companies" / role chip */
   .app-title { font-size: 13px; }
@@ -202,7 +209,13 @@
   }
 
   .family-investing-card {
+    width: 100%;
+    min-width: 0;
     min-height: 0;
+  }
+
+  .family-investing-card p {
+    overflow-wrap: anywhere;
   }
 
   /* -- Business description -- */
@@ -247,7 +260,10 @@
   }
 
   /* -- Content padding -- */
-  #dashboard-content { padding: 10px 8px; }
+  .theme-onyx #dashboard-content,
+  .theme-ivory-ink #dashboard-content {
+    padding: 20px 14px;
+  }
 
   /* -- Chart containers -- */
   .chart-container       { height: 180px; padding: 8px; }
