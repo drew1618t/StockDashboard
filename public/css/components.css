@@ -1207,3 +1207,158 @@
   color: var(--text-muted);
   font-size: 12px;
 }
+
+/* -- Family Investing --------------------------------------------------- */
+.family-investing-dashboard {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.family-investing-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--gap-lg);
+}
+
+.family-investing-kicker,
+.family-investing-card-label {
+  margin-bottom: 7px;
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.family-investing-intro {
+  max-width: 680px;
+  margin: 7px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.family-investing-hub-link,
+.family-investing-text-link {
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.family-investing-hub-link:hover,
+.family-investing-text-link:hover {
+  text-decoration: underline;
+}
+
+.family-investing-tabs {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  padding: 6px;
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-secondary);
+}
+
+.family-investing-tabs a {
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  border-radius: calc(var(--border-radius) - 1px);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.family-investing-tabs a:hover,
+.family-investing-tabs a.active {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.family-investing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.family-investing-card {
+  display: flex;
+  min-height: 250px;
+  flex-direction: column;
+  padding: 18px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--bg-card);
+}
+
+.family-investing-card--featured {
+  border-color: color-mix(in srgb, var(--color-accent) 42%, var(--border-color));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--color-accent) 8%, transparent), transparent 58%),
+    var(--bg-card);
+}
+
+.family-investing-card h3 {
+  margin: 0 0 10px;
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
+.family-investing-card p {
+  margin: 0 0 22px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.family-investing-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  margin-top: auto;
+  padding: 7px 12px;
+  border: 1px solid var(--color-accent);
+  border-radius: var(--border-radius);
+  background: transparent;
+  color: var(--color-accent);
+  font-size: 10px;
+  font-weight: 800;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.family-investing-action:hover {
+  background: var(--color-accent);
+  color: var(--bg-primary);
+}
+
+.family-investing-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.family-investing-card-actions .family-investing-action {
+  margin-top: 0;
+}
+
+.family-investing-privacy {
+  padding: 12px 14px;
+  border-left: 3px solid var(--color-accent);
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.family-investing-privacy strong {
+  color: var(--text-primary);
+}

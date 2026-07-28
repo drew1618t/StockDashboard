@@ -30,6 +30,7 @@ for file in $runtimeDataArgs; do
   fi
 done &&
 rm -rf "`$backup_dir" &&
+node scripts/seed-writing.js &&
 npm install --omit=dev &&
 sudo systemctl restart $($target.service) &&
 sleep 4 &&

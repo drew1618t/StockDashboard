@@ -18,6 +18,7 @@ const App = {
     profitability: ProfitabilityDashboard,
     deepdive: DeepDiveDashboard,
     taxes: TaxesDashboard,
+    family: FamilyInvestingDashboard,
   },
 
   /** Dashboards that show the company selector bar */
@@ -109,7 +110,7 @@ const App = {
       return;
     }
 
-    if (name === 'taxes' && (!this.user || this.user.role !== 'family')) {
+    if ((name === 'taxes' || name === 'family') && (!this.user || this.user.role !== 'family')) {
       container.innerHTML = '<div class="error-state">Your account is authenticated, but this page is restricted to the family tier.</div>';
       return;
     }
@@ -154,7 +155,6 @@ const App = {
   _applyUserContext() {
     const userEl = document.getElementById('header-user');
     const familyLink = document.getElementById('family-nav-link');
-    const taxesLink = document.getElementById('taxes-nav-link');
     if (userEl && this.user) {
       userEl.hidden = false;
       const masked = this.user.email ? this.user.email.slice(0, 4) + '••••' : '';
@@ -162,9 +162,6 @@ const App = {
     }
     if (familyLink) {
       familyLink.hidden = !this.user || this.user.role !== 'family';
-    }
-    if (taxesLink) {
-      taxesLink.hidden = !this.user || this.user.role !== 'family';
     }
   },
 

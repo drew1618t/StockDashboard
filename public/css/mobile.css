@@ -191,6 +191,20 @@
     min-height: 0;
   }
 
+  /* -- Family investing -- */
+  .family-investing-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .family-investing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .family-investing-card {
+    min-height: 0;
+  }
+
   /* -- Business description -- */
   .business-desc { font-size: 12px; }
 
@@ -264,6 +278,11 @@
 
   /* -- Top performers: single column -- */
   .top-performers-grid { grid-template-columns: 1fr; }
+
+  .family-investing-card-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
 
   /* -- P/E compression -- */
   .pe-stage {

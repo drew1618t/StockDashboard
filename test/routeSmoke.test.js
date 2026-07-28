@@ -304,6 +304,72 @@ test('/writing and /family render without crashing', async () => {
     assert.match(family.body, /\/css\/familyHub\.css/);
     assert.match(family.body, /\/js\/familyHub\.js/);
     assert.match(family.body, /href="\/projects"/);
+    assert.match(family.body, /href="\/dashboard#family"/);
+  });
+});
+
+test('/dashboard exposes one family entry and keeps taxes in the family investing subsection', async () => {
+  const app = createApp({ accessAuth: makeAuth('family'), dependencies: makeDeps() });
+  await withServer(app, async baseUrl => {
+    const dashboard = await request(baseUrl, '/dashboard');
+    assert.equal(dashboard.res.status, 200);
+    assert.match(dashboard.body, /href="#family"[^>]+data-dashboard="family"/);
+    assert.match(dashboard.body, /\/js\/dashboards\/familyInvesting\.js/);
+    assert.doesNotMatch(dashboard.body, /id="taxes-nav-link"/);
+  });
+});
+
+test('/family investments page and workbook downloads are family-only', async () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'family-investments-'));
+  const trackerPath = path.join(tempRoot, 'tracker.xlsx');
+  const studyPath = path.join(tempRoot, 'study.xlsx');
+  fs.writeFileSync(trackerPath, 'tracker');
+  fs.writeFileSync(studyPath, 'study');
+
+  const investmentDocuments = {
+    tracker: {
+      fileName: 'tracker.xlsx',
+      label: 'Portfolio Tracker',
+      description: 'Private account data.',
+      relativePath: 'tracker.xlsx',
+    },
+    study: {
+      fileName: 'study.xlsx',
+      label: 'Success Study',
+      description: 'Private account research.',
+      relativePath: 'study.xlsx',
+    },
+  };
+  const dependencies = { ...makeDeps(), rootDir: tempRoot, investmentDocuments };
+
+  const generalApp = createApp({ accessAuth: makeAuth('general'), dependencies });
+  await withServer(generalApp, async baseUrl => {
+    const page = await request(baseUrl, '/family/investments', {
+      headers: { accept: 'application/json' },
+    });
+    assert.equal(page.res.status, 403);
+    assert.match(page.body.error, /family tier/);
+
+    const file = await request(baseUrl, '/family/investments/files/tracker', {
+      headers: { accept: 'application/json' },
+    });
+    assert.equal(file.res.status, 403);
+    assert.match(file.body.error, /family tier/);
+  });
+
+  const familyApp = createApp({ accessAuth: makeAuth('family'), dependencies });
+  await withServer(familyApp, async baseUrl => {
+    const page = await request(baseUrl, '/family/investments');
+    assert.equal(page.res.status, 200);
+    assert.match(page.body, /Family Portfolio/);
+    assert.match(page.body, /id="tracker"/);
+    assert.equal(page.res.headers.get('cache-control'), 'private, no-store');
+
+    const file = await request(baseUrl, '/family/investments/files/tracker');
+    assert.equal(file.res.status, 200);
+    assert.equal(file.body, 'tracker');
+    assert.match(file.res.headers.get('content-disposition'), /tracker\.xlsx/);
+    assert.equal(file.res.headers.get('cache-control'), 'private, no-store');
   });
 });
 

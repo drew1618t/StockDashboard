@@ -10,6 +10,10 @@ const {
   renderPersonHealthSectionPage,
   renderPersonImagingStudyPage,
 } = require('../../familyPages');
+const {
+  findInvestmentDocument,
+  renderFamilyInvestmentsPage,
+} = require('../../familyInvestmentPages');
 const { renderAnimalsPage } = require('../../animalPages');
 const {
   findReportFile,
@@ -45,6 +49,23 @@ function createFamilyPageRoutes(options = {}) {
 
   router.get('/', (req, res) => {
     res.type('html').send(renderFamilyHubPage(undefined, undefined, req.user));
+  });
+
+  router.get('/investments', (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.type('html').send(renderFamilyInvestmentsPage(options));
+  });
+
+  router.get('/investments/files/:documentKey', (req, res) => {
+    const document = findInvestmentDocument(req.params.documentKey, options);
+    if (!document || !isPathUnder(options.rootDir || path.join(__dirname, '..', '..', '..'), document.fullPath)) {
+      return res.status(404).type('html').send(
+        renderFamilySectionPage('Investment Document Not Found', 'The requested family investment document was not found.')
+      );
+    }
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('Content-Disposition', `attachment; filename="${document.fileName}"`);
+    return res.sendFile(document.fullPath);
   });
 
   router.get('/pigeons', (req, res) => {
