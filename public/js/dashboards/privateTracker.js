@@ -10,9 +10,7 @@ const PrivateTrackerDashboard = {
 
     PrivateNav.render(section, 'tracker');
     section.appendChild(this._header(data));
-    section.appendChild(this._metrics(data.summary));
-    section.appendChild(this._accountTable(data.accounts));
-    section.appendChild(this._holdingsTable(data.holdings));
+    WorkbookViewer.render(section, data.workbook, { title: 'Account Tracker' });
     section.appendChild(this._download(data.note));
     container.appendChild(section);
   },

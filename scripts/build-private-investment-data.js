@@ -8,6 +8,12 @@ const trackerInspectionPath = path.join(
   'account-tracker-2026-07-28',
   'four_account_portfolio_tracker.xlsx.inspect.ndjson'
 );
+const studyInspectionPath = path.join(
+  repoRoot,
+  'outputs',
+  'investment-success-2026-07-28',
+  'investment_success_first_buy_to_peak.xlsx.inspect.ndjson'
+);
 const studyAnalysisPath = path.join(
   repoRoot,
   '.work',
@@ -30,6 +36,25 @@ function readInspectedTable(filePath, sheetName) {
     if (record.kind === 'table' && record.sheet === sheetName) return record.values;
   }
   throw new Error(`Inspected table not found: ${sheetName}`);
+}
+
+function readWorkbookSheets(filePath) {
+  const sheets = [];
+  const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    if (!line) continue;
+    const record = JSON.parse(line);
+    if (record.kind !== 'table') continue;
+    sheets.push({
+      name: record.sheet,
+      address: record.address,
+      rowCount: record.rows || record.values.length,
+      columnCount: record.cols || record.values[0]?.length || 0,
+      values: record.values,
+    });
+  }
+  if (!sheets.length) throw new Error(`No workbook sheets found in ${filePath}`);
+  return { sheets };
 }
 
 function mapRows(headers, rows) {
@@ -81,6 +106,7 @@ function buildTrackerSnapshot() {
     accounts: mapRows(accountHeaders, rows.slice(10, 14)),
     holdings: mapRows(holdingHeaders, rows.slice(19, 31)),
     note: rows[32][0],
+    workbook: readWorkbookSheets(trackerInspectionPath),
   };
 }
 
@@ -129,6 +155,7 @@ function buildStudySnapshot() {
       'The study measures price return from first buy to peak, not total return or internal rate of return.',
       'The portfolio reflects one selection process; survivorship, hindsight, and repeated-account effects remain possible.',
     ],
+    workbook: readWorkbookSheets(studyInspectionPath),
   };
 }
 

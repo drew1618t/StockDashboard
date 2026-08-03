@@ -1545,3 +1545,219 @@
 .private-workbook-download .family-investing-action {
   margin-top: 0;
 }
+
+/* -- Complete private workbook viewer ---------------------------------- */
+.private-workbook-viewer {
+  min-width: 0;
+}
+
+.private-workbook-viewer-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--gap);
+}
+
+.private-workbook-viewer-heading .section-title {
+  margin-bottom: 8px;
+}
+
+.private-workbook-viewer-heading p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.private-sheet-tabs {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  gap: 4px;
+  padding: 6px;
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  scrollbar-width: thin;
+}
+
+.private-sheet-tabs button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 11px;
+  border: 0;
+  border-radius: var(--border-radius);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.private-sheet-tabs button:hover,
+.private-sheet-tabs button.active {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.private-sheet-tabs small {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 400;
+}
+
+.private-sheet-panel {
+  min-width: 0;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.private-sheet-toolbar {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.private-sheet-toolbar > div:first-child {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.private-sheet-toolbar strong {
+  color: var(--text-primary);
+  font-size: 11px;
+}
+
+.private-sheet-toolbar span {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+}
+
+.private-sheet-pager {
+  display: flex !important;
+  flex: 0 0 auto;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px !important;
+}
+
+.private-sheet-pager button {
+  padding: 5px 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.private-sheet-pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.private-sheet-scroll {
+  width: 100%;
+  max-width: 100%;
+  max-height: 68vh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.private-sheet-grid {
+  min-width: 100%;
+  border-spacing: 0;
+  border-collapse: separate;
+  color: var(--text-secondary);
+  font-size: 10px;
+}
+
+.private-sheet-grid th,
+.private-sheet-grid td {
+  min-width: 96px;
+  max-width: 360px;
+  padding: 7px 9px;
+  border-right: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-card);
+  line-height: 1.45;
+  text-align: left;
+  vertical-align: top;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.private-sheet-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  min-width: 96px;
+  padding: 5px 9px;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  text-align: center;
+}
+
+.private-sheet-grid .private-sheet-row-number,
+.private-sheet-grid .private-sheet-corner {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  min-width: 38px;
+  width: 38px;
+  max-width: 38px;
+  box-sizing: border-box;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 400;
+  text-align: right;
+}
+
+.private-sheet-grid .private-sheet-corner {
+  top: 0;
+  z-index: 5;
+}
+
+.private-sheet-grid td.numeric {
+  font-family: var(--font-numbers);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.private-sheet-grid td.title-cell {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.private-sheet-grid td.header-cell {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.private-sheet-grid td.blank-cell {
+  height: 12px;
+  padding: 3px 9px;
+}
+
+.private-sheet-grid td.negative-value {
+  color: var(--color-negative);
+}

@@ -317,6 +317,7 @@ test('/dashboard separates private investing from the Family Hub and keeps taxes
     assert.match(dashboard.body, /href="\/family"[^>]+id="family-hub-nav-link"/);
     assert.match(dashboard.body, /\/js\/dashboards\/familyInvesting\.js/);
     assert.match(dashboard.body, /\/js\/components\/privateNav\.js/);
+    assert.match(dashboard.body, /\/js\/components\/workbookViewer\.js/);
     assert.match(dashboard.body, /\/js\/dashboards\/privateTracker\.js/);
     assert.match(dashboard.body, /\/js\/dashboards\/privateStudy\.js/);
     assert.doesNotMatch(dashboard.body, /id="taxes-nav-link"/);

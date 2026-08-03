@@ -10,10 +10,7 @@ const PrivateStudyDashboard = {
 
     PrivateNav.render(section, 'study');
     section.appendChild(this._header(data));
-    section.appendChild(this._metrics(data.counts));
-    section.appendChild(this._patterns(data.patterns));
-    section.appendChild(this._episodeTable(data.topEpisodes));
-    section.appendChild(this._tickerTable(data.topTickers));
+    WorkbookViewer.render(section, data.workbook, { title: 'Investment Success Study' });
     section.appendChild(this._download(data.limitations));
     container.appendChild(section);
   },
@@ -115,8 +112,8 @@ const PrivateStudyDashboard = {
     el.className = 'private-workbook-download';
     el.innerHTML = `
       <div>
-        <h2>Limitations</h2>
-        <ul>${limitations.map(item => `<li>${this._escape(item)}</li>`).join('')}</ul>
+        <h2>Original workbook</h2>
+        <p>The download preserves the formulas, formatting, and complete workbook for use in Excel.</p>
       </div>
       <div class="private-download-actions">
         <a class="family-investing-action" href="/family/investments/files/study">Download complete workbook</a>

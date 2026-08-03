@@ -236,6 +236,25 @@
     flex-direction: column;
   }
 
+  .private-sheet-tabs {
+    scrollbar-width: none;
+  }
+
+  .private-sheet-tabs::-webkit-scrollbar { display: none; }
+
+  .private-sheet-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .private-sheet-pager {
+    justify-content: space-between;
+  }
+
+  .private-sheet-scroll {
+    max-height: 64vh;
+  }
+
   /* -- Business description -- */
   .business-desc { font-size: 12px; }
 
