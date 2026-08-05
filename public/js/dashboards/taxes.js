@@ -39,16 +39,16 @@ const TaxesDashboard = {
     const m = data.summary;
     const planner = data.planner?.computed || {};
     const plannerInputs = data.planner?.inputs || {};
-    const plannedConversion = Number(plannerInputs.plannedRothConversion || 0);
+    const convertedYtd = Number(plannerInputs.plannedRothConversion || 0);
     const limit = Number(planner.headroomNoOrdinaryTax || 0);
-    const remaining = Math.max(0, limit - plannedConversion);
+    const remaining = Math.max(0, limit - convertedYtd);
     const metricsRow = document.createElement('div');
     metricsRow.className = 'section';
     MetricCard.renderRow(metricsRow, [
       {
         label: '0% Headroom Remaining',
         value: this._money(remaining),
-        subtext: `${this._money(limit)} limit, ${this._money(plannedConversion)} planned`,
+        subtext: `${this._money(limit)} limit, ${this._money(convertedYtd)} converted`,
         colorClass: remaining ? 'positive' : 'neutral',
       },
       {
@@ -101,7 +101,7 @@ const TaxesDashboard = {
     const headroom = Number(computed.headroomNoOrdinaryTax || 0);
     const remainingHeadroom = Math.max(0, headroom - conversion);
     el.innerHTML = `
-      <h2 class="section-title">Roth Conversion Planner</h2>
+      <h2 class="section-title">Roth Conversion Tracker</h2>
       <div class="tax-planner-grid">
         <div class="tax-control-row">
           <label for="tax-filing-status">Filing</label>
@@ -118,7 +118,7 @@ const TaxesDashboard = {
           <label for="tax-deduction">Deduction</label>
           <input id="tax-deduction" type="number" step="1" value="${this._escapeAttr(String(inputs.standardDeduction ?? 0))}">
 
-          <label for="tax-conversion">Conversion</label>
+          <label for="tax-conversion">Converted YTD</label>
           <input id="tax-conversion" type="number" step="0.01" value="${this._escapeAttr(String(inputs.plannedRothConversion ?? 0))}">
 
           <label for="tax-use-cap-loss">Use $3k loss</label>
@@ -135,13 +135,13 @@ const TaxesDashboard = {
       </div>
       <div class="tax-note" style="margin-top: 8px;">
         0% conversion limit: <b>${this._escape(this._money(computed.headroomNoOrdinaryTax))}</b>
-        (${this._escape(this._money(remainingHeadroom))} remaining after ${this._escape(this._money(conversion))} planned).
+        (${this._escape(this._money(remainingHeadroom))} remaining after ${this._escape(this._money(conversion))} converted).
         Capital loss offset used: ${this._escape(this._money(computed.capLossOffsetUsed || 0))}.
         Short-term ordinary added: ${this._escape(this._money(computed.shortTermAfterNetting || 0))}.
       </div>
       <div class="tax-term-grid" style="margin-top: var(--gap);">
         ${this._metricCard('0% conversion limit', this._money(computed.headroomNoOrdinaryTax), `Ordinary ${this._money(computed.ordinaryIncomeEstimate)}`)}
-        ${this._metricCard('Remaining at 0%', this._money(remainingHeadroom), `After ${this._money(conversion)} planned`)}
+        ${this._metricCard('Remaining at 0%', this._money(remainingHeadroom), `After ${this._money(conversion)} converted`)}
         ${this._metricCard('Marginal rate (ordinary)', marginalPct == null ? 'N/A' : Fmt.pct(marginalPct, true), computed.headroomToNextBracket == null ? 'Next bracket N/A' : `${this._money(computed.headroomToNextBracket)} to next bracket`)}
         ${this._metricCard('Tax before (est.)', this._money(computed.estimatedTaxBefore), `Taxable ${this._money(computed.taxableOrdinaryBefore)}`)}
         ${this._metricCard('Conversion tax add (est.)', this._money(computed.incrementalTax), `Taxable ${this._money(computed.taxableOrdinaryAfter)}`)}
