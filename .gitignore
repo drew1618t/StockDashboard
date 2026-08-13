@@ -2,6 +2,7 @@ node_modules/
 nul
 .claude/
 .env.production*
+config/local.json
 backups/
 data/pigeons.db*
 data/pigeons-uploads/
@@ -12,3 +13,17 @@ data/Transaction History _ Charles Schwab.pdf
 data/taxes.state.json
 data/taxes.json
 data/private-investments/
+data/live-portfolio-snapshot.json
+data/transactions/
+
+# Local agent/browser workspaces and generated exports
+.codex-remote-attachments/
+.codex-spreadsheet-read/
+.codex-work/
+.work/
+outputs/
+*family-test.html
+
+# Private health records
+data/health-hub.json
+data/e919b8f1-e686-4234-a6c6-7ef82a9b7400.pdf

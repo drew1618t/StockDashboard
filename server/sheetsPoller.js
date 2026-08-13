@@ -8,13 +8,13 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const { loadInvestingConfig } = require('./investingConfig');
 
 const PORTFOLIO_PATH = path.join(__dirname, '..', 'portfolio.json');
-
-const SHEETS_URL = process.env.SHEETS_CSV_URL ||
-  'https://docs.google.com/spreadsheets/d/1fme7KenYvt4-a-1NkTxajzRSmlam1zwx-3vDevbYX4U/gviz/tq?tqx=out:csv';
-
-const POLL_INTERVAL_MS = parseInt(process.env.SHEETS_POLL_INTERVAL_MS) || (60 * 60 * 1000); // 1 hour
+const investingConfig = loadInvestingConfig();
+const SHEETS_URL = investingConfig.sheetsCsvUrl;
+const SNAPSHOT_PATH = investingConfig.liveSnapshotPath;
+const POLL_INTERVAL_MS = investingConfig.pollIntervalMs;
 
 let cachedData = null;
 let lastFetchTime = null;
@@ -60,6 +60,46 @@ function parseFirstNum(cols, indexes) {
     if (value !== null) return value;
   }
   return null;
+}
+
+function isPortfolioSnapshot(value) {
+  return Boolean(
+    value
+    && typeof value === 'object'
+    && Array.isArray(value.stocks)
+    && value.stocks.length > 0
+    && value.portfolioMetrics
+    && typeof value.portfolioMetrics === 'object'
+  );
+}
+
+function readPersistedSnapshot(snapshotPath = SNAPSHOT_PATH) {
+  try {
+    const value = JSON.parse(fs.readFileSync(snapshotPath, 'utf-8'));
+    return isPortfolioSnapshot(value) ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistSnapshot(data, snapshotPath = SNAPSHOT_PATH) {
+  if (!isPortfolioSnapshot(data)) {
+    throw new TypeError('Refusing to persist an invalid live portfolio snapshot');
+  }
+  fs.mkdirSync(path.dirname(snapshotPath), { recursive: true });
+  fs.writeFileSync(snapshotPath, JSON.stringify(data, null, 2) + '\n');
+}
+
+function hydrateFromPersistedSnapshot(snapshotPath = SNAPSHOT_PATH) {
+  const snapshot = readPersistedSnapshot(snapshotPath);
+  if (!snapshot) return false;
+  cachedData = {
+    ...snapshot,
+    source: 'persisted-snapshot',
+    stale: true,
+  };
+  lastFetchTime = snapshot.lastFetchTime || null;
+  return true;
 }
 
 /**
@@ -220,6 +260,10 @@ function parseCSV(csvText) {
 
 function fetchSheetCSV(retries = 3) {
   return new Promise((resolve, reject) => {
+    if (!SHEETS_URL) {
+      reject(new Error('No sheets_csv_url configured'));
+      return;
+    }
     const doFetch = (url, retriesLeft) => {
       const req = https.get(url, { timeout: 10000 }, (res) => {
         // Handle redirects
@@ -312,7 +356,13 @@ async function fetchAndCache() {
     console.log('[sheetsPoller] Fetching Google Sheets data...');
     const csv = await fetchSheetCSV();
     cachedData = parseCSV(csv);
+    if (cachedData.stocks.length === 0) {
+      throw new Error('Sheet response contained no portfolio positions');
+    }
+    cachedData.source = 'google-sheets-live';
+    cachedData.stale = false;
     lastFetchTime = cachedData.lastFetchTime;
+    persistSnapshot(cachedData);
     console.log(
       `[sheetsPoller] Cached ${cachedData.stocks.length} stocks` +
       (cachedData.cash ? ` + cash` : '') +
@@ -330,6 +380,9 @@ async function fetchAndCache() {
 }
 
 function startPolling(intervalMs = POLL_INTERVAL_MS) {
+  if (hydrateFromPersistedSnapshot()) {
+    console.log(`[sheetsPoller] Loaded persisted portfolio snapshot from ${SNAPSHOT_PATH}`);
+  }
   fetchAndCache(); // fetch immediately on startup
   pollingTimer = setInterval(fetchAndCache, intervalMs);
   console.log(`[sheetsPoller] Polling every ${Math.round(intervalMs / 1000 / 60)} minutes`);
@@ -354,4 +407,14 @@ async function forceRefresh() {
   return getLiveData();
 }
 
-module.exports = { startPolling, stopPolling, getLiveData, forceRefresh, parseCSV };
+module.exports = {
+  startPolling,
+  stopPolling,
+  getLiveData,
+  forceRefresh,
+  parseCSV,
+  isPortfolioSnapshot,
+  readPersistedSnapshot,
+  persistSnapshot,
+  hydrateFromPersistedSnapshot,
+};

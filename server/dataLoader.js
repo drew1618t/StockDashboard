@@ -14,9 +14,9 @@ const { parseMarkdown } = require('./markdownParser');
 const { enrichCompanies } = require('./calculator');
 const { computeSaulSummary } = require('./saulUtils');
 const requestTracker = require('./requestTracker');
+const { loadInvestingConfig } = require('./investingConfig');
 
-const REPORTS_DIR = process.env.DATA_DIR ||
-  path.join(__dirname, '..', '..', 'SaulInvesting', 'reports');
+const REPORTS_DIR = loadInvestingConfig().reportsDir;
 
 const PORTFOLIO_PATH = path.join(__dirname, '..', 'portfolio.json');
 

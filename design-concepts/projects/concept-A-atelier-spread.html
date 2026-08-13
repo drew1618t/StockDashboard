@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects — Atelier Spread</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Cormorant+SC:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4EFE6;
+    --paper-soft:#EBE4D6;
+    --ink:#1C1A17;
+    --muted:#8A7F6E;
+    --brass:#B89968;
+    --brass-soft:#D9C7A4;
+    --brass-deep:#9C7F4E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  body{background-image:radial-gradient(ellipse at top, rgba(255,255,255,.45), transparent 55%);min-height:100vh}
+  a{color:inherit;text-decoration:none}
+  /* top bar */
+  .top{max-width:1440px;margin:0 auto;padding:20px 56px;display:flex;justify-content:space-between;align-items:center;font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.22em;color:var(--muted);border-bottom:1px solid var(--brass-soft)}
+  .top a:hover{color:var(--brass)}
+  .top .dot{display:inline-block;width:4px;height:4px;background:var(--brass);border-radius:50%;margin:0 12px;vertical-align:middle}
+  /* spread */
+  .spread{max-width:1440px;margin:0 auto;padding:48px 56px 64px;display:grid;grid-template-columns:38% 1fr;gap:64px;min-height:calc(100vh - 110px)}
+  /* left masthead */
+  .mast{position:sticky;top:32px;align-self:start;padding-right:24px;border-right:1px solid var(--brass-soft)}
+  .mast .kicker{font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.3em;color:var(--brass)}
+  .mast .rule{width:48px;height:1px;background:var(--brass);margin:14px 0 20px}
+  .mast h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:3.2rem;line-height:1.02;letter-spacing:-0.01em}
+  .mast h1 em{font-style:italic;color:var(--brass)}
+  .mast .stand{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;color:var(--muted);font-size:1.15rem;line-height:1.5;margin:18px 0 28px;max-width:340px}
+  .mast .now-reading{margin-top:28px;padding-top:20px;border-top:1px solid var(--brass-soft);font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.22em;color:var(--muted)}
+  .mast .now-reading .label{display:block;margin-bottom:8px}
+  .mast .now-reading .target{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:1.35rem;letter-spacing:-0.005em;color:var(--ink);text-transform:none;transition:opacity .3s ease}
+  .mast .meta-row{margin-top:28px;display:flex;gap:32px;font-family:'Cormorant SC',serif;font-size:10.5px;letter-spacing:.22em;color:var(--muted)}
+  .mast .meta-row div strong{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:1.5rem;color:var(--ink);text-transform:none;letter-spacing:0;margin-bottom:2px}
+  /* editor's note */
+  .mast .stands{margin-top:28px;padding-top:20px;border-top:1px solid var(--brass-soft)}
+  .mast .stands .head{font-family:'Cormorant SC',serif;font-size:10.5px;letter-spacing:.28em;color:var(--brass);margin-bottom:14px}
+  .mast .stands .note{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:1rem;line-height:1.5;color:var(--ink)}
+  .mast .stands .note p{margin-bottom:10px;display:flex;gap:10px;align-items:baseline}
+  .mast .stands .note p:last-child{margin-bottom:0}
+  .mast .stands .note .label{font-family:'Cormorant SC',serif;font-style:normal;font-size:9px;letter-spacing:.22em;color:var(--brass);white-space:nowrap;flex-shrink:0;padding-top:3px;min-width:88px}
+  .mast .stands .note em{color:var(--brass-deep);font-weight:400}
+  /* right index */
+  .idx{padding-top:8px}
+  .idx-head{font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.26em;color:var(--muted);display:flex;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid var(--brass-soft)}
+  .entry{
+    display:grid;
+    grid-template-columns:54px 1fr auto;
+    gap:24px;
+    align-items:center;
+    padding:20px 0;
+    border-bottom:1px solid var(--brass-soft);
+    position:relative;
+    transition:padding-left .3s ease;
+  }
+  .entry::before{content:"";position:absolute;left:-14px;top:0;bottom:0;width:2px;background:var(--brass);transform:scaleY(0);transform-origin:top;transition:transform .35s ease}
+  .entry:hover{padding-left:12px}
+  .entry:hover::before{transform:scaleY(1)}
+  .entry .num{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:1.6rem;color:var(--brass);letter-spacing:-0.01em}
+  .entry .body h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.45rem;line-height:1.15;letter-spacing:-0.005em;margin-bottom:4px}
+  .entry .body p{color:var(--muted);font-size:13.5px;line-height:1.5;max-width:520px}
+  .entry .tags{font-family:'Cormorant SC',serif;font-size:10px;letter-spacing:.22em;color:var(--brass);margin-top:4px}
+  .entry .tags span+span::before{content:"·";color:var(--muted);margin:0 8px}
+  .entry .meta{text-align:right;font-family:'Cormorant SC',serif;font-size:10px;letter-spacing:.2em;color:var(--muted);white-space:nowrap}
+  .entry .meta strong{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:1.2rem;letter-spacing:0;color:var(--ink);text-transform:none;margin-bottom:2px}
+  @media(max-width:980px){
+    .spread{grid-template-columns:1fr;gap:32px;padding:32px 24px}
+    .mast{position:static;padding-right:0;border-right:none;border-bottom:1px solid var(--brass-soft);padding-bottom:24px}
+    .top{padding:16px 24px}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div>The Family <span class="dot"></span> Atelier</div>
+  <div>MMXXVI <span class="dot"></span> Volume II</div>
+</header>
+
+<div class="spread">
+
+  <aside class="mast">
+    <div class="kicker">Projects · 2026</div>
+    <div class="rule"></div>
+    <h1>A quiet <em>index</em> of ongoing work.</h1>
+    <p class="stand">Build logs, archives, and experiments — gathered with intention and arranged for the family.</p>
+
+    <div class="meta-row">
+      <div><strong>06</strong>Entries</div>
+      <div><strong>248</strong>Logs</div>
+      <div><strong>1.2k</strong>Records</div>
+    </div>
+
+    <div class="stands">
+      <div class="head">Where things stand</div>
+      <div class="note">
+        <p><span class="label">In revision</span><span>The <em>Quality Score</em> rubric is being rebuilt around composite scoring — third pass.</span></p>
+        <p><span class="label">Newly opened</span><span><em>Revenue Momentum</em> began drafting this week; first signals expected by month-end.</span></p>
+        <p><span class="label">Most active</span><span><em>Agent Work Logs</em> — 14 new sessions in the last seven days.</span></p>
+      </div>
+    </div>
+
+    <div class="now-reading">
+      <span class="label">Currently —</span>
+      <span class="target" id="now-reading">I. Agent Work Logs</span>
+    </div>
+  </aside>
+
+  <main class="idx">
+    <div class="idx-head">
+      <span>Index</span>
+      <span>Six entries · 2026</span>
+    </div>
+
+    <a href="#" class="entry" data-name="I. Agent Work Logs">
+      <div class="num">I.</div>
+      <div class="body">
+        <h2>Agent Work Logs</h2>
+        <p>Daily, monthly, and yearly summaries of Codex and Claude work — a complete searchable archive.</p>
+        <div class="tags"><span>Archive</span><span>Live</span></div>
+      </div>
+      <div class="meta"><strong>248</strong>Reports</div>
+    </a>
+
+    <a href="#" class="entry" data-name="II. Health Hub">
+      <div class="num">II.</div>
+      <div class="body">
+        <h2>Health Hub</h2>
+        <p>Structured database of labs, imaging, and visit notes — queryable in natural language.</p>
+        <div class="tags"><span>Health</span><span>Private</span></div>
+      </div>
+      <div class="meta"><strong>1.2k</strong>Records</div>
+    </a>
+
+    <a href="#" class="entry" data-name="III. Stock Dashboard">
+      <div class="num">III.</div>
+      <div class="body">
+        <h2>Stock Dashboard</h2>
+        <p>Portfolio visualization for an eleven-stock Saul-style growth portfolio. Five themes, six metrics.</p>
+        <div class="tags"><span>Finance</span><span>Active</span></div>
+      </div>
+      <div class="meta"><strong>11</strong>Companies</div>
+    </a>
+
+    <a href="#" class="entry" data-name="IV. Family Pages">
+      <div class="num">IV.</div>
+      <div class="body">
+        <h2>Family Pages</h2>
+        <p>The shared landing surface — quick links and project rolls everyone opens first.</p>
+        <div class="tags"><span>Home</span><span>v3.1</span></div>
+      </div>
+      <div class="meta"><strong>14</strong>Pages</div>
+    </a>
+
+    <a href="#" class="entry" data-name="V. Quality Score">
+      <div class="num">V.</div>
+      <div class="body">
+        <h2>Quality Score</h2>
+        <p>Second-generation scoring rubric — composite metric blending growth, margin, and rule pass rate.</p>
+        <div class="tags"><span>Research</span><span>v2 Draft</span></div>
+      </div>
+      <div class="meta"><strong>v2.0</strong>In review</div>
+    </a>
+
+    <a href="#" class="entry" data-name="VI. Revenue Momentum">
+      <div class="num">VI.</div>
+      <div class="body">
+        <h2>Revenue Momentum</h2>
+        <p>Sequential revenue acceleration tracker — flags companies whose growth rate is itself accelerating.</p>
+        <div class="tags"><span>Research</span><span>Beta</span></div>
+      </div>
+      <div class="meta"><strong>—</strong>Drafting</div>
+    </a>
+
+  </main>
+</div>
+
+<script>
+  const target = document.getElementById('now-reading');
+  const entries = document.querySelectorAll('.entry');
+  entries.forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      target.style.opacity = '0';
+      setTimeout(() => {
+        target.textContent = el.dataset.name;
+        target.style.opacity = '1';
+      }, 150);
+    });
+  });
+</script>
+</body>
+</html>

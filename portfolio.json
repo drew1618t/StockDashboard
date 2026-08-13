@@ -3,14 +3,15 @@
     "ALAB",
     "APP",
     "CRDO",
-    "FIGR",
     "HNGE",
     "IREN",
     "KLIC",
     "MU",
+    "OUST",
     "PTRN",
     "SEI",
-    "SIMO"
+    "SIMO",
+    "SITM"
   ],
   "_comment": "Auto-synced with Google Sheets live positions. Manual edits are overwritten on next sync."
 }

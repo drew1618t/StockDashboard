@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects — Atelier Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cormorant+SC:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4EFE6;
+    --paper-soft:#EBE4D6;
+    --paper-warm:#F8F2E7;
+    --ink:#1C1A17;
+    --muted:#8A7F6E;
+    --brass:#B89968;
+    --brass-soft:#D9C7A4;
+    --brass-deep:#9C7F4E;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  body{background-image:radial-gradient(ellipse at top, rgba(255,255,255,.4), transparent 55%);min-height:100vh}
+  a{color:inherit;text-decoration:none}
+  /* masthead bar */
+  .mast{max-width:1480px;margin:0 auto;padding:0 48px}
+  .mast .top-rule{height:1px;background:var(--brass);margin-top:18px}
+  .mast .row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 0;gap:32px}
+  .mast .l{font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.28em;color:var(--muted)}
+  .mast .r{font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.28em;color:var(--muted);text-align:right}
+  .mast .c{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:2.6rem;line-height:1;letter-spacing:-0.01em;text-align:center;white-space:nowrap}
+  .mast .c em{font-style:normal;color:var(--brass);font-weight:500}
+  .mast .bottom-rule{height:3px;border-top:1px solid var(--brass);border-bottom:1px solid var(--brass);height:5px;margin-bottom:0}
+  .mast .strap{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);text-align:center;font-size:1rem;padding:8px 0 14px;border-bottom:1px solid var(--brass-soft)}
+  .mast .dot{display:inline-block;width:4px;height:4px;background:var(--brass);border-radius:50%;margin:0 10px;vertical-align:middle}
+  /* body grid */
+  .body{max-width:1480px;margin:0 auto;padding:40px 48px 64px;display:grid;grid-template-columns:1fr 320px;gap:48px}
+  /* left ledger - two columns of entries */
+  .ledger{display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+  .col-head{font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.26em;color:var(--muted);padding-bottom:12px;border-bottom:1px solid var(--brass-soft);margin-bottom:4px}
+  .entry{
+    display:grid;
+    grid-template-columns:42px 1fr;
+    gap:14px;
+    padding:22px 0;
+    border-bottom:1px solid var(--brass-soft);
+    position:relative;
+    transition:padding-left .3s ease;
+  }
+  .entry::before{content:"";position:absolute;left:-12px;top:0;bottom:0;width:2px;background:var(--brass);transform:scaleY(0);transform-origin:top;transition:transform .35s ease}
+  .entry:hover{padding-left:10px}
+  .entry:hover::before{transform:scaleY(1)}
+  .entry .num{font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.18em;color:var(--brass);padding-top:6px;text-align:right}
+  .entry .body-cell h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:1.55rem;line-height:1.1;letter-spacing:-0.005em;margin-bottom:6px}
+  .entry .body-cell p{color:var(--muted);font-size:13.5px;line-height:1.5}
+  .entry .meta-line{margin-top:10px;display:flex;justify-content:space-between;align-items:center;font-family:'Cormorant SC',serif;font-size:10.5px;letter-spacing:.22em;color:var(--muted)}
+  .entry .meta-line .tags span+span::before{content:"·";margin:0 6px}
+  .entry .meta-line .stat{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:1.05rem;letter-spacing:0;color:var(--ink);text-transform:none}
+  /* right rail */
+  .rail{background:var(--paper-soft);border:1px solid var(--brass-soft);padding:28px 26px;align-self:start}
+  .rail .rail-kicker{font-family:'Cormorant SC',serif;font-size:10.5px;letter-spacing:.28em;color:var(--brass);padding-bottom:10px;border-bottom:1px solid var(--brass-soft)}
+  .rail h3{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:1.5rem;letter-spacing:-0.005em;margin:18px 0 10px}
+  .rail .editors-note{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:1.05rem;line-height:1.55;color:var(--ink)}
+  .rail .editors-note p{margin-bottom:14px}
+  .rail .editors-note .label{font-family:'Cormorant SC',serif;font-style:normal;font-size:10px;letter-spacing:.22em;color:var(--brass);display:block;margin-bottom:2px}
+  .rail .editors-note em{color:var(--brass-deep);font-weight:400}
+  .rail .sep{height:1px;background:var(--brass-soft);margin:18px 0}
+  .rail .stats{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+  .rail .stats div{padding:10px 0}
+  .rail .stats strong{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:1.6rem;color:var(--ink);letter-spacing:0}
+  .rail .stats span{font-family:'Cormorant SC',serif;font-size:10px;letter-spacing:.22em;color:var(--muted)}
+  .rail .ornament{text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.6rem;color:var(--brass);font-weight:300;margin-top:18px}
+  @media(max-width:1080px){
+    .body{grid-template-columns:1fr;gap:32px}
+    .rail{order:-1}
+  }
+  @media(max-width:720px){
+    .ledger{grid-template-columns:1fr}
+    .mast,.body{padding-left:24px;padding-right:24px}
+    .mast .c{font-size:1.8rem}
+    .mast .row{grid-template-columns:1fr;gap:6px;text-align:center}
+    .mast .l,.mast .r{text-align:center}
+  }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="top-rule"></div>
+  <div class="row">
+    <div class="l">The Family <span class="dot"></span> Atelier</div>
+    <div class="c"><em>Projects</em></div>
+    <div class="r">MMXXVI <span class="dot"></span> Vol. II <span class="dot"></span> No. 5</div>
+  </div>
+  <div class="bottom-rule"></div>
+  <div class="strap">An index of ongoing work, build logs &amp; experiments — issued for the household.</div>
+</header>
+
+<div class="body">
+
+  <main class="ledger">
+    <div>
+      <div class="col-head">Active Work</div>
+
+      <a href="#" class="entry">
+        <div class="num">I.</div>
+        <div class="body-cell">
+          <h2>Agent Work Logs</h2>
+          <p>Daily, monthly, and yearly summaries of Codex and Claude work — a searchable archive of every agent-assisted session.</p>
+          <div class="meta-line">
+            <div class="tags"><span>Archive</span><span>Live</span></div>
+            <div class="stat">248 reports</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="entry">
+        <div class="num">II.</div>
+        <div class="body-cell">
+          <h2>Health Hub</h2>
+          <p>Structured database of labs, imaging, and visit notes — ingested from PDFs and queryable in natural language.</p>
+          <div class="meta-line">
+            <div class="tags"><span>Health</span><span>Private</span></div>
+            <div class="stat">1.2k records</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="entry">
+        <div class="num">III.</div>
+        <div class="body-cell">
+          <h2>Stock Dashboard</h2>
+          <p>Portfolio visualization for an eleven-stock Saul-style growth portfolio with five themes and six metrics.</p>
+          <div class="meta-line">
+            <div class="tags"><span>Finance</span><span>Active</span></div>
+            <div class="stat">11 companies</div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div>
+      <div class="col-head">In Progress &amp; Research</div>
+
+      <a href="#" class="entry">
+        <div class="num">IV.</div>
+        <div class="body-cell">
+          <h2>Family Pages</h2>
+          <p>The shared landing surface — quick links, project rolls, and the homepage everyone opens first.</p>
+          <div class="meta-line">
+            <div class="tags"><span>Home</span><span>v3.1</span></div>
+            <div class="stat">14 pages</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="entry">
+        <div class="num">V.</div>
+        <div class="body-cell">
+          <h2>Quality Score</h2>
+          <p>Second-generation scoring rubric for the Saul rules engine — blending growth, margin, and rule pass rate.</p>
+          <div class="meta-line">
+            <div class="tags"><span>Research</span><span>Draft</span></div>
+            <div class="stat">v2 in review</div>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="entry">
+        <div class="num">VI.</div>
+        <div class="body-cell">
+          <h2>Revenue Momentum</h2>
+          <p>Sequential revenue acceleration tracker — flags companies whose growth rate is itself accelerating.</p>
+          <div class="meta-line">
+            <div class="tags"><span>Research</span><span>Beta</span></div>
+            <div class="stat">Drafting</div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </main>
+
+  <aside class="rail">
+    <div class="rail-kicker">Editor's Note · This Month</div>
+    <h3>Where things stand.</h3>
+    <div class="editors-note">
+      <p><span class="label">Currently in revision</span>The <em>Quality Score</em> rubric is being rebuilt around composite scoring — third pass.</p>
+      <p><span class="label">Newly opened</span><em>Revenue Momentum</em> began drafting this week; first signals expected by month-end.</p>
+      <p><span class="label">Most active</span><em>Agent Work Logs</em> — 14 new sessions in the last seven days.</p>
+    </div>
+    <div class="sep"></div>
+    <div class="stats">
+      <div><strong>06</strong><span>Open</span></div>
+      <div><strong>03</strong><span>Active</span></div>
+      <div><strong>02</strong><span>Research</span></div>
+      <div><strong>14d</strong><span>Since last close</span></div>
+    </div>
+    <div class="ornament">&#10086;</div>
+  </aside>
+
+</div>
+</body>
+</html>

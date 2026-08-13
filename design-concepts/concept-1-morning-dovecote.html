@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Morning Dovecote — Pigeon Rehab Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ========== RESET & BASE ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #FAF6F0;
+  --sage: #5B7B5E;
+  --sage-light: #7a9e7d;
+  --sage-dark: #4a6a4d;
+  --terra: #C67D4B;
+  --terra-light: #d49a6f;
+  --walnut: #3B3330;
+  --walnut-light: #5a504d;
+  --sandstone: #E8DDD3;
+  --sandstone-light: #f0e8e0;
+  --white: #FFFFFF;
+  --shadow-warm: 0 2px 12px rgba(59, 51, 48, 0.08), 0 1px 4px rgba(59, 51, 48, 0.04);
+  --shadow-warm-hover: 0 4px 20px rgba(59, 51, 48, 0.12), 0 2px 6px rgba(59, 51, 48, 0.06);
+  --shadow-warm-lg: 0 8px 32px rgba(59, 51, 48, 0.10), 0 2px 8px rgba(59, 51, 48, 0.05);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--cream);
+  color: var(--walnut);
+  min-height: 100vh;
+  max-width: 500px;
+  margin: 0 auto;
+  padding-bottom: 90px;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+/* ========== TYPOGRAPHY ========== */
+h1, h2, h3 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* ========== HEADER ========== */
+.header {
+  padding: 48px 24px 24px;
+}
+
+.header__eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sage);
+  margin-bottom: 4px;
+}
+
+.header__title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--walnut);
+  margin-bottom: 6px;
+}
+
+.header__subtitle {
+  font-size: 0.875rem;
+  color: var(--walnut-light);
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+/* ========== METRICS ROW ========== */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 0 24px 20px;
+}
+
+.metric-card {
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 14px 10px;
+  text-align: center;
+  box-shadow: var(--shadow-warm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.metric-card:active {
+  transform: scale(0.97);
+}
+
+.metric-card__value {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.metric-card__value--danger { color: var(--terra); }
+.metric-card__value--sage { color: var(--sage); }
+
+.metric-card__label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--walnut-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ========== VIEW CONTAINER ========== */
+.view {
+  display: none;
+  padding: 0 24px 24px;
+  animation: fadeIn 0.3s ease;
+}
+
+.view--active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== ROOM CARDS (grain texture) ========== */
+.room-card {
+  background: var(--sandstone-light);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-warm);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow var(--transition);
+}
+
+.room-card:hover {
+  box-shadow: var(--shadow-warm-hover);
+}
+
+/* THE UNFORGETTABLE THING: wood grain texture overlay */
+.room-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  opacity: 0.035;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(139, 90, 43, 0.3) 2px,
+      rgba(139, 90, 43, 0.3) 3px,
+      transparent 3px,
+      transparent 7px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 11px,
+      rgba(139, 90, 43, 0.15) 11px,
+      rgba(139, 90, 43, 0.15) 12px
+    ),
+    radial-gradient(ellipse at 20% 50%, rgba(255, 220, 150, 0.4), transparent 70%),
+    radial-gradient(ellipse at 80% 30%, rgba(255, 200, 100, 0.3), transparent 60%);
+  mix-blend-mode: multiply;
+}
+
+/* Add a subtle noise-like effect via SVG data URI */
+.room-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  opacity: 0.12;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+  mix-blend-mode: overlay;
+}
+
+.room-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.room-card__name {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--walnut);
+}
+
+.room-card__meta {
+  font-size: 0.75rem;
+  color: var(--walnut-light);
+  margin-top: 2px;
+}
+
+.room-card__badge {
+  background: var(--sage);
+  color: var(--white);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.room-card__badge--danger {
+  background: var(--terra);
+}
+
+/* ========== DOSE ROWS ========== */
+.dose-row {
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 1px 4px rgba(59,51,48,0.04);
+}
+
+.dose-row__top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dose-row__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sandstone);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--walnut);
+  flex-shrink: 0;
+}
+
+.dose-row__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dose-row__bird {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--walnut);
+}
+
+.dose-row__med {
+  font-size: 0.75rem;
+  color: var(--walnut-light);
+}
+
+.dose-row__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dose-row__time {
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+.dose-row__time--overdue {
+  background: rgba(198, 125, 75, 0.12);
+  color: var(--terra);
+}
+
+.dose-row__time--due {
+  background: rgba(91, 123, 94, 0.1);
+  color: var(--sage);
+}
+
+.dose-row__time--done {
+  background: rgba(91, 123, 94, 0.15);
+  color: var(--sage-dark);
+}
+
+.btn-mark {
+  background: var(--sage);
+  color: var(--white);
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  padding: 7px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.btn-mark:hover { background: var(--sage-dark); }
+
+.btn-mark:active {
+  transform: scale(0.95);
+}
+
+.btn-mark--done {
+  background: transparent;
+  color: var(--sage);
+  border: 1.5px solid var(--sage);
+  opacity: 0.7;
+}
+
+.room-card__empty {
+  font-size: 0.8rem;
+  color: var(--walnut-light);
+  font-style: italic;
+  padding: 8px 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* ========== ADD ROOM PANEL ========== */
+.add-room-panel {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-warm);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.add-room-panel input {
+  flex: 1;
+  border: 1.5px solid var(--sandstone);
+  border-radius: var(--radius-xs);
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  font-family: 'Inter', sans-serif;
+  background: var(--cream);
+  color: var(--walnut);
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.add-room-panel input:focus {
+  border-color: var(--sage);
+}
+
+.add-room-panel input::placeholder {
+  color: #b5a99a;
+}
+
+.btn-add-room {
+  background: var(--sage);
+  color: var(--white);
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  padding: 10px 18px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.btn-add-room:hover { background: var(--sage-dark); }
+.btn-add-room:active { transform: scale(0.96); }
+
+/* ========== SHOW ALL MEDS TOGGLE ========== */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.toggle-row label {
+  font-size: 0.8rem;
+  color: var(--walnut-light);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-row input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--sandstone);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition);
+  flex-shrink: 0;
+}
+
+.toggle-row input[type="checkbox"]:checked {
+  background: var(--sage);
+  border-color: var(--sage);
+}
+
+.toggle-row input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ========== SECTION LABELS ========== */
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--walnut-light);
+  margin-bottom: 14px;
+}
+
+/* ========== BIRDS VIEW ========== */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.filter-bar input,
+.filter-bar select {
+  flex: 1;
+  min-width: 0;
+  border: 1.5px solid var(--sandstone);
+  border-radius: var(--radius-xs);
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  font-family: 'Inter', sans-serif;
+  background: var(--white);
+  color: var(--walnut);
+  outline: none;
+  transition: border-color var(--transition);
+}
+
+.filter-bar input { flex: 2; }
+.filter-bar select { flex: 1; min-width: 100px; }
+
+.filter-bar input:focus,
+.filter-bar select:focus {
+  border-color: var(--sage);
+}
+
+.bird-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-warm);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: box-shadow var(--transition), transform var(--transition);
+  cursor: pointer;
+}
+
+.bird-card:hover {
+  box-shadow: var(--shadow-warm-hover);
+}
+
+.bird-card:active {
+  transform: scale(0.98);
+}
+
+.bird-card__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--sandstone);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: var(--walnut);
+  flex-shrink: 0;
+}
+
+.bird-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bird-card__name {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--walnut);
+}
+
+.bird-card__species {
+  font-size: 0.75rem;
+  color: var(--walnut-light);
+}
+
+.bird-card__detail {
+  font-size: 0.7rem;
+  color: var(--walnut-light);
+  margin-top: 2px;
+}
+
+.bird-card__status {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bird-card__status--active {
+  background: rgba(91, 123, 94, 0.12);
+  color: var(--sage);
+}
+
+.bird-card__status--critical {
+  background: rgba(198, 125, 75, 0.12);
+  color: var(--terra);
+}
+
+.bird-card__status--release {
+  background: rgba(91, 123, 94, 0.08);
+  color: var(--sage-light);
+}
+
+/* ========== ADD BIRD FORM ========== */
+.form-panel {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 24px 20px;
+  box-shadow: var(--shadow-warm);
+  margin-bottom: 16px;
+}
+
+.form-panel__title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--walnut);
+  margin-bottom: 18px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-group--full {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--walnut-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border: 1.5px solid var(--sandstone);
+  border-radius: var(--radius-xs);
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  background: var(--cream);
+  color: var(--walnut);
+  outline: none;
+  transition: border-color var(--transition);
+  width: 100%;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--sage);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.form-divider {
+  border: none;
+  border-top: 1.5px solid var(--sandstone);
+  margin: 20px 0;
+}
+
+.form-section-label {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--walnut-light);
+  margin-bottom: 14px;
+}
+
+.btn-save {
+  display: block;
+  width: 100%;
+  background: var(--sage);
+  color: var(--white);
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+  margin-top: 20px;
+}
+
+.btn-save:hover { background: var(--sage-dark); }
+
+.btn-save:active {
+  transform: scale(0.98);
+}
+
+/* ========== STATS VIEW ========== */
+.stats-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: var(--shadow-warm);
+}
+
+.stat-card__value {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--walnut);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-card__value--sage { color: var(--sage); }
+.stat-card__value--terra { color: var(--terra); }
+
+.stat-card__label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--walnut-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stats-panel {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-warm);
+  margin-bottom: 14px;
+}
+
+.stats-panel__title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--walnut);
+  margin-bottom: 12px;
+}
+
+.stats-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--sandstone-light);
+}
+
+.stats-list-item:last-child { border-bottom: none; }
+
+.stats-list-item__name {
+  font-size: 0.85rem;
+  color: var(--walnut);
+}
+
+.stats-list-item__value {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--sage);
+}
+
+/* ========== BOTTOM NAV ========== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 500px;
+  background: var(--white);
+  padding: 8px 16px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -2px 20px rgba(59,51,48,0.06);
+  z-index: 100;
+}
+
+.nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: 'Inter', sans-serif;
+  min-width: 64px;
+}
+
+.nav-btn__icon {
+  font-size: 1.2rem;
+  line-height: 1;
+  transition: transform var(--transition);
+}
+
+.nav-btn__label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--walnut-light);
+  transition: color var(--transition);
+}
+
+.nav-btn--active {
+  background: var(--sage);
+}
+
+.nav-btn--active .nav-btn__label {
+  color: var(--white);
+}
+
+.nav-btn:active .nav-btn__icon {
+  transform: scale(0.9);
+}
+
+/* ========== TOAST ========== */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  width: calc(100% - 48px);
+  max-width: 460px;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--walnut);
+  color: var(--white);
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-warm-lg);
+  margin-bottom: 8px;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(-16px);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toast--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast--success { border-left: 4px solid var(--sage); }
+.toast--warning { border-left: 4px solid var(--terra); }
+
+.toast__icon { font-size: 1.1rem; flex-shrink: 0; }
+
+/* ========== MODAL BACKDROP ========== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(59, 51, 48, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 150;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-backdrop--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ========== MISC ========== */
+.hidden-meds {
+  display: none;
+}
+
+.hidden-meds--show {
+  display: block;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--sandstone); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" id="modalBackdrop"></div>
+
+<!-- Header -->
+<header class="header">
+  <p class="header__eyebrow">Family Pigeons</p>
+  <h1 class="header__title">Pigeons</h1>
+  <p class="header__subtitle">Room-first medicine and supplement tracking for the birds you're caring for.</p>
+</header>
+
+<!-- Summary Metrics -->
+<div class="metrics">
+  <div class="metric-card">
+    <div class="metric-card__value metric-card__value--danger" id="metricOverdue">3</div>
+    <div class="metric-card__label">Overdue</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-card__value metric-card__value--sage">5</div>
+    <div class="metric-card__label">Due Today</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-card__value">8</div>
+    <div class="metric-card__label">Active Birds</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-card__value">12</div>
+    <div class="metric-card__label">Active Meds</div>
+  </div>
+</div>
+
+<!-- ==================== ROOMS VIEW ==================== -->
+<div class="view view--active" id="viewRooms">
+
+  <!-- Add Room -->
+  <div class="add-room-panel">
+    <input type="text" id="newRoomInput" placeholder="New room name..." />
+    <button class="btn-add-room" id="btnAddRoom">Add Room</button>
+  </div>
+
+  <!-- Show All Meds Toggle -->
+  <div class="toggle-row">
+    <input type="checkbox" id="showAllMeds" />
+    <label for="showAllMeds">Show all active meds</label>
+  </div>
+
+  <p class="section-label">3 Rooms</p>
+
+  <!-- Computer Room -->
+  <div class="room-card">
+    <div class="room-card__header">
+      <div>
+        <div class="room-card__name">Computer Room</div>
+        <div class="room-card__meta">3 birds &middot; 4 active meds</div>
+      </div>
+      <span class="room-card__badge room-card__badge--danger">2 due</span>
+    </div>
+
+    <div class="dose-row" id="dose-blue-baytril">
+      <div class="dose-row__top">
+        <div class="dose-row__avatar">B</div>
+        <div class="dose-row__info">
+          <div class="dose-row__bird">Blue</div>
+          <div class="dose-row__med">Medication: Baytril 0.1ml oral</div>
+        </div>
+      </div>
+      <div class="dose-row__bottom">
+        <span class="dose-row__time dose-row__time--overdue">Overdue: Apr 11, 8:00 AM</span>
+        <button class="btn-mark" onclick="markDose(this, 'Blue', 'Baytril')">Mark given</button>
+      </div>
+    </div>
+
+    <div class="dose-row" id="dose-pepper-calcium">
+      <div class="dose-row__top">
+        <div class="dose-row__avatar">P</div>
+        <div class="dose-row__info">
+          <div class="dose-row__bird">Pepper</div>
+          <div class="dose-row__med">Supplement: Calcium</div>
+        </div>
+      </div>
+      <div class="dose-row__bottom">
+        <span class="dose-row__time dose-row__time--due">Due: Apr 11, 2:00 PM</span>
+        <button class="btn-mark" onclick="markDose(this, 'Pepper', 'Calcium')">Mark given</button>
+      </div>
+    </div>
+
+    <!-- Hidden meds shown when "show all" is checked -->
+    <div class="hidden-meds">
+      <div class="dose-row">
+        <div class="dose-row__top">
+          <div class="dose-row__avatar">B</div>
+          <div class="dose-row__info">
+            <div class="dose-row__bird">Blue</div>
+            <div class="dose-row__med">Supplement: Probiotics</div>
+          </div>
+        </div>
+        <div class="dose-row__bottom">
+          <span class="dose-row__time dose-row__time--done">Given: Apr 11, 7:00 AM</span>
+          <button class="btn-mark btn-mark--done" disabled>Done</button>
+        </div>
+      </div>
+      <div class="dose-row">
+        <div class="dose-row__top">
+          <div class="dose-row__avatar">S</div>
+          <div class="dose-row__info">
+            <div class="dose-row__bird">Shadow</div>
+            <div class="dose-row__med">Medication: Doxycycline 0.08ml</div>
+          </div>
+        </div>
+        <div class="dose-row__bottom">
+          <span class="dose-row__time dose-row__time--done">Given: Apr 11, 9:00 AM</span>
+          <button class="btn-mark btn-mark--done" disabled>Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bird Room -->
+  <div class="room-card">
+    <div class="room-card__header">
+      <div>
+        <div class="room-card__name">Bird Room</div>
+        <div class="room-card__meta">4 birds &middot; 6 active meds</div>
+      </div>
+      <span class="room-card__badge">1 due</span>
+    </div>
+
+    <div class="dose-row" id="dose-cloudy-metro">
+      <div class="dose-row__top">
+        <div class="dose-row__avatar">C</div>
+        <div class="dose-row__info">
+          <div class="dose-row__bird">Cloudy</div>
+          <div class="dose-row__med">Medication: Metronidazole 0.05ml</div>
+        </div>
+      </div>
+      <div class="dose-row__bottom">
+        <span class="dose-row__time dose-row__time--due">Due: Apr 11, 4:00 PM</span>
+        <button class="btn-mark" onclick="markDose(this, 'Cloudy', 'Metronidazole')">Mark given</button>
+      </div>
+    </div>
+
+    <div class="hidden-meds">
+      <div class="dose-row">
+        <div class="dose-row__top">
+          <div class="dose-row__avatar">C</div>
+          <div class="dose-row__info">
+            <div class="dose-row__bird">Cloudy</div>
+            <div class="dose-row__med">Supplement: Calcium + D3</div>
+          </div>
+        </div>
+        <div class="dose-row__bottom">
+          <span class="dose-row__time dose-row__time--done">Given: Apr 11, 8:00 AM</span>
+          <button class="btn-mark btn-mark--done" disabled>Done</button>
+        </div>
+      </div>
+      <div class="dose-row">
+        <div class="dose-row__top">
+          <div class="dose-row__avatar">C</div>
+          <div class="dose-row__info">
+            <div class="dose-row__bird">Cloudy</div>
+            <div class="dose-row__med">Medication: Meloxicam 0.02ml</div>
+          </div>
+        </div>
+        <div class="dose-row__bottom">
+          <span class="dose-row__time dose-row__time--done">Given: Apr 11, 8:00 AM</span>
+          <button class="btn-mark btn-mark--done" disabled>Done</button>
+        </div>
+      </div>
+      <div class="dose-row">
+        <div class="dose-row__top">
+          <div class="dose-row__avatar">D</div>
+          <div class="dose-row__info">
+            <div class="dose-row__bird">Daisy</div>
+            <div class="dose-row__med">Supplement: Probiotics</div>
+          </div>
+        </div>
+        <div class="dose-row__bottom">
+          <span class="dose-row__time dose-row__time--done">Given: Apr 11, 7:30 AM</span>
+          <button class="btn-mark btn-mark--done" disabled>Done</button>
+        </div>
+      </div>
+      <div class="dose-row">
+        <div class="dose-row__top">
+          <div class="dose-row__avatar">W</div>
+          <div class="dose-row__info">
+            <div class="dose-row__bird">Willow</div>
+            <div class="dose-row__med">Medication: Baytril 0.08ml oral</div>
+          </div>
+        </div>
+        <div class="dose-row__bottom">
+          <span class="dose-row__time dose-row__time--done">Given: Apr 11, 9:00 AM</span>
+          <button class="btn-mark btn-mark--done" disabled>Done</button>
+        </div>
+      </div>
+      <div class="dose-row">
+        <div class="dose-row__top">
+          <div class="dose-row__avatar">D</div>
+          <div class="dose-row__info">
+            <div class="dose-row__bird">Daisy</div>
+            <div class="dose-row__med">Supplement: Vitamin A drops</div>
+          </div>
+        </div>
+        <div class="dose-row__bottom">
+          <span class="dose-row__time dose-row__time--done">Given: Apr 11, 7:30 AM</span>
+          <button class="btn-mark btn-mark--done" disabled>Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Porch -->
+  <div class="room-card">
+    <div class="room-card__header">
+      <div>
+        <div class="room-card__name">Porch</div>
+        <div class="room-card__meta">1 bird &middot; 1 active med</div>
+      </div>
+      <span class="room-card__badge" style="background: var(--sandstone); color: var(--walnut-light);">0 due</span>
+    </div>
+    <p class="room-card__empty">No doses due or overdue.</p>
+
+    <div class="hidden-meds">
+      <div class="dose-row">
+        <div class="dose-row__top">
+          <div class="dose-row__avatar">S</div>
+          <div class="dose-row__info">
+            <div class="dose-row__bird">Sunny</div>
+            <div class="dose-row__med">Supplement: Probiotics</div>
+          </div>
+        </div>
+        <div class="dose-row__bottom">
+          <span class="dose-row__time dose-row__time--done">Given: Apr 11, 8:00 AM</span>
+          <button class="btn-mark btn-mark--done" disabled>Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== BIRDS VIEW ==================== -->
+<div class="view" id="viewBirds">
+
+  <div class="filter-bar">
+    <input type="text" id="birdSearch" placeholder="Search birds..." oninput="filterBirds()" />
+    <select id="birdRoomFilter" onchange="filterBirds()">
+      <option value="">All rooms</option>
+      <option value="Computer Room">Computer Room</option>
+      <option value="Bird Room">Bird Room</option>
+      <option value="Porch">Porch</option>
+    </select>
+    <select id="birdStatusFilter" onchange="filterBirds()">
+      <option value="">All status</option>
+      <option value="active">Active</option>
+      <option value="critical">Critical</option>
+      <option value="release">Ready for release</option>
+    </select>
+  </div>
+
+  <p class="section-label" id="birdsCount">4 Birds</p>
+
+  <div id="birdsList">
+    <div class="bird-card" data-name="Blue" data-room="Computer Room" data-status="active">
+      <div class="bird-card__avatar">B</div>
+      <div class="bird-card__info">
+        <div class="bird-card__name">Blue</div>
+        <div class="bird-card__species">Feral Pigeon</div>
+        <div class="bird-card__detail">Computer Room &middot; 2 active meds</div>
+      </div>
+      <span class="bird-card__status bird-card__status--active">Active</span>
+    </div>
+
+    <div class="bird-card" data-name="Pepper" data-room="Computer Room" data-status="active">
+      <div class="bird-card__avatar">P</div>
+      <div class="bird-card__info">
+        <div class="bird-card__name">Pepper</div>
+        <div class="bird-card__species">Feral Pigeon</div>
+        <div class="bird-card__detail">Computer Room &middot; 1 active med</div>
+      </div>
+      <span class="bird-card__status bird-card__status--active">Active</span>
+    </div>
+
+    <div class="bird-card" data-name="Cloudy" data-room="Bird Room" data-status="critical">
+      <div class="bird-card__avatar">C</div>
+      <div class="bird-card__info">
+        <div class="bird-card__name">Cloudy</div>
+        <div class="bird-card__species">Wood Pigeon</div>
+        <div class="bird-card__detail">Bird Room &middot; 3 active meds</div>
+      </div>
+      <span class="bird-card__status bird-card__status--critical">Critical</span>
+    </div>
+
+    <div class="bird-card" data-name="Sunny" data-room="Porch" data-status="release">
+      <div class="bird-card__avatar">S</div>
+      <div class="bird-card__info">
+        <div class="bird-card__name">Sunny</div>
+        <div class="bird-card__species">Feral Pigeon</div>
+        <div class="bird-card__detail">Porch &middot; 0 active meds</div>
+      </div>
+      <span class="bird-card__status bird-card__status--release">Release</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ADD BIRD VIEW ==================== -->
+<div class="view" id="viewAdd">
+
+  <div class="form-panel">
+    <div class="form-panel__title">New Bird</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="birdName" placeholder="e.g. Blue" />
+      </div>
+      <div class="form-group">
+        <label>Species</label>
+        <input type="text" placeholder="e.g. Feral Pigeon" />
+      </div>
+      <div class="form-group">
+        <label>Room</label>
+        <select>
+          <option value="">Select...</option>
+          <option>Computer Room</option>
+          <option>Bird Room</option>
+          <option>Porch</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select>
+          <option value="">Select...</option>
+          <option>Active</option>
+          <option>Critical</option>
+          <option>Resident</option>
+          <option>Ready for release</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Intake Date</label>
+        <input type="date" />
+      </div>
+      <div class="form-group">
+        <label>Found Location</label>
+        <input type="text" placeholder="e.g. Back garden" />
+      </div>
+      <div class="form-group">
+        <label>Initial Weight</label>
+        <input type="text" placeholder="e.g. 285g" />
+      </div>
+      <div class="form-group">
+        <label>Breathing</label>
+        <select>
+          <option value="">Select...</option>
+          <option>Normal</option>
+          <option>Labored</option>
+          <option>Rapid</option>
+          <option>Open-mouth</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Hydration</label>
+        <select>
+          <option value="">Select...</option>
+          <option>Normal</option>
+          <option>Mild dehydration</option>
+          <option>Moderate dehydration</option>
+          <option>Severe dehydration</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Weight Assessment</label>
+        <select>
+          <option value="">Select...</option>
+          <option>Underweight</option>
+          <option>Normal</option>
+          <option>Overweight</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Injury Type</label>
+        <select>
+          <option value="">Select...</option>
+          <option>None visible</option>
+          <option>Wing injury</option>
+          <option>Leg injury</option>
+          <option>Cat attack</option>
+          <option>Window strike</option>
+          <option>String entanglement</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Alert Level</label>
+        <select>
+          <option value="">Select...</option>
+          <option>Alert and responsive</option>
+          <option>Lethargic</option>
+          <option>Unresponsive</option>
+        </select>
+      </div>
+      <div class="form-group form-group--full">
+        <label>Initial Condition</label>
+        <textarea placeholder="Describe the bird's condition on intake..."></textarea>
+      </div>
+      <div class="form-group form-group--full">
+        <label>Notes</label>
+        <textarea placeholder="Any additional notes..."></textarea>
+      </div>
+    </div>
+
+    <hr class="form-divider" />
+
+    <div class="form-section-label">Optional first med</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Type</label>
+        <select>
+          <option value="">Select...</option>
+          <option>Medication</option>
+          <option>Supplement</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" placeholder="e.g. Baytril" />
+      </div>
+      <div class="form-group">
+        <label>Dosage</label>
+        <input type="text" placeholder="e.g. 0.1ml oral" />
+      </div>
+      <div class="form-group">
+        <label>Times per Day</label>
+        <select>
+          <option value="">Select...</option>
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Start</label>
+        <input type="date" />
+      </div>
+      <div class="form-group">
+        <label>End</label>
+        <input type="date" />
+      </div>
+      <div class="form-group form-group--full">
+        <label>Notes</label>
+        <textarea placeholder="Medication notes..." rows="2"></textarea>
+      </div>
+    </div>
+
+    <button class="btn-save" onclick="saveBird()">Save Bird</button>
+  </div>
+</div>
+
+<!-- ==================== STATS VIEW ==================== -->
+<div class="view" id="viewStats">
+
+  <div class="stats-metrics">
+    <div class="stat-card">
+      <div class="stat-card__value">8</div>
+      <div class="stat-card__label">Total Birds</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__value stat-card__value--sage">5</div>
+      <div class="stat-card__label">Active</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__value stat-card__value--terra">1</div>
+      <div class="stat-card__label">Critical</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__value">1</div>
+      <div class="stat-card__label">Residents</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__value stat-card__value--sage">1</div>
+      <div class="stat-card__label">Released</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card__value">0</div>
+      <div class="stat-card__label">Deceased</div>
+    </div>
+  </div>
+
+  <div class="stats-panel">
+    <div class="stats-panel__title">Birds by Room</div>
+    <div class="stats-list-item">
+      <span class="stats-list-item__name">Computer Room</span>
+      <span class="stats-list-item__value">3</span>
+    </div>
+    <div class="stats-list-item">
+      <span class="stats-list-item__name">Bird Room</span>
+      <span class="stats-list-item__value">4</span>
+    </div>
+    <div class="stats-list-item">
+      <span class="stats-list-item__name">Porch</span>
+      <span class="stats-list-item__value">1</span>
+    </div>
+  </div>
+
+  <div class="stats-panel">
+    <div class="stats-panel__title">Birds by Species</div>
+    <div class="stats-list-item">
+      <span class="stats-list-item__name">Feral Pigeon</span>
+      <span class="stats-list-item__value">6</span>
+    </div>
+    <div class="stats-list-item">
+      <span class="stats-list-item__name">Wood Pigeon</span>
+      <span class="stats-list-item__value">2</span>
+    </div>
+  </div>
+
+  <div class="stats-panel">
+    <div class="stats-panel__title">Active Meds by Room</div>
+    <div class="stats-list-item">
+      <span class="stats-list-item__name">Bird Room</span>
+      <span class="stats-list-item__value">6</span>
+    </div>
+    <div class="stats-list-item">
+      <span class="stats-list-item__name">Computer Room</span>
+      <span class="stats-list-item__value">4</span>
+    </div>
+    <div class="stats-list-item">
+      <span class="stats-list-item__name">Porch</span>
+      <span class="stats-list-item__value">1</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== BOTTOM NAV ==================== -->
+<nav class="bottom-nav">
+  <button class="nav-btn nav-btn--active" data-view="viewRooms" onclick="switchView('viewRooms', this)">
+    <span class="nav-btn__icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+    </span>
+    <span class="nav-btn__label">Rooms</span>
+  </button>
+  <button class="nav-btn" data-view="viewBirds" onclick="switchView('viewBirds', this)">
+    <span class="nav-btn__icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 2a7 7 0 0 1 7 7c0 3-2 5.5-4 7.5L12 22l-3-5.5C7 14.5 5 12 5 9a7 7 0 0 1 7-7z"/>
+      </svg>
+    </span>
+    <span class="nav-btn__label">Birds</span>
+  </button>
+  <button class="nav-btn" data-view="viewAdd" onclick="switchView('viewAdd', this)">
+    <span class="nav-btn__icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="16"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+    </span>
+    <span class="nav-btn__label">Add Bird</span>
+  </button>
+  <button class="nav-btn" data-view="viewStats" onclick="switchView('viewStats', this)">
+    <span class="nav-btn__icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/>
+        <line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+    </span>
+    <span class="nav-btn__label">Stats</span>
+  </button>
+</nav>
+
+<script>
+/* ========== VIEW SWITCHING ========== */
+function switchView(viewId, btn) {
+  // Hide all views
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('view--active'));
+  // Show target
+  const target = document.getElementById(viewId);
+  target.classList.add('view--active');
+  // Re-trigger animation
+  target.style.animation = 'none';
+  target.offsetHeight; // force reflow
+  target.style.animation = '';
+
+  // Update nav buttons
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-btn--active'));
+  btn.classList.add('nav-btn--active');
+}
+
+/* ========== MARK DOSE ========== */
+function markDose(button, birdName, medName) {
+  // Animate the button
+  button.textContent = 'Done';
+  button.classList.add('btn-mark--done');
+  button.disabled = true;
+
+  // Update the time label
+  const row = button.closest('.dose-row');
+  const timeLabel = row.querySelector('.dose-row__time');
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const displayHour = hours % 12 || 12;
+  timeLabel.textContent = 'Given: Apr 11, ' + displayHour + ':' + minutes + ' ' + ampm;
+  timeLabel.className = 'dose-row__time dose-row__time--done';
+
+  // Update overdue count
+  const overdueEl = document.getElementById('metricOverdue');
+  const current = parseInt(overdueEl.textContent);
+  if (current > 0) {
+    overdueEl.textContent = current - 1;
+  }
+
+  // Show toast
+  showToast('success', birdName + "'s " + medName + ' marked as given');
+}
+
+/* ========== TOAST SYSTEM ========== */
+function showToast(type, message) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast toast--' + type;
+
+  const icon = type === 'success' ? '\u2714' : '\u26A0';
+  toast.innerHTML = '<span class="toast__icon">' + icon + '</span><span>' + message + '</span>';
+
+  container.appendChild(toast);
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      toast.classList.add('toast--visible');
+    });
+  });
+
+  // Auto-dismiss
+  setTimeout(() => {
+    toast.classList.remove('toast--visible');
+    setTimeout(() => toast.remove(), 350);
+  }, 2800);
+}
+
+/* ========== ADD ROOM ========== */
+document.getElementById('btnAddRoom').addEventListener('click', function() {
+  const input = document.getElementById('newRoomInput');
+  const name = input.value.trim();
+  if (!name) {
+    showToast('warning', 'Please enter a room name');
+    input.focus();
+    return;
+  }
+
+  // Build new room card
+  const card = document.createElement('div');
+  card.className = 'room-card';
+  card.style.animation = 'fadeIn 0.3s ease';
+  card.innerHTML = '<div class="room-card__header">' +
+    '<div>' +
+      '<div class="room-card__name">' + escapeHtml(name) + '</div>' +
+      '<div class="room-card__meta">0 birds &middot; 0 active meds</div>' +
+    '</div>' +
+    '<span class="room-card__badge" style="background: var(--sandstone); color: var(--walnut-light);">0 due</span>' +
+  '</div>' +
+  '<p class="room-card__empty">No birds yet. Assign birds to this room to get started.</p>';
+
+  // Insert before first room card
+  const roomsView = document.getElementById('viewRooms');
+  const firstRoom = roomsView.querySelector('.room-card');
+  roomsView.insertBefore(card, firstRoom);
+
+  // Update section label
+  const sectionLabel = roomsView.querySelector('.section-label');
+  const currentCount = parseInt(sectionLabel.textContent);
+  sectionLabel.textContent = (currentCount + 1) + ' Rooms';
+
+  input.value = '';
+  showToast('success', escapeHtml(name) + ' added as a new room');
+});
+
+// Enter key to add room
+document.getElementById('newRoomInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    document.getElementById('btnAddRoom').click();
+  }
+});
+
+/* ========== SHOW ALL MEDS TOGGLE ========== */
+document.getElementById('showAllMeds').addEventListener('change', function() {
+  const hiddenSections = document.querySelectorAll('.hidden-meds');
+  hiddenSections.forEach(section => {
+    if (this.checked) {
+      section.classList.add('hidden-meds--show');
+    } else {
+      section.classList.remove('hidden-meds--show');
+    }
+  });
+});
+
+/* ========== BIRD FILTER ========== */
+function filterBirds() {
+  const search = document.getElementById('birdSearch').value.toLowerCase();
+  const room = document.getElementById('birdRoomFilter').value;
+  const status = document.getElementById('birdStatusFilter').value;
+
+  const cards = document.querySelectorAll('#birdsList .bird-card');
+  let visible = 0;
+
+  cards.forEach(card => {
+    const name = card.dataset.name.toLowerCase();
+    const cardRoom = card.dataset.room;
+    const cardStatus = card.dataset.status;
+
+    const matchSearch = !search || name.includes(search);
+    const matchRoom = !room || cardRoom === room;
+    const matchStatus = !status || cardStatus === status;
+
+    if (matchSearch && matchRoom && matchStatus) {
+      card.style.display = '';
+      visible++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  document.getElementById('birdsCount').textContent = visible + ' Bird' + (visible !== 1 ? 's' : '');
+}
+
+/* ========== SAVE BIRD ========== */
+function saveBird() {
+  const name = document.getElementById('birdName').value.trim();
+  if (!name) {
+    showToast('warning', 'Please enter a bird name');
+    document.getElementById('birdName').focus();
+    return;
+  }
+
+  showToast('success', name + ' has been added to your flock');
+
+  // Reset form
+  const form = document.getElementById('viewAdd');
+  form.querySelectorAll('input:not([type="date"])').forEach(i => i.value = '');
+  form.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+  form.querySelectorAll('textarea').forEach(t => t.value = '');
+
+  // Switch to birds view
+  setTimeout(() => {
+    const birdsBtn = document.querySelector('.nav-btn[data-view="viewBirds"]');
+    switchView('viewBirds', birdsBtn);
+  }, 600);
+}
+
+/* ========== UTIL ========== */
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>

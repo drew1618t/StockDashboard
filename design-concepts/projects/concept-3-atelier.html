@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects — Atelier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Cormorant+SC:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4EFE6;
+    --paper-soft:#EBE4D6;
+    --ink:#1C1A17;
+    --muted:#8A7F6E;
+    --brass:#B89968;
+    --brass-soft:#D9C7A4;
+    --panel:#FFFFFF;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;line-height:1.65;letter-spacing:.005em;-webkit-font-smoothing:antialiased}
+  body{
+    background-image:radial-gradient(ellipse at top, rgba(255,255,255,.5), transparent 60%);
+  }
+  a{color:inherit;text-decoration:none}
+  /* top */
+  .top{max-width:1200px;margin:0 auto;padding:28px 56px;display:flex;justify-content:space-between;align-items:center;font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.2em;color:var(--muted)}
+  .top a:hover{color:var(--brass)}
+  .top .dot{display:inline-block;width:5px;height:5px;background:var(--brass);border-radius:50%;margin:0 14px;vertical-align:middle}
+  /* content column */
+  .col{max-width:880px;margin:0 auto;padding:0 56px 96px}
+  .hero{padding:80px 0 64px;text-align:center}
+  .hero .kicker{font-family:'Cormorant SC',serif;font-size:12px;letter-spacing:.32em;color:var(--brass)}
+  .hero .rule{width:60px;height:1px;background:var(--brass);margin:18px auto 24px}
+  .hero h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(3.4rem,7vw,5.6rem);line-height:1;letter-spacing:-0.01em}
+  .hero h1 em{font-style:italic;color:var(--brass)}
+  .hero .sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;color:var(--muted);font-size:1.3rem;margin-top:20px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.5}
+  /* index header */
+  .idx-head{font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.28em;color:var(--muted);display:flex;justify-content:space-between;align-items:center;padding:24px 0 14px;border-bottom:1px solid var(--brass-soft)}
+  /* entries */
+  .entry{
+    display:grid;
+    grid-template-columns:120px 1fr auto;
+    gap:32px;
+    align-items:start;
+    padding:34px 0;
+    border-bottom:1px solid var(--brass-soft);
+    position:relative;
+    transition:padding-left .35s ease;
+  }
+  .entry::before{
+    content:"";
+    position:absolute;
+    left:-12px;
+    top:0;
+    bottom:0;
+    width:2px;
+    background:var(--brass);
+    transform:scaleY(0);
+    transform-origin:top;
+    transition:transform .4s ease;
+  }
+  .entry:hover{padding-left:14px}
+  .entry:hover::before{transform:scaleY(1)}
+  .entry .numeral{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:4.2rem;line-height:1;color:var(--brass);letter-spacing:-0.01em}
+  .entry .body h2{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:2rem;line-height:1.15;letter-spacing:-0.005em;margin-bottom:10px}
+  .entry .body p{color:var(--muted);font-size:14.5px;line-height:1.6;max-width:520px}
+  .entry .body .tags{margin-top:14px;font-family:'Cormorant SC',serif;font-size:10.5px;letter-spacing:.24em;color:var(--brass)}
+  .entry .body .tags span+span::before{content:"·";color:var(--muted);margin:0 10px}
+  .entry .meta{text-align:right;font-family:'Cormorant SC',serif;font-size:10.5px;letter-spacing:.22em;color:var(--muted);align-self:end;white-space:nowrap}
+  .entry .meta strong{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:1.4rem;letter-spacing:0;text-transform:none;color:var(--ink);margin-bottom:4px}
+  /* colophon */
+  .colophon{margin-top:80px;text-align:center;font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:.28em;color:var(--muted)}
+  .colophon .ornament{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:2rem;color:var(--brass);display:block;margin-bottom:14px;font-weight:300}
+  @media(max-width:680px){
+    .top,.col{padding-left:24px;padding-right:24px}
+    .entry{grid-template-columns:60px 1fr;gap:18px}
+    .entry .numeral{font-size:2.4rem}
+    .entry .meta{grid-column:1/-1;text-align:left;margin-top:12px;padding-left:78px}
+    .hero h1{font-size:3rem}
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div>The Family <span class="dot"></span> Atelier</div>
+  <div>MMXXVI <span class="dot"></span> Volume II</div>
+</header>
+
+<div class="col">
+
+  <section class="hero">
+    <div class="kicker">Projects · 2026</div>
+    <div class="rule"></div>
+    <h1>A quiet <em>index</em><br>of ongoing work.</h1>
+    <p class="sub">Build logs, archives, and experiments — gathered with intention and arranged for the family.</p>
+  </section>
+
+  <div class="idx-head">
+    <span>Index of Projects</span>
+    <span>Six entries</span>
+  </div>
+
+  <main>
+
+    <a href="#" class="entry">
+      <div class="numeral">I.</div>
+      <div class="body">
+        <h2>Agent Work Logs</h2>
+        <p>Daily, monthly, and yearly summaries of Codex and Claude work — a complete searchable archive of every agent-assisted session.</p>
+        <div class="tags"><span>Archive</span><span>Live</span></div>
+      </div>
+      <div class="meta"><strong>248</strong>Reports</div>
+    </a>
+
+    <a href="#" class="entry">
+      <div class="numeral">II.</div>
+      <div class="body">
+        <h2>Health Hub</h2>
+        <p>A structured database of labs, imaging, and visit notes — ingested from PDFs and rendered queryable in natural language.</p>
+        <div class="tags"><span>Health</span><span>Private</span></div>
+      </div>
+      <div class="meta"><strong>1.2k</strong>Records</div>
+    </a>
+
+    <a href="#" class="entry">
+      <div class="numeral">III.</div>
+      <div class="body">
+        <h2>Stock Dashboard</h2>
+        <p>Portfolio visualization for an eleven-stock Saul-style growth portfolio. Five typographic themes, six composite metrics.</p>
+        <div class="tags"><span>Finance</span><span>Active</span></div>
+      </div>
+      <div class="meta"><strong>11</strong>Companies</div>
+    </a>
+
+    <a href="#" class="entry">
+      <div class="numeral">IV.</div>
+      <div class="body">
+        <h2>Family Pages</h2>
+        <p>The shared landing surface — quick links, project rolls, and the homepage everyone in the household opens first.</p>
+        <div class="tags"><span>Home</span><span>v3.1</span></div>
+      </div>
+      <div class="meta"><strong>14</strong>Pages</div>
+    </a>
+
+    <a href="#" class="entry">
+      <div class="numeral">V.</div>
+      <div class="body">
+        <h2>Quality Score</h2>
+        <p>Second-generation scoring rubric for the Saul rules engine — a composite metric blending growth, margin trajectory, and pass rate.</p>
+        <div class="tags"><span>Research</span><span>v2 Draft</span></div>
+      </div>
+      <div class="meta"><strong>v2.0</strong>In review</div>
+    </a>
+
+    <a href="#" class="entry">
+      <div class="numeral">VI.</div>
+      <div class="body">
+        <h2>Revenue Momentum</h2>
+        <p>Sequential revenue acceleration tracker — flags companies whose quarter-over-quarter growth rate is itself accelerating.</p>
+        <div class="tags"><span>Research</span><span>Beta</span></div>
+      </div>
+      <div class="meta"><strong>—</strong>Drafting</div>
+    </a>
+
+  </main>
+
+  <footer class="colophon">
+    <span class="ornament">&#10086;</span>
+    Set in Cormorant Garamond &amp; Inter
+  </footer>
+
+</div>
+</body>
+</html>

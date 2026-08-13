@@ -114,6 +114,7 @@ Current persistence is intentionally lightweight:
 ```text
 server/dataLoader.js          portfolio report loading
 server/sheetsPoller.js        Google Sheets live portfolio polling
+server/investingConfig.js     sibling paths and investing runtime configuration
 server/requestTracker.js      data/requests.json
 server/writingStore.js        data/writing.json
 server/writingAnalytics.js    data/writing-analytics.json
@@ -122,6 +123,11 @@ server/pinboardStore.js       data/pinboard.json
 server/taxStore.js            Schwab tax source files + state
 server/pigeonStore.js         SQLite pigeon database
 ```
+
+The poller persists its last successful complete response to the configured
+`data/live-portfolio-snapshot.json` path. This gives read-only sibling workflows a timestamped
+fallback when the local HTTP server is unavailable. `portfolio.json` remains only the current
+holding set and must not be treated as evidence of weights or position values.
 
 JSON-backed stores should use `server/utils/jsonFileStore.js` unless there is a specific reason not to. Path-sensitive file serving or upload cleanup should use `server/utils/pathSafety.js`.
 

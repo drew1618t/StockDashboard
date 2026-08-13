@@ -1,7 +1,14 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
 
-const { parseCSV } = require('../server/sheetsPoller');
+const {
+  parseCSV,
+  persistSnapshot,
+  readPersistedSnapshot,
+} = require('../server/sheetsPoller');
 
 test('parseCSV reads daily change from current Google Sheets column layout', () => {
   const csv = [
@@ -23,4 +30,35 @@ test('parseCSV reads daily change from current Google Sheets column layout', () 
   assert.equal(data.stocks[0].dayChangePct, -7.35);
   assert.equal(data.stocks[1].dayChangePct, -1.72);
   assert.equal(data.portfolioMetrics.dayChangePct, -4.31);
+});
+
+test('persisted portfolio snapshot round-trips for offline consumers', t => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'stock-dashboard-snapshot-'));
+  t.after(() => fs.rmSync(tempDir, { recursive: true, force: true }));
+  const snapshotPath = path.join(tempDir, 'live-portfolio-snapshot.json');
+  const snapshot = {
+    stocks: [{ ticker: 'APP', shares: 2, weightPct: 12.5 }],
+    cash: { value: 100, weightPct: 1 },
+    portfolioMetrics: { totalValue: 1000 },
+    lastFetchTime: '2026-08-11T12:00:00.000Z',
+    source: 'google-sheets-live',
+    stale: false,
+  };
+
+  persistSnapshot(snapshot, snapshotPath);
+
+  assert.deepEqual(readPersistedSnapshot(snapshotPath), snapshot);
+});
+
+test('invalid persisted portfolio snapshots fail closed', t => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'stock-dashboard-snapshot-'));
+  t.after(() => fs.rmSync(tempDir, { recursive: true, force: true }));
+  const snapshotPath = path.join(tempDir, 'live-portfolio-snapshot.json');
+  fs.writeFileSync(snapshotPath, '{"stocks":"invalid"}');
+
+  assert.equal(readPersistedSnapshot(snapshotPath), null);
+  assert.throws(
+    () => persistSnapshot({ stocks: [] }, snapshotPath),
+    /invalid live portfolio snapshot/
+  );
 });

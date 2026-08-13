@@ -1,0 +1,6 @@
+{
+  "saul_investing_root": "../SaulInvesting",
+  "sheets_csv_url": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/gviz/tq?tqx=out:csv",
+  "live_portfolio_snapshot_path": "data/live-portfolio-snapshot.json",
+  "sheets_poll_interval_ms": 3600000
+}

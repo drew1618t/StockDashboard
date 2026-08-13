@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pigeons — Field Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --parchment: #FFFFF5;
+  --forest: #2D4A3E;
+  --leaf: #7A9E7E;
+  --brick: #BF5B3F;
+  --aged: #F0EBE0;
+  --leaf-light: rgba(122, 158, 126, 0.12);
+  --brick-light: rgba(191, 91, 63, 0.10);
+  --rule: rgba(45, 74, 62, 0.12);
+  --rule-dark: rgba(45, 74, 62, 0.25);
+  --shadow-sm: 0 1px 2px rgba(45, 74, 62, 0.06);
+  --shadow-md: 0 2px 8px rgba(45, 74, 62, 0.08);
+  --radius: 6px;
+  --transition: 0.2s ease;
+}
+
+html {
+  font-size: 15px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Source Sans 3', 'Source Sans Pro', system-ui, -apple-system, sans-serif;
+  background: #E8E4DB;
+  color: var(--forest);
+  line-height: 1.5;
+  min-height: 100vh;
+  padding-bottom: 72px;
+}
+
+/* ── Page Shell ──────────────────────────────────────── */
+.page {
+  max-width: 500px;
+  margin: 0 auto;
+  background: var(--parchment);
+  min-height: 100vh;
+  position: relative;
+  box-shadow: 0 0 30px rgba(45, 74, 62, 0.08);
+}
+
+.page-inner {
+  padding: 20px 18px 24px;
+}
+
+/* ── Typography ──────────────────────────────────────── */
+h1, h2, h3, h4 {
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+  font-weight: 600;
+  color: var(--forest);
+}
+
+.eyebrow {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--leaf);
+  margin-bottom: 2px;
+}
+
+.page-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 6px;
+}
+
+.page-subtitle {
+  font-size: 0.85rem;
+  color: rgba(45, 74, 62, 0.6);
+  line-height: 1.45;
+  max-width: 340px;
+  margin-bottom: 20px;
+}
+
+/* ── Horizontal Rules (Field Guide Dividers) ─────────── */
+hr.rule {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: 16px 0;
+}
+
+hr.rule-dark {
+  border: none;
+  border-top: 1px solid var(--rule-dark);
+  margin: 20px 0;
+}
+
+/* ── Summary Metrics ─────────────────────────────────── */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.metric-card {
+  background: var(--aged);
+  border-radius: var(--radius);
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.metric-card.danger {
+  background: var(--brick-light);
+}
+
+.metric-value {
+  font-family: 'Lora', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.metric-card.danger .metric-value {
+  color: var(--brick);
+}
+
+.metric-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(45, 74, 62, 0.55);
+  margin-top: 2px;
+}
+
+/* ── Tab Navigation (Top) ────────────────────────────── */
+.tabs-top {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--rule-dark);
+  margin-bottom: 16px;
+}
+
+.tab-top {
+  flex: 1;
+  text-align: center;
+  padding: 10px 4px 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(45, 74, 62, 0.45);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition);
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: 'Source Sans 3', sans-serif;
+  letter-spacing: 0.03em;
+}
+
+.tab-top:hover {
+  color: var(--forest);
+}
+
+.tab-top.active {
+  color: var(--forest);
+  border-bottom-color: var(--leaf);
+}
+
+/* ── View Panels ─────────────────────────────────────── */
+.view-panel {
+  display: none;
+}
+
+.view-panel.active {
+  display: block;
+}
+
+/* ── Controls Row ────────────────────────────────────── */
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.add-room-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.input {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.85rem;
+  padding: 7px 10px;
+  border: 1px solid var(--rule-dark);
+  border-radius: var(--radius);
+  background: var(--aged);
+  color: var(--forest);
+  outline: none;
+  transition: border-color var(--transition);
+  width: 100%;
+}
+
+.input:focus {
+  border-color: var(--leaf);
+}
+
+.input::placeholder {
+  color: rgba(45, 74, 62, 0.35);
+}
+
+select.input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%232D4A3E' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+textarea.input {
+  resize: vertical;
+  min-height: 70px;
+  line-height: 1.45;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: rgba(45, 74, 62, 0.65);
+  margin-bottom: 14px;
+}
+
+.checkbox-row input[type="checkbox"] {
+  accent-color: var(--leaf);
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Buttons ─────────────────────────────────────────── */
+.btn {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--leaf);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #6A8E6E;
+}
+
+.btn-sm {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  font-weight: 600;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--rule-dark);
+  color: var(--forest);
+}
+
+.btn-outline:hover {
+  background: var(--aged);
+}
+
+.btn-save {
+  background: var(--leaf);
+  color: #fff;
+  width: 100%;
+  padding: 11px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.btn-save:hover {
+  background: #6A8E6E;
+}
+
+/* ── Room Cards ──────────────────────────────────────── */
+.room-card {
+  margin-bottom: 6px;
+}
+
+.room-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 0 4px;
+}
+
+.room-name {
+  font-family: 'Lora', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.room-meta {
+  font-size: 0.72rem;
+  color: rgba(45, 74, 62, 0.5);
+}
+
+.room-meta span {
+  margin-left: 8px;
+}
+
+.dose-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--rule);
+  gap: 8px;
+}
+
+.dose-row:last-child {
+  border-bottom: none;
+}
+
+.dose-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dose-bird {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.dose-med {
+  font-size: 0.78rem;
+  color: rgba(45, 74, 62, 0.6);
+  margin-top: 1px;
+}
+
+.dose-time {
+  font-size: 0.72rem;
+  margin-top: 2px;
+}
+
+.dose-time.overdue {
+  color: var(--brick);
+  font-weight: 600;
+}
+
+.dose-time.due {
+  color: var(--leaf);
+}
+
+.dose-action {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.no-doses {
+  font-size: 0.82rem;
+  color: rgba(45, 74, 62, 0.4);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+/* ── Status Dots (Inline SVG Legend) ─────────────────── */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  vertical-align: middle;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+/* ── Bird Cards ──────────────────────────────────────── */
+.bird-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.bird-card:last-child {
+  border-bottom: none;
+}
+
+.bird-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--aged);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Lora', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--forest);
+  flex-shrink: 0;
+  border: 1px solid var(--rule);
+}
+
+.bird-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bird-line-1 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bird-name {
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.bird-species {
+  font-size: 0.75rem;
+  color: rgba(45, 74, 62, 0.5);
+}
+
+.bird-line-2 {
+  font-size: 0.75rem;
+  color: rgba(45, 74, 62, 0.55);
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bird-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 500;
+}
+
+.bird-room, .bird-meds {
+  margin-left: 4px;
+}
+
+.bird-meds::before {
+  content: "\00b7";
+  margin-right: 4px;
+}
+
+/* ── Search / Filter Bar ─────────────────────────────── */
+.filter-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.filter-bar .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.filter-bar select.input {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 100px;
+}
+
+/* ── Form Layout ─────────────────────────────────────── */
+.form-section-title {
+  font-family: 'Lora', serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  margin-top: 4px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.form-group.full {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(45, 74, 62, 0.55);
+}
+
+/* ── Stats View ──────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.stat-card {
+  background: var(--aged);
+  border-radius: var(--radius);
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.stat-value {
+  font-family: 'Lora', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(45, 74, 62, 0.55);
+  margin-top: 2px;
+}
+
+.stats-list {
+  margin-bottom: 4px;
+}
+
+.stats-list-title {
+  font-family: 'Lora', serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.stats-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 0.84rem;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.stats-list-item:last-child {
+  border-bottom: none;
+}
+
+.stats-list-item span:last-child {
+  font-weight: 600;
+  font-family: 'Lora', serif;
+}
+
+/* ── Bottom Navigation ───────────────────────────────── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 500px;
+  background: var(--parchment);
+  border-top: 1px solid var(--rule-dark);
+  display: flex;
+  z-index: 100;
+  box-shadow: 0 -2px 10px rgba(45, 74, 62, 0.06);
+}
+
+.nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px 10px;
+  gap: 2px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: rgba(45, 74, 62, 0.4);
+  transition: color var(--transition);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.nav-tab svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav-tab.active {
+  color: var(--leaf);
+  font-weight: 700;
+}
+
+.nav-tab:hover {
+  color: var(--forest);
+}
+
+/* ── Toast ────────────────────────────────────────────── */
+.toast-area {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  width: 90%;
+  max-width: 440px;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--forest);
+  color: var(--parchment);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 8px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: auto;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Modal Backdrop ──────────────────────────────────── */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 74, 62, 0.35);
+  z-index: 150;
+  backdrop-filter: blur(2px);
+}
+
+.modal-backdrop.show {
+  display: block;
+}
+
+/* ── Misc ─────────────────────────────────────────────── */
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(45, 74, 62, 0.4);
+  margin-bottom: 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- Toast Notification Area -->
+<div class="toast-area" id="toastArea"></div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop" id="modalBackdrop"></div>
+
+<div class="page">
+  <div class="page-inner">
+
+    <!-- ── Header ──────────────────────────────────── -->
+    <div class="eyebrow">Family Pigeons</div>
+    <h1 class="page-title">Pigeons</h1>
+    <p class="page-subtitle">Room-first medicine and supplement tracking for the birds you're caring for.</p>
+
+    <!-- ── Summary Metrics ─────────────────────────── -->
+    <div class="metrics-row">
+      <div class="metric-card danger">
+        <div class="metric-value">3</div>
+        <div class="metric-label">Overdue</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">5</div>
+        <div class="metric-label">Due Today</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">8</div>
+        <div class="metric-label">Active Birds</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">12</div>
+        <div class="metric-label">Active Meds</div>
+      </div>
+    </div>
+
+    <hr class="rule-dark">
+
+    <!-- ── View Panels ─────────────────────────────── -->
+
+    <!-- ═══ ROOMS VIEW ═══ -->
+    <div class="view-panel active" id="view-rooms">
+
+      <!-- Add Room -->
+      <div class="add-room-row">
+        <input type="text" class="input" placeholder="New room name..." id="newRoomInput">
+        <button class="btn btn-primary" onclick="addRoom()">Add Room</button>
+      </div>
+
+      <!-- Show all meds toggle -->
+      <label class="checkbox-row">
+        <input type="checkbox" id="showAllMeds"> Show all active meds
+      </label>
+
+      <!-- Computer Room -->
+      <div class="room-card">
+        <div class="room-header">
+          <span class="room-name">Computer Room</span>
+          <span class="room-meta">
+            <span>3 birds</span>
+            <span>4 meds</span>
+            <span style="font-weight:600; color: var(--brick);">2 due</span>
+          </span>
+        </div>
+
+        <div class="dose-row">
+          <div class="dose-info">
+            <div class="dose-bird">Blue</div>
+            <div class="dose-med">Medication: Baytril 0.1ml oral</div>
+            <div class="dose-time overdue">Overdue: 2025-04-11 08:00</div>
+          </div>
+          <div class="dose-action">
+            <button class="btn btn-sm btn-outline" onclick="markGiven(this, 'Blue', 'Baytril')">Mark given</button>
+          </div>
+        </div>
+
+        <div class="dose-row">
+          <div class="dose-info">
+            <div class="dose-bird">Pepper</div>
+            <div class="dose-med">Supplement: Calcium</div>
+            <div class="dose-time due">Due: 2025-04-11 14:00</div>
+          </div>
+          <div class="dose-action">
+            <button class="btn btn-sm btn-outline" onclick="markGiven(this, 'Pepper', 'Calcium')">Mark given</button>
+          </div>
+        </div>
+      </div>
+
+      <hr class="rule">
+
+      <!-- Bird Room -->
+      <div class="room-card">
+        <div class="room-header">
+          <span class="room-name">Bird Room</span>
+          <span class="room-meta">
+            <span>4 birds</span>
+            <span>6 meds</span>
+            <span style="font-weight:600;">1 due</span>
+          </span>
+        </div>
+
+        <div class="dose-row">
+          <div class="dose-info">
+            <div class="dose-bird">Cloudy</div>
+            <div class="dose-med">Medication: Metronidazole 0.05ml</div>
+            <div class="dose-time due">Due: 2025-04-11 16:00</div>
+          </div>
+          <div class="dose-action">
+            <button class="btn btn-sm btn-outline" onclick="markGiven(this, 'Cloudy', 'Metronidazole')">Mark given</button>
+          </div>
+        </div>
+      </div>
+
+      <hr class="rule">
+
+      <!-- Porch -->
+      <div class="room-card">
+        <div class="room-header">
+          <span class="room-name">Porch</span>
+          <span class="room-meta">
+            <span>1 bird</span>
+            <span>1 med</span>
+            <span>0 due</span>
+          </span>
+        </div>
+        <div class="no-doses">No doses due or overdue.</div>
+      </div>
+
+    </div>
+
+    <!-- ═══ BIRDS VIEW ═══ -->
+    <div class="view-panel" id="view-birds">
+
+      <div class="filter-bar">
+        <input type="text" class="input" placeholder="Search birds..." id="birdSearch" oninput="filterBirds()">
+        <select class="input" id="roomFilter" onchange="filterBirds()">
+          <option value="">All rooms</option>
+          <option value="Computer Room">Computer Room</option>
+          <option value="Bird Room">Bird Room</option>
+          <option value="Porch">Porch</option>
+        </select>
+        <select class="input" id="statusFilter" onchange="filterBirds()">
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="critical">Critical</option>
+          <option value="ready for release">Ready for release</option>
+        </select>
+      </div>
+
+      <div id="birdList">
+        <!-- Blue -->
+        <div class="bird-card" data-name="Blue" data-room="Computer Room" data-status="active">
+          <div class="bird-avatar">B</div>
+          <div class="bird-info">
+            <div class="bird-line-1">
+              <span class="bird-name">Blue</span>
+              <span class="bird-species">Feral Pigeon</span>
+            </div>
+            <div class="bird-line-2">
+              <span class="bird-status">
+                <svg class="status-dot" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="4" fill="#7A9E7E"/></svg>
+                active
+              </span>
+              <span class="bird-room">Computer Room</span>
+              <span class="bird-meds">2 active meds</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pepper -->
+        <div class="bird-card" data-name="Pepper" data-room="Computer Room" data-status="active">
+          <div class="bird-avatar">P</div>
+          <div class="bird-info">
+            <div class="bird-line-1">
+              <span class="bird-name">Pepper</span>
+              <span class="bird-species">Feral Pigeon</span>
+            </div>
+            <div class="bird-line-2">
+              <span class="bird-status">
+                <svg class="status-dot" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="4" fill="#7A9E7E"/></svg>
+                active
+              </span>
+              <span class="bird-room">Computer Room</span>
+              <span class="bird-meds">1 active med</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cloudy -->
+        <div class="bird-card" data-name="Cloudy" data-room="Bird Room" data-status="critical">
+          <div class="bird-avatar">C</div>
+          <div class="bird-info">
+            <div class="bird-line-1">
+              <span class="bird-name">Cloudy</span>
+              <span class="bird-species">Wood Pigeon</span>
+            </div>
+            <div class="bird-line-2">
+              <span class="bird-status">
+                <svg class="status-dot" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="4" fill="#D4A03C"/></svg>
+                critical
+              </span>
+              <span class="bird-room">Bird Room</span>
+              <span class="bird-meds">3 active meds</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sunny -->
+        <div class="bird-card" data-name="Sunny" data-room="Porch" data-status="ready for release">
+          <div class="bird-avatar">S</div>
+          <div class="bird-info">
+            <div class="bird-line-1">
+              <span class="bird-name">Sunny</span>
+              <span class="bird-species">Feral Pigeon</span>
+            </div>
+            <div class="bird-line-2">
+              <span class="bird-status">
+                <svg class="status-dot" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><circle cx="4" cy="4" r="4" fill="#5B8FAF"/></svg>
+                ready for release
+              </span>
+              <span class="bird-room">Porch</span>
+              <span class="bird-meds">0 active meds</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ ADD BIRD VIEW ═══ -->
+    <div class="view-panel" id="view-add">
+
+      <div class="form-section-title">New Bird</div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" class="input" placeholder="Bird name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Species</label>
+          <input type="text" class="input" placeholder="e.g. Feral Pigeon">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Room</label>
+          <select class="input">
+            <option value="">Select room...</option>
+            <option>Computer Room</option>
+            <option>Bird Room</option>
+            <option>Porch</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="input">
+            <option value="">Select...</option>
+            <option>Active</option>
+            <option>Critical</option>
+            <option>Resident</option>
+            <option>Ready for release</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Intake Date</label>
+          <input type="date" class="input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Found Location</label>
+          <input type="text" class="input" placeholder="Where found">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Initial Weight</label>
+          <input type="text" class="input" placeholder="e.g. 280g">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Breathing</label>
+          <select class="input">
+            <option value="">Assess...</option>
+            <option>Normal</option>
+            <option>Labored</option>
+            <option>Rapid</option>
+            <option>Open-mouth</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hydration</label>
+          <select class="input">
+            <option value="">Assess...</option>
+            <option>Normal</option>
+            <option>Mild dehydration</option>
+            <option>Moderate dehydration</option>
+            <option>Severe dehydration</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Weight Assessment</label>
+          <select class="input">
+            <option value="">Assess...</option>
+            <option>Underweight</option>
+            <option>Normal</option>
+            <option>Overweight</option>
+            <option>Emaciated</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Injury Type</label>
+          <select class="input">
+            <option value="">Select...</option>
+            <option>None visible</option>
+            <option>Wing injury</option>
+            <option>Leg injury</option>
+            <option>Head trauma</option>
+            <option>String/thread</option>
+            <option>Cat attack</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Alert Level</label>
+          <select class="input">
+            <option value="">Select...</option>
+            <option>Alert</option>
+            <option>Lethargic</option>
+            <option>Unresponsive</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Initial Condition</label>
+          <textarea class="input" placeholder="Describe the bird's condition on intake..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notes</label>
+          <textarea class="input" placeholder="Any additional notes..."></textarea>
+        </div>
+      </div>
+
+      <hr class="rule">
+
+      <div class="form-section-title">Optional First Med</div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="input">
+            <option value="">Select...</option>
+            <option>Medication</option>
+            <option>Supplement</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" class="input" placeholder="e.g. Baytril">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dosage</label>
+          <input type="text" class="input" placeholder="e.g. 0.1ml oral">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Times Per Day</label>
+          <select class="input">
+            <option value="">Select...</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Start</label>
+          <input type="date" class="input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">End</label>
+          <input type="date" class="input">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notes</label>
+          <textarea class="input" placeholder="Med-specific notes..."></textarea>
+        </div>
+      </div>
+
+      <button class="btn btn-save" onclick="saveBird()">Save Bird</button>
+
+    </div>
+
+    <!-- ═══ STATS VIEW ═══ -->
+    <div class="view-panel" id="view-stats">
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">8</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">5</div>
+          <div class="stat-label">Active</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">1</div>
+          <div class="stat-label">Critical</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">1</div>
+          <div class="stat-label">Residents</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">1</div>
+          <div class="stat-label">Released</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">0</div>
+          <div class="stat-label">Deceased</div>
+        </div>
+      </div>
+
+      <hr class="rule">
+
+      <div class="stats-list">
+        <div class="stats-list-title">Birds by Room</div>
+        <div class="stats-list-item"><span>Computer Room</span><span>3</span></div>
+        <div class="stats-list-item"><span>Bird Room</span><span>4</span></div>
+        <div class="stats-list-item"><span>Porch</span><span>1</span></div>
+      </div>
+
+      <hr class="rule">
+
+      <div class="stats-list">
+        <div class="stats-list-title">Birds by Species</div>
+        <div class="stats-list-item"><span>Feral Pigeon</span><span>6</span></div>
+        <div class="stats-list-item"><span>Wood Pigeon</span><span>2</span></div>
+      </div>
+
+      <hr class="rule">
+
+      <div class="stats-list">
+        <div class="stats-list-title">Active Meds by Room</div>
+        <div class="stats-list-item"><span>Computer Room</span><span>4</span></div>
+        <div class="stats-list-item"><span>Bird Room</span><span>6</span></div>
+        <div class="stats-list-item"><span>Porch</span><span>1</span></div>
+      </div>
+
+    </div>
+
+  </div><!-- /.page-inner -->
+</div><!-- /.page -->
+
+<!-- ── Bottom Navigation ───────────────────────────── -->
+<nav class="bottom-nav">
+  <button class="nav-tab active" data-view="rooms" onclick="switchView('rooms')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Rooms
+  </button>
+  <button class="nav-tab" data-view="birds" onclick="switchView('birds')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0113 0"/><line x1="17" y1="4" x2="20" y2="1"/><line x1="20" y1="4" x2="17" y2="1"/></svg>
+    Birds
+  </button>
+  <button class="nav-tab" data-view="add" onclick="switchView('add')">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Bird
+  </button>
+  <button class="nav-tab" data-view="stats" onclick="switchView('stats')">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Stats
+  </button>
+</nav>
+
+<script>
+// ── View Switching ──────────────────────────────────────
+function switchView(viewName) {
+  // Update panels
+  document.querySelectorAll('.view-panel').forEach(function(p) {
+    p.classList.remove('active');
+  });
+  document.getElementById('view-' + viewName).classList.add('active');
+
+  // Update bottom nav
+  document.querySelectorAll('.nav-tab').forEach(function(t) {
+    t.classList.remove('active');
+  });
+  document.querySelector('.nav-tab[data-view="' + viewName + '"]').classList.add('active');
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Toast Notifications ─────────────────────────────────
+function showToast(message) {
+  var area = document.getElementById('toastArea');
+  var toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  area.appendChild(toast);
+
+  // Trigger animation
+  requestAnimationFrame(function() {
+    toast.classList.add('show');
+  });
+
+  // Auto-dismiss
+  setTimeout(function() {
+    toast.classList.remove('show');
+    setTimeout(function() {
+      toast.remove();
+    }, 300);
+  }, 2500);
+}
+
+// ── Mark Given ──────────────────────────────────────────
+function markGiven(btn, birdName, medName) {
+  btn.textContent = 'Given';
+  btn.disabled = true;
+  btn.style.background = 'var(--leaf-light)';
+  btn.style.borderColor = 'var(--leaf)';
+  btn.style.color = 'var(--leaf)';
+
+  // Update the dose time text
+  var doseRow = btn.closest('.dose-row');
+  var timeEl = doseRow.querySelector('.dose-time');
+  timeEl.className = 'dose-time';
+  timeEl.style.color = 'var(--leaf)';
+  timeEl.textContent = 'Given just now';
+
+  showToast(medName + ' marked as given for ' + birdName);
+}
+
+// ── Add Room ────────────────────────────────────────────
+function addRoom() {
+  var input = document.getElementById('newRoomInput');
+  var name = input.value.trim();
+  if (!name) return;
+
+  showToast('Room "' + name + '" added');
+  input.value = '';
+}
+
+// ── Save Bird ───────────────────────────────────────────
+function saveBird() {
+  showToast('Bird saved successfully');
+}
+
+// ── Filter Birds ────────────────────────────────────────
+function filterBirds() {
+  var search = document.getElementById('birdSearch').value.toLowerCase();
+  var roomFilter = document.getElementById('roomFilter').value;
+  var statusFilter = document.getElementById('statusFilter').value;
+
+  document.querySelectorAll('.bird-card').forEach(function(card) {
+    var name = card.getAttribute('data-name').toLowerCase();
+    var room = card.getAttribute('data-room');
+    var status = card.getAttribute('data-status');
+
+    var matchName = !search || name.indexOf(search) !== -1;
+    var matchRoom = !roomFilter || room === roomFilter;
+    var matchStatus = !statusFilter || status === statusFilter;
+
+    card.style.display = (matchName && matchRoom && matchStatus) ? 'flex' : 'none';
+  });
+}
+</script>
+
+</body>
+</html>

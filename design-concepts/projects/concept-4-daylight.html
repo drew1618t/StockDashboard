@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects — Daylight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --ink:#0E0E10;
+    --muted:#6B7280;
+    --soft:#9CA3AF;
+    --rule:#EAEAEA;
+    --hover:#FAFAFA;
+    --emerald:#10B981;
+    --emerald-soft:#D1FAE5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;letter-spacing:-0.005em}
+  a{color:inherit;text-decoration:none}
+  /* top nav */
+  .nav{max-width:1200px;margin:0 auto;padding:18px 32px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule)}
+  .nav .crumbs{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .nav .crumbs a{color:var(--muted)}
+  .nav .crumbs a:hover{color:var(--ink)}
+  .nav .crumbs .sep{color:var(--soft)}
+  .nav .crumbs .current{color:var(--ink);font-weight:500}
+  .nav .right{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .nav .right .dot{width:6px;height:6px;background:var(--emerald);border-radius:50%;box-shadow:0 0 0 4px var(--emerald-soft);animation:pulse 2.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(16,185,129,.18)}50%{box-shadow:0 0 0 7px rgba(16,185,129,.06)}}
+  /* layout */
+  .layout{max-width:1200px;margin:0 auto;padding:48px 32px 80px;display:grid;grid-template-columns:280px 1fr;gap:64px}
+  /* left rail */
+  .rail{position:sticky;top:32px;align-self:start}
+  .rail .kicker{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+  .rail h1{font-size:1.8rem;font-weight:600;letter-spacing:-0.025em;line-height:1.1;margin-bottom:14px}
+  .rail p{font-size:14px;color:var(--muted);line-height:1.55;margin-bottom:24px}
+  .rail .badge{display:inline-flex;align-items:center;gap:8px;padding:5px 10px;background:#F4F4F5;border:1px solid var(--rule);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink)}
+  .rail .badge .live{width:6px;height:6px;background:var(--emerald);border-radius:50%}
+  .rail .filters{margin-top:32px;border-top:1px solid var(--rule);padding-top:24px}
+  .rail .filters h4{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:12px}
+  .rail .filters ul{list-style:none;display:flex;flex-direction:column;gap:2px}
+  .rail .filters li{font-size:13.5px;color:var(--muted);padding:6px 8px;border-radius:5px;cursor:pointer;display:flex;justify-content:space-between;transition:all .15s}
+  .rail .filters li:hover{background:var(--hover);color:var(--ink)}
+  .rail .filters li.active{background:#F4F4F5;color:var(--ink);font-weight:500}
+  .rail .filters li span{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--soft)}
+  /* main rows */
+  .rows{display:flex;flex-direction:column}
+  .row-head{display:grid;grid-template-columns:1fr 120px 130px 18px;gap:24px;padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--rule)}
+  .row{
+    display:grid;
+    grid-template-columns:1fr 120px 130px 18px;
+    gap:24px;
+    align-items:center;
+    padding:18px 16px;
+    border-bottom:1px solid var(--rule);
+    transition:background .15s ease;
+    cursor:pointer;
+  }
+  .row:hover{background:var(--hover)}
+  .row .title{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .row .title .name{font-weight:600;font-size:15.5px;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px}
+  .row .title .name .live-dot{width:7px;height:7px;background:var(--emerald);border-radius:50%;flex-shrink:0;animation:pulse 2.2s ease-in-out infinite}
+  .row .title .desc{font-size:13.5px;color:var(--muted);line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row .category{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink);text-transform:uppercase;letter-spacing:.05em}
+  .row .updated{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);text-align:left}
+  .row .arrow{color:var(--soft);font-family:'JetBrains Mono',monospace;font-size:14px;transition:transform .2s ease, color .2s ease}
+  .row:hover .arrow{transform:translateX(3px);color:var(--ink)}
+  .row .status-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:11px;background:#F4F4F5;color:var(--muted)}
+  .row .status-chip.active{background:var(--emerald-soft);color:#047857}
+  /* footer */
+  .foot{max-width:1200px;margin:0 auto;padding:24px 32px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+  @media(max-width:880px){
+    .layout{grid-template-columns:1fr;gap:32px;padding:32px 20px}
+    .rail{position:static}
+    .row-head{display:none}
+    .row{grid-template-columns:1fr auto;gap:12px}
+    .row .category,.row .updated,.row .arrow{display:none}
+    .nav{padding:14px 20px}
+  }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="crumbs">
+    <a href="/">Home</a>
+    <span class="sep">/</span>
+    <a href="/family">Family</a>
+    <span class="sep">/</span>
+    <span class="current">Projects</span>
+  </div>
+  <div class="right">
+    <span class="dot"></span>
+    <span>3 active now</span>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <aside class="rail">
+    <div class="kicker">/family/projects</div>
+    <h1>Projects</h1>
+    <p>Shared workspaces, build logs, and ongoing experiments across the household.</p>
+    <span class="badge"><span class="live"></span>6 projects · live</span>
+
+    <div class="filters">
+      <h4>Filter</h4>
+      <ul>
+        <li class="active">All projects <span>6</span></li>
+        <li>Active <span>3</span></li>
+        <li>Research <span>2</span></li>
+        <li>Archive <span>1</span></li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="rows">
+
+    <div class="row-head">
+      <div>Project</div>
+      <div>Category</div>
+      <div>Updated</div>
+      <div></div>
+    </div>
+
+    <a href="#" class="row">
+      <div class="title">
+        <div class="name"><span class="live-dot"></span>Agent Work Logs</div>
+        <div class="desc">Daily, monthly, and yearly summaries of Codex and Claude work — searchable archive of every session.</div>
+      </div>
+      <div class="category">Archive</div>
+      <div class="updated">updated 4m ago</div>
+      <div class="arrow">→</div>
+    </a>
+
+    <a href="#" class="row">
+      <div class="title">
+        <div class="name"><span class="live-dot"></span>Health Hub</div>
+        <div class="desc">Structured SQLite database of labs, imaging, prescriptions, and visit notes — queryable in natural language.</div>
+      </div>
+      <div class="category">Health</div>
+      <div class="updated">updated 38m ago</div>
+      <div class="arrow">→</div>
+    </a>
+
+    <a href="#" class="row">
+      <div class="title">
+        <div class="name"><span class="live-dot"></span>Stock Dashboard</div>
+        <div class="desc">Portfolio visualization for the 11-stock Saul-style growth portfolio with five themes and six metrics.</div>
+      </div>
+      <div class="category">Finance</div>
+      <div class="updated">updated 2h ago</div>
+      <div class="arrow">→</div>
+    </a>
+
+    <a href="#" class="row">
+      <div class="title">
+        <div class="name">Family Pages</div>
+        <div class="desc">The shared landing surface — quick links, project rolls, and the homepage everyone opens first.</div>
+      </div>
+      <div class="category">Home</div>
+      <div class="updated">updated 3d ago</div>
+      <div class="arrow">→</div>
+    </a>
+
+    <a href="#" class="row">
+      <div class="title">
+        <div class="name">Quality Score v2</div>
+        <div class="desc">Second-generation scoring rubric for the Saul rules engine — growth, margin, and rule pass rate.</div>
+      </div>
+      <div class="category">Research</div>
+      <div class="updated">updated 6d ago</div>
+      <div class="arrow">→</div>
+    </a>
+
+    <a href="#" class="row">
+      <div class="title">
+        <div class="name">Revenue Momentum</div>
+        <div class="desc">Sequential revenue acceleration tracker — flags companies whose growth rate is itself accelerating.</div>
+      </div>
+      <div class="category">Research</div>
+      <div class="updated">updated 2w ago</div>
+      <div class="arrow">→</div>
+    </a>
+
+  </main>
+</div>
+
+<footer class="foot">
+  <span>6 projects · last sync 4m ago</span>
+  <span>Daylight v1 · Inter / Geist Mono</span>
+</footer>
+</body>
+</html>
