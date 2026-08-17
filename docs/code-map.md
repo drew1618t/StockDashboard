@@ -236,7 +236,14 @@ Portfolio and tax source files:
 ```text
 data/*Positions*.csv
 data/*Schwab*.pdf
+data/transactions/<account>/*.csv
 ```
+
+`data/transactions/` is the permanent archive of raw Schwab exports, one folder
+per account. Schwab serves only a rolling export window, so these files are
+never deleted. `server/taxStore.js` reads one taxable-account file from here;
+the four-account tracker and success-study builders read all of them. See the
+README in that directory.
 
 Uploaded or source documents:
 

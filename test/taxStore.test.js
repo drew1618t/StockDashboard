@@ -75,6 +75,49 @@ test('parses equity buys and sells from Schwab transaction CSV', { skip: fs.exis
   assert.equal(transactions.some(tx => tx.ticker === 'SCHWAB1'), false);
 });
 
+test('excludes money market sweep trades from the transaction ledger', () => {
+  const transactions = taxStore._parseTransactionsCsv([
+    '"Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount"',
+    '"08/10/2026","Sell","SWVXX","SCHWAB PRIME ADVANTAGE MONEY INVESTOR","15,000","$1.00","","$15000.00"',
+    '"06/22/2026","Buy","SWVXX","SCHWAB PRIME ADVANTAGE MONEY INVESTOR","50,000","$1.00","","-$50000.00"',
+    '"06/22/2026","Buy","SNSXX","SCHWAB US TREASURY OBLIGATIONS","1,000","$1.00","","-$1000.00"',
+    '"08/12/2026","Sell","OUST","OUSTER INC CLASS A","23","$45.755","$0.02","$1052.35"',
+  ].join('\n'));
+
+  assert.deepEqual(transactions.map(tx => tx.ticker), ['OUST']);
+});
+
+test('a transaction source directory parses every export and dedupes overlaps', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tx-archive-'));
+  const header = '"Date","Action","Symbol","Description","Quantity","Price","Fees & Comm","Amount"';
+  const oust = '"08/12/2026","Sell","OUST","OUSTER INC CLASS A","23","$45.755","$0.02","$1052.35"';
+  const klic = '"08/05/2026","Buy","KLIC","KULICKE & SOFFA INDS INC","20","$95.695","","-$1913.90"';
+  const mu = '"08/17/2026","Sell","MU","MICRON TECHNOLOGY INC","15","$1017.225","$0.31","$15258.07"';
+
+  // Two overlapping exports: the older one is deep, the newer one repeats a row.
+  fs.writeFileSync(path.join(dir, 'Acct_Transactions_20260728-104452.csv'), [header, oust, klic].join('\n'));
+  fs.writeFileSync(path.join(dir, 'Acct_Transactions_20260817-160652.csv'), [header, mu, oust].join('\n'));
+  fs.writeFileSync(path.join(dir, 'notes.txt'), 'ignored');
+
+  const files = taxStore._listTransactionCsvFiles(dir);
+  assert.equal(files.length, 2);
+  assert.ok(files[0].endsWith('20260728-104452.csv'), 'older export sorts first');
+
+  const parsed = files.flatMap((file, index) =>
+    taxStore._parseTransactionsCsv(fs.readFileSync(file, 'utf-8'), 500000 + (index * 10000)));
+  assert.equal(parsed.length, 4);
+
+  const deduped = taxStore._dedupeTransactions(parsed);
+  assert.deepEqual(deduped.map(tx => tx.ticker).sort(), ['KLIC', 'MU', 'OUST']);
+
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test('a transaction source file still resolves to itself', { skip: fs.existsSync(TRANSACTIONS_CSV_PATH) ? false : 'Schwab transaction CSV is not present in this checkout' }, () => {
+  assert.deepEqual(taxStore._listTransactionCsvFiles(TRANSACTIONS_CSV_PATH), [TRANSACTIONS_CSV_PATH]);
+  assert.deepEqual(taxStore._listTransactionCsvFiles(path.join(__dirname, 'no-such-path.csv')), []);
+});
+
 test('reconstructs FIFO open lots for current positions', { skip: SOURCE_FILE_SKIP }, async () => {
   const positions = taxStore._parsePositionsCsv(fs.readFileSync(POSITIONS_PATH, 'utf-8')).positions;
   const transactions = taxStore._parseTransactionsText(await extractTransactionText());

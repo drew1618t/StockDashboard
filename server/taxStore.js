@@ -28,8 +28,10 @@ function getDefaultState() {
     method: 'fifo',
     sourceFiles: {
       positionsCsv: 'data/Drew Individual-Positions-2026-04-13-083744.csv',
-      transactionHistoryPdf: 'data/Transaction History _ Charles Schwab.pdf',
-      transactionHistoryCsv: null,
+      // The Schwab PDF is superseded by the deep CSV exports. Layering both
+      // double-counts pre-2026 lots that the two sources date differently.
+      transactionHistoryPdf: null,
+      transactionHistoryCsv: 'data/transactions/drew-individual-893',
     },
     carryoverLoss: 0,
     lastFiledTaxYear: null,
@@ -53,6 +55,25 @@ function getTaxesPath() {
 function resolveRepoPath(filePath) {
   if (path.isAbsolute(filePath)) return filePath;
   return path.join(__dirname, '..', filePath);
+}
+
+/**
+ * Resolve a transaction CSV source to the list of files to parse.
+ *
+ * A plain file path yields itself. A directory yields every .csv inside it,
+ * sorted by name so that older exports parse first (Schwab filenames carry an
+ * export timestamp). Pointing at a directory means a new export only has to be
+ * dropped in the folder: overlapping rows across exports collapse later in
+ * dedupeTransactions, and no config has to change.
+ */
+function listTransactionCsvFiles(resolvedPath) {
+  if (!resolvedPath || !fs.existsSync(resolvedPath)) return [];
+  if (!fs.statSync(resolvedPath).isDirectory()) return [resolvedPath];
+
+  return fs.readdirSync(resolvedPath)
+    .filter(name => name.toLowerCase().endsWith('.csv'))
+    .sort()
+    .map(name => path.join(resolvedPath, name));
 }
 
 function readJsonIfExists(filePath) {
@@ -129,6 +150,21 @@ function writeData(data) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   const { taxYear, carryoverLosses, account, ...persisted } = data;
   fs.writeFileSync(taxesPath, JSON.stringify(persisted, null, 2) + '\n');
+}
+
+// Schwab sweep and money market funds. Buying and selling these is cash
+// management, not investing, so they are kept out of the FIFO lot ledger and
+// the realized gain list. Their gains round to zero anyway, and including them
+// buries real sales under sweep noise.
+const CASH_EQUIVALENT_SYMBOLS = new Set([
+  'SWVXX', 'SNVXX', 'SNSXX', 'SNAXX', 'SWGXX', 'SGUXX', 'SWTXX', 'SCOXX', 'SUTXX',
+]);
+const CASH_EQUIVALENT_DESCRIPTION = /MONEY\s+(MARKET|FUND|INVESTOR)|PRIME\s+ADVANTAGE|TREASURY\s+OBLIGATIONS/i;
+
+/** True when a transaction row is a money market/sweep fund rather than an equity. */
+function isCashEquivalent(ticker, description) {
+  if (ticker && CASH_EQUIVALENT_SYMBOLS.has(String(ticker).toUpperCase())) return true;
+  return CASH_EQUIVALENT_DESCRIPTION.test(String(description || ''));
 }
 
 function splitCsvRow(row) {
@@ -317,6 +353,8 @@ function parseEquityTransaction(line, date, originalIndex) {
     [, type, ticker, description, detail] = match;
   }
 
+  if (isCashEquivalent(ticker, description)) return null;
+
   const quantityMatch = detail.match(/([0-9][0-9,]*(?:\.\d+)?)\s+(?=-?\$)/);
   const moneyMatches = detail.match(/-?\$[0-9,]+(?:\.\d+)?/g) || [];
   if (!quantityMatch || moneyMatches.length < 2) return null;
@@ -400,6 +438,8 @@ function _parseTransactionsCsv(text, originalIndexOffset = 500000) {
 
       const date = normalizeDate(row.Date);
       const ticker = String(row.Symbol || '').trim().toUpperCase();
+      if (isCashEquivalent(ticker, row.Description)) return null;
+
       const quantity = parseNumber(row.Quantity);
       const price = parseMoneyToken(row.Price);
       const fees = parseMoneyToken(row['Fees & Comm']);
@@ -930,7 +970,9 @@ function computePlanner({ taxYear, plannerInputs, realizedSales }) {
 async function getTaxes() {
   const state = readData();
   const positionsPath = resolveRepoPath(process.env.TAX_POSITIONS_CSV || state.sourceFiles.positionsCsv);
-  const pdfPath = resolveRepoPath(process.env.TAX_TRANSACTION_HISTORY_PDF || state.sourceFiles.transactionHistoryPdf);
+  // The PDF is optional: a deep enough CSV export reproduces it exactly.
+  const pdfSource = process.env.TAX_TRANSACTION_HISTORY_PDF || state.sourceFiles.transactionHistoryPdf;
+  const pdfPath = pdfSource ? resolveRepoPath(pdfSource) : null;
   const csvPath = process.env.TAX_TRANSACTION_HISTORY_CSV || state.sourceFiles.transactionHistoryCsv;
 
   const positionsData = _parsePositionsCsv(fs.readFileSync(positionsPath, 'utf-8'));
@@ -941,10 +983,11 @@ async function getTaxes() {
     transactions.push(..._parseTransactionsText(transactionsText));
   }
   if (csvPath) {
-    const resolvedCsvPath = resolveRepoPath(csvPath);
-    if (fs.existsSync(resolvedCsvPath)) {
-      transactions.push(..._parseTransactionsCsv(fs.readFileSync(resolvedCsvPath, 'utf-8')));
-    }
+    // Each export gets its own index block so same-date rows keep a stable
+    // order across files, which FIFO lot matching depends on.
+    listTransactionCsvFiles(resolveRepoPath(csvPath)).forEach((file, fileIndex) => {
+      transactions.push(..._parseTransactionsCsv(fs.readFileSync(file, 'utf-8'), 500000 + (fileIndex * 10000)));
+    });
   }
   transactions.push(...manualTransactions);
   const dedupedTransactions = dedupeTransactions(transactions);
@@ -1026,6 +1069,7 @@ module.exports = {
   _parsePositionsCsv,
   _parseTransactionsText,
   _parseTransactionsCsv,
+  _listTransactionCsvFiles: listTransactionCsvFiles,
   _dedupeTransactions: dedupeTransactions,
   _reconstructFifo,
   _sanitizeManualTransactions: sanitizeManualTransactions,

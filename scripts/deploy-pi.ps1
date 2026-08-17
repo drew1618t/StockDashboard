@@ -11,6 +11,17 @@ $runtimeDataFiles = @(
 )
 $runtimeDataArgs = $runtimeDataFiles -join ' '
 
+# Schwab transaction exports are gitignored, so git pull cannot carry them.
+# Push them ahead of the pull so the tax pipeline sees new exports on restart.
+# Scoped to data/transactions on purpose: the Pi's data/taxes.state.json holds
+# sale confirmations that exist nowhere else and must never be overwritten.
+$transactionsDir = Join-Path $repoRoot 'data/transactions'
+if (Test-Path $transactionsDir) {
+  Write-Host "Syncing transaction exports to $($target.ssh)..."
+  scp -r -q $transactionsDir "$($target.ssh):$($target.appDir)/data/"
+  if ($LASTEXITCODE -ne 0) { throw "Failed to sync data/transactions to the Pi" }
+}
+
 $remoteCommand = @"
 cd $($target.appDir) &&
 backup_dir=`$(mktemp -d) &&
