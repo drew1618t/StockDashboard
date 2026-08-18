@@ -232,6 +232,11 @@ function getAsOfDate(asOf) {
   return new Date().toISOString().slice(0, 10);
 }
 
+/** Today as a UTC date string, matching the date-only basis of daysBetween. */
+function getTodayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 function getLotTerm(acquiredDate, asOfDate) {
   if (!acquiredDate || !asOfDate) return 'unknown';
   return daysBetween(acquiredDate, asOfDate) > 365 ? 'long' : 'short';
@@ -724,14 +729,17 @@ function mergeConfirmations(realizedSales, confirmations) {
   });
 }
 
-function buildPositions(positions, lotsByTicker, asOfDate) {
+// termAsOfDate is deliberately today, not the positions snapshot date: whether a
+// lot has crossed one year is a question about now, and the snapshot date is
+// frozen at the last positions export.
+function buildPositions(positions, lotsByTicker, termAsOfDate) {
   return positions.map(position => {
     const positionQuantity = Number(position.quantity || 0);
     const marketValuePerShare = positionQuantity > 0 && position.marketValue !== null && position.marketValue !== undefined
       ? Number(position.marketValue || 0) / positionQuantity
       : null;
     const lots = (lotsByTicker[position.ticker] || []).map(lot => {
-      const holdingTerm = getLotTerm(lot.acquiredDate, asOfDate);
+      const holdingTerm = getLotTerm(lot.acquiredDate, termAsOfDate);
       const longTermDate = lot.acquiredDate ? addDays(lot.acquiredDate, 366) : null;
       const marketValue = marketValuePerShare !== null
         ? round2(lot.quantity * marketValuePerShare)
@@ -994,7 +1002,7 @@ async function getTaxes() {
   const currentPositionTransactions = dedupedTransactions.filter(tx => !positionsData.asOfDate || tx.date > positionsData.asOfDate);
   const currentPositionRows = applyManualSalesToPositions(positionsData.positions, currentPositionTransactions, positionsData.asOfDate);
   const fifo = _reconstructFifo(dedupedTransactions, state.taxYear, currentPositionRows);
-  const positions = buildPositions(currentPositionRows, fifo.lotsByTicker, positionsData.asOfDate);
+  const positions = buildPositions(currentPositionRows, fifo.lotsByTicker, getTodayDate());
   const realizedSales = mergeConfirmations(fifo.realizedSales, state.saleConfirmations);
   const attentionItems = buildAttentionItems(realizedSales);
   const planner = computePlanner({ taxYear: state.taxYear, plannerInputs: state.planner, realizedSales });
@@ -1075,4 +1083,5 @@ module.exports = {
   _sanitizeManualTransactions: sanitizeManualTransactions,
   _applyManualSalesToPositions: applyManualSalesToPositions,
   _computePlanner: computePlanner,
+  _buildPositions: buildPositions,
 };

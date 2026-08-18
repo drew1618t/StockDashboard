@@ -118,6 +118,22 @@ test('a transaction source file still resolves to itself', { skip: fs.existsSync
   assert.deepEqual(taxStore._listTransactionCsvFiles(path.join(__dirname, 'no-such-path.csv')), []);
 });
 
+test('current lot term follows today, not the positions snapshot date', () => {
+  // A lot bought just over a year ago, held through a much older positions export.
+  const lots = { IREN: [{ acquiredDate: '2025-08-11', quantity: 1288, unitCost: 18.05, costBasis: 23245.95 }] };
+  const rows = [{ ticker: 'IREN', quantity: 1288, marketValue: 50644.16, costBasis: 23245.95, price: 39.32 }];
+
+  const stale = taxStore._buildPositions(rows, lots, '2026-04-13');
+  assert.equal(stale[0].lots[0].holdingTerm, 'short', 'short as of the stale snapshot date');
+
+  const current = taxStore._buildPositions(rows, lots, '2026-08-18');
+  assert.equal(current[0].lots[0].holdingTerm, 'long', 'long once the lot crosses one year');
+  assert.equal(current[0].holdingTerm, 'long');
+  assert.equal(current[0].longQuantity, 1288);
+  assert.equal(current[0].shortQuantity, 0);
+  assert.equal(current[0].nextLongTermDate, null, 'nothing left waiting to season');
+});
+
 test('reconstructs FIFO open lots for current positions', { skip: SOURCE_FILE_SKIP }, async () => {
   const positions = taxStore._parsePositionsCsv(fs.readFileSync(POSITIONS_PATH, 'utf-8')).positions;
   const transactions = taxStore._parseTransactionsText(await extractTransactionText());
