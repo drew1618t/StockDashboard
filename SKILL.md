@@ -1,34 +1,41 @@
 ---
 name: drew-design-preferences
-description: Collaborative, staged frontend design exploration workflow for Drew. Use for non-trivial requests to design, redesign, or style a website, page, component, UI, layout, or frontend copy. Require approval through style constraints, concept count, written briefs, and static demos before editing real components.
+description: Explore and approve frontend designs with Drew through visual constraints, distinct briefs, and verified static demos before editing real components. Use for non-trivial requests to design, redesign, or style a website, page, component, UI, layout, or frontend copy. Do not use for disposable utility HTML created only to inspect or compare information.
 ---
 
 # Drew's Collaborative Design Exploration
 
 Use this staged design workflow for non-trivial visual, layout, or frontend copy
-changes. Never skip a stage. Never write demo code before Stage 5, and never
-edit real components until Drew approves a winning direction.
+changes. Start at the earliest unresolved stage. Treat explicit decisions in
+the current conversation as completed inputs, but preserve every remaining
+approval gate. Do not write demo code before Stage 5 or edit real components
+until Drew approves a winning direction.
+
+## Out of scope: disposable utility HTML
+
+Skip this entire workflow when Drew asks for a throwaway HTML page to look at
+or compare something (e.g. "make an HTML viewer for X," "give me an HTML page
+comparing Y") rather than to design or ship a real UI. Apply the standing
+global visual defaults directly and build the page immediately, with no stages,
+questions, or approval gates.
+
+If Drew asks to iterate on it as a real design afterward, switch into the
+staged workflow from Stage 1.
 
 ## Stage 1: Confirm the visual direction
 
 ### Step 1A: Standing defaults
 
-Start by restating these defaults:
-
-- Dark mode
-- True black (#000) background
-- White primary text
-- Information-dense layouts
-- No decorative card or pill chrome
-- Minimal copy
-- No em dashes
-
-Ask whether to keep all defaults for this project. Drew may explicitly override
-one for a specific project; do not infer an exception. Wait for his response.
+Read the standing visual defaults from the current global instructions and any
+project-specific design rules. Summarize the active defaults and explicit
+overrides already supplied. Ask only about unresolved exceptions. This step is
+complete when every standing default is accepted or explicitly overridden for
+the current project.
 
 ### Step 1B: Additional banned styles
 
-Ask which additional aesthetics to exclude:
+If the current conversation does not resolve the bans, ask which additional
+aesthetics to exclude:
 
 - Retro or vintage
 - Terminal, command-line, or hacker
@@ -42,11 +49,13 @@ Ask which additional aesthetics to exclude:
 - Corporate, safe, or bland
 - Skeuomorphic textures or materials
 
-Allow "Ban all," any subset, or free-form additions. Wait for his response.
+Allow "Ban all," any subset, or free-form additions. Wait only when the bans
+remain unresolved. This step is complete when the active bans are explicit.
 
 ### Step 1C: Inspiration styles
 
-Ask which directions should guide the work:
+If the current conversation does not supply a direction, ask which styles
+should guide the work:
 
 - Clean, modern, and minimal
 - Luxury, refined, and editorial
@@ -60,7 +69,8 @@ Ask which directions should guide the work:
 - Playful and graphic
 
 Apply every inspiration within the confirmed defaults and bans. Add free-form
-styles Drew names. Wait for his response.
+styles Drew names. Wait only when the direction remains unresolved. This step
+is complete when at least one direction is explicit.
 
 ## Stage 2: Agree on the concept count
 
@@ -71,15 +81,21 @@ Recommend a count based on the brief:
 - Deep iteration after demos: 2 or 3
 - Very specific or nearly finished idea: 2
 
-Say: "I'd suggest X concepts. How many would you like?"
+If Drew already chose a count, use it. Otherwise say: "I'd suggest X concepts.
+How many would you like?"
 
 If Drew chooses more than five, explain that the concepts may become repetitive
-and ask whether he still wants the higher count. Wait for confirmation.
+and ask whether he still wants the higher count. This stage is complete when
+the count is explicit and any above-five warning is resolved.
 
 ## Stage 3: Write design briefs without code
 
 Write the agreed number of distinct briefs. Do not write HTML, CSS, JavaScript,
 or implementation code.
+
+Inspect only enough of the current interface to identify its content,
+structure, design constraints, and reusable assets. Stop researching when each
+brief can be grounded in those facts.
 
 Include in each brief:
 
@@ -89,7 +105,8 @@ Include in each brief:
 4. Three to five palette colors with hex codes and uses
 5. Layout and grid approach
 6. One memorable detail
-7. A constraint check covering the confirmed defaults and banned styles
+7. Any constraint conflict, risk, or intentional exception. Omit this item when
+   none exists.
 
 Present all briefs together. Then review them sequentially, starting with
 Concept 1. Ask Drew to approve it, revise it, or replace it.
@@ -113,8 +130,13 @@ Build one realistic static demo for each approved concept.
 - Follow the approved brief precisely.
 - If an approved font uses a remote CDN, include sensible local fallbacks.
 - Do not edit real application components.
+- Render and inspect each demo at desktop and narrow viewport sizes.
+- Resolve visible layout errors and material differences from the approved
+  brief before presenting the demo.
 
-After building all demos, present them and stop for Drew to choose a winner.
+This stage is complete when every demo renders correctly at both viewport sizes
+and materially matches its approved brief. Present all demos and stop for Drew
+to choose a winner.
 
 ## Stage 6: Choose and refine the winner
 
@@ -126,11 +148,14 @@ For deep iteration, ask what worked, what did not, and what to borrow from other
 concepts. Return to Stage 2 with a smaller concept count.
 
 After Drew approves the final demo, wait for explicit permission before
-implementing it in real components.
+implementing it in real components. Once authorized, implement the approved
+direction, run the project's relevant tests, and inspect the real interface at
+desktop and narrow viewport sizes. The workflow is complete when the
+implementation materially matches the approved demo and proportional
+validation passes.
 
 ## General rules
 
-- Treat the global visual constraints as defaults and ask about exceptions.
 - Never assume approval.
 - Respect confirmed bans without subtle exceptions.
 - Use inspiration as direction, not a checklist.
