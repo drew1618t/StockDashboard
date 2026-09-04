@@ -645,8 +645,11 @@ const PigeonApp = {
     const helper = weights.length < 2
       ? `<p class="muted small">Add another weight to draw a trend.</p>`
       : `<p class="muted small">Latest: ${this.esc(latest.weight_grams)}g on ${this.esc(latest.weight_date)}</p>`;
-    const rows = weights.length
-      ? weights.slice().reverse().map(weight => `
+    // Newest first. Only the latest few show by default; the rest sit in a
+    // hidden block the user can expand so long histories stay scannable.
+    const VISIBLE_WEIGHTS = 10;
+    const newestFirst = weights.slice().reverse();
+    const rowHtml = weight => `
         <div class="weight-row">
           <div>
             <strong>${this.esc(weight.weight_grams)}g</strong>
@@ -655,7 +658,14 @@ const PigeonApp = {
           </div>
           ${weight.source === 'log' ? `<button class="danger" type="button" data-action="delete-weight" data-weight-id="${Number(weight.id)}">Delete</button>` : ''}
         </div>
-      `).join('')
+      `;
+    const hiddenCount = Math.max(0, newestFirst.length - VISIBLE_WEIGHTS);
+    const rows = weights.length
+      ? newestFirst.slice(0, VISIBLE_WEIGHTS).map(rowHtml).join('')
+        + (hiddenCount
+          ? `<div class="weight-more" hidden>${newestFirst.slice(VISIBLE_WEIGHTS).map(rowHtml).join('')}</div>
+             <button class="ghost weight-toggle" type="button" data-action="toggle-weights" data-more-count="${hiddenCount}">Show ${hiddenCount} more</button>`
+          : '')
       : '<div class="panel muted">No weights yet.</div>';
 
     return `
@@ -669,6 +679,16 @@ const PigeonApp = {
         </form>
         <div class="weight-list">${rows}</div>
       </section>`;
+  },
+
+  // Expand or collapse the older weight rows hidden past the first ten.
+  toggleWeights(button) {
+    const list = button.closest('.weight-list');
+    const more = list && list.querySelector('.weight-more');
+    if (!more) return;
+    const showing = more.hidden;
+    more.hidden = !showing;
+    button.textContent = showing ? 'Show fewer' : `Show ${button.dataset.moreCount} more`;
   },
 
   dateOnlyToDayNumber(value) {
@@ -1276,6 +1296,7 @@ document.addEventListener('click', event => {
   if (action === 'cancel-note-edit') PigeonApp.cancelNoteEdit();
   if (action === 'delete-note') PigeonApp.deleteNote(target.dataset.noteId);
   if (action === 'delete-weight') PigeonApp.deleteWeight(target.dataset.weightId);
+  if (action === 'toggle-weights') PigeonApp.toggleWeights(target);
   if (action === 'edit-egg-cycle') PigeonApp.startEditEggCycle(target.dataset.cycleId);
   if (action === 'cancel-egg-cycle-edit') PigeonApp.cancelEggCycleEdit();
   if (action === 'delete-egg-cycle') PigeonApp.deleteEggCycle(target.dataset.cycleId);

@@ -926,6 +926,13 @@ img.bird-photo { object-fit: cover; display: block; }
   flex-shrink: 0;
 }
 
+.weight-toggle {
+  justify-self: start;
+  margin-top: 6px;
+  padding: 4px 8px;
+  color: var(--muted);
+}
+
 .weight-source {
   display: inline-flex;
   margin-left: 6px;
