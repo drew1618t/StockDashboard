@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dovecote Columns - Family Hub</title>
+<style>
+  /* Outfit and Source Sans 3 are self-hosted variable fonts in the project. */
+  @font-face { font-family: 'Outfit'; font-weight: 100 900; src: url('../../public/fonts/outfit-400.woff2') format('woff2'); font-display: swap; }
+  @font-face { font-family: 'Source Sans 3'; font-weight: 200 900; src: url('../../public/fonts/source-sans-3-400.woff2') format('woff2'); font-display: swap; }
+
+  :root {
+    --shell: #EBE7DC;
+    --paper: #FFFFF7;
+    --ink: #263F35;
+    --leaf: #2F7D52;
+    --blue: #007D99;
+    --brick: #B84632;
+    --rule: rgba(38, 63, 53, 0.14);
+    --rule-dark: rgba(38, 63, 53, 0.3);
+    --muted: rgba(38, 63, 53, 0.55);
+    --display: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+    --sans: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--shell); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+  a { color: inherit; text-decoration: none; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+
+  /* One paper sheet holds the whole hub. */
+  .sheet { width: min(1280px, 100%); margin: 0 auto; min-height: 100vh; background: var(--paper); padding: 0 0 56px; }
+
+  /* Top row: greeting on the left, nav on the right, on one baseline. */
+  .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; padding: 30px 40px 22px; border-bottom: 1px solid var(--ink); }
+  .top h1 { font-family: var(--display); font-weight: 300; font-size: clamp(1.8rem, 3.2vw, 2.6rem); letter-spacing: -0.02em; line-height: 1; }
+  .top h1 b { font-weight: 500; }
+  .top .date { font-family: var(--display); font-weight: 400; font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+  .top nav { display: flex; gap: 20px; font-size: 0.82rem; color: var(--muted); }
+  .top nav a { transition: color .2s; padding-bottom: 2px; border-bottom: 1px solid transparent; }
+  .top nav a:hover { color: var(--ink); border-color: var(--ink); }
+
+  /* Four columns separated by hairlines. Each column heads with its numeral. */
+  .cols { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .col { padding: 26px 26px 30px; border-right: 1px solid var(--rule); position: relative; transition: background .3s; }
+  .col:last-child { border-right: 0; }
+  .col:first-child { padding-left: 40px; }
+  .col:last-child { padding-right: 40px; }
+  .col:hover { background: rgba(38,63,53,.02); }
+
+  .numeral { font-family: var(--display); font-weight: 200; font-size: 76px; line-height: .9; letter-spacing: -0.04em; color: var(--ink); display: block; }
+  .col.today .numeral { color: var(--leaf); }
+  .col.today.overdue .numeral { color: var(--brick); }
+  .col.people .numeral { color: var(--blue); }
+  .label { display: flex; justify-content: space-between; align-items: baseline; font-family: var(--display); font-weight: 500; font-size: 0.86rem; letter-spacing: 0.12em; text-transform: uppercase; margin: 8px 0 18px; padding-bottom: 8px; border-bottom: 1px solid var(--ink); }
+  .label small { font-family: var(--sans); font-weight: 400; letter-spacing: 0.02em; text-transform: none; color: var(--muted); font-size: 0.82rem; }
+
+  /* Today column. */
+  .med { padding: 8px 0; border-bottom: 1px solid var(--rule); font-size: 0.95rem; display: flex; justify-content: space-between; gap: 10px; }
+  .med small { color: var(--muted); }
+  .med.over { color: var(--brick); }
+  .med.over small { color: var(--brick); }
+  .linkrow { display: flex; gap: 16px; margin-top: 12px; font-size: 0.86rem; }
+  .linkrow a { border-bottom: 1px solid var(--rule-dark); transition: border-color .2s; }
+  .linkrow a:hover { border-color: var(--ink); }
+  .cams { margin-top: 26px; }
+  .cams .label { border-bottom-color: var(--rule); }
+  .cam { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--rule); font-size: 0.9rem; }
+  .cam .thumb { width: 44px; height: 30px; border-radius: 2px; background: linear-gradient(150deg, rgba(38,63,53,.16), rgba(38,63,53,.05)); flex: none; }
+  .cam i { margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: var(--leaf); animation: pulse 2.2s ease-in-out infinite; }
+  .cam.off i { background: var(--rule-dark); animation: none; }
+  @keyframes pulse { 0%,100% { transform: scale(.8); opacity: .5 } 50% { transform: scale(1.15); opacity: 1 } }
+
+  /* People column. */
+  .person { display: block; padding: 14px 0; border-bottom: 1px solid var(--rule); transition: padding-left .25s; }
+  .person:hover { padding-left: 6px; }
+  .person svg { width: 44px; height: 44px; display: block; margin-bottom: 8px; }
+  .person .heart { fill: none; stroke: var(--blue); stroke-width: 2.2; }
+  .person .cross { fill: var(--blue); }
+  .person b { font-family: var(--display); font-weight: 500; font-size: 1.25rem; display: block; }
+  .person span { font-size: 0.86rem; color: var(--muted); }
+  .person .go { display: inline-block; margin-top: 6px; font-size: 0.82rem; color: var(--blue); border-bottom: 1px solid rgba(0,125,153,.4); }
+
+  /* Tasks column. */
+  .sub { font-family: var(--display); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 16px 0 4px; }
+  .sub:first-of-type { margin-top: 0; }
+  .cat { font-size: 0.8rem; color: var(--muted); margin: 8px 0 0; font-style: italic; }
+  .task { display: grid; grid-template-columns: 16px 1fr auto; gap: 10px; align-items: start; padding: 7px 0; border-bottom: 1px solid var(--rule); font-size: 0.94rem; }
+  .box { width: 14px; height: 14px; margin-top: 4px; border: 1.5px solid var(--rule-dark); border-radius: 2px; background: none; cursor: pointer; position: relative; transition: background .2s, border-color .2s; }
+  .box::after { content: ''; position: absolute; left: 3.5px; top: 0px; width: 4px; height: 8px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg) scale(0); transition: transform .2s cubic-bezier(.3,1.6,.5,1); }
+  .task.done .box { background: var(--leaf); border-color: var(--leaf); }
+  .task.done .box::after { transform: rotate(45deg) scale(1); }
+  .task .t { position: relative; }
+  .task .t::after { content: ''; position: absolute; left: 0; top: 55%; height: 1.5px; width: 0; background: var(--leaf); transition: width .35s ease; }
+  .task.done .t { color: var(--muted); }
+  .task.done .t::after { width: 100%; }
+  .task small { display: block; color: var(--muted); font-size: 0.8rem; }
+  .who { font-family: var(--display); font-size: 0.7rem; letter-spacing: 0.1em; color: var(--muted); margin-top: 3px; }
+  .who.a { color: var(--leaf); } .who.k { color: var(--blue); }
+  .add { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 14px; }
+  .add input { height: 36px; border: 0; border-bottom: 1.5px solid var(--rule-dark); background: transparent; padding: 0; }
+  .add input:focus { outline: none; border-color: var(--ink); }
+  .add .r { display: flex; gap: 8px; }
+  .add select, .add button { height: 34px; padding: 0 10px; border: 1px solid var(--rule-dark); border-radius: 3px; background: transparent; flex: 1; }
+  .add button { background: var(--ink); color: var(--paper); border-color: transparent; cursor: pointer; font-weight: 600; flex: 0 0 auto; padding: 0 16px; }
+
+  /* Board column. */
+  .note { padding: 12px 0; border-bottom: 1px solid var(--rule); }
+  .note p { font-size: 0.98rem; line-height: 1.4; }
+  .note .by { display: block; margin-top: 5px; font-family: var(--display); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .pinadd { margin-top: 14px; }
+  .pinadd textarea { width: 100%; min-height: 70px; padding: 8px 0; border: 0; border-bottom: 1.5px solid var(--rule-dark); background: transparent; resize: vertical; }
+  .pinadd textarea:focus { outline: none; border-color: var(--ink); }
+  .pinadd .r { display: flex; gap: 8px; margin-top: 8px; }
+  .pinadd select, .pinadd button { height: 34px; padding: 0 10px; border: 1px solid var(--rule-dark); border-radius: 3px; background: transparent; flex: 1; }
+  .pinadd button { cursor: pointer; font-weight: 600; flex: 0 0 auto; padding: 0 16px; }
+
+  /* Focus mode on phones: tap a numeral to expand its column and collapse the rest. */
+  .focus-hint { display: none; }
+  @media (max-width: 1000px) {
+    .cols { grid-template-columns: 1fr 1fr; }
+    .col:nth-child(2) { border-right: 0; }
+    .col:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
+    .col:first-child, .col:last-child { padding-left: 26px; padding-right: 26px; }
+    .col:nth-child(3) { padding-left: 40px; }
+    .col:nth-child(2) { padding-right: 40px; }
+  }
+  @media (max-width: 640px) {
+    .top { flex-direction: column; align-items: flex-start; padding: 22px 20px 16px; gap: 14px; }
+    .top nav { flex-wrap: wrap; gap: 12px; }
+    .cols { grid-template-columns: 1fr; }
+    .col, .col:first-child, .col:last-child, .col:nth-child(2), .col:nth-child(3) { padding: 14px 20px; border-right: 0; border-bottom: 1px solid var(--rule); }
+    .col .head { display: flex; align-items: baseline; gap: 12px; cursor: pointer; }
+    .numeral { font-size: 42px; }
+    .label { flex: 1; margin: 0; }
+    .col .body { max-height: 0; overflow: hidden; opacity: 0; transition: max-height .45s ease, opacity .3s ease, margin .3s; }
+    .col.open .body { max-height: 2000px; opacity: 1; margin-top: 16px; }
+    .focus-hint { display: block; padding: 10px 20px 0; font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="top">
+    <div>
+      <h1>Good evening, <b>Andrew</b>.</h1>
+      <div class="date">Friday, September 4</div>
+    </div>
+    <nav>
+      <a href="#">Home</a><a href="#">Stock Dashboard</a><a href="#">Investments</a><a href="#">Projects</a><a href="#">Animals</a>
+    </nav>
+  </div>
+
+  <div class="focus-hint">Tap a number to open that column</div>
+
+  <div class="cols">
+    <div class="col today overdue open">
+      <div class="head">
+        <span class="numeral" data-count="2">0</span>
+        <div class="label">Today <small>1 overdue</small></div>
+      </div>
+      <div class="body">
+        <div class="med over"><span>Loft 3, electrolytes</span><small>overdue</small></div>
+        <div class="med"><span>Juniper, evening dose</span><small>7 pm</small></div>
+        <div class="med"><span>Pepper, joint supplement</span><small>any</small></div>
+        <div class="linkrow"><a href="#">Pets</a><a href="#">Pigeons</a><a href="#">Medication check</a></div>
+        <div class="cams">
+          <div class="label">Cameras <small>2 live</small></div>
+          <div class="cam"><span class="thumb"></span>Front door<i></i></div>
+          <div class="cam"><span class="thumb"></span>Backyard<i></i></div>
+          <div class="cam off"><span class="thumb"></span>Garage<i></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col people">
+      <div class="head">
+        <span class="numeral" data-count="2">0</span>
+        <div class="label">People <small>health</small></div>
+      </div>
+      <div class="body">
+        <a class="person" href="#"><svg viewBox="0 0 64 64"><path class="heart" d="M32 54c-1.4 0-2.7-.5-3.8-1.4C18.5 44.7 10 36.8 10 26.9 10 19.8 15.7 14 22.8 14c3.7 0 7.2 1.7 9.2 4.5 2-2.8 5.5-4.5 9.2-4.5C48.3 14 54 19.8 54 26.9c0 9.9-8.5 17.8-18.2 25.7-1.1.9-2.4 1.4-3.8 1.4Z"/><path class="cross" d="M35.5 23.5v7h7v3h-7v7h-3v-7h-7v-3h7v-7h3Z"/></svg><b>Andrew</b><span>Notes, appointments, imaging, records</span><br><span class="go">Open health</span></a>
+        <a class="person" href="#"><svg viewBox="0 0 64 64"><path class="heart" d="M32 54c-1.4 0-2.7-.5-3.8-1.4C18.5 44.7 10 36.8 10 26.9 10 19.8 15.7 14 22.8 14c3.7 0 7.2 1.7 9.2 4.5 2-2.8 5.5-4.5 9.2-4.5C48.3 14 54 19.8 54 26.9c0 9.9-8.5 17.8-18.2 25.7-1.1.9-2.4 1.4-3.8 1.4Z"/><path class="cross" d="M35.5 23.5v7h7v3h-7v7h-3v-7h-7v-3h7v-7h3Z"/></svg><b>Kaili</b><span>Notes, appointments, imaging, records</span><br><span class="go">Open health</span></a>
+      </div>
+    </div>
+
+    <div class="col tasks">
+      <div class="head">
+        <span class="numeral" data-count="13">0</span>
+        <div class="label">Tasks <small>4 short, 9 long</small></div>
+      </div>
+      <div class="body">
+        <div class="sub">Short term</div>
+        <div class="task"><button class="box"></button><span class="t">Email SSDI</span><span class="who a">A</span></div>
+        <div class="task"><button class="box"></button><span class="t">Review Chapter 8</span><span class="who a">A</span></div>
+        <div class="task"><button class="box"></button><span class="t">Pick up pigeon feed</span><span class="who k">K</span></div>
+        <div class="task"><button class="box"></button><span class="t">Apply ant poison</span><span class="who a">A</span></div>
+        <div class="task"><button class="box"></button><span class="t">Put brighter light at gate</span><span class="who"></span></div>
+        <div class="sub">Long term</div>
+        <div class="cat">Housing</div>
+        <div class="task"><button class="box"></button><span class="t">Battery</span><span class="who a">A</span></div>
+        <div class="task"><button class="box"></button><span class="t">Well pump / filtration</span><span class="who a">A</span></div>
+        <div class="task"><button class="box"></button><span class="t">Kitchen remodel</span><span class="who k">K</span></div>
+        <div class="task"><button class="box"></button><span class="t">Security cameras<small>Next: define coverage zones</small></span><span class="who a">A</span></div>
+        <div class="cat">Network</div>
+        <div class="task"><button class="box"></button><span class="t">Storage</span><span class="who a">A</span></div>
+        <div class="task"><button class="box"></button><span class="t">Mini PC</span><span class="who a">A</span></div>
+        <div class="cat">Health / Data</div>
+        <div class="task"><button class="box"></button><span class="t">Medical records portal<small>Next: data model and auth</small></span><span class="who a">A</span></div>
+        <div class="sub">Recently completed</div>
+        <div class="task done"><button class="box"></button><span class="t">Order vet refill for Juniper</span><span class="who k">K</span></div>
+        <form class="add" onsubmit="return false;">
+          <input type="text" placeholder="Add a task..." />
+          <div class="r"><select><option>Short term</option><option>Long term</option></select><select><option>--</option><option>A</option><option>K</option></select><button>Add</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="col board">
+      <div class="head">
+        <span class="numeral" data-count="2">0</span>
+        <div class="label">Board <small>pinned</small></div>
+      </div>
+      <div class="body">
+        <div class="note"><p>Vet called. Juniper's bloodwork is fine, recheck in six months.</p><span class="by">Kaili &middot; yesterday</span></div>
+        <div class="note"><p>Gate light ordered, arrives Tuesday.</p><span class="by">Andrew &middot; 3 days ago</span></div>
+        <form class="pinadd" onsubmit="return false;">
+          <textarea placeholder="Add something for the family..."></textarea>
+          <div class="r"><select><option>Andrew</option><option>Kaili</option></select><button>Pin</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Count each column numeral up from zero on load, staggered left to right.
+  document.querySelectorAll('.numeral').forEach(function (el, i) {
+    var target = parseInt(el.getAttribute('data-count'), 10);
+    var start = null;
+    var dur = 700 + target * 20;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min(1, (ts - start) / dur);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(eased * target);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    setTimeout(function () { requestAnimationFrame(step); }, 120 + i * 140);
+  });
+
+  // On phones a tapped column head opens that column and closes the others.
+  var mq = window.matchMedia('(max-width: 640px)');
+  document.querySelectorAll('.col .head').forEach(function (head) {
+    head.addEventListener('click', function () {
+      if (!mq.matches) return;
+      var col = head.parentElement;
+      var wasOpen = col.classList.contains('open');
+      document.querySelectorAll('.col').forEach(function (c) { c.classList.remove('open'); });
+      if (!wasOpen) col.classList.add('open');
+    });
+  });
+
+  // Toggle done state to show the strike animation.
+  document.querySelectorAll('.box').forEach(function (b) {
+    b.addEventListener('click', function () { b.closest('.task').classList.toggle('done'); });
+  });
+</script>
+</body>
+</html>

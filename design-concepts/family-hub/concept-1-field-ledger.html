@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Ledger - Family Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* Source Sans 3 is self-hosted in the project. Lora comes from Google Fonts with Georgia as fallback. */
+  @font-face {
+    font-family: 'Source Sans 3';
+    font-weight: 200 900;
+    font-display: swap;
+    src: url('../../public/fonts/source-sans-3-400.woff2') format('woff2');
+  }
+
+  :root {
+    --parchment: #FFFFF5;
+    --aged: #F0EBE0;
+    --forest: #2D4A3E;
+    --leaf: #7A9E7E;
+    --brick: #BF5B3F;
+    --rule: rgba(45, 74, 62, 0.14);
+    --rule-dark: rgba(45, 74, 62, 0.32);
+    --muted: rgba(45, 74, 62, 0.58);
+    --serif: 'Lora', Georgia, 'Times New Roman', serif;
+    --sans: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--aged); }
+  body {
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--forest);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+
+  /* The whole hub is one sheet of parchment, like the pigeon and pet pages. */
+  .sheet {
+    width: min(1180px, 100%);
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 22px 40px 64px;
+    background: var(--parchment);
+    box-shadow: 0 0 40px rgba(45, 74, 62, 0.10);
+  }
+
+  /* Topbar: one line of small links, like the pets page. */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule-dark);
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .topbar nav { display: flex; gap: 18px; flex-wrap: wrap; }
+  .topbar nav a { transition: color .2s; }
+  .topbar nav a:hover { color: var(--forest); }
+  .topbar .kicker { font-family: var(--serif); font-style: italic; white-space: nowrap; }
+
+  /* Greeting: serif headline, small dateline. */
+  .greeting { padding: 34px 0 26px; display: flex; align-items: baseline; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .greeting h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(1.9rem, 3.4vw, 2.6rem); line-height: 1.1; letter-spacing: -0.01em; }
+  .greeting .dateline { font-size: 0.85rem; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+
+  /* Two-column ledger: tasks on the left, everything else on the right. */
+  .ledger {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 0 52px;
+    border-top: 2px solid var(--forest);
+  }
+  .col-left { border-right: 1px solid var(--rule); padding-right: 40px; }
+  .col-right { display: flex; flex-direction: column; }
+
+  section { padding: 22px 0 26px; }
+  .col-right section + section { border-top: 1px solid var(--rule); }
+
+  .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .head h2 { font-family: var(--serif); font-weight: 500; font-size: 1.2rem; }
+  .head .count { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .head .count b { color: var(--brick); font-weight: 600; }
+
+  /* Ledger rows. A narrow gutter on the left carries the check mark and the assignee stamp. */
+  .sub { margin: 18px 0 6px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .sub:first-child { margin-top: 0; }
+  .cat { margin: 12px 0 2px 56px; font-family: var(--serif); font-style: italic; font-size: 0.92rem; color: var(--muted); }
+  .row {
+    display: grid;
+    grid-template-columns: 22px 26px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    border-bottom: 1px solid var(--rule);
+    opacity: 0;
+    transform: translateY(4px);
+    animation: ink .45s ease forwards;
+  }
+  @keyframes ink { to { opacity: 1; transform: none; } }
+  .row:nth-child(1) { animation-delay: .02s }
+  .row:nth-child(2) { animation-delay: .06s }
+  .row:nth-child(3) { animation-delay: .10s }
+  .row:nth-child(4) { animation-delay: .14s }
+  .row:nth-child(5) { animation-delay: .18s }
+  .row:nth-child(6) { animation-delay: .22s }
+  .row:nth-child(7) { animation-delay: .26s }
+  .row:nth-child(8) { animation-delay: .30s }
+  .row:nth-child(n+9) { animation-delay: .34s }
+
+  .check {
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--rule-dark);
+    border-radius: 3px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    transition: border-color .2s, background .2s;
+  }
+  .check::after {
+    content: '';
+    position: absolute; left: 4px; top: 1px;
+    width: 5px; height: 9px;
+    border: solid #fff; border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform .2s cubic-bezier(.3,1.6,.5,1);
+  }
+  .row.done .check { background: var(--leaf); border-color: var(--leaf); }
+  .row.done .check::after { transform: rotate(45deg) scale(1); }
+
+  /* The stamp: assignee initial as an inked mark in the margin. */
+  .stamp {
+    width: 22px; height: 22px;
+    display: grid; place-items: center;
+    border: 1.5px solid var(--forest);
+    border-radius: 50%;
+    font-family: var(--serif);
+    font-size: 0.72rem; font-weight: 600;
+    color: var(--forest);
+    transform: rotate(-8deg);
+    transition: transform .25s cubic-bezier(.3,1.6,.5,1), background .2s, color .2s;
+  }
+  .stamp.k { border-color: var(--brick); color: var(--brick); transform: rotate(6deg); }
+  .stamp.none { border-style: dashed; border-color: var(--rule-dark); color: var(--muted); transform: none; }
+  .row:hover .stamp { transform: rotate(0) scale(1.08); }
+  .row.done .stamp { opacity: .55; }
+
+  .text { position: relative; display: inline-block; max-width: 100%; }
+  .text::after {
+    content: ''; position: absolute; left: 0; top: 55%;
+    height: 1.5px; width: 0; background: var(--leaf);
+    transition: width .35s ease;
+  }
+  .row.done .text { color: var(--leaf); }
+  .row.done .text::after { width: 100%; }
+  .note { display: block; font-size: 0.82rem; color: var(--muted); font-style: italic; }
+  .when { font-size: 0.74rem; color: var(--muted); letter-spacing: 0.04em; }
+
+  /* Add row: sits inline in the ledger as the next blank line. */
+  .add { display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; margin-top: 14px; }
+  .add input, .add select, .add button {
+    height: 36px; padding: 0 10px;
+    border: 1px solid var(--rule-dark); border-radius: 4px;
+    background: var(--aged);
+  }
+  .add input { background: transparent; border-color: transparent; border-bottom-color: var(--rule-dark); border-radius: 0; padding-left: 56px; }
+  .add input:focus { outline: none; border-bottom-color: var(--forest); }
+  .add button { background: var(--forest); color: #fff; border-color: transparent; cursor: pointer; padding: 0 16px; font-weight: 600; }
+
+  /* Health: two names, the heart mark, one link each. */
+  .people { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .person { display: flex; gap: 12px; align-items: center; padding: 6px 0; transition: transform .2s; }
+  .person:hover { transform: translateX(3px); }
+  .person svg { width: 34px; height: 34px; flex: none; }
+  .person .heart { fill: none; stroke: var(--forest); stroke-width: 2.5; }
+  .person .cross { fill: var(--brick); }
+  .person b { display: block; font-family: var(--serif); font-weight: 500; font-size: 1.05rem; }
+  .person span { font-size: 0.8rem; color: var(--muted); }
+
+  /* Animals: the due count is the whole story. */
+  .due { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: center; }
+  .due .n { font-family: var(--serif); font-size: 3rem; line-height: 1; color: var(--brick); font-weight: 500; }
+  .due p { font-size: 0.92rem; }
+  .due p small { display: block; color: var(--muted); font-size: 0.82rem; }
+  .links { display: flex; gap: 18px; margin-top: 12px; font-size: 0.86rem; }
+  .links a { border-bottom: 1px solid var(--rule-dark); padding-bottom: 1px; transition: border-color .2s; }
+  .links a:hover { border-color: var(--forest); }
+
+  /* Pinboard: each note is a ruled entry with a small pin dot. */
+  .pin { position: relative; padding: 8px 0 8px 18px; border-bottom: 1px solid var(--rule); }
+  .pin::before { content: ''; position: absolute; left: 2px; top: 15px; width: 7px; height: 7px; border-radius: 50%; background: var(--brick); }
+  .pin.a::before { background: var(--forest); }
+  .pin p { font-size: 0.95rem; }
+  .pin .by { font-size: 0.76rem; color: var(--muted); letter-spacing: 0.04em; }
+  .pinadd { margin-top: 12px; }
+  .pinadd textarea { width: 100%; min-height: 56px; padding: 8px 10px; border: 1px solid var(--rule-dark); border-radius: 4px; background: var(--aged); resize: vertical; }
+  .pinadd .ctl { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+  .pinadd select, .pinadd button { height: 34px; padding: 0 12px; border: 1px solid var(--rule-dark); border-radius: 4px; background: transparent; }
+  .pinadd button { cursor: pointer; font-weight: 600; }
+
+  /* Cameras: three thumbnails with a live dot that breathes. */
+  .cams { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .cam { aspect-ratio: 4/3; background: var(--aged); border: 1px solid var(--rule); border-radius: 4px; position: relative; padding: 8px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+  .cam::before { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(45,74,62,.05), transparent 60%); }
+  .cam span { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .cam i { position: absolute; top: 8px; right: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--leaf); animation: breathe 2.4s ease-in-out infinite; }
+  .cam.off i { background: var(--rule-dark); animation: none; }
+  @keyframes breathe { 0%,100% { opacity: .5; transform: scale(.85) } 50% { opacity: 1; transform: scale(1.1) } }
+
+  /* Narrow: single column, gutter kept. */
+  @media (max-width: 860px) {
+    .sheet { padding: 16px 18px 48px; }
+    .ledger { grid-template-columns: 1fr; gap: 0; }
+    .col-left { border-right: 0; padding-right: 0; border-bottom: 1px solid var(--rule-dark); }
+    .greeting { padding: 24px 0 18px; }
+    .add { grid-template-columns: 1fr 1fr; }
+    .add input { grid-column: 1 / -1; padding-left: 0; }
+    .people { grid-template-columns: 1fr; gap: 6px; }
+    .topbar nav { gap: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="topbar">
+    <span class="kicker">Taylor Family Hub</span>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Stock Dashboard</a>
+      <a href="#">Investments</a>
+      <a href="#">Projects</a>
+      <a href="#">Animals</a>
+    </nav>
+  </div>
+
+  <div class="greeting">
+    <h1>Good evening, Andrew.</h1>
+    <div class="dateline">Friday, September 4</div>
+  </div>
+
+  <div class="ledger">
+    <div class="col-left">
+      <section>
+        <div class="head"><h2>Tasks</h2><span class="count"><b>4</b> short term &middot; 9 long term</span></div>
+
+        <div class="sub">Short term</div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp">A</span><span class="text">Email SSDI</span><span class="when">Mar 21</span></div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp">A</span><span class="text">Review Chapter 8</span><span class="when">Mar 21</span></div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp k">K</span><span class="text">Pick up pigeon feed</span><span class="when">Sep 2</span></div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp">A</span><span class="text">Apply ant poison</span><span class="when">Mar 21</span></div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp none">&middot;</span><span class="text">Put brighter light at gate</span><span class="when">Mar 21</span></div>
+
+        <div class="sub">Long term</div>
+        <div class="cat">Housing</div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp">A</span><span class="text">Battery</span><span class="when"></span></div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp">A</span><span class="text">Well pump / filtration</span><span class="when"></span></div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp k">K</span><span class="text">Kitchen remodel</span><span class="when"></span></div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp">A</span><span class="text">Security cameras<span class="note">Next: define coverage zones (front door, driveway, backyard, garage)</span></span><span class="when">project</span></div>
+        <div class="cat">Network</div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp">A</span><span class="text">Storage</span><span class="when"></span></div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp">A</span><span class="text">Mini PC</span><span class="when"></span></div>
+        <div class="cat">Health / Data</div>
+        <div class="row"><button class="check" aria-label="done"></button><span class="stamp">A</span><span class="text">Medical records portal<span class="note">Next: define data model and auth approach</span></span><span class="when">project</span></div>
+
+        <div class="sub">Recently completed</div>
+        <div class="row done"><button class="check" aria-label="done"></button><span class="stamp k">K</span><span class="text">Order vet refill for Juniper</span><span class="when">Sep 1</span></div>
+        <div class="row done"><button class="check" aria-label="done"></button><span class="stamp">A</span><span class="text">Replace deck screen</span><span class="when">Aug 29</span></div>
+
+        <form class="add" onsubmit="return false;">
+          <input type="text" placeholder="Add a task..." />
+          <select><option>Short term</option><option>Long term</option></select>
+          <select><option>--</option><option>A</option><option>K</option></select>
+          <button>Add</button>
+        </form>
+      </section>
+    </div>
+
+    <div class="col-right">
+      <section>
+        <div class="head"><h2>Health</h2></div>
+        <div class="people">
+          <a class="person" href="#">
+            <svg viewBox="0 0 64 64"><path class="heart" d="M32 54c-1.4 0-2.7-.5-3.8-1.4C18.5 44.7 10 36.8 10 26.9 10 19.8 15.7 14 22.8 14c3.7 0 7.2 1.7 9.2 4.5 2-2.8 5.5-4.5 9.2-4.5C48.3 14 54 19.8 54 26.9c0 9.9-8.5 17.8-18.2 25.7-1.1.9-2.4 1.4-3.8 1.4Z"/><path class="cross" d="M35.5 23.5v7h7v3h-7v7h-3v-7h-7v-3h7v-7h3Z"/></svg>
+            <div><b>Andrew</b><span>Notes, appointments, records</span></div>
+          </a>
+          <a class="person" href="#">
+            <svg viewBox="0 0 64 64"><path class="heart" d="M32 54c-1.4 0-2.7-.5-3.8-1.4C18.5 44.7 10 36.8 10 26.9 10 19.8 15.7 14 22.8 14c3.7 0 7.2 1.7 9.2 4.5 2-2.8 5.5-4.5 9.2-4.5C48.3 14 54 19.8 54 26.9c0 9.9-8.5 17.8-18.2 25.7-1.1.9-2.4 1.4-3.8 1.4Z"/><path class="cross" d="M35.5 23.5v7h7v3h-7v7h-3v-7h-7v-3h7v-7h3Z"/></svg>
+            <div><b>Kaili</b><span>Notes, appointments, records</span></div>
+          </a>
+        </div>
+      </section>
+
+      <section>
+        <div class="head"><h2>Animals</h2><span class="count"><b>1</b> overdue</span></div>
+        <a class="due" href="#">
+          <span class="n">2</span>
+          <p>medications due today<small>Juniper (evening), Loft 3 (electrolytes)</small></p>
+        </a>
+        <div class="links"><a href="#">Pets</a><a href="#">Pigeons</a></div>
+      </section>
+
+      <section>
+        <div class="head"><h2>Pinboard</h2><span class="count">2 notes</span></div>
+        <div class="pin"><p>Vet called. Juniper's bloodwork is fine, recheck in six months.</p><span class="by">Kaili &middot; yesterday</span></div>
+        <div class="pin a"><p>Gate light ordered, arrives Tuesday.</p><span class="by">Andrew &middot; 3 days ago</span></div>
+        <form class="pinadd" onsubmit="return false;">
+          <textarea placeholder="Add something for the family..."></textarea>
+          <div class="ctl"><select><option>Andrew</option><option>Kaili</option></select><button>Pin</button></div>
+        </form>
+      </section>
+
+      <section>
+        <div class="head"><h2>Cameras</h2></div>
+        <div class="cams">
+          <div class="cam"><i></i><span>Front door</span></div>
+          <div class="cam"><i></i><span>Backyard</span></div>
+          <div class="cam off"><i></i><span>Garage</span></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Toggle a ledger row between open and done so the strike animation can be seen.
+  document.querySelectorAll('.check').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      btn.closest('.row').classList.toggle('done');
+    });
+  });
+</script>
+</body>
+</html>

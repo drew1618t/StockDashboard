@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Names - Family Hub</title>
+<style>
+  /* All three faces are self-hosted in the project. */
+  @font-face { font-family: 'Playfair Display'; font-style: italic; font-weight: 400; src: url('../../public/fonts/playfair-display-400-italic.woff2') format('woff2'); font-display: swap; }
+  @font-face { font-family: 'Playfair Display'; font-style: normal; font-weight: 400; src: url('../../public/fonts/playfair-display-400.woff2') format('woff2'); font-display: swap; }
+  @font-face { font-family: 'Source Sans 3'; font-weight: 200 900; src: url('../../public/fonts/source-sans-3-400.woff2') format('woff2'); font-display: swap; }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 400; src: url('../../public/fonts/jetbrains-mono-400.woff2') format('woff2'); font-display: swap; }
+
+  :root {
+    --paper: #FAF6EE;
+    --ink: #2A2A26;
+    --leaf: #2F7D52;
+    --blue: #007D99;
+    --amber: #946200;
+    --rule: rgba(42, 42, 38, 0.12);
+    --rule-dark: rgba(42, 42, 38, 0.3);
+    --muted: rgba(42, 42, 38, 0.55);
+    --display: 'Playfair Display', Georgia, serif;
+    --sans: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', Consolas, monospace;
+    --me: var(--leaf);
+    --them: var(--blue);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; min-height: 100vh; position: relative; overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+
+  /* Page edges tint toward whichever person's column is hovered. */
+  body::before, body::after { content: ''; position: fixed; top: 0; bottom: 0; width: 22vw; pointer-events: none; opacity: 0; transition: opacity .5s ease; z-index: 0; }
+  body::before { left: 0; background: linear-gradient(90deg, rgba(47,125,82,.10), transparent); }
+  body::after { right: 0; background: linear-gradient(270deg, rgba(0,125,153,.10), transparent); }
+  body.tint-a::before { opacity: 1; }
+  body.tint-k::after { opacity: 1; }
+
+  /* Wide cap so the three columns fill a large monitor. Gutters grow with the viewport. */
+  .wrap { position: relative; z-index: 1; width: min(1800px, 100%); margin: 0 auto; padding: 22px clamp(36px, 4vw, 96px) 64px; }
+
+  .top { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; font-size: 0.8rem; color: var(--muted); padding-bottom: 12px; border-bottom: 1px solid var(--rule-dark); }
+  .top .brand { font-family: var(--display); font-style: italic; font-size: 0.95rem; color: var(--ink); white-space: nowrap; }
+  .top nav { display: flex; gap: 18px; flex-wrap: wrap; }
+  .top nav a { transition: color .2s; }
+  .top nav a:hover { color: var(--ink); }
+  .top .date { font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.04em; }
+
+  /* Phone-only masthead and section eyebrows. Hidden on desktop. */
+  .masthead, .eyebrow { display: none; }
+
+  /* Three columns: me, spine, them. */
+  .cols { display: grid; grid-template-columns: 2fr 1.15fr 2fr; gap: 0 clamp(40px, 4vw, 72px); padding-top: 30px; }
+  .person-col { opacity: 0; animation: slide .7s cubic-bezier(.2,.8,.2,1) forwards; }
+  .person-col.me { --accent: var(--me); transform: translateX(-24px); animation-delay: .05s; }
+  .person-col.them { --accent: var(--them); transform: translateX(24px); animation-delay: .2s; }
+  @keyframes slide { to { opacity: 1; transform: none; } }
+  .spine { border-left: 1px solid var(--rule); border-right: 1px solid var(--rule); padding: 0 clamp(26px, 2.5vw, 44px); opacity: 0; animation: fade .8s ease .35s forwards; }
+  @keyframes fade { to { opacity: 1; } }
+
+  /* The names. The signed-in person's is large, the other's is smaller. */
+  .name { font-family: var(--display); font-style: italic; line-height: 1; color: var(--ink); letter-spacing: -0.01em; }
+  .me .name { font-size: clamp(2.6rem, 5vw, 4.4rem); }
+  .them .name { font-size: clamp(1.8rem, 3vw, 2.6rem); padding-top: 0.5em; }
+  .greet { font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .me .greet { color: var(--accent); }
+  .under { height: 2px; background: var(--accent); width: 0; margin: 14px 0 20px; animation: draw .8s ease .6s forwards; }
+  @keyframes draw { to { width: 100%; } }
+
+  /* Health link with the heart mark, per person. */
+  .health { display: flex; align-items: center; gap: 12px; padding: 10px 0 14px; border-bottom: 1px solid var(--rule); transition: transform .2s; }
+  .health:hover { transform: translateX(4px); }
+  .health svg { width: 36px; height: 36px; flex: none; }
+  .health .heart { fill: none; stroke: var(--accent); stroke-width: 2.4; }
+  .health .cross { fill: var(--accent); }
+  .health b { display: block; font-weight: 600; }
+  .health span { font-size: 0.82rem; color: var(--muted); }
+
+  .h { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 20px 0 6px; }
+  .h b { color: var(--accent); font-weight: 600; }
+
+  /* Task rows with a circular check and a strike that draws. */
+  .task { display: grid; grid-template-columns: 18px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+  .box { width: 16px; height: 16px; border: 1.5px solid var(--rule-dark); border-radius: 50%; background: none; cursor: pointer; position: relative; transition: background .2s, border-color .2s; }
+  .box::after { content: ''; position: absolute; inset: 3.5px; border-radius: 50%; background: #fff; transform: scale(0); transition: transform .25s cubic-bezier(.3,1.6,.5,1); }
+  .task.done .box { background: var(--accent); border-color: var(--accent); }
+  .task.done .box::after { transform: scale(1); }
+  .task .t { position: relative; }
+  .task .t::after { content: ''; position: absolute; left: 0; top: 55%; height: 1.5px; width: 0; background: var(--accent); transition: width .35s ease; }
+  .task.done .t { color: var(--muted); }
+  .task.done .t::after { width: 100%; }
+  .task small { display: block; color: var(--muted); font-size: 0.82rem; }
+  .task .d { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+  .cat { font-family: var(--display); font-style: italic; color: var(--muted); font-size: 0.9rem; margin: 10px 0 0 30px; }
+  .spine .task .box { border-radius: 2px; }
+  .spine .task.done .box { background: var(--amber); border-color: var(--amber); }
+  .spine .task .t::after { background: var(--amber); }
+
+  /* Spine content: shared household items. */
+  .spine .h b { color: var(--amber); }
+  .due { display: flex; align-items: baseline; gap: 12px; padding: 4px 0 8px; }
+  .due .n { font-family: var(--display); font-size: 3.4rem; line-height: 1; color: var(--amber); }
+  .due p { font-size: 0.92rem; line-height: 1.3; }
+  .due p small { display: block; color: var(--muted); font-size: 0.8rem; }
+  .med { display: flex; justify-content: space-between; padding: 6px 0; border-top: 1px solid var(--rule); font-size: 0.88rem; }
+  .med .d { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+  .med.over, .med.over .d { color: var(--amber); }
+  .links { display: flex; gap: 14px; margin-top: 10px; font-size: 0.84rem; }
+  .links a { border-bottom: 1px solid var(--rule-dark); }
+
+  .note { padding: 10px 0; border-bottom: 1px solid var(--rule); }
+  .note p { font-size: 0.95rem; }
+  .note .by { display: block; margin-top: 4px; font-family: var(--mono); font-size: 0.68rem; color: var(--muted); letter-spacing: 0.02em; }
+  .note.a .by { color: var(--leaf); } .note.k .by { color: var(--blue); }
+  .pinadd textarea { width: 100%; min-height: 60px; margin-top: 10px; padding: 8px 0; border: 0; border-bottom: 1.5px solid var(--rule-dark); background: transparent; resize: vertical; }
+  .pinadd textarea:focus { outline: none; border-color: var(--ink); }
+  .pinadd .r { display: flex; gap: 8px; margin-top: 8px; }
+  .pinadd select, .pinadd button { height: 32px; padding: 0 10px; border: 1px solid var(--rule-dark); border-radius: 3px; background: transparent; flex: 1; font-size: 0.88rem; }
+  .pinadd button { cursor: pointer; font-weight: 600; flex: 0 0 auto; }
+
+  .cams { display: grid; grid-template-columns: 1fr; gap: 6px; }
+  .cam { display: flex; align-items: center; justify-content: space-between; font-size: 0.86rem; padding: 7px 0; border-bottom: 1px solid var(--rule); }
+  .cam i { width: 7px; height: 7px; border-radius: 50%; background: var(--leaf); animation: pulse 2.2s ease-in-out infinite; }
+  .cam.off i { background: var(--rule-dark); animation: none; }
+  @keyframes pulse { 0%,100% { transform: scale(.8); opacity: .5 } 50% { transform: scale(1.15); opacity: 1 } }
+
+  /* One add form at the base of the spine. Assignee decides which column the task lands in. */
+  .add { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--ink); }
+  .add input { width: 100%; height: 36px; border: 0; border-bottom: 1.5px solid var(--rule-dark); background: transparent; padding: 0; }
+  .add input:focus { outline: none; border-color: var(--ink); }
+  .add .r { display: flex; gap: 8px; margin-top: 8px; }
+  .add select, .add button { height: 32px; padding: 0 8px; border: 1px solid var(--rule-dark); border-radius: 3px; background: transparent; flex: 1; font-size: 0.88rem; min-width: 0; }
+  .add button { background: var(--ink); color: var(--paper); border-color: transparent; cursor: pointer; font-weight: 600; flex: 0 0 auto; padding: 0 14px; }
+
+  /* ============================================================
+     Phone: a single sheet in Morning Sheet order.
+     The column wrappers dissolve (display: contents) so every block
+     becomes a grid item of .wrap and can be reordered. The two names
+     sit side by side and act as a switch for whose tasks show.
+     ============================================================ */
+  @media (max-width: 900px) {
+    body::before, body::after { display: none; }
+    .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; padding: 14px 18px 56px; }
+    .wrap > *, .person-tasks, .blk, .eyebrow, .masthead { grid-column: 1 / -1; }
+    .cols, .person-col, .spine { display: contents; }
+    .person-col, .spine { animation: none; opacity: 1; transform: none; }
+
+    .top { flex-wrap: wrap; }
+    .top nav { gap: 12px; }
+    .top .date { display: none; }
+
+    /* Masthead: dateline, greeting as headline, live status strip. */
+    .masthead { display: block; order: 1; padding: 26px 0 22px; }
+    .masthead .dateline { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+    .masthead h1 { font-family: var(--display); font-style: italic; font-weight: 400; font-size: 2.5rem; line-height: 1.05; letter-spacing: -0.01em; margin: 8px 0 14px; }
+    .masthead h1 .w { display: inline-block; opacity: 0; transform: translateY(8px); animation: rise .55s cubic-bezier(.2,.8,.2,1) forwards; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+    .strip { font-family: var(--display); font-size: 1.08rem; line-height: 1.45; }
+    .strip a { opacity: 0; animation: rise .5s ease forwards; }
+    .strip a:nth-child(1) { animation-delay: .35s; color: var(--amber); }
+    .strip a:nth-child(2) { animation-delay: .55s; }
+    .strip a:nth-child(3) { animation-delay: .75s; color: var(--muted); }
+
+    /* Numbered eyebrows, one per section, with a dark rule above. */
+    .eyebrow { display: flex; align-items: baseline; gap: 10px; padding: 18px 0 10px; border-top: 1px solid var(--ink); font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .eyebrow .no { font-family: var(--display); font-style: italic; font-size: 0.9rem; color: var(--ink); letter-spacing: 0; }
+    .eyebrow .sp { margin-left: auto; letter-spacing: 0.06em; }
+    .eyebrow.today { order: 10; }
+    .eyebrow.tasks { order: 20; }
+    .eyebrow.board { order: 30; }
+
+    /* 01 Today: animals on the left, cameras on the right. */
+    .blk.animals { order: 11; grid-column: 1; }
+    .blk.cameras { order: 11; grid-column: 2; }
+    .blk.animals .h:first-child { margin-top: 0; }
+    .blk.unassigned .h:first-child { margin-top: 26px; }
+    .blk.cameras .h { margin-top: 0; }
+    .cams { gap: 0; }
+
+    /* 02 Tasks: two names side by side, tap to switch. */
+    .person-head { order: 21; padding-bottom: 12px; cursor: pointer; }
+    .person-head.me { grid-column: 1; }
+    .person-head.them { grid-column: 2; }
+    .person-head .greet { display: none; }
+    .person-head .name { font-size: 2.1rem; padding-top: 0; color: var(--muted); transition: color .25s; }
+    .person-head .under { width: 100%; opacity: .25; animation: none; margin: 10px 0 12px; transition: opacity .25s; }
+    .person-head .health { border-bottom: 0; padding: 0; opacity: 0; max-height: 0; overflow: hidden; transition: opacity .25s, max-height .3s; }
+    .person-head .health svg { width: 26px; height: 26px; }
+    .person-head .health span { display: none; }
+    .person-head.on .name { color: var(--ink); }
+    .person-head.on .under { opacity: 1; }
+    .person-head.on .health { opacity: 1; max-height: 48px; }
+
+    .person-tasks { order: 22; display: none; }
+    .person-tasks.on { display: block; animation: rise .35s ease; }
+    .person-tasks .h:first-child { margin-top: 0; }
+    .blk.unassigned { order: 23; }
+
+    /* 03 Pinboard, then the add form. */
+    .blk.pinboard { order: 31; }
+    .blk.pinboard > .h:first-child { display: none; }
+    .blk.addtask { order: 40; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span class="brand">Taylor Family Hub</span>
+    <nav>
+      <a href="#">Home</a><a href="#">Stock Dashboard</a><a href="#">Investments</a><a href="#">Projects</a><a href="#">Animals</a>
+    </nav>
+    <span class="date">FRI 2026-09-04 &middot; 18:42</span>
+  </div>
+
+  <!-- Phone only. On desktop the greeting lives in the signed-in person's column. -->
+  <header class="masthead">
+    <div class="dateline">Friday, September 4</div>
+    <h1 id="headline">Good evening, Andrew.</h1>
+    <p class="strip">
+      <a href="#" data-go="today">2 meds due, 1 overdue.</a>
+      <a href="#" data-go="tasks">3 tasks for you, 1 for Kaili.</a>
+      <a href="#" data-go="board">2 notes pinned.</a>
+    </p>
+  </header>
+
+  <div class="eyebrow today"><span class="no">01</span> Today <span class="sp">Animals and cameras</span></div>
+  <div class="eyebrow tasks"><span class="no">02</span> Tasks <span class="sp">Tap a name</span></div>
+  <div class="eyebrow board"><span class="no">03</span> Pinboard</div>
+
+  <div class="cols">
+    <!-- Signed-in person: large name, their health, their tasks. -->
+    <div class="person-col me" data-who="a">
+      <div class="person-head me on" data-who="a">
+        <div class="greet">Good evening</div>
+        <div class="name">Andrew</div>
+        <div class="under"></div>
+        <a class="health" href="#"><svg viewBox="0 0 64 64"><path class="heart" d="M32 54c-1.4 0-2.7-.5-3.8-1.4C18.5 44.7 10 36.8 10 26.9 10 19.8 15.7 14 22.8 14c3.7 0 7.2 1.7 9.2 4.5 2-2.8 5.5-4.5 9.2-4.5C48.3 14 54 19.8 54 26.9c0 9.9-8.5 17.8-18.2 25.7-1.1.9-2.4 1.4-3.8 1.4Z"/><path class="cross" d="M35.5 23.5v7h7v3h-7v7h-3v-7h-7v-3h7v-7h3Z"/></svg><div><b>Health</b><span>Notes, appointments, imaging, records</span></div></a>
+      </div>
+      <div class="person-tasks me on" style="--accent: var(--me)">
+        <div class="h">Short term <b>3 open</b></div>
+        <div class="task"><button class="box"></button><span class="t">Email SSDI</span><span class="d">03-21</span></div>
+        <div class="task"><button class="box"></button><span class="t">Review Chapter 8</span><span class="d">03-21</span></div>
+        <div class="task"><button class="box"></button><span class="t">Apply ant poison</span><span class="d">03-21</span></div>
+        <div class="h">Long term <b>8 open</b></div>
+        <div class="cat">Housing</div>
+        <div class="task"><button class="box"></button><span class="t">Battery</span><span class="d"></span></div>
+        <div class="task"><button class="box"></button><span class="t">Well pump / filtration</span><span class="d"></span></div>
+        <div class="task"><button class="box"></button><span class="t">Security cameras<small>Next: define coverage zones (front door, driveway, backyard, garage)</small></span><span class="d">proj</span></div>
+        <div class="cat">Network</div>
+        <div class="task"><button class="box"></button><span class="t">Storage</span><span class="d"></span></div>
+        <div class="task"><button class="box"></button><span class="t">Mini PC</span><span class="d"></span></div>
+        <div class="cat">Health / Data</div>
+        <div class="task"><button class="box"></button><span class="t">Medical records portal<small>Next: define data model and auth approach</small></span><span class="d">proj</span></div>
+        <div class="h">Done <b>this week</b></div>
+        <div class="task done"><button class="box"></button><span class="t">Replace deck screen</span><span class="d">08-29</span></div>
+      </div>
+    </div>
+
+    <!-- The spine: shared household things. -->
+    <div class="spine">
+      <div class="blk animals">
+        <div class="h">Animals <b>1 overdue</b></div>
+        <a class="due" href="#"><span class="n">2</span><p>meds due today<small>tap for the check</small></p></a>
+        <div class="med over"><span>Loft 3, electrolytes</span><span class="d">OVERDUE</span></div>
+        <div class="med"><span>Juniper, evening</span><span class="d">19:00</span></div>
+        <div class="med"><span>Pepper, joint</span><span class="d">ANY</span></div>
+        <div class="links"><a href="#">Pets</a><a href="#">Pigeons</a></div>
+      </div>
+
+      <div class="blk pinboard">
+        <div class="h">Pinboard <b>2</b></div>
+        <div class="note k"><p>Vet called. Juniper's bloodwork is fine, recheck in six months.</p><span class="by">KAILI &middot; 09-03</span></div>
+        <div class="note a"><p>Gate light ordered, arrives Tuesday.</p><span class="by">ANDREW &middot; 09-01</span></div>
+        <form class="pinadd" onsubmit="return false;">
+          <textarea placeholder="Add something for the family..."></textarea>
+          <div class="r"><select><option>Andrew</option><option>Kaili</option></select><button>Pin</button></div>
+        </form>
+      </div>
+
+      <div class="blk unassigned">
+        <div class="h">Unassigned <b>1</b></div>
+        <div class="task"><button class="box"></button><span class="t">Put brighter light at gate</span><span class="d">03-21</span></div>
+      </div>
+
+      <div class="blk cameras">
+        <div class="h">Cameras <b>2 live</b></div>
+        <div class="cams">
+          <div class="cam"><span>Front door</span><i></i></div>
+          <div class="cam"><span>Backyard</span><i></i></div>
+          <div class="cam off"><span>Garage</span><i></i></div>
+        </div>
+      </div>
+
+      <form class="blk addtask add" onsubmit="return false;">
+        <input type="text" placeholder="Add a task..." />
+        <div class="r"><select><option>Short</option><option>Long</option></select><select><option>Anyone</option><option>Andrew</option><option>Kaili</option></select><button>Add</button></div>
+      </form>
+    </div>
+
+    <!-- The other person: smaller name, their health, their tasks. -->
+    <div class="person-col them" data-who="k">
+      <div class="person-head them" data-who="k">
+        <div class="greet">And</div>
+        <div class="name">Kaili</div>
+        <div class="under"></div>
+        <a class="health" href="#"><svg viewBox="0 0 64 64"><path class="heart" d="M32 54c-1.4 0-2.7-.5-3.8-1.4C18.5 44.7 10 36.8 10 26.9 10 19.8 15.7 14 22.8 14c3.7 0 7.2 1.7 9.2 4.5 2-2.8 5.5-4.5 9.2-4.5C48.3 14 54 19.8 54 26.9c0 9.9-8.5 17.8-18.2 25.7-1.1.9-2.4 1.4-3.8 1.4Z"/><path class="cross" d="M35.5 23.5v7h7v3h-7v7h-3v-7h-7v-3h7v-7h3Z"/></svg><div><b>Health</b><span>Notes, appointments, imaging, records</span></div></a>
+      </div>
+      <div class="person-tasks them" style="--accent: var(--them)">
+        <div class="h">Short term <b>1 open</b></div>
+        <div class="task"><button class="box"></button><span class="t">Pick up pigeon feed</span><span class="d">09-02</span></div>
+        <div class="h">Long term <b>1 open</b></div>
+        <div class="cat">Housing</div>
+        <div class="task"><button class="box"></button><span class="t">Kitchen remodel</span><span class="d"></span></div>
+        <div class="h">Done <b>this week</b></div>
+        <div class="task done"><button class="box"></button><span class="t">Order vet refill for Juniper</span><span class="d">09-01</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var phone = window.matchMedia('(max-width: 900px)');
+
+  // Hovering a person's column tints that page edge with their accent (desktop only).
+  document.querySelectorAll('.person-col').forEach(function (col) {
+    var cls = 'tint-' + col.getAttribute('data-who');
+    col.addEventListener('mouseenter', function () { if (!phone.matches) document.body.classList.add(cls); });
+    col.addEventListener('mouseleave', function () { document.body.classList.remove(cls); });
+  });
+
+  // On the phone, tapping a name switches whose tasks are shown.
+  document.querySelectorAll('.person-head').forEach(function (head) {
+    head.addEventListener('click', function (ev) {
+      if (!phone.matches) return;
+      if (ev.target.closest('.health')) return;
+      var who = head.getAttribute('data-who');
+      document.querySelectorAll('.person-head, .person-tasks').forEach(function (el) {
+        el.classList.toggle('on', el.classList.contains(who === 'a' ? 'me' : 'them'));
+      });
+    });
+  });
+
+  // Split the phone headline into words so each rises in sequence.
+  var h = document.getElementById('headline');
+  h.innerHTML = h.textContent.split(' ').map(function (w, i) {
+    return '<span class="w" style="animation-delay:' + (i * 0.08) + 's">' + w + '</span>';
+  }).join(' ');
+
+  // Status strip links scroll to their section eyebrow.
+  document.querySelectorAll('.strip a').forEach(function (a) {
+    a.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      document.querySelector('.eyebrow.' + a.getAttribute('data-go')).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Toggle done state to show the strike animation.
+  document.querySelectorAll('.box').forEach(function (b) {
+    b.addEventListener('click', function () { b.closest('.task').classList.toggle('done'); });
+  });
+</script>
+</body>
+</html>

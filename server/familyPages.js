@@ -6,24 +6,12 @@ const {
 } = require('./healthPageViews');
 const { escapeHtml } = require('./utils/html');
 
-function renderHubHealthCard(summary) {
-  if (!summary) return '';
-  return `<a class="health-person" href="/family/health/${escapeHtml(summary.slug)}">
-            <div class="person-name">
-              <span class="person-initial">${escapeHtml(summary.name.slice(0, 1))}</span> ${escapeHtml(summary.name)}
-            </div>
-            <div class="health-icon-wrap" aria-hidden="true">
-              <div class="health-icon">
-                <svg viewBox="0 0 64 64" role="presentation" focusable="false">
-                  <path class="health-icon-heart" d="M32 54c-1.4 0-2.7-.5-3.8-1.4C18.5 44.7 10 36.8 10 26.9 10 19.8 15.7 14 22.8 14c3.7 0 7.2 1.7 9.2 4.5 2-2.8 5.5-4.5 9.2-4.5C48.3 14 54 19.8 54 26.9c0 9.9-8.5 17.8-18.2 25.7-1.1.9-2.4 1.4-3.8 1.4Z"/>
-                  <path class="health-icon-cross" d="M35.5 23.5v7h7v3h-7v7h-3v-7h-7v-3h7v-7h3Z"/>
-                </svg>
-              </div>
-            </div>
-            <div class="health-cta">Open ${escapeHtml(summary.name)}'s Health</div>
-          </a>`;
-}
+const HEART_MARK = `<svg viewBox="0 0 64 64" role="presentation" focusable="false" aria-hidden="true">
+              <path class="heart" d="M32 54c-1.4 0-2.7-.5-3.8-1.4C18.5 44.7 10 36.8 10 26.9 10 19.8 15.7 14 22.8 14c3.7 0 7.2 1.7 9.2 4.5 2-2.8 5.5-4.5 9.2-4.5C48.3 14 54 19.8 54 26.9c0 9.9-8.5 17.8-18.2 25.7-1.1.9-2.4 1.4-3.8 1.4Z"/>
+              <path class="cross" d="M35.5 23.5v7h7v3h-7v7h-3v-7h-7v-3h7v-7h3Z"/>
+            </svg>`;
 
+// Map a login email to the family member's display name.
 function emailToName(email) {
   if (!email) return 'Andrew & Kaili';
   const prefix = email.split('@')[0].toLowerCase();
@@ -32,15 +20,39 @@ function emailToName(email) {
   return prefix.slice(0, 1).toUpperCase() + prefix.slice(1);
 }
 
+// The two people the hub is built around. `key` matches the todo assignee letters.
+function personFor(name) {
+  return name === 'Kaili'
+    ? { slug: 'kaili', name: 'Kaili', key: 'K' }
+    : { slug: 'andrew', name: 'Andrew', key: 'A' };
+}
+
+// One person's column: name, health link, and a container the browser script fills with their tasks.
+function renderPersonColumn(person, role, greetWord) {
+  const isMe = role === 'me';
+  return `<div class="person-col ${role}" data-who="${person.key}">
+        <div class="person-head ${role}${isMe ? ' on' : ''}" data-who="${person.key}">
+          <div class="greet"${isMe ? ' id="greet-word"' : ''}>${escapeHtml(greetWord)}</div>
+          <div class="name">${escapeHtml(person.name)}</div>
+          <div class="under"></div>
+          <a class="health" href="/family/health/${escapeHtml(person.slug)}">
+            ${HEART_MARK}
+            <div><b>Health</b><span>Notes, appointments, imaging, records</span></div>
+          </a>
+        </div>
+        <div class="person-tasks ${role}${isMe ? ' on' : ''}" id="tasks-${person.key}" data-who="${person.key}">
+          <div class="tasks-empty">Loading...</div>
+        </div>
+      </div>`;
+}
+
+// Family hub: the signed-in person on the left, shared household items in the spine, the other person on the right.
+// On phones the same markup reflows into a single sheet (see public/css/familyHub.css).
 function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = null) {
-  const andrewCard = renderHubHealthCard(healthSummaries.andrew || {
-    slug: 'andrew',
-    name: 'Andrew',
-  });
-  const kailiCard = renderHubHealthCard(healthSummaries.kaili || {
-    slug: 'kaili',
-    name: 'Kaili',
-  });
+  const me = personFor(emailToName(user?.email));
+  const them = me.key === 'A' ? personFor('Kaili') : personFor('Andrew');
+  const meName = (healthSummaries[me.slug] && healthSummaries[me.slug].name) || me.name;
+  const themName = (healthSummaries[them.slug] && healthSummaries[them.slug].name) || them.name;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -48,135 +60,110 @@ function renderFamilyHubPage(healthSummaries = {}, healthHubData = {}, user = nu
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Taylor Family Hub</title>
-  <script>
-    (function() {
-      var bs = localStorage.getItem('family-bento-scheme');
-      if (!bs) bs = 'peach';
-      document.documentElement.setAttribute('data-bento', bs);
-    })();
-  </script>
-  <link rel="stylesheet" href="/css/familyHub.css?v=1">
+  <link rel="stylesheet" href="/css/familyHub.css?v=2">
 </head>
 <body>
-  <!-- Color Scheme Picker -->
-  <div class="bento-palette">
-    <span class="palette-label">Palette</span>
-    <div class="bento-swatch" data-scheme="peach" title="Peach & Indigo" onclick="switchScheme('peach')"></div>
-    <div class="bento-swatch" data-scheme="sage" title="Sage & Rose" onclick="switchScheme('sage')"></div>
-    <div class="bento-swatch" data-scheme="midnight" title="Midnight & Gold" onclick="switchScheme('midnight')"></div>
-    <div class="bento-swatch" data-scheme="nordic" title="Nordic" onclick="switchScheme('nordic')"></div>
-  </div>
-
-  <div class="hub-wrap" data-user-name="${escapeHtml(emailToName(user?.email))}">
-    <!-- Navigation -->
-    <nav class="hub-nav">
+<div class="wrap" data-user-name="${escapeHtml(meName)}" data-me="${me.key}" data-them="${them.key}" data-them-name="${escapeHtml(themName)}">
+  <div class="top">
+    <span class="brand">Taylor Family Hub</span>
+    <nav>
       <a href="/">Home</a>
       <a href="/dashboard">Stock Dashboard</a>
       <a href="/dashboard#private">Investments</a>
       <a href="/projects">Projects</a>
       <a href="/family/animals">Animals</a>
     </nav>
-
-    <!-- Greeting -->
-    <div class="hub-greeting">
-      <span id="greeting-text">Good evening, ${escapeHtml(emailToName(user?.email))}.</span>
-      <span class="greeting-sub" id="greeting-sub"></span>
-    </div>
-
-    <!-- Main Grid -->
-    <main class="hub-grid">
-
-      <!-- CAMERAS -->
-      <section class="hub-cameras panel">
-        <div class="panel-label">Cameras</div>
-        <div class="cam-grid">
-          <div class="cam-feed">
-            <div class="cam-status"></div>
-            <span class="cam-icon">&#9706;</span>
-            <span class="cam-name">Front Door</span>
-          </div>
-          <div class="cam-feed">
-            <div class="cam-status"></div>
-            <span class="cam-icon">&#9706;</span>
-            <span class="cam-name">Backyard</span>
-          </div>
-          <div class="cam-feed">
-            <div class="cam-status"></div>
-            <span class="cam-icon">&#9706;</span>
-            <span class="cam-name">Garage</span>
-          </div>
-        </div>
-      </section>
-
-      <!-- HEALTH / MEDICAL -->
-      <section class="hub-health panel">
-        <div class="panel-label">Health</div>
-        <div class="health-grid">
-          ${andrewCard}
-          ${kailiCard}
-        </div>
-      </section>
-
-      <!-- ANIMALS -->
-      <section class="hub-animals panel">
-        <div class="panel-label">Animals <span style="opacity:0.45; font-weight:400; margin-left:8px; font-size:10px;" id="animal-med-count"></span></div>
-        <a class="animal-hub-card" href="/family/animals">
-          <div>
-            <strong>Medication Check</strong>
-            <span>Pets and pigeons due today</span>
-          </div>
-          <div class="animal-hub-count" id="animal-due-count">--</div>
-        </a>
-        <div class="animal-hub-links">
-          <a href="/family/animals/pets">Pets</a>
-          <a href="/family/animals/pigeons">Pigeons</a>
-        </div>
-      </section>
-
-      <!-- TODOS -->
-      <section class="hub-todos panel">
-        <div class="panel-label">Todos <span style="opacity:0.4; font-weight:400; margin-left:8px; font-size:10px;" id="todo-count"></span></div>
-        <div class="todo-sections" id="todo-sections"></div>
-        <div class="todo-add">
-          <input type="text" id="todo-input" placeholder="Add a task..." />
-          <select id="todo-section">
-            <option value="Short Term">Short Term</option>
-            <option value="Long Term">Long Term</option>
-          </select>
-          <select id="todo-category" style="display:none;">
-          </select>
-          <select id="todo-assignee">
-            <option value="">--</option>
-            <option value="A">A</option>
-            <option value="K">K</option>
-          </select>
-          <button onclick="addTodo()">Add</button>
-        </div>
-      </section>
-
-      <!-- SHARED NOTES / PINBOARD -->
-      <section class="hub-notes panel">
-        <div class="panel-label">Pinboard</div>
-        <div class="notes-list" id="pinboard-list">
-          <div class="notes-empty">Loading pinboard...</div>
-        </div>
-        <div class="note-add">
-          <textarea id="pinboard-input" placeholder="Add something for the family..."></textarea>
-          <div class="note-add-controls">
-            <select id="pinboard-author">
-              <option value="Andrew">Andrew</option>
-              <option value="Kaili">Kaili</option>
-            </select>
-            <button onclick="addPinboardNote()">Add New</button>
-          </div>
-        </div>
-      </section>
-
-    </main>
-
+    <span class="date" id="top-date"></span>
   </div>
 
-  <script src="/js/familyHub.js?v=1"></script>
+  <!-- Phone only. On desktop the greeting lives in the signed-in person's column. -->
+  <header class="masthead">
+    <div class="dateline" id="dateline"></div>
+    <h1 id="greeting-text">Good evening, ${escapeHtml(meName)}.</h1>
+    <p class="strip">
+      <a href="#" data-go="today" id="strip-animals"></a>
+      <a href="#" data-go="tasks" id="strip-tasks"></a>
+      <a href="#" data-go="board" id="strip-board"></a>
+    </p>
+  </header>
+
+  <div class="eyebrow today"><span class="no">01</span> Today <span class="sp">Animals and cameras</span></div>
+  <div class="eyebrow tasks"><span class="no">02</span> Tasks <span class="sp">Tap a name</span></div>
+  <div class="eyebrow board"><span class="no">03</span> Pinboard</div>
+
+  <div class="cols">
+      ${renderPersonColumn({ ...me, name: meName }, 'me', 'Good evening')}
+
+      <div class="spine">
+        <div class="blk animals">
+          <div class="h">Animals <b id="animal-med-count"></b></div>
+          <a class="due" href="/family/animals">
+            <span class="n" id="animal-due-count">--</span>
+            <p>meds due today<small>open the medication check</small></p>
+          </a>
+          <div id="animal-due-list"></div>
+          <div class="links"><a href="/family/animals/pets">Pets</a><a href="/family/animals/pigeons">Pigeons</a></div>
+        </div>
+
+        <div class="blk pinboard">
+          <div class="h">Pinboard <b id="pinboard-count"></b></div>
+          <div id="pinboard-list"><div class="notes-empty">Loading pinboard...</div></div>
+          <form class="pinadd" onsubmit="addPinboardNote(); return false;">
+            <textarea id="pinboard-input" placeholder="Add something for the family..."></textarea>
+            <div class="r">
+              <select id="pinboard-author">
+                <option value="Andrew"${me.key === 'A' ? ' selected' : ''}>Andrew</option>
+                <option value="Kaili"${me.key === 'K' ? ' selected' : ''}>Kaili</option>
+              </select>
+              <button type="submit">Pin</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="blk unassigned" id="unassigned-blk" hidden>
+          <div class="h">Unassigned <b id="unassigned-count"></b></div>
+          <div id="tasks-none"></div>
+        </div>
+
+        <div class="blk cameras">
+          <div class="h">Cameras <b>not connected</b></div>
+          <div class="cams">
+            <div class="cam off"><span>Front door</span><i></i></div>
+            <div class="cam off"><span>Backyard</span><i></i></div>
+            <div class="cam off"><span>Garage</span><i></i></div>
+          </div>
+        </div>
+
+        <form class="blk addtask add" onsubmit="addTodo(); return false;">
+          <input type="text" id="todo-input" placeholder="Add a task..." autocomplete="off" />
+          <div class="r">
+            <select id="todo-section">
+              <option value="Short Term">Short term</option>
+              <option value="Long Term">Long term</option>
+            </select>
+            <select id="todo-category" style="display:none;"></select>
+            <select id="todo-assignee">
+              <option value="">Anyone</option>
+              <option value="A">Andrew</option>
+              <option value="K">Kaili</option>
+            </select>
+            <button type="submit">Add</button>
+          </div>
+          <div class="catrow">
+            <button type="button" class="ghost" onclick="showAddCategory()">+ Category</button>
+            <span id="add-cat-row" style="display:none;">
+              <input type="text" id="new-cat-input" placeholder="Category name..." />
+              <button type="button" onclick="addCategory()">Add</button>
+            </span>
+          </div>
+        </form>
+      </div>
+
+      ${renderPersonColumn({ ...them, name: themName }, 'them', 'And')}
+  </div>
+</div>
+
+<script src="/js/familyHub.js?v=2"></script>
 </body>
 </html>`;
 }

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morning Sheet - Family Hub</title>
+<style>
+  /* Both faces are self-hosted in the project. */
+  @font-face { font-family: 'Source Serif 4'; font-weight: 400; src: url('../../public/fonts/source-serif-4-400.woff2') format('woff2'); font-display: swap; }
+  @font-face { font-family: 'Source Serif 4'; font-weight: 600; src: url('../../public/fonts/source-serif-4-600.woff2') format('woff2'); font-display: swap; }
+  @font-face { font-family: 'Source Serif 4'; font-weight: 700; src: url('../../public/fonts/source-serif-4-700.woff2') format('woff2'); font-display: swap; }
+  @font-face { font-family: 'Source Sans 3'; font-weight: 200 900; src: url('../../public/fonts/source-sans-3-400.woff2') format('woff2'); font-display: swap; }
+
+  :root {
+    --cream: #FFFDF6;
+    --ink: #263F35;
+    --leaf: #2F7D52;
+    --amber: #946200;
+    --blue: #007D99;
+    --rule: rgba(38, 63, 53, 0.14);
+    --rule-dark: rgba(38, 63, 53, 0.55);
+    --muted: rgba(38, 63, 53, 0.58);
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+  a { color: inherit; text-decoration: none; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+
+  .sheet { width: min(720px, 100%); margin: 0 auto; padding: 20px 20px 80px; }
+
+  /* Masthead nav: tiny, centered, spaced. */
+  .nav { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; padding: 6px 0 16px; font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--rule-dark); }
+  .nav a { transition: color .2s; }
+  .nav a:hover { color: var(--ink); }
+
+  /* Headline block: greeting as headline, date as dateline, status strip below. */
+  .masthead { padding: 44px 0 30px; text-align: left; }
+  .dateline { font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(2.4rem, 7vw, 3.6rem); line-height: 1.05; letter-spacing: -0.02em; margin: 10px 0 20px; }
+  h1 .word { display: inline-block; opacity: 0; transform: translateY(10px); animation: rise .6s cubic-bezier(.2,.8,.2,1) forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+
+  /* The status strip. Each fragment is a link to its section and fades in one after another. */
+  .strip { font-family: var(--serif); font-size: 1.15rem; line-height: 1.5; color: var(--ink); }
+  .strip a { opacity: 0; animation: rise .5s ease forwards; border-bottom: 1px solid transparent; transition: border-color .2s; }
+  .strip a:hover { border-color: var(--rule-dark); }
+  .strip a.due { color: var(--amber); }
+  .strip a.quiet { color: var(--leaf); }
+  .strip a:nth-child(1) { animation-delay: .5s }
+  .strip a:nth-child(2) { animation-delay: .75s }
+  .strip a:nth-child(3) { animation-delay: 1s }
+  .strip a:nth-child(4) { animation-delay: 1.25s }
+
+  /* Sections: double rule and numbered eyebrow, then content. Revealed on scroll. */
+  section { padding: 26px 0 32px; border-top: 3px double var(--rule-dark); opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  section.in { opacity: 1; transform: none; }
+  .eyebrow { display: flex; align-items: baseline; gap: 12px; font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+  .eyebrow .no { font-family: var(--serif); font-size: 0.9rem; color: var(--leaf); letter-spacing: 0; }
+  .eyebrow .sp { margin-left: auto; color: var(--muted); letter-spacing: 0.06em; }
+  h2 { font-family: var(--serif); font-weight: 600; font-size: 1.5rem; letter-spacing: -0.01em; margin-bottom: 14px; }
+
+  /* Today: animals and cameras side by side. */
+  .today { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .meds .big { font-family: var(--serif); font-size: 4.2rem; line-height: .95; color: var(--amber); font-weight: 600; letter-spacing: -0.03em; }
+  .meds p { margin-top: 6px; }
+  .meds ul { list-style: none; margin-top: 10px; font-size: 0.92rem; color: var(--muted); }
+  .meds li { padding: 4px 0; border-top: 1px solid var(--rule); }
+  .meds li.over { color: var(--amber); }
+  .meds .links { margin-top: 12px; display: flex; gap: 16px; font-size: 0.9rem; }
+  .meds .links a { border-bottom: 1px solid var(--rule-dark); }
+  .cams { display: grid; grid-template-rows: repeat(3, 1fr); gap: 8px; }
+  .cam { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 3px; font-size: 0.9rem; background: rgba(38,63,53,.03); }
+  .cam i { width: 8px; height: 8px; border-radius: 50%; background: var(--leaf); animation: pulse 2.2s ease-in-out infinite; }
+  .cam.off i { background: var(--rule-dark); animation: none; }
+  @keyframes pulse { 0%,100% { transform: scale(.8); opacity: .5 } 50% { transform: scale(1.15); opacity: 1 } }
+
+  /* People: two names in a row, heart mark, link. */
+  .people { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .person { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); transition: background .2s; }
+  .person:hover { background: rgba(0,125,153,.05); }
+  .person svg { width: 40px; height: 40px; flex: none; }
+  .person .heart { fill: none; stroke: var(--blue); stroke-width: 2.5; }
+  .person .cross { fill: var(--blue); }
+  .person b { font-family: var(--serif); font-weight: 600; font-size: 1.25rem; display: block; }
+  .person span { font-size: 0.86rem; color: var(--blue); }
+
+  /* Todos: ruled list, section subheads, checkbox with a strike animation. */
+  .sub { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin: 18px 0 4px; }
+  .sub:first-of-type { margin-top: 0; }
+  .cat { font-family: var(--serif); font-style: italic; color: var(--muted); font-size: 0.95rem; margin: 10px 0 0 34px; }
+  .todo { display: grid; grid-template-columns: 20px 1fr auto; gap: 14px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--rule); }
+  .box { width: 18px; height: 18px; border: 1.5px solid var(--rule-dark); border-radius: 50%; background: none; cursor: pointer; position: relative; transition: background .2s, border-color .2s; }
+  .box::after { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: #fff; transform: scale(0); transition: transform .25s cubic-bezier(.3,1.6,.5,1); }
+  .todo.done .box { background: var(--leaf); border-color: var(--leaf); }
+  .todo.done .box::after { transform: scale(1); }
+  .todo .t { position: relative; }
+  .todo .t::after { content: ''; position: absolute; left: 0; top: 55%; height: 1.5px; width: 0; background: var(--leaf); transition: width .35s ease; }
+  .todo.done .t { color: var(--muted); }
+  .todo.done .t::after { width: 100%; }
+  .todo small { display: block; color: var(--muted); font-size: 0.86rem; }
+  .who { font-size: 0.76rem; letter-spacing: 0.1em; color: var(--muted); }
+  .who.a { color: var(--leaf); } .who.k { color: var(--blue); }
+  .add { display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; margin-top: 16px; }
+  .add input { height: 40px; border: 0; border-bottom: 1.5px solid var(--rule-dark); background: transparent; padding: 0 0 0 34px; font-family: var(--serif); font-size: 1.05rem; }
+  .add input:focus { outline: none; border-color: var(--ink); }
+  .add select, .add button { height: 40px; padding: 0 12px; border: 1px solid var(--rule-dark); border-radius: 3px; background: transparent; }
+  .add button { background: var(--ink); color: var(--cream); border-color: transparent; cursor: pointer; font-weight: 600; padding: 0 18px; }
+
+  /* Pinboard: notes in serif, author line in small caps. */
+  .note { padding: 14px 0; border-bottom: 1px solid var(--rule); }
+  .note p { font-family: var(--serif); font-size: 1.15rem; line-height: 1.4; }
+  .note .by { display: block; margin-top: 6px; font-size: 0.76rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .note.k .by { color: var(--blue); }
+  .note.a .by { color: var(--leaf); }
+  .pinadd { margin-top: 16px; }
+  .pinadd textarea { width: 100%; min-height: 64px; padding: 10px 0; border: 0; border-bottom: 1.5px solid var(--rule-dark); background: transparent; font-family: var(--serif); font-size: 1.05rem; resize: vertical; }
+  .pinadd textarea:focus { outline: none; border-color: var(--ink); }
+  .pinadd .ctl { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+  .pinadd select, .pinadd button { height: 38px; padding: 0 12px; border: 1px solid var(--rule-dark); border-radius: 3px; background: transparent; }
+  .pinadd button { cursor: pointer; font-weight: 600; }
+
+  .colophon { padding-top: 26px; border-top: 3px double var(--rule-dark); text-align: center; font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+
+  @media (max-width: 560px) {
+    .sheet { padding: 14px 16px 60px; }
+    .masthead { padding: 30px 0 24px; }
+    .today, .people { grid-template-columns: 1fr; gap: 18px; }
+    .cams { grid-template-rows: none; grid-template-columns: 1fr 1fr 1fr; }
+    .cam { flex-direction: column; gap: 6px; font-size: 0.78rem; text-align: center; }
+    .add { grid-template-columns: 1fr 1fr; }
+    .add input { grid-column: 1 / -1; padding-left: 0; }
+    .nav { gap: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <nav class="nav">
+    <a href="#">Home</a><a href="#">Stock Dashboard</a><a href="#">Investments</a><a href="#">Projects</a><a href="#">Animals</a>
+  </nav>
+
+  <header class="masthead">
+    <div class="dateline">Friday, September 4, 2026 &middot; Taylor Family</div>
+    <h1 id="headline">Good evening, Andrew.</h1>
+    <p class="strip">
+      <a class="due" href="#today">2 meds due, 1 overdue.</a>
+      <a href="#tasks">4 short-term tasks.</a>
+      <a href="#board">2 notes pinned.</a>
+      <a class="quiet" href="#today">Cameras quiet.</a>
+    </p>
+  </header>
+
+  <section id="today">
+    <div class="eyebrow"><span class="no">01</span> Today <span class="sp">Animals and cameras</span></div>
+    <div class="today">
+      <div class="meds">
+        <div class="big">2</div>
+        <p>medications due today</p>
+        <ul>
+          <li class="over">Loft 3, electrolytes. Overdue since yesterday.</li>
+          <li>Juniper, evening dose</li>
+          <li>Pepper, joint supplement</li>
+        </ul>
+        <div class="links"><a href="#">Pets</a><a href="#">Pigeons</a></div>
+      </div>
+      <div class="cams">
+        <div class="cam"><span>Front door</span><i></i></div>
+        <div class="cam"><span>Backyard</span><i></i></div>
+        <div class="cam off"><span>Garage</span><i></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="people">
+    <div class="eyebrow"><span class="no">02</span> Health</div>
+    <div class="people">
+      <a class="person" href="#"><svg viewBox="0 0 64 64"><path class="heart" d="M32 54c-1.4 0-2.7-.5-3.8-1.4C18.5 44.7 10 36.8 10 26.9 10 19.8 15.7 14 22.8 14c3.7 0 7.2 1.7 9.2 4.5 2-2.8 5.5-4.5 9.2-4.5C48.3 14 54 19.8 54 26.9c0 9.9-8.5 17.8-18.2 25.7-1.1.9-2.4 1.4-3.8 1.4Z"/><path class="cross" d="M35.5 23.5v7h7v3h-7v7h-3v-7h-7v-3h7v-7h3Z"/></svg><div><b>Andrew</b><span>Open health</span></div></a>
+      <a class="person" href="#"><svg viewBox="0 0 64 64"><path class="heart" d="M32 54c-1.4 0-2.7-.5-3.8-1.4C18.5 44.7 10 36.8 10 26.9 10 19.8 15.7 14 22.8 14c3.7 0 7.2 1.7 9.2 4.5 2-2.8 5.5-4.5 9.2-4.5C48.3 14 54 19.8 54 26.9c0 9.9-8.5 17.8-18.2 25.7-1.1.9-2.4 1.4-3.8 1.4Z"/><path class="cross" d="M35.5 23.5v7h7v3h-7v7h-3v-7h-7v-3h7v-7h3Z"/></svg><div><b>Kaili</b><span>Open health</span></div></a>
+    </div>
+  </section>
+
+  <section id="tasks">
+    <div class="eyebrow"><span class="no">03</span> Tasks <span class="sp">4 short &middot; 9 long</span></div>
+    <div class="sub">Short term</div>
+    <div class="todo"><button class="box"></button><span class="t">Email SSDI</span><span class="who a">A</span></div>
+    <div class="todo"><button class="box"></button><span class="t">Review Chapter 8</span><span class="who a">A</span></div>
+    <div class="todo"><button class="box"></button><span class="t">Pick up pigeon feed</span><span class="who k">K</span></div>
+    <div class="todo"><button class="box"></button><span class="t">Apply ant poison</span><span class="who a">A</span></div>
+    <div class="todo"><button class="box"></button><span class="t">Put brighter light at gate</span><span class="who"></span></div>
+    <div class="sub">Long term</div>
+    <div class="cat">Housing</div>
+    <div class="todo"><button class="box"></button><span class="t">Battery</span><span class="who a">A</span></div>
+    <div class="todo"><button class="box"></button><span class="t">Well pump / filtration</span><span class="who a">A</span></div>
+    <div class="todo"><button class="box"></button><span class="t">Kitchen remodel</span><span class="who k">K</span></div>
+    <div class="todo"><button class="box"></button><span class="t">Security cameras<small>Next: define coverage zones (front door, driveway, backyard, garage)</small></span><span class="who a">A</span></div>
+    <div class="cat">Network</div>
+    <div class="todo"><button class="box"></button><span class="t">Storage</span><span class="who a">A</span></div>
+    <div class="todo"><button class="box"></button><span class="t">Mini PC</span><span class="who a">A</span></div>
+    <div class="cat">Health / Data</div>
+    <div class="todo"><button class="box"></button><span class="t">Medical records portal<small>Next: define data model and auth approach</small></span><span class="who a">A</span></div>
+    <div class="sub">Recently completed</div>
+    <div class="todo done"><button class="box"></button><span class="t">Order vet refill for Juniper</span><span class="who k">K</span></div>
+    <div class="todo done"><button class="box"></button><span class="t">Replace deck screen</span><span class="who a">A</span></div>
+    <form class="add" onsubmit="return false;">
+      <input type="text" placeholder="Add a task..." />
+      <select><option>Short term</option><option>Long term</option></select>
+      <select><option>--</option><option>A</option><option>K</option></select>
+      <button>Add</button>
+    </form>
+  </section>
+
+  <section id="board">
+    <div class="eyebrow"><span class="no">04</span> Pinboard</div>
+    <div class="note k"><p>Vet called. Juniper's bloodwork is fine, recheck in six months.</p><span class="by">Kaili &middot; yesterday</span></div>
+    <div class="note a"><p>Gate light ordered, arrives Tuesday.</p><span class="by">Andrew &middot; 3 days ago</span></div>
+    <form class="pinadd" onsubmit="return false;">
+      <textarea placeholder="Add something for the family..."></textarea>
+      <div class="ctl"><select><option>Andrew</option><option>Kaili</option></select><button>Pin</button></div>
+    </form>
+  </section>
+
+  <div class="colophon">Taylor Family Hub</div>
+</div>
+
+<script>
+  // Split the headline into words so each rises in sequence.
+  var h = document.getElementById('headline');
+  h.innerHTML = h.textContent.split(' ').map(function (w, i) {
+    return '<span class="word" style="animation-delay:' + (i * 0.09) + 's">' + w + '</span>';
+  }).join(' ');
+
+  // Reveal sections as they scroll into view.
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('section').forEach(function (s) { io.observe(s); });
+
+  // Smooth-scroll the status strip links.
+  document.querySelectorAll('.strip a').forEach(function (a) {
+    a.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Toggle done state to show the strike animation.
+  document.querySelectorAll('.box').forEach(function (b) {
+    b.addEventListener('click', function () { b.closest('.todo').classList.toggle('done'); });
+  });
+</script>
+</body>
+</html>
