@@ -2,8 +2,8 @@
  * public/js/wpr.js - Renders the WPR positions page from /api/wpr/feed.
  *
  * Fixed parts: movers strip, stat strip, latest video line. The holdings block
- * has three views (table, bars, then and now) chosen by a switch and remembered
- * in localStorage.
+ * has four views (table, bars, then and now, WPR vs Drew) chosen by a switch
+ * and remembered in localStorage. The comparison view also reads /api/live-portfolio.
  */
 (function () {
   'use strict';
@@ -116,6 +116,40 @@
       + '<div class="col now"><div class="h"><span>' + fmtDate(cur.snapshot_date) + '</span><span>weight · change · rank</span></div>' + nowRows.join('') + '</div></div>';
   }
 
+  /** WPR beside Drew: two ranked lists, overlap tagged, weight gap on shared tickers. */
+  function renderVersus(cur, live) {
+    if (!live || !Array.isArray(live.stocks) || !live.stocks.length) {
+      return '<div class="cols"><p class="sub" style="padding-top:12px">Live portfolio unavailable, so there is nothing to compare yet.</p></div>';
+    }
+    var mine = live.stocks.filter(function (s) { return s.weightPct > 0; })
+      .sort(function (a, b) { return b.weightPct - a.weightPct; });
+    var his = {}, names = {};
+    cur.holdings.forEach(function (h) { his[h.ticker] = h.weight_pct; names[h.ticker] = h.company_name; });
+    var mineSet = {};
+    mine.forEach(function (s) { mineSet[s.ticker] = s.weightPct; });
+    var shared = cur.holdings.filter(function (h) { return mineSet[h.ticker] != null; });
+    var hisShare = shared.reduce(function (t, h) { return t + h.weight_pct; }, 0);
+    var myShare = shared.reduce(function (t, h) { return t + mineSet[h.ticker]; }, 0);
+    var m = live.portfolioMetrics || {};
+    var summary = '<p class="sub">' + shared.length + ' shared ticker' + (shared.length === 1 ? '' : 's') + ', ' + fix(hisShare) + '% of WPR and ' + fix(myShare) + '% of Drew'
+      + (m.ytdChangePct != null ? '. YTD: WPR ' + (cur.reported_metrics && cur.reported_metrics.ytd_return_pct != null ? sign(cur.reported_metrics.ytd_return_pct) : 'n/a') + '%, Drew ' + sign(m.ytdChangePct) + '%' : '') + '.</p>';
+
+    var hisRows = cur.holdings.map(function (h, i) {
+      var only = mineSet[h.ticker] == null;
+      return '<div class="r' + (only ? ' only' : '') + '"><span class="rk">' + (i + 1) + '</span><span class="tk">' + esc(h.ticker) + '</span><span class="nm">' + esc(h.company_name) + (only ? ' <span class="tag">only WPR</span>' : '') + '</span><span class="w">' + fix(h.weight_pct) + '</span></div>';
+    });
+    var myRows = mine.map(function (s, i) {
+      var only = his[s.ticker] == null;
+      var gap = only ? '' : '<span class="' + (s.weightPct - his[s.ticker] >= 0 ? 'pos' : 'neg') + '-t">' + sign(s.weightPct - his[s.ticker]) + '</span>';
+      return '<div class="r' + (only ? ' only' : '') + '"><span class="rk">' + (i + 1) + '</span><span class="tk">' + esc(s.ticker) + '</span><span class="nm">' + esc(names[s.ticker] || '') + (only ? ' <span class="tag">only Drew</span>' : '') + '</span><span class="w">' + fix(s.weightPct) + '</span><span class="c">' + gap + '</span><span class="mvk"></span></div>';
+    }).concat(cur.holdings.filter(function (h) { return mineSet[h.ticker] == null; }).map(function (h) {
+      // Only visible on narrow screens, where the WPR column is hidden.
+      return '<div class="r gone-m only"><span class="rk"></span><span class="tk">' + esc(h.ticker) + '</span><span class="nm">' + esc(h.company_name) + ' <span class="tag">only WPR</span></span><span class="w mut">' + fix(h.weight_pct) + '</span><span class="c"></span><span class="mvk"></span></div>';
+    }));
+    return summary + '<div class="cols"><div class="col prior"><div class="h"><span>WPR · ' + fmtDate(cur.snapshot_date) + '</span><span>' + cur.holdings.length + ' positions</span></div>' + hisRows.join('') + '</div>'
+      + '<div class="col now"><div class="h"><span>Drew · live</span><span>' + mine.length + ' positions · weight · vs WPR</span></div>' + myRows.join('') + '</div></div>';
+  }
+
   function renderVideo(video) {
     if (!video) return '';
     var base = '/wpr/videos/' + encodeURIComponent(video.video_id);
@@ -133,7 +167,7 @@
     try { localStorage.setItem('wpr-view', v); } catch (e) { /* private mode */ }
   }
 
-  function render(feed) {
+  function render(feed, live) {
     var cur = feed.current;
     var app = document.getElementById('wpr-app');
     if (!cur) {
@@ -144,10 +178,11 @@
     document.getElementById('wpr-sub').textContent = 'Slide of ' + fmtDate(cur.snapshot_date) + (prev ? ', compared with ' + fmtDate(prev.snapshot_date) : '');
 
     app.innerHTML = renderMovers(cur) + renderStats(cur, prev)
-      + '<div class="switch"><span class="t">' + cur.holdings.length + ' positions</span><span class="opts"><a href="#" data-v="table">Table</a><a href="#" data-v="bars">Bars</a><a href="#" data-v="then">Then and now</a></span></div>'
+      + '<div class="switch"><span class="t">' + cur.holdings.length + ' positions</span><span class="opts"><a href="#" data-v="table">Table</a><a href="#" data-v="bars">Bars</a><a href="#" data-v="then">Then and now</a><a href="#" data-v="versus">WPR vs Drew</a></span></div>'
       + '<div class="view" id="v-table">' + renderTable(cur) + '</div>'
       + '<div class="view" id="v-bars">' + renderBars(cur) + '</div>'
       + '<div class="view" id="v-then">' + renderThen(cur, prev) + '</div>'
+      + '<div class="view" id="v-versus">' + renderVersus(cur, live) + '</div>'
       + renderVideo((feed.videos || [])[0])
       + '<p class="foot">Weights from WPR\'s weekly allocation slide. Changes and rank moves include price moves. In, Out, and Trimmed come from what the video disclosed; other weight moves are observations only.</p>';
 
@@ -159,10 +194,13 @@
     setView(saved || 'table');
   }
 
+  var liveRequest = fetch('/api/live-portfolio').then(function (res) { return res.ok ? res.json() : null; }).catch(function () { return null; });
   fetch('/api/wpr/feed').then(function (res) {
     if (!res.ok) throw new Error('feed ' + res.status);
     return res.json();
-  }).then(render).catch(function (err) {
+  }).then(function (feed) {
+    return liveRequest.then(function (live) { render(feed, live); });
+  }).catch(function (err) {
     document.getElementById('wpr-sub').textContent = 'WPR feed unavailable. Run publish in the WPR project. (' + err.message + ')';
   });
 })();

@@ -92,6 +92,9 @@ table.holdings { width: 100%; border-collapse: collapse; }
 .r.gone .nm::after { content: ' · sold'; color: var(--neg); }
 .cols .r.gone-m { display: none; }
 .r.new .nm::after { content: ' · new'; color: var(--pos); }
+.r .tag { color: var(--muted); }
+.r.only .tk { color: var(--text-2); font-weight: 400; }
+.cols + .sub, .sub + .cols { margin-top: 0; }
 
 /* Video rows: latest on the main page, all of them on the archive. */
 .video { display: grid; grid-template-columns: 90px 1fr auto; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
