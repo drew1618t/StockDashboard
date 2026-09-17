@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WPR · Allocation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0A0B; --bg-2: #111113; --text: #E8E8EC; --text-2: #A0A0A8; --muted: #636369;
+    --line: #1E1E22; --bar: #1E1E22; --accent: #6B8BA4; --pos: #4ADE80; --neg: #F87171;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.45 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  header { display: flex; align-items: baseline; gap: 20px; padding: 14px 24px; border-bottom: 1px solid var(--line); }
+  header .brand { font-weight: 600; letter-spacing: .12em; font-size: 12px; }
+  header nav a { color: var(--text-2); margin-right: 16px; font-size: 12px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
+  h1 { font-size: 15px; font-weight: 500; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 12px; margin: 0 0 24px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 0 32px; padding: 10px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .stat { display: flex; gap: 8px; align-items: baseline; }
+  .stat .l { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  .stat .v { font-size: 15px; font-weight: 500; }
+  .stat .d { font-size: 11px; color: var(--muted); }
+  .change-line { padding: 14px 0; font-size: 14px; border-bottom: 1px solid var(--line); }
+  .change-line b { font-weight: 500; }
+  .change-line .g { color: var(--muted); margin: 0 8px; }
+  .bars { margin-top: 18px; }
+  .row { display: grid; grid-template-columns: 64px 1fr 120px; align-items: center; gap: 12px; padding: 4px 0; }
+  .row .tk { font-weight: 500; letter-spacing: .04em; }
+  .row .nm { color: var(--muted); font-size: 11px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .track { position: relative; height: 18px; }
+  .bar { position: absolute; left: 0; top: 0; height: 100%; background: var(--bar); border-right: 2px solid var(--text); }
+  .tick { position: absolute; top: -3px; width: 1px; height: 24px; }
+  .tick.pos { background: var(--pos); }
+  .tick.neg { background: var(--neg); }
+  .lbl { position: absolute; top: 0; font-size: 11px; color: var(--muted); line-height: 18px; padding-left: 8px; }
+  .num { display: flex; justify-content: flex-end; gap: 12px; align-items: baseline; }
+  .num .w { font-size: 14px; font-weight: 500; min-width: 44px; text-align: right; }
+  .num .c { font-size: 12px; min-width: 40px; text-align: right; }
+  .pos-t { color: var(--pos); } .neg-t { color: var(--neg); } .mut { color: var(--muted); }
+  .row.ghost .tk, .row.ghost .num { color: var(--muted); }
+  .row.ghost .w { text-decoration: line-through; font-weight: 400; }
+  .row.ghost .bar { background: transparent; border-right: 1px dashed var(--muted); }
+  .divider { border-top: 1px solid var(--line); margin: 14px 0; }
+  .video { display: grid; grid-template-columns: 90px 1fr auto; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-top: 22px; align-items: baseline; }
+  .video .d { color: var(--muted); font-size: 12px; }
+  .video .links a { margin-left: 14px; font-size: 12px; }
+  .foot { color: var(--muted); font-size: 11px; margin-top: 14px; }
+  @media (max-width: 640px) {
+    main { padding: 20px 14px 40px; }
+    .stats { gap: 6px 18px; }
+    .row { grid-template-columns: 52px 1fr 92px; gap: 8px; }
+    .lbl { display: none; }
+    .num .w { font-size: 13px; min-width: 36px; }
+    .num .c { min-width: 34px; }
+    .video { grid-template-columns: 1fr; gap: 4px; }
+    .video .links a { margin: 0 14px 0 0; }
+  }
+</style>
+</head>
+<body>
+<header><span class="brand">WPR</span><nav><a href="#">Home</a><a href="#">Dashboard</a><a href="#">Videos</a></nav></header>
+<main>
+  <h1>Current portfolio</h1>
+  <p class="sub" id="sub"></p>
+  <div class="stats" id="stats"></div>
+  <div class="change-line" id="change"></div>
+  <div class="bars" id="bars"></div>
+  <div class="video" id="video"></div>
+  <p class="foot">Weights from WPR's weekly allocation slide. Changes include price moves. Buys and sells are labeled only when a video discloses them.</p>
+</main>
+<script>
+const D = {"date":"2026-09-13","prev_date":"2026-09-06","metrics":{"ytd_return_pct":28.0,"foreign_listed_tech_pct":2.2,"top_4_pct":64.1,"top_10_pct":89.9},"prev_metrics":{"ytd_return_pct":27.0,"foreign_listed_tech_pct":2.2,"top_4_pct":64.5,"top_10_pct":90.5},"holdings":[{"ticker":"SIMO","company_name":"Silicon Motion","weight_pct":17.7,"previous_weight_pct":16.1,"change_pct":1.6,"decision":null},{"ticker":"ALAB","company_name":"Astera Labs","weight_pct":16.3,"previous_weight_pct":17.6,"change_pct":-1.3,"decision":null},{"ticker":"FIGR","company_name":"Figure Technology","weight_pct":15.7,"previous_weight_pct":16.3,"change_pct":-0.6,"decision":null},{"ticker":"LIFE","company_name":"Ethos Technologies","weight_pct":14.4,"previous_weight_pct":14.5,"change_pct":-0.1,"decision":null},{"ticker":"LITE","company_name":"Lumentum","weight_pct":6.3,"previous_weight_pct":6.0,"change_pct":0.3,"decision":null},{"ticker":"ONTO","company_name":"Onto Innovation","weight_pct":6.0,"previous_weight_pct":5.8,"change_pct":0.2,"decision":null},{"ticker":"MU","company_name":"Micron","weight_pct":5.5,"previous_weight_pct":5.8,"change_pct":-0.3,"decision":null},{"ticker":"COHU","company_name":"Cohu","weight_pct":3.1,"previous_weight_pct":2.8,"change_pct":0.3,"decision":null},{"ticker":"KLIC","company_name":"Kulicke & Soffa","weight_pct":2.7,"previous_weight_pct":2.6,"change_pct":0.1,"decision":null},{"ticker":"SMTC","company_name":"Semtech","weight_pct":2.2,"previous_weight_pct":2.0,"change_pct":0.2,"decision":null},{"ticker":"RDVT","company_name":"Red Violet","weight_pct":1.9,"previous_weight_pct":2.0,"change_pct":-0.1,"decision":null},{"ticker":"SNDK","company_name":"Sandisk","weight_pct":1.8,"previous_weight_pct":3.0,"change_pct":-1.2,"decision":"trimmed_still_held"},{"ticker":"MTSI","company_name":"MACOM Technology Solutions","weight_pct":1.7,"previous_weight_pct":null,"change_pct":null,"decision":"new_starter_position"},{"ticker":"VIAV","company_name":"VIAVI Solutions","weight_pct":1.5,"previous_weight_pct":null,"change_pct":null,"decision":"new_starter_position"},{"ticker":"RELL","company_name":"Richardson Electronics","weight_pct":0.9,"previous_weight_pct":0.9,"change_pct":0.0,"decision":null}],"departed":[{"ticker":"CRDO","company_name":"Credo","previous_weight_pct":1.7,"decision":"sold_remaining_position"},{"ticker":"SITM","company_name":"SiTime","previous_weight_pct":0.5,"decision":"sold"}],"videos":[{"video_id":"gj2AlI4J-6Q","date":"2026-09-13","title":"Two new portfolio companies & new growth stock ideas","url":"https://www.youtube.com/watch?v=gj2AlI4J-6Q"}]};
+
+/** Short human label for a disclosed decision status. */
+const LABEL = { new_starter_position: 'New', trimmed_still_held: 'Trimmed', sold: 'Sold', sold_remaining_position: 'Sold', added_still_held: 'Added' };
+const fmtDate = s => new Date(s + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const sign = n => (n > 0 ? '+' : '') + n.toFixed(1);
+
+document.getElementById('sub').textContent = `Slide of ${fmtDate(D.date)}, compared with ${fmtDate(D.prev_date)}`;
+
+const m = D.metrics, p = D.prev_metrics;
+const stat = (l, v, pv, suf = '%') => `<div class="stat"><span class="l">${l}</span><span class="v">${v}${suf}</span><span class="d">${pv != null ? 'from ' + pv + suf : ''}</span></div>`;
+document.getElementById('stats').innerHTML =
+  stat('YTD', m.ytd_return_pct > 0 ? '+' + m.ytd_return_pct : m.ytd_return_pct, p.ytd_return_pct) +
+  stat('Top 4', m.top_4_pct, p.top_4_pct) + stat('Top 10', m.top_10_pct, p.top_10_pct) +
+  stat('Foreign tech', m.foreign_listed_tech_pct, p.foreign_listed_tech_pct) +
+  `<div class="stat"><span class="l">Positions</span><span class="v">${D.holdings.length}</span><span class="d">from ${D.holdings.length - D.holdings.filter(h => h.previous_weight_pct == null).length + D.departed.length}</span></div>`;
+
+/* Plain-words change line built from disclosed decisions plus the largest weight moves. */
+const news = D.holdings.filter(h => h.decision === 'new_starter_position').map(h => h.ticker);
+const solds = D.departed.filter(d => /sold/.test(d.decision || '')).map(d => d.ticker);
+const trims = D.holdings.filter(h => /trim/.test(h.decision || '')).map(h => h.ticker);
+const moves = D.holdings.filter(h => h.change_pct != null).sort((a, b) => Math.abs(b.change_pct) - Math.abs(a.change_pct)).slice(0, 2);
+const parts = [];
+if (news.length) parts.push(`<b class="pos-t">New</b> ${news.join(', ')}`);
+if (solds.length) parts.push(`<b class="neg-t">Sold</b> ${solds.join(', ')}`);
+if (trims.length) parts.push(`<b class="neg-t">Trimmed</b> ${trims.join(', ')}`);
+parts.push(`<b>Biggest moves</b> ${moves.map(h => `${h.ticker} ${sign(h.change_pct)}`).join(', ')}`);
+document.getElementById('change').innerHTML = parts.join('<span class="g">·</span>');
+
+const max = Math.max(...D.holdings.map(h => h.weight_pct));
+const pct = w => (w / max * 100).toFixed(2) + '%';
+const rows = D.holdings.map(h => {
+  const c = h.change_pct;
+  const cls = c > 0 ? 'pos' : c < 0 ? 'neg' : '';
+  const tick = h.previous_weight_pct != null && c !== 0 ? `<span class="tick ${cls}" style="left:${pct(h.previous_weight_pct)}"></span>` : '';
+  const lblLeft = Math.max(h.weight_pct, h.previous_weight_pct || 0);
+  const lbl = h.decision ? `<span class="lbl" style="left:${pct(lblLeft)}">${LABEL[h.decision] || ''}</span>` : '';
+  const cTxt = c == null ? '<span class="mut">new</span>' : c === 0 ? '<span class="mut">0.0</span>' : `<span class="${cls}-t">${sign(c)}</span>`;
+  return `<div class="row"><div><span class="tk">${h.ticker}</span><span class="nm">${h.company_name}</span></div>
+    <div class="track"><span class="bar" style="width:${pct(h.weight_pct)}"></span>${tick}${lbl}</div>
+    <div class="num"><span class="w">${h.weight_pct.toFixed(1)}</span><span class="c">${cTxt}</span></div></div>`;
+}).join('');
+const ghosts = D.departed.map(d => `<div class="row ghost"><div><span class="tk">${d.ticker}</span><span class="nm">${d.company_name}</span></div>
+    <div class="track"><span class="bar" style="width:${pct(d.previous_weight_pct)}"></span><span class="lbl" style="left:${pct(d.previous_weight_pct)}">${LABEL[d.decision] || 'Not on slide'}</span></div>
+    <div class="num"><span class="w">${d.previous_weight_pct.toFixed(1)}</span><span class="c mut">out</span></div></div>`).join('');
+document.getElementById('bars').innerHTML = rows + '<div class="divider"></div>' + ghosts;
+
+const v = D.videos[0];
+document.getElementById('video').innerHTML = `<span class="d">${fmtDate(v.date)}</span><span>${v.title}</span>
+  <span class="links"><a href="#">Report</a><a href="#">Transcript</a><a href="${v.url}">YouTube</a><a href="#">All videos</a></span>`;
+</script>
+</body>
+</html>

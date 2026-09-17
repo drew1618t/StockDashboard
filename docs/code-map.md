@@ -49,6 +49,7 @@ server/routes/portfolioRoutes.js
 server/routes/requestRoutes.js
 server/routes/staticPageRoutes.js
 server/routes/writingRoutes.js
+server/routes/wprRoutes.js
 server/routes/family/pageRoutes.js
 server/routes/family/taxRoutes.js
 server/routes/family/pigeonRoutes.js
@@ -75,6 +76,10 @@ Current public route groups:
 /api/health             API health check
 /api/requests           request tracker API
 /api/writing            writing API
+/wpr                    WPR positions and week-over-week changes
+/wpr/videos             WPR video archive
+/wpr/videos/:videoId    WPR video report, plus /transcript and /evidence
+/api/wpr/feed           WPR feed from content/wpr, published by the sibling WPR project
 ```
 
 Current family route groups are mounted behind `requireRole('family')`:
@@ -107,6 +112,14 @@ server/sheetsPoller.js
 server/calculator.js
 server/normalizer.js
 server/saulUtils.js
+```
+
+WPR (reads the bundle the WPR project publishes into `content/wpr`):
+
+```text
+server/wprFeed.js
+server/wprPage.js
+server/wprMarkdown.js
 ```
 
 Writing:

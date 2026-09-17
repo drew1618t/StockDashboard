@@ -20,6 +20,7 @@ const { createProjectRoutes, redirectLegacyFamilyProjectRoutes } = require('./ro
 const { createRequestRoutes } = require('./routes/requestRoutes');
 const { createStaticPageRoutes } = require('./routes/staticPageRoutes');
 const { createWritingRoutes } = require('./routes/writingRoutes');
+const { createWprRoutes } = require('./routes/wprRoutes');
 
 function createApp(options = {}) {
   const app = express();
@@ -83,6 +84,7 @@ function createApp(options = {}) {
   app.use('/api/family', createPinboardRoutes(deps));
 
   app.use(createWritingRoutes(deps));
+  app.use(createWprRoutes(deps));
   app.use('/family', requireFamily, createFamilyPageRoutes(deps));
   app.use(createStaticPageRoutes(deps));
 

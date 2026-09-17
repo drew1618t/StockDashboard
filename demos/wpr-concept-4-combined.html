@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WPR · Combined</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0A0B; --text: #E8E8EC; --text-2: #A0A0A8; --muted: #636369;
+    --line: #1E1E22; --bar: #1E1E22; --accent: #6B8BA4; --pos: #4ADE80; --neg: #F87171;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.45 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  header { display: flex; align-items: baseline; gap: 20px; padding: 14px 24px; border-bottom: 1px solid var(--line); }
+  header .brand { font-weight: 600; letter-spacing: .12em; font-size: 12px; }
+  header nav a { color: var(--text-2); margin-right: 16px; font-size: 12px; }
+  main { max-width: 1000px; margin: 0 auto; padding: 28px 24px 60px; }
+  h1 { font-size: 15px; font-weight: 500; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 12px; margin: 0 0 20px; }
+  .pos-t { color: var(--pos); } .neg-t { color: var(--neg); } .mut { color: var(--muted); }
+
+  /* Movers strip */
+  .movers { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .block { padding: 14px 18px 16px; border-left: 1px solid var(--line); min-height: 110px; }
+  .block:first-child { border-left: 0; padding-left: 0; }
+  .block .h { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 10px; }
+  .block .h.pos { color: var(--pos); } .block .h.neg { color: var(--neg); }
+  .mv { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 3px 0; }
+  .mv .tk { font-weight: 500; letter-spacing: .04em; }
+  .mv .big { font-size: 22px; font-weight: 600; line-height: 1.1; }
+  .mv .path { font-size: 11px; color: var(--muted); }
+  .block .none { color: var(--muted); }
+  .block .note { color: var(--muted); font-size: 11px; margin-top: 6px; }
+
+  /* Stat strip */
+  .stats { display: flex; flex-wrap: wrap; gap: 0 32px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .stat { display: flex; gap: 8px; align-items: baseline; }
+  .stat .l { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+  .stat .v { font-size: 15px; font-weight: 500; }
+  .stat .d { font-size: 11px; color: var(--muted); }
+
+  /* View switch */
+  .switch { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 0 6px; }
+  .switch .t { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .switch .opts a { color: var(--muted); margin-left: 16px; font-size: 12px; }
+  .switch .opts a.on { color: var(--text); border-bottom: 1px solid var(--text); padding-bottom: 2px; }
+  .view { display: none; } .view.on { display: block; }
+
+  /* Table view */
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 500; padding: 10px 8px 8px; border-bottom: 1px solid var(--line); }
+  td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+  th.r, td.r { text-align: right; }
+  td.rank { color: var(--muted); width: 28px; padding-left: 0; }
+  td.tk { font-weight: 500; letter-spacing: .04em; width: 64px; }
+  td.nm { color: var(--text-2); }
+  td.w { font-size: 14px; font-weight: 500; }
+  tr.ghost td { color: var(--muted); }
+  tr.ghost td.w { text-decoration: line-through; font-weight: 400; font-size: 13px; }
+
+  /* Bars view */
+  .row { display: grid; grid-template-columns: 64px 1fr 120px; align-items: center; gap: 12px; padding: 4px 0; }
+  .row .tk { font-weight: 500; letter-spacing: .04em; }
+  .row .nm { color: var(--muted); font-size: 11px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .track { position: relative; height: 18px; }
+  .bar { position: absolute; left: 0; top: 0; height: 100%; background: var(--bar); border-right: 2px solid var(--text); }
+  .tick { position: absolute; top: -3px; width: 1px; height: 24px; }
+  .tick.pos { background: var(--pos); } .tick.neg { background: var(--neg); }
+  .lbl { position: absolute; top: 0; font-size: 11px; color: var(--muted); line-height: 18px; padding-left: 8px; }
+  .num { display: flex; justify-content: flex-end; gap: 12px; align-items: baseline; }
+  .num .w { font-size: 14px; font-weight: 500; min-width: 44px; text-align: right; }
+  .num .c { font-size: 12px; min-width: 40px; text-align: right; }
+  .row.ghost .tk, .row.ghost .num { color: var(--muted); }
+  .row.ghost .w { text-decoration: line-through; font-weight: 400; }
+  .row.ghost .bar { background: transparent; border-right: 1px dashed var(--muted); }
+  .divider { border-top: 1px solid var(--line); margin: 14px 0; }
+  .bars { padding-top: 10px; border-top: 1px solid var(--line); }
+
+  /* Then and now view */
+  .cols { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+  .col + .col { border-left: 1px solid var(--line); padding-left: 24px; }
+  .col .h { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 10px 0 8px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; }
+  .cols .r { display: grid; grid-template-columns: 24px 64px 1fr 48px; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .now .r { grid-template-columns: 24px 64px 1fr 44px 48px 52px; }
+  .r .rk { color: var(--muted); font-size: 11px; }
+  .r .tk { font-weight: 500; letter-spacing: .04em; font-size: 14px; }
+  .r .nm { color: var(--muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .r .w { text-align: right; font-size: 14px; }
+  .prior .r { color: var(--text-2); }
+  .prior .r .tk { font-weight: 400; }
+  .r .c { text-align: right; font-size: 12px; }
+  .r .mvk { font-size: 11px; color: var(--accent); text-align: right; }
+  .r.gone { color: var(--muted); }
+  .r.gone .w { text-decoration: line-through; }
+  .r.gone .nm::after { content: ' · sold'; color: var(--neg); }
+  .cols .r.gone-m { display: none; }
+  .r.new .nm::after { content: ' · new'; color: var(--pos); }
+
+  .video { display: grid; grid-template-columns: 90px 1fr auto; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-top: 22px; align-items: baseline; }
+  .video .d { color: var(--muted); font-size: 12px; }
+  .video .links a { margin-left: 14px; font-size: 12px; }
+  .foot { color: var(--muted); font-size: 11px; margin-top: 14px; }
+
+  @media (max-width: 640px) {
+    main { padding: 20px 14px 40px; }
+    .movers { grid-template-columns: 1fr 1fr; }
+    .block { min-height: 0; padding: 12px 12px 14px; }
+    .block:nth-child(odd) { border-left: 0; padding-left: 0; }
+    .block:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .mv .big { font-size: 18px; }
+    .stats { gap: 6px 18px; }
+    .switch .opts a { margin-left: 12px; }
+    td.nm, th.nm { display: none; }
+    td, th { padding-left: 4px; padding-right: 4px; }
+    .row { grid-template-columns: 52px 1fr 92px; gap: 8px; }
+    .lbl { display: none; }
+    .num .w { font-size: 13px; min-width: 36px; }
+    .num .c { min-width: 34px; }
+    .cols { grid-template-columns: 1fr; }
+    .col.prior { display: none; }
+    .cols .r.gone-m { display: grid; }
+    .col + .col { border-left: 0; padding-left: 0; }
+    .now .r { grid-template-columns: 22px 56px 1fr 40px 44px 48px; gap: 6px; }
+    .r .tk, .r .w { font-size: 13px; }
+    .video { grid-template-columns: 1fr; gap: 4px; }
+    .video .links a { margin: 0 14px 0 0; }
+  }
+</style>
+</head>
+<body>
+<header><span class="brand">WPR</span><nav><a href="#">Home</a><a href="#">Dashboard</a><a href="#">Videos</a></nav></header>
+<main>
+  <h1>This week</h1>
+  <p class="sub" id="sub"></p>
+  <div class="movers" id="movers"></div>
+  <div class="stats" id="stats"></div>
+  <div class="switch"><span class="t" id="switch-title"></span><span class="opts" id="opts"><a href="#" data-v="table">Table</a><a href="#" data-v="bars">Bars</a><a href="#" data-v="then">Then and now</a></span></div>
+  <div class="view" id="v-table"><table id="table"></table></div>
+  <div class="view" id="v-bars"><div class="bars" id="bars"></div></div>
+  <div class="view" id="v-then"><div class="cols" id="cols"></div></div>
+  <div class="video" id="video"></div>
+  <p class="foot">Weights from WPR's weekly allocation slide. Changes and rank moves include price moves. In, Out, and Trimmed come from what the video disclosed; other weight moves are observations only.</p>
+</main>
+<script>
+const D = {"date":"2026-09-13","prev_date":"2026-09-06","metrics":{"ytd_return_pct":28.0,"foreign_listed_tech_pct":2.2,"top_4_pct":64.1,"top_10_pct":89.9},"prev_metrics":{"ytd_return_pct":27.0,"foreign_listed_tech_pct":2.2,"top_4_pct":64.5,"top_10_pct":90.5},"holdings":[{"ticker":"SIMO","company_name":"Silicon Motion","weight_pct":17.7,"previous_weight_pct":16.1,"change_pct":1.6,"decision":null},{"ticker":"ALAB","company_name":"Astera Labs","weight_pct":16.3,"previous_weight_pct":17.6,"change_pct":-1.3,"decision":null},{"ticker":"FIGR","company_name":"Figure Technology","weight_pct":15.7,"previous_weight_pct":16.3,"change_pct":-0.6,"decision":null},{"ticker":"LIFE","company_name":"Ethos Technologies","weight_pct":14.4,"previous_weight_pct":14.5,"change_pct":-0.1,"decision":null},{"ticker":"LITE","company_name":"Lumentum","weight_pct":6.3,"previous_weight_pct":6.0,"change_pct":0.3,"decision":null},{"ticker":"ONTO","company_name":"Onto Innovation","weight_pct":6.0,"previous_weight_pct":5.8,"change_pct":0.2,"decision":null},{"ticker":"MU","company_name":"Micron","weight_pct":5.5,"previous_weight_pct":5.8,"change_pct":-0.3,"decision":null},{"ticker":"COHU","company_name":"Cohu","weight_pct":3.1,"previous_weight_pct":2.8,"change_pct":0.3,"decision":null},{"ticker":"KLIC","company_name":"Kulicke & Soffa","weight_pct":2.7,"previous_weight_pct":2.6,"change_pct":0.1,"decision":null},{"ticker":"SMTC","company_name":"Semtech","weight_pct":2.2,"previous_weight_pct":2.0,"change_pct":0.2,"decision":null},{"ticker":"RDVT","company_name":"Red Violet","weight_pct":1.9,"previous_weight_pct":2.0,"change_pct":-0.1,"decision":null},{"ticker":"SNDK","company_name":"Sandisk","weight_pct":1.8,"previous_weight_pct":3.0,"change_pct":-1.2,"decision":"trimmed_still_held"},{"ticker":"MTSI","company_name":"MACOM Technology Solutions","weight_pct":1.7,"previous_weight_pct":null,"change_pct":null,"decision":"new_starter_position"},{"ticker":"VIAV","company_name":"VIAVI Solutions","weight_pct":1.5,"previous_weight_pct":null,"change_pct":null,"decision":"new_starter_position"},{"ticker":"RELL","company_name":"Richardson Electronics","weight_pct":0.9,"previous_weight_pct":0.9,"change_pct":0.0,"decision":null}],"departed":[{"ticker":"CRDO","company_name":"Credo","previous_weight_pct":1.7,"decision":"sold_remaining_position"},{"ticker":"SITM","company_name":"SiTime","previous_weight_pct":0.5,"decision":"sold"}],"prev_holdings":[{"ticker":"ALAB","weight_pct":17.6},{"ticker":"FIGR","weight_pct":16.3},{"ticker":"SIMO","weight_pct":16.1},{"ticker":"LIFE","weight_pct":14.5},{"ticker":"LITE","weight_pct":6.0},{"ticker":"ONTO","weight_pct":5.8},{"ticker":"MU","weight_pct":5.8},{"ticker":"SNDK","weight_pct":3.0},{"ticker":"COHU","weight_pct":2.8},{"ticker":"KLIC","weight_pct":2.6},{"ticker":"SMTC","weight_pct":2.0},{"ticker":"RDVT","weight_pct":2.0},{"ticker":"CRDO","weight_pct":1.7},{"ticker":"RELL","weight_pct":0.9},{"ticker":"SITM","weight_pct":0.5}],"videos":[{"video_id":"gj2AlI4J-6Q","date":"2026-09-13","title":"Two new portfolio companies & new growth stock ideas","url":"https://www.youtube.com/watch?v=gj2AlI4J-6Q"}]};
+
+const LABEL = { new_starter_position: 'New', trimmed_still_held: 'Trimmed', sold: 'Sold', sold_remaining_position: 'Sold', added_still_held: 'Added' };
+const fmtDate = s => new Date(s + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const sign = n => (n > 0 ? '+' : '') + n.toFixed(1);
+const cTxt = h => h.change_pct == null ? '<span class="mut">new</span>' : h.change_pct === 0 ? '<span class="mut">0.0</span>' : `<span class="${h.change_pct > 0 ? 'pos' : 'neg'}-t">${sign(h.change_pct)}</span>`;
+document.getElementById('sub').textContent = `Slide of ${fmtDate(D.date)}, compared with ${fmtDate(D.prev_date)}`;
+
+/* Movers strip: disclosed decisions first; Weight Up falls back to the largest gains. */
+const ins = D.holdings.filter(h => h.decision === 'new_starter_position');
+const outs = D.departed.filter(d => /sold/.test(d.decision || ''));
+const trims = D.holdings.filter(h => /trim/.test(h.decision || ''));
+const adds = D.holdings.filter(h => /added/.test(h.decision || ''));
+const gains = D.holdings.filter(h => h.change_pct > 0).sort((a, b) => b.change_pct - a.change_pct).slice(0, 2);
+const mv = (tk, big, path) => `<div class="mv"><span class="tk">${tk}</span><span><span class="big">${big}</span> <span class="path">${path}</span></span></div>`;
+const block = (h, cls, items, note) => `<div class="block"><div class="h ${cls}">${h}</div>${items.length ? items.join('') : '<div class="none">none</div>'}${note ? `<div class="note">${note}</div>` : ''}</div>`;
+document.getElementById('movers').innerHTML =
+  block('In', 'pos', ins.map(h => mv(h.ticker, h.weight_pct.toFixed(1), 'starter'))) +
+  block('Out', 'neg', outs.map(d => mv(d.ticker, '0', `from ${d.previous_weight_pct.toFixed(1)}`))) +
+  block(adds.length ? 'Added to' : 'Weight up', 'pos', (adds.length ? adds : gains).map(h => mv(h.ticker, sign(h.change_pct), `${h.previous_weight_pct.toFixed(1)} to ${h.weight_pct.toFixed(1)}`)), adds.length ? '' : 'largest gains, no add disclosed') +
+  block('Trimmed', 'neg', trims.map(h => mv(h.ticker, sign(h.change_pct), `${h.previous_weight_pct.toFixed(1)} to ${h.weight_pct.toFixed(1)}`)));
+
+const m = D.metrics, p = D.prev_metrics;
+const stat = (l, v, pv) => `<div class="stat"><span class="l">${l}</span><span class="v">${v}%</span><span class="d">from ${pv}%</span></div>`;
+document.getElementById('stats').innerHTML = stat('YTD', '+' + m.ytd_return_pct, '+' + p.ytd_return_pct) + stat('Top 4', m.top_4_pct, p.top_4_pct) + stat('Top 10', m.top_10_pct, p.top_10_pct) + stat('Foreign tech', m.foreign_listed_tech_pct, p.foreign_listed_tech_pct);
+document.getElementById('switch-title').textContent = `${D.holdings.length} positions`;
+
+/* Table view */
+document.getElementById('table').innerHTML = `<tr><th></th><th>Ticker</th><th class="nm">Company</th><th class="r">Weight</th><th class="r">Prior</th><th class="r">Change</th><th>Decision</th></tr>` +
+  D.holdings.map((h, i) => `<tr><td class="rank">${i + 1}</td><td class="tk">${h.ticker}</td><td class="nm">${h.company_name}</td><td class="r w">${h.weight_pct.toFixed(1)}</td><td class="r mut">${h.previous_weight_pct == null ? '' : h.previous_weight_pct.toFixed(1)}</td><td class="r">${cTxt(h)}</td><td class="mut">${LABEL[h.decision] || ''}</td></tr>`).join('') +
+  D.departed.map(d => `<tr class="ghost"><td></td><td class="tk">${d.ticker}</td><td class="nm">${d.company_name}</td><td class="r w">${d.previous_weight_pct.toFixed(1)}</td><td class="r">${d.previous_weight_pct.toFixed(1)}</td><td class="r">out</td><td>${LABEL[d.decision] || 'Not on slide'}</td></tr>`).join('');
+
+/* Bars view: bar length is weight, tick marks last week's end. */
+const max = Math.max(...D.holdings.map(h => h.weight_pct));
+const pct = w => (w / max * 100).toFixed(2) + '%';
+document.getElementById('bars').innerHTML = D.holdings.map(h => {
+  const c = h.change_pct, cls = c > 0 ? 'pos' : c < 0 ? 'neg' : '';
+  const tick = h.previous_weight_pct != null && c !== 0 ? `<span class="tick ${cls}" style="left:${pct(h.previous_weight_pct)}"></span>` : '';
+  const lbl = h.decision ? `<span class="lbl" style="left:${pct(Math.max(h.weight_pct, h.previous_weight_pct || 0))}">${LABEL[h.decision] || ''}</span>` : '';
+  return `<div class="row"><div><span class="tk">${h.ticker}</span><span class="nm">${h.company_name}</span></div><div class="track"><span class="bar" style="width:${pct(h.weight_pct)}"></span>${tick}${lbl}</div><div class="num"><span class="w">${h.weight_pct.toFixed(1)}</span><span class="c">${cTxt(h)}</span></div></div>`;
+}).join('') + '<div class="divider"></div>' + D.departed.map(d => `<div class="row ghost"><div><span class="tk">${d.ticker}</span><span class="nm">${d.company_name}</span></div><div class="track"><span class="bar" style="width:${pct(d.previous_weight_pct)}"></span><span class="lbl" style="left:${pct(d.previous_weight_pct)}">${LABEL[d.decision] || 'Not on slide'}</span></div><div class="num"><span class="w">${d.previous_weight_pct.toFixed(1)}</span><span class="c mut">out</span></div></div>`).join('');
+
+/* Then and now view: rank movement between the two slides. */
+const prevRank = {}; D.prev_holdings.forEach((h, i) => prevRank[h.ticker] = i + 1);
+const names = {}; D.holdings.concat(D.departed).forEach(h => names[h.ticker] = h.company_name);
+const sold = new Set(D.departed.map(d => d.ticker));
+const priorRows = D.prev_holdings.map((h, i) => `<div class="r ${sold.has(h.ticker) ? 'gone' : ''}"><span class="rk">${i + 1}</span><span class="tk">${h.ticker}</span><span class="nm">${names[h.ticker]}</span><span class="w">${h.weight_pct.toFixed(1)}</span></div>`).join('');
+const nowRows = D.holdings.map((h, i) => {
+  const isNew = h.previous_weight_pct == null, delta = isNew ? 0 : prevRank[h.ticker] - (i + 1);
+  const rk = isNew ? '' : delta > 0 ? `&#9650; ${delta}` : delta < 0 ? `&#9660; ${-delta}` : '<span class="mut">&#8211;</span>';
+  return `<div class="r ${isNew ? 'new' : ''}"><span class="rk">${i + 1}</span><span class="tk">${h.ticker}</span><span class="nm">${h.company_name}</span><span class="w">${h.weight_pct.toFixed(1)}</span><span class="c">${isNew ? '' : cTxt(h)}</span><span class="mvk">${rk}</span></div>`;
+}).join('') + D.departed.map(d => `<div class="r gone gone-m"><span class="rk"></span><span class="tk">${d.ticker}</span><span class="nm">${d.company_name}</span><span class="w">${d.previous_weight_pct.toFixed(1)}</span><span class="c mut">out</span><span class="mvk"></span></div>`).join('');
+document.getElementById('cols').innerHTML = `<div class="col prior"><div class="h"><span>${fmtDate(D.prev_date)}</span><span>${D.prev_holdings.length} positions</span></div>${priorRows}</div><div class="col now"><div class="h"><span>${fmtDate(D.date)}</span><span>weight · change · rank</span></div>${nowRows}</div>`;
+
+/* View switch, remembered in localStorage. The demo also honors ?view= for screenshots. */
+const setView = v => {
+  document.querySelectorAll('.view').forEach(el => el.classList.toggle('on', el.id === 'v-' + v));
+  document.querySelectorAll('#opts a').forEach(a => a.classList.toggle('on', a.dataset.v === v));
+  try { localStorage.setItem('wpr-view', v); } catch (e) {}
+};
+document.querySelectorAll('#opts a').forEach(a => a.addEventListener('click', e => { e.preventDefault(); setView(a.dataset.v); }));
+setView(new URLSearchParams(location.search).get('view') || (() => { try { return localStorage.getItem('wpr-view'); } catch (e) { return null; } })() || 'table');
+
+const v = D.videos[0];
+document.getElementById('video').innerHTML = `<span class="d">${fmtDate(v.date)}</span><span>${v.title}</span><span class="links"><a href="#">Report</a><a href="#">Transcript</a><a href="${v.url}">YouTube</a><a href="#">All videos</a></span>`;
+</script>
+</body>
+</html>

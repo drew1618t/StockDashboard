@@ -28,6 +28,8 @@ function loadInvestingConfig(env = process.env) {
   const config = { ...defaults, ...local };
 
   const saulRoot = resolveFromProject(config.saul_investing_root || '../SaulInvesting');
+  // The WPR project publishes a self-contained bundle into content/wpr; the site never reads WPR itself.
+  const wprContentDir = resolveFromProject(env.WPR_CONTENT_DIR || config.wpr_content_dir || 'content/wpr');
   const reportsDir = env.DATA_DIR
     ? resolveFromProject(env.DATA_DIR)
     : resolveFromProject(config.saul_reports_dir) || path.join(saulRoot, 'reports');
@@ -35,6 +37,7 @@ function loadInvestingConfig(env = process.env) {
   return {
     projectRoot: PROJECT_ROOT,
     saulInvestingRoot: saulRoot,
+    wprContentDir,
     reportsDir,
     sheetsCsvUrl: env.SHEETS_CSV_URL || config.sheets_csv_url || null,
     liveSnapshotPath: resolveFromProject(

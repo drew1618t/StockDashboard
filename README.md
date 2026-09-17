@@ -24,6 +24,13 @@ Put current household brokerage transaction CSV exports under `data/transactions
 single-account tax configuration remains supported through `data/taxes.state.json`; sibling
 workflows combine that configured CSV with any additional CSVs in this directory.
 
+## WPR section
+
+`/wpr` shows WPR's weekly positions, week-over-week changes, and video reports. Its data is the
+bundle under `content/wpr`, which the sibling `../WPR` project writes with `py wpr.py publish`.
+Commit that folder after each publish so the deploy carries it; the site never reads `../WPR`
+directly.
+
 ## Configuration
 
 Defaults live in `config/default.json`. To override them locally, copy

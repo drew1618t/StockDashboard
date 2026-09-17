@@ -1,0 +1,1668 @@
+{
+  "generated_at": "2026-09-17T15:17:04.374617+00:00",
+  "source_notes": {
+    "holdings": "WPR YouTube membership allocation slides supplied by Andrew",
+    "date_basis": "Snapshot dates are derived from Andrew's ordering on 2026-08-30: SIMO slide is two weeks old, FIGR slide is one week old, ALAB slide is current.",
+    "absence_rule": "A holding missing from a slide is recorded as not_on_slide, never inferred to be a sale. Sales appear only in disclosed_decision.",
+    "weight_change_rule": "change_pct compares consecutive slides and includes price moves; it is not a trade record."
+  },
+  "current": {
+    "snapshot_date": "2026-09-13",
+    "date_basis": "September 13, 2026, supplied by Andrew on September 14, 2026.",
+    "source_image": "screenshots/2026-09-13_simo.png",
+    "slide_title": "Portfolio Allocations",
+    "reported_metrics": {
+      "ytd_return_pct": 28.0,
+      "foreign_listed_tech_pct": 2.2,
+      "top_4_pct": 64.1,
+      "top_10_pct": 89.9
+    },
+    "slide_notes": [],
+    "holdings": [
+      {
+        "ticker": "SIMO",
+        "company_name": "Silicon Motion",
+        "weight_pct": 17.7,
+        "previous_weight_pct": 16.1,
+        "change_pct": 1.6,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "ALAB",
+        "company_name": "Astera Labs",
+        "weight_pct": 16.3,
+        "previous_weight_pct": 17.6,
+        "change_pct": -1.3,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "FIGR",
+        "company_name": "Figure Technology",
+        "weight_pct": 15.7,
+        "previous_weight_pct": 16.3,
+        "change_pct": -0.6,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "LIFE",
+        "company_name": "Ethos Technologies",
+        "weight_pct": 14.4,
+        "previous_weight_pct": 14.5,
+        "change_pct": -0.1,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "LITE",
+        "company_name": "Lumentum",
+        "weight_pct": 6.3,
+        "previous_weight_pct": 6.0,
+        "change_pct": 0.3,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "ONTO",
+        "company_name": "Onto Innovation",
+        "weight_pct": 6.0,
+        "previous_weight_pct": 5.8,
+        "change_pct": 0.2,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "MU",
+        "company_name": "Micron",
+        "weight_pct": 5.5,
+        "previous_weight_pct": 5.8,
+        "change_pct": -0.3,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "COHU",
+        "company_name": "Cohu",
+        "weight_pct": 3.1,
+        "previous_weight_pct": 2.8,
+        "change_pct": 0.3,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "KLIC",
+        "company_name": "Kulicke & Soffa",
+        "weight_pct": 2.7,
+        "previous_weight_pct": 2.6,
+        "change_pct": 0.1,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "SMTC",
+        "company_name": "Semtech",
+        "weight_pct": 2.2,
+        "previous_weight_pct": 2.0,
+        "change_pct": 0.2,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "RDVT",
+        "company_name": "Red Violet",
+        "weight_pct": 1.9,
+        "previous_weight_pct": 2.0,
+        "change_pct": -0.1,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "SNDK",
+        "company_name": "Sandisk",
+        "weight_pct": 1.8,
+        "previous_weight_pct": 3.0,
+        "change_pct": -1.2,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": {
+          "status": "trimmed_still_held",
+          "video_id": "gj2AlI4J-6Q"
+        }
+      },
+      {
+        "ticker": "MTSI",
+        "company_name": "MACOM Technology Solutions",
+        "weight_pct": 1.7,
+        "previous_weight_pct": null,
+        "change_pct": null,
+        "slide_status": "new_on_slide",
+        "disclosed_decision": {
+          "status": "new_starter_position",
+          "video_id": "gj2AlI4J-6Q"
+        }
+      },
+      {
+        "ticker": "VIAV",
+        "company_name": "VIAVI Solutions",
+        "weight_pct": 1.5,
+        "previous_weight_pct": null,
+        "change_pct": null,
+        "slide_status": "new_on_slide",
+        "disclosed_decision": {
+          "status": "new_starter_position",
+          "video_id": "gj2AlI4J-6Q"
+        }
+      },
+      {
+        "ticker": "RELL",
+        "company_name": "Richardson Electronics",
+        "weight_pct": 0.9,
+        "previous_weight_pct": 0.9,
+        "change_pct": 0.0,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      }
+    ],
+    "previous_snapshot_date": "2026-09-06",
+    "departed": [
+      {
+        "ticker": "CRDO",
+        "company_name": "Credo",
+        "previous_weight_pct": 1.7,
+        "slide_status": "not_on_slide",
+        "disclosed_decision": {
+          "status": "sold_remaining_position",
+          "video_id": "gj2AlI4J-6Q"
+        }
+      },
+      {
+        "ticker": "SITM",
+        "company_name": "SiTime",
+        "previous_weight_pct": 0.5,
+        "slide_status": "not_on_slide",
+        "disclosed_decision": {
+          "status": "sold",
+          "video_id": "gj2AlI4J-6Q"
+        }
+      }
+    ]
+  },
+  "snapshots": [
+    {
+      "snapshot_date": "2026-08-16",
+      "date_basis": null,
+      "source_image": "screenshots/2026-08-16_simo-oldest.png",
+      "slide_title": "Allocations + Returns",
+      "reported_metrics": {
+        "ytd_return_pct": 35.0,
+        "foreign_listed_tech_pct": 1.6,
+        "top_7_pct": 82.0,
+        "top_10_pct": 92.0
+      },
+      "slide_notes": [],
+      "holdings": [
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 15.1
+        },
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 15.0
+        },
+        {
+          "ticker": "CRDO",
+          "company_name": "Credo",
+          "weight_pct": 11.7
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 11.7
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 11.5
+        },
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 9.6
+        },
+        {
+          "ticker": "IREN",
+          "company_name": "Iren",
+          "weight_pct": 7.6
+        },
+        {
+          "ticker": "LITE",
+          "company_name": "Lumentum",
+          "weight_pct": 3.6
+        },
+        {
+          "ticker": "COHU",
+          "company_name": "Cohu",
+          "weight_pct": 3.1
+        },
+        {
+          "ticker": "TOYO",
+          "company_name": "Toyo Inc",
+          "weight_pct": 2.7
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 1.9
+        },
+        {
+          "ticker": "PENG",
+          "company_name": "Penguin Solutions",
+          "weight_pct": 1.8
+        },
+        {
+          "ticker": "BE",
+          "company_name": "Bloom Energy",
+          "weight_pct": 1.0
+        },
+        {
+          "ticker": "SNDK",
+          "company_name": "Sandisk",
+          "weight_pct": 0.8
+        },
+        {
+          "ticker": "MU",
+          "company_name": "Micron",
+          "weight_pct": 0.8
+        },
+        {
+          "ticker": "SITM",
+          "company_name": "SiTime",
+          "weight_pct": 0.6
+        }
+      ]
+    },
+    {
+      "snapshot_date": "2026-08-23",
+      "date_basis": null,
+      "source_image": "screenshots/2026-08-23_figr-last-week.png",
+      "slide_title": "Allocations & Returns",
+      "reported_metrics": {
+        "ytd_return_pct": 29.0,
+        "foreign_listed_tech_pct": 1.7,
+        "cash_pct": 0.8,
+        "top_5_pct": 70.0,
+        "top_10_pct": 90.9
+      },
+      "slide_notes": [],
+      "holdings": [
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 16.0
+        },
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 15.2
+        },
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 15.0
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 12.2
+        },
+        {
+          "ticker": "CRDO",
+          "company_name": "Credo",
+          "weight_pct": 11.6
+        },
+        {
+          "ticker": "IREN",
+          "company_name": "Iren",
+          "weight_pct": 7.6
+        },
+        {
+          "ticker": "LITE",
+          "company_name": "Lumentum",
+          "weight_pct": 4.6
+        },
+        {
+          "ticker": "MU",
+          "company_name": "Micron",
+          "weight_pct": 3.6
+        },
+        {
+          "ticker": "COHU",
+          "company_name": "Cohu",
+          "weight_pct": 3.0
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 2.7
+        },
+        {
+          "ticker": "SNDK",
+          "company_name": "Sandisk",
+          "weight_pct": 2.5
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 2.1
+        },
+        {
+          "ticker": "BE",
+          "company_name": "Bloom Energy",
+          "weight_pct": 1.0
+        },
+        {
+          "ticker": "SITM",
+          "company_name": "SiTime",
+          "weight_pct": 0.5
+        }
+      ]
+    },
+    {
+      "snapshot_date": "2026-08-30",
+      "date_basis": null,
+      "source_image": "screenshots/2026-08-30_alab-today.png",
+      "slide_title": "Portfolio Allocation & Results",
+      "reported_metrics": {
+        "ytd_return_pct": 27.0,
+        "foreign_listed_tech_pct": 2.3,
+        "top_5_pct": 71.5
+      },
+      "slide_notes": [
+        "Looking to diversify more"
+      ],
+      "holdings": [
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 15.7
+        },
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 15.0
+        },
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 14.8
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 14.1
+        },
+        {
+          "ticker": "CRDO",
+          "company_name": "Credo",
+          "weight_pct": 11.9
+        },
+        {
+          "ticker": "LITE",
+          "company_name": "Lumentum",
+          "weight_pct": 5.5
+        },
+        {
+          "ticker": "MU",
+          "company_name": "Micron",
+          "weight_pct": 4.4
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 3.1
+        },
+        {
+          "ticker": "COHU",
+          "company_name": "Cohu",
+          "weight_pct": 2.7
+        },
+        {
+          "ticker": "IREN",
+          "company_name": "Iren",
+          "weight_pct": 2.6
+        },
+        {
+          "ticker": "SNDK",
+          "company_name": "Sandisk",
+          "weight_pct": 2.3
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 1.8
+        },
+        {
+          "ticker": "RDVT",
+          "company_name": "Red Violet",
+          "weight_pct": 1.2
+        },
+        {
+          "ticker": "BE",
+          "company_name": "Bloom Energy",
+          "weight_pct": 1.0
+        },
+        {
+          "ticker": "RELL",
+          "company_name": "Richardson Electronics",
+          "weight_pct": 1.0
+        },
+        {
+          "ticker": "SITM",
+          "company_name": "SiTime",
+          "weight_pct": 0.5
+        }
+      ]
+    },
+    {
+      "snapshot_date": "2026-09-06",
+      "date_basis": null,
+      "source_image": "screenshots/2026-09-06_alab.png",
+      "slide_title": "Portfolio allocations & returns",
+      "reported_metrics": {
+        "ytd_return_pct": 27.0,
+        "foreign_listed_tech_pct": 2.2,
+        "top_4_pct": 64.5,
+        "top_10_pct": 90.5
+      },
+      "slide_notes": [
+        "Still looking to diversify more"
+      ],
+      "holdings": [
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 17.6
+        },
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 16.3
+        },
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 16.1
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 14.5
+        },
+        {
+          "ticker": "LITE",
+          "company_name": "Lumentum",
+          "weight_pct": 6.0
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 5.8
+        },
+        {
+          "ticker": "MU",
+          "company_name": "Micron",
+          "weight_pct": 5.8
+        },
+        {
+          "ticker": "SNDK",
+          "company_name": "Sandisk",
+          "weight_pct": 3.0
+        },
+        {
+          "ticker": "COHU",
+          "company_name": "Cohu",
+          "weight_pct": 2.8
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 2.6
+        },
+        {
+          "ticker": "SMTC",
+          "company_name": "Semtech",
+          "weight_pct": 2.0
+        },
+        {
+          "ticker": "RDVT",
+          "company_name": "Red Violet",
+          "weight_pct": 2.0
+        },
+        {
+          "ticker": "CRDO",
+          "company_name": "Credo",
+          "weight_pct": 1.7
+        },
+        {
+          "ticker": "RELL",
+          "company_name": "Richardson Electronics",
+          "weight_pct": 0.9
+        },
+        {
+          "ticker": "SITM",
+          "company_name": "SiTime",
+          "weight_pct": 0.5
+        }
+      ]
+    },
+    {
+      "snapshot_date": "2026-09-13",
+      "date_basis": "September 13, 2026, supplied by Andrew on September 14, 2026.",
+      "source_image": "screenshots/2026-09-13_simo.png",
+      "slide_title": "Portfolio Allocations",
+      "reported_metrics": {
+        "ytd_return_pct": 28.0,
+        "foreign_listed_tech_pct": 2.2,
+        "top_4_pct": 64.1,
+        "top_10_pct": 89.9
+      },
+      "slide_notes": [],
+      "holdings": [
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 17.7
+        },
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 16.3
+        },
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 15.7
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 14.4
+        },
+        {
+          "ticker": "LITE",
+          "company_name": "Lumentum",
+          "weight_pct": 6.3
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 6.0
+        },
+        {
+          "ticker": "MU",
+          "company_name": "Micron",
+          "weight_pct": 5.5
+        },
+        {
+          "ticker": "COHU",
+          "company_name": "Cohu",
+          "weight_pct": 3.1
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 2.7
+        },
+        {
+          "ticker": "SMTC",
+          "company_name": "Semtech",
+          "weight_pct": 2.2
+        },
+        {
+          "ticker": "RDVT",
+          "company_name": "Red Violet",
+          "weight_pct": 1.9
+        },
+        {
+          "ticker": "SNDK",
+          "company_name": "Sandisk",
+          "weight_pct": 1.8
+        },
+        {
+          "ticker": "MTSI",
+          "company_name": "MACOM Technology Solutions",
+          "weight_pct": 1.7
+        },
+        {
+          "ticker": "VIAV",
+          "company_name": "VIAVI Solutions",
+          "weight_pct": 1.5
+        },
+        {
+          "ticker": "RELL",
+          "company_name": "Richardson Electronics",
+          "weight_pct": 0.9
+        }
+      ]
+    }
+  ],
+  "weekly_changes": [
+    {
+      "snapshot_date": "2026-08-16",
+      "previous_snapshot_date": null,
+      "holdings": [
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 15.1,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 15.0,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "CRDO",
+          "company_name": "Credo",
+          "weight_pct": 11.7,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 11.7,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 11.5,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 9.6,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "IREN",
+          "company_name": "Iren",
+          "weight_pct": 7.6,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "LITE",
+          "company_name": "Lumentum",
+          "weight_pct": 3.6,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "COHU",
+          "company_name": "Cohu",
+          "weight_pct": 3.1,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "TOYO",
+          "company_name": "Toyo Inc",
+          "weight_pct": 2.7,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 1.9,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "PENG",
+          "company_name": "Penguin Solutions",
+          "weight_pct": 1.8,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "BE",
+          "company_name": "Bloom Energy",
+          "weight_pct": 1.0,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SNDK",
+          "company_name": "Sandisk",
+          "weight_pct": 0.8,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "MU",
+          "company_name": "Micron",
+          "weight_pct": 0.8,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SITM",
+          "company_name": "SiTime",
+          "weight_pct": 0.6,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        }
+      ],
+      "departed": []
+    },
+    {
+      "snapshot_date": "2026-08-23",
+      "previous_snapshot_date": "2026-08-16",
+      "holdings": [
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 16.0,
+          "previous_weight_pct": 9.6,
+          "change_pct": 6.4,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 15.2,
+          "previous_weight_pct": 15.1,
+          "change_pct": 0.1,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 15.0,
+          "previous_weight_pct": 15.0,
+          "change_pct": 0.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 12.2,
+          "previous_weight_pct": 11.7,
+          "change_pct": 0.5,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "CRDO",
+          "company_name": "Credo",
+          "weight_pct": 11.6,
+          "previous_weight_pct": 11.7,
+          "change_pct": -0.1,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "IREN",
+          "company_name": "Iren",
+          "weight_pct": 7.6,
+          "previous_weight_pct": 7.6,
+          "change_pct": 0.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "LITE",
+          "company_name": "Lumentum",
+          "weight_pct": 4.6,
+          "previous_weight_pct": 3.6,
+          "change_pct": 1.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "MU",
+          "company_name": "Micron",
+          "weight_pct": 3.6,
+          "previous_weight_pct": 0.8,
+          "change_pct": 2.8,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "COHU",
+          "company_name": "Cohu",
+          "weight_pct": 3.0,
+          "previous_weight_pct": 3.1,
+          "change_pct": -0.1,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 2.7,
+          "previous_weight_pct": 1.9,
+          "change_pct": 0.8,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SNDK",
+          "company_name": "Sandisk",
+          "weight_pct": 2.5,
+          "previous_weight_pct": 0.8,
+          "change_pct": 1.7,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 2.1,
+          "previous_weight_pct": 11.5,
+          "change_pct": -9.4,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "BE",
+          "company_name": "Bloom Energy",
+          "weight_pct": 1.0,
+          "previous_weight_pct": 1.0,
+          "change_pct": 0.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SITM",
+          "company_name": "SiTime",
+          "weight_pct": 0.5,
+          "previous_weight_pct": 0.6,
+          "change_pct": -0.1,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        }
+      ],
+      "departed": [
+        {
+          "ticker": "TOYO",
+          "company_name": "Toyo Inc",
+          "previous_weight_pct": 2.7,
+          "slide_status": "not_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "PENG",
+          "company_name": "Penguin Solutions",
+          "previous_weight_pct": 1.8,
+          "slide_status": "not_on_slide",
+          "disclosed_decision": null
+        }
+      ]
+    },
+    {
+      "snapshot_date": "2026-08-30",
+      "previous_snapshot_date": "2026-08-23",
+      "holdings": [
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 15.7,
+          "previous_weight_pct": 15.0,
+          "change_pct": 0.7,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 15.0,
+          "previous_weight_pct": 16.0,
+          "change_pct": -1.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 14.8,
+          "previous_weight_pct": 15.2,
+          "change_pct": -0.4,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 14.1,
+          "previous_weight_pct": 12.2,
+          "change_pct": 1.9,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "CRDO",
+          "company_name": "Credo",
+          "weight_pct": 11.9,
+          "previous_weight_pct": 11.6,
+          "change_pct": 0.3,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "LITE",
+          "company_name": "Lumentum",
+          "weight_pct": 5.5,
+          "previous_weight_pct": 4.6,
+          "change_pct": 0.9,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "MU",
+          "company_name": "Micron",
+          "weight_pct": 4.4,
+          "previous_weight_pct": 3.6,
+          "change_pct": 0.8,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 3.1,
+          "previous_weight_pct": 2.7,
+          "change_pct": 0.4,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "COHU",
+          "company_name": "Cohu",
+          "weight_pct": 2.7,
+          "previous_weight_pct": 3.0,
+          "change_pct": -0.3,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "IREN",
+          "company_name": "Iren",
+          "weight_pct": 2.6,
+          "previous_weight_pct": 7.6,
+          "change_pct": -5.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SNDK",
+          "company_name": "Sandisk",
+          "weight_pct": 2.3,
+          "previous_weight_pct": 2.5,
+          "change_pct": -0.2,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 1.8,
+          "previous_weight_pct": 2.1,
+          "change_pct": -0.3,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "RDVT",
+          "company_name": "Red Violet",
+          "weight_pct": 1.2,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "BE",
+          "company_name": "Bloom Energy",
+          "weight_pct": 1.0,
+          "previous_weight_pct": 1.0,
+          "change_pct": 0.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "RELL",
+          "company_name": "Richardson Electronics",
+          "weight_pct": 1.0,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SITM",
+          "company_name": "SiTime",
+          "weight_pct": 0.5,
+          "previous_weight_pct": 0.5,
+          "change_pct": 0.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        }
+      ],
+      "departed": []
+    },
+    {
+      "snapshot_date": "2026-09-06",
+      "previous_snapshot_date": "2026-08-30",
+      "holdings": [
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 17.6,
+          "previous_weight_pct": 15.7,
+          "change_pct": 1.9,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 16.3,
+          "previous_weight_pct": 15.0,
+          "change_pct": 1.3,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 16.1,
+          "previous_weight_pct": 14.8,
+          "change_pct": 1.3,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 14.5,
+          "previous_weight_pct": 14.1,
+          "change_pct": 0.4,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "LITE",
+          "company_name": "Lumentum",
+          "weight_pct": 6.0,
+          "previous_weight_pct": 5.5,
+          "change_pct": 0.5,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 5.8,
+          "previous_weight_pct": 3.1,
+          "change_pct": 2.7,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "MU",
+          "company_name": "Micron",
+          "weight_pct": 5.8,
+          "previous_weight_pct": 4.4,
+          "change_pct": 1.4,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SNDK",
+          "company_name": "Sandisk",
+          "weight_pct": 3.0,
+          "previous_weight_pct": 2.3,
+          "change_pct": 0.7,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": {
+            "status": "held",
+            "video_id": "xAvMFbo9OlI"
+          }
+        },
+        {
+          "ticker": "COHU",
+          "company_name": "Cohu",
+          "weight_pct": 2.8,
+          "previous_weight_pct": 2.7,
+          "change_pct": 0.1,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": {
+            "status": "held",
+            "video_id": "xAvMFbo9OlI"
+          }
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 2.6,
+          "previous_weight_pct": 1.8,
+          "change_pct": 0.8,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": {
+            "status": "added_still_held",
+            "video_id": "xAvMFbo9OlI"
+          }
+        },
+        {
+          "ticker": "SMTC",
+          "company_name": "Semtech",
+          "weight_pct": 2.0,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": {
+            "status": "new_position_added_possible_trim_not_executed_in_source",
+            "video_id": "xAvMFbo9OlI"
+          }
+        },
+        {
+          "ticker": "RDVT",
+          "company_name": "Red Violet",
+          "weight_pct": 2.0,
+          "previous_weight_pct": 1.2,
+          "change_pct": 0.8,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": {
+            "status": "added_still_held",
+            "video_id": "xAvMFbo9OlI"
+          }
+        },
+        {
+          "ticker": "CRDO",
+          "company_name": "Credo",
+          "weight_pct": 1.7,
+          "previous_weight_pct": 11.9,
+          "change_pct": -10.2,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": {
+            "status": "trimmed_still_held_considering_exit",
+            "video_id": "xAvMFbo9OlI"
+          }
+        },
+        {
+          "ticker": "RELL",
+          "company_name": "Richardson Electronics",
+          "weight_pct": 0.9,
+          "previous_weight_pct": 1.0,
+          "change_pct": -0.1,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": {
+            "status": "starter_held",
+            "video_id": "xAvMFbo9OlI"
+          }
+        },
+        {
+          "ticker": "SITM",
+          "company_name": "SiTime",
+          "weight_pct": 0.5,
+          "previous_weight_pct": 0.5,
+          "change_pct": 0.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": {
+            "status": "small_starter_held",
+            "video_id": "xAvMFbo9OlI"
+          }
+        }
+      ],
+      "departed": [
+        {
+          "ticker": "IREN",
+          "company_name": "Iren",
+          "previous_weight_pct": 2.6,
+          "slide_status": "not_on_slide",
+          "disclosed_decision": {
+            "status": "sold",
+            "video_id": "xAvMFbo9OlI"
+          }
+        },
+        {
+          "ticker": "BE",
+          "company_name": "Bloom Energy",
+          "previous_weight_pct": 1.0,
+          "slide_status": "not_on_slide",
+          "disclosed_decision": {
+            "status": "sold",
+            "video_id": "xAvMFbo9OlI"
+          }
+        }
+      ]
+    },
+    {
+      "snapshot_date": "2026-09-13",
+      "previous_snapshot_date": "2026-09-06",
+      "holdings": [
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 17.7,
+          "previous_weight_pct": 16.1,
+          "change_pct": 1.6,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 16.3,
+          "previous_weight_pct": 17.6,
+          "change_pct": -1.3,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 15.7,
+          "previous_weight_pct": 16.3,
+          "change_pct": -0.6,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 14.4,
+          "previous_weight_pct": 14.5,
+          "change_pct": -0.1,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "LITE",
+          "company_name": "Lumentum",
+          "weight_pct": 6.3,
+          "previous_weight_pct": 6.0,
+          "change_pct": 0.3,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 6.0,
+          "previous_weight_pct": 5.8,
+          "change_pct": 0.2,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "MU",
+          "company_name": "Micron",
+          "weight_pct": 5.5,
+          "previous_weight_pct": 5.8,
+          "change_pct": -0.3,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "COHU",
+          "company_name": "Cohu",
+          "weight_pct": 3.1,
+          "previous_weight_pct": 2.8,
+          "change_pct": 0.3,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 2.7,
+          "previous_weight_pct": 2.6,
+          "change_pct": 0.1,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SMTC",
+          "company_name": "Semtech",
+          "weight_pct": 2.2,
+          "previous_weight_pct": 2.0,
+          "change_pct": 0.2,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "RDVT",
+          "company_name": "Red Violet",
+          "weight_pct": 1.9,
+          "previous_weight_pct": 2.0,
+          "change_pct": -0.1,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SNDK",
+          "company_name": "Sandisk",
+          "weight_pct": 1.8,
+          "previous_weight_pct": 3.0,
+          "change_pct": -1.2,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": {
+            "status": "trimmed_still_held",
+            "video_id": "gj2AlI4J-6Q"
+          }
+        },
+        {
+          "ticker": "MTSI",
+          "company_name": "MACOM Technology Solutions",
+          "weight_pct": 1.7,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": {
+            "status": "new_starter_position",
+            "video_id": "gj2AlI4J-6Q"
+          }
+        },
+        {
+          "ticker": "VIAV",
+          "company_name": "VIAVI Solutions",
+          "weight_pct": 1.5,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": {
+            "status": "new_starter_position",
+            "video_id": "gj2AlI4J-6Q"
+          }
+        },
+        {
+          "ticker": "RELL",
+          "company_name": "Richardson Electronics",
+          "weight_pct": 0.9,
+          "previous_weight_pct": 0.9,
+          "change_pct": 0.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        }
+      ],
+      "departed": [
+        {
+          "ticker": "CRDO",
+          "company_name": "Credo",
+          "previous_weight_pct": 1.7,
+          "slide_status": "not_on_slide",
+          "disclosed_decision": {
+            "status": "sold_remaining_position",
+            "video_id": "gj2AlI4J-6Q"
+          }
+        },
+        {
+          "ticker": "SITM",
+          "company_name": "SiTime",
+          "previous_weight_pct": 0.5,
+          "slide_status": "not_on_slide",
+          "disclosed_decision": {
+            "status": "sold",
+            "video_id": "gj2AlI4J-6Q"
+          }
+        }
+      ]
+    }
+  ],
+  "videos": [
+    {
+      "video_id": "gj2AlI4J-6Q",
+      "date": "2026-09-13",
+      "title": "Two new portfolio companies & new growth stock ideas",
+      "url": "https://www.youtube.com/watch?v=gj2AlI4J-6Q",
+      "has_report": true,
+      "source_dir": "2026-09-13_gj2AlI4J-6Q",
+      "report_path": "transcripts/2026-09-13_gj2AlI4J-6Q/report.md",
+      "transcript_path": "transcripts/2026-09-13_gj2AlI4J-6Q/transcript.md",
+      "evidence_path": "transcripts/2026-09-13_gj2AlI4J-6Q/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "MTSI",
+          "company": "MACOM Technology Solutions",
+          "status": "new_starter_position",
+          "weight_pct": 1.7,
+          "thesis": "Near-term revenue acceleration and expanding manufacturing/product opportunities at a lower price than its prior peak.",
+          "concern": "Still somewhat expensive; technical understanding is developing."
+        },
+        {
+          "ticker": "VIAV",
+          "company": "VIAVI Solutions",
+          "status": "new_starter_position",
+          "weight_pct": 1.5,
+          "thesis": "Optical testing demand, rising operating margins, and sequential growth in the seasonally weakest quarter at 5.4x stated run-rate sales.",
+          "concern": "Net income should improve; acquired-product revenue drew an analyst question. WPR's >$500m next-guidance expectation is not formal company guidance."
+        },
+        {
+          "ticker": "CRDO",
+          "company": "Credo",
+          "status": "sold_remaining_position",
+          "weight_pct": null,
+          "thesis": "Still positive on the product lineup; watching the next earnings report.",
+          "concern": "Tough guidance comparison and opportunity cost versus faster-ramping holdings; valuation was not the overriding sale reason."
+        },
+        {
+          "ticker": "SITM",
+          "company": "SiTime",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": "No new positive thesis developed in this video.",
+          "concern": "Expensive stock and integration risk from a large acquisition."
+        },
+        {
+          "ticker": "SNDK",
+          "company": "SanDisk",
+          "status": "trimmed_still_held",
+          "weight_pct": 1.8,
+          "thesis": "Still used as a growth/profitability comparison for Everpure.",
+          "concern": "Joint venture and complex supply chain; large scale may constrain growth multiples; funds redirected to new positions."
+        },
+        {
+          "ticker": "YSWY",
+          "company": "Yesway",
+          "status": "passed",
+          "weight_pct": null,
+          "thesis": "WPR notices apparently conservative fuel-margin guidance but does not buy.",
+          "concern": "Low-margin business, controlling shareholder, debt, fuel-price effects, and acquisition-dependent expansion."
+        }
+      ]
+    },
+    {
+      "video_id": "xAvMFbo9OlI",
+      "date": "2026-09-06",
+      "title": "WPR's growth stocks + new stock ideas",
+      "url": "https://www.youtube.com/watch?v=xAvMFbo9OlI",
+      "has_report": true,
+      "source_dir": "2026-09-06_xAvMFbo9OlI",
+      "report_path": "transcripts/2026-09-06_xAvMFbo9OlI/report.md",
+      "transcript_path": "transcripts/2026-09-06_xAvMFbo9OlI/transcript.md",
+      "evidence_path": "transcripts/2026-09-06_xAvMFbo9OlI/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "SNDK",
+          "company": "SanDisk",
+          "status": "held",
+          "weight_pct": 3.0,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "COHU",
+          "company": "Cohu",
+          "status": "held",
+          "weight_pct": 2.8,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "KLIC",
+          "company": "Kulicke & Soffa",
+          "status": "added_still_held",
+          "weight_pct": 2.6,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "SMTC",
+          "company": "Semtech",
+          "status": "new_position_added_possible_trim_not_executed_in_source",
+          "weight_pct": 2.0,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "RDVT",
+          "company": "Red Violet",
+          "status": "added_still_held",
+          "weight_pct": 2.0,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "RELL",
+          "company": "Richardson Electronics",
+          "status": "starter_held",
+          "weight_pct": 0.9,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "SITM",
+          "company": "SiTime",
+          "status": "small_starter_held",
+          "weight_pct": 0.5,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "CRDO",
+          "company": "Credo",
+          "status": "trimmed_still_held_considering_exit",
+          "weight_pct": 1.7,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "BE",
+          "company": "Bloom Energy",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "IREN",
+          "company": "IREN",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "MCHP",
+          "company": "Microchip Technology",
+          "status": "passed",
+          "weight_pct": null,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "DIOD",
+          "company": "Diodes",
+          "status": "considering_tiny_starter_no_purchase_disclosed",
+          "weight_pct": null,
+          "thesis": null,
+          "concern": null
+        }
+      ]
+    },
+    {
+      "video_id": "rBgEfAB30KI",
+      "date": "2026-09-03",
+      "title": "Credo's $CRDO earnings report update",
+      "url": "https://www.youtube.com/watch?v=rBgEfAB30KI",
+      "has_report": true,
+      "source_dir": "2026-09-03_rBgEfAB30KI",
+      "report_path": "transcripts/2026-09-03_rBgEfAB30KI/report.md",
+      "transcript_path": "transcripts/2026-09-03_rBgEfAB30KI/transcript.md",
+      "evidence_path": "transcripts/2026-09-03_rBgEfAB30KI/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "CRDO",
+          "company": "Credo",
+          "status": "trimmed_still_held_reassessing",
+          "weight_pct": 4.0,
+          "thesis": null,
+          "concern": null
+        }
+      ]
+    },
+    {
+      "video_id": "8qA2BK-Yt6Q",
+      "date": "2026-08-30",
+      "title": "New growth stock portfolio companies, promising ideas + IREN earnings",
+      "url": "https://www.youtube.com/watch?v=8qA2BK-Yt6Q",
+      "has_report": false,
+      "source_dir": null,
+      "report_path": null,
+      "transcript_path": null,
+      "evidence_path": null,
+      "disclosed_decisions": []
+    }
+  ]
+}

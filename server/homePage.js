@@ -504,6 +504,20 @@ function renderHomePage(user, options = {}) {
     }
     [data-theme="light"] .card-cta { display: none; }
     .card-link { display: none; }
+    /* Secondary link inside a card; stops the card's own click so it goes to its own page. */
+    .card-sub-link {
+      display: block;
+      margin-top: 14px;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .card-sub-link:hover { color: var(--accent); }
+    .card-sub-link .arrow { font-style: normal; }
     [data-theme="light"] .card-link {
       display: inline-flex;
       align-items: center;
@@ -684,6 +698,7 @@ function renderHomePage(user, options = {}) {
         <a href="/dashboard" class="card-link">
           Open Dashboard <i class="arrow">&rarr;</i>
         </a>
+        <a href="/wpr" class="card-sub-link" onclick="event.stopPropagation()">WPR positions <i class="arrow">&rarr;</i></a>
       </article>
       ${familyCard}
       ${animalsCard}
