@@ -149,3 +149,11 @@ test('markdown renderer escapes HTML and drops links into WPR data folders', () 
   assert.match(html, /<blockquote><p>quoted<\/p><\/blockquote>/);
   assert.match(html, /<ul><li>one<\/li><li>two<\/li><\/ul>/);
 });
+
+test('published report links preserve report routes, cross-video citations, and timestamps', () => {
+  const html = renderMarkdown('[Report](report.md) [Earlier](../2026-09-06_xAvMFbo9OlI/evidence.md#E14) [Time](https://www.youtube.com/watch?v=abc&t=45s)\n\n[E01]: evidence.md#E01\n', '/wpr/videos/N_MDoqO79Z0');
+  assert.match(html, /href="\/wpr\/videos\/N_MDoqO79Z0"/);
+  assert.match(html, /href="\/wpr\/videos\/xAvMFbo9OlI\/evidence#E14"/);
+  assert.match(html, /watch\?v=abc&amp;t=45s/);
+  assert.doesNotMatch(html, /&amp;amp;|evidence\.md|\/N_MDoqO79Z0\/report/);
+});

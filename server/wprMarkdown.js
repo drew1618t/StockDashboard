@@ -12,7 +12,9 @@ const { escapeHtml } = require('./utils/html');
 /** Rewrite links that point at sibling bundle files so they stay on the site. */
 function rewriteHref(href, baseUrl) {
   const match = /^(report|transcript|evidence)\.md(#.*)?$/.exec(href);
-  if (match) return `${baseUrl}/${match[1]}${match[2] || ''}`;
+  if (match) return `${baseUrl}${match[1] === 'report' ? '' : `/${match[1]}`}${match[2] || ''}`;
+  const sibling = /^\.\.\/\d{4}-\d{2}-\d{2}_([A-Za-z0-9_-]{11})\/(report|transcript|evidence)\.md(#.*)?$/.exec(href);
+  if (sibling) return `/wpr/videos/${sibling[1]}${sibling[2] === 'report' ? '' : `/${sibling[2]}`}${sibling[3] || ''}`;
   if (/^https?:\/\//.test(href) || href.startsWith('#')) return href;
   // Anything else is a path into WPR's data folders that the site does not serve.
   return null;
@@ -23,7 +25,9 @@ function inline(text, baseUrl) {
   let out = text;
   out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
   out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (whole, label, href) => {
-    const target = rewriteHref(href, baseUrl);
+    // Input text has already been escaped; undo entities before escaping the URL once.
+    const entities = { amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" };
+    const target = rewriteHref(href.replace(/&(amp|lt|gt|quot|#39);/g, (_, entity) => entities[entity]), baseUrl);
     if (!target) return label;
     const external = /^https?:\/\//.test(target) ? ' target="_blank" rel="noopener"' : '';
     return `<a href="${escapeHtml(target)}"${external}>${label}</a>`;
@@ -58,6 +62,8 @@ function renderMarkdown(markdown, baseUrl) {
     const trimmed = line.trim();
 
     if (trimmed === '') { index += 1; continue; }
+    // Evidence reference definitions are metadata; inline [E01] links are handled above.
+    if (/^\[E\d{2,3}\]:\s+evidence\.md#E\d{2,3}$/.test(trimmed)) { index += 1; continue; }
 
     const anchor = /^<a id="([A-Za-z0-9_-]+)"><\/a>$/.exec(trimmed);
     if (anchor) { blocks.push(`<a id="${anchor[1]}"></a>`); index += 1; continue; }

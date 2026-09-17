@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-17T15:17:04.374617+00:00",
+  "generated_at": "2026-09-17T22:06:51.990387+00:00",
   "source_notes": {
     "holdings": "WPR YouTube membership allocation slides supplied by Andrew",
     "date_basis": "Snapshot dates are derived from Andrew's ordering on 2026-08-30: SIMO slide is two weeks old, FIGR slide is one week old, ALAB slide is current.",
@@ -996,7 +996,10 @@
           "previous_weight_pct": 11.6,
           "change_pct": 0.3,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "high_confidence_held",
+            "video_id": "8qA2BK-Yt6Q"
+          }
         },
         {
           "ticker": "LITE",
@@ -1041,7 +1044,10 @@
           "previous_weight_pct": 7.6,
           "change_pct": -5.0,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "trimmed_still_held_considering_further_reduction",
+            "video_id": "8qA2BK-Yt6Q"
+          }
         },
         {
           "ticker": "SNDK",
@@ -1059,7 +1065,10 @@
           "previous_weight_pct": 2.1,
           "change_pct": -0.3,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "trimmed_still_held",
+            "video_id": "8qA2BK-Yt6Q"
+          }
         },
         {
           "ticker": "RDVT",
@@ -1068,7 +1077,10 @@
           "previous_weight_pct": null,
           "change_pct": null,
           "slide_status": "new_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "new_starter",
+            "video_id": "8qA2BK-Yt6Q"
+          }
         },
         {
           "ticker": "BE",
@@ -1086,7 +1098,10 @@
           "previous_weight_pct": null,
           "change_pct": null,
           "slide_status": "new_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "new_starter",
+            "video_id": "8qA2BK-Yt6Q"
+          }
         },
         {
           "ticker": "SITM",
@@ -1462,6 +1477,18 @@
   ],
   "videos": [
     {
+      "video_id": "N_MDoqO79Z0",
+      "date": "2026-09-17",
+      "title": "Legendary growth investor Philip Fisher's strategy",
+      "url": "https://www.youtube.com/watch?v=N_MDoqO79Z0",
+      "has_report": true,
+      "source_dir": "2026-09-17_N_MDoqO79Z0",
+      "report_path": "transcripts/2026-09-17_N_MDoqO79Z0/report.md",
+      "transcript_path": "transcripts/2026-09-17_N_MDoqO79Z0/transcript.md",
+      "evidence_path": "transcripts/2026-09-17_N_MDoqO79Z0/evidence.md",
+      "disclosed_decisions": []
+    },
+    {
       "video_id": "gj2AlI4J-6Q",
       "date": "2026-09-13",
       "title": "Two new portfolio companies & new growth stock ideas",
@@ -1657,12 +1684,61 @@
       "date": "2026-08-30",
       "title": "New growth stock portfolio companies, promising ideas + IREN earnings",
       "url": "https://www.youtube.com/watch?v=8qA2BK-Yt6Q",
-      "has_report": false,
-      "source_dir": null,
-      "report_path": null,
-      "transcript_path": null,
-      "evidence_path": null,
-      "disclosed_decisions": []
+      "has_report": true,
+      "source_dir": "2026-08-30_8qA2BK-Yt6Q",
+      "report_path": "transcripts/2026-08-30_8qA2BK-Yt6Q/report.md",
+      "transcript_path": "transcripts/2026-08-30_8qA2BK-Yt6Q/transcript.md",
+      "evidence_path": "transcripts/2026-08-30_8qA2BK-Yt6Q/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "RELL",
+          "company": "Richardson Electronics",
+          "status": "new_starter",
+          "weight_pct": 1.0,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "RDVT",
+          "company": "Red Violet",
+          "status": "new_starter",
+          "weight_pct": 1.2,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "SMTC",
+          "company": "Semtech",
+          "status": "likely_to_start_no_purchase_disclosed",
+          "weight_pct": null,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "IREN",
+          "company": "IREN",
+          "status": "trimmed_still_held_considering_further_reduction",
+          "weight_pct": 2.6,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "KLIC",
+          "company": "Kulicke & Soffa",
+          "status": "trimmed_still_held",
+          "weight_pct": 1.8,
+          "thesis": null,
+          "concern": null
+        },
+        {
+          "ticker": "CRDO",
+          "company": "Credo",
+          "status": "high_confidence_held",
+          "weight_pct": 11.9,
+          "thesis": null,
+          "concern": null
+        }
+      ]
     }
   ]
 }
