@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-20T14:32:39.108565+00:00",
+  "generated_at": "2026-09-20T14:40:12.185338+00:00",
   "source_notes": {
     "holdings": "WPR YouTube membership allocation slides supplied by Andrew",
     "date_basis": "Snapshot dates are derived from Andrew's ordering on 2026-08-30: SIMO slide is two weeks old, FIGR slide is one week old, ALAB slide is current.",
@@ -80,7 +80,10 @@
         "previous_weight_pct": 1.5,
         "change_pct": 2.2,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "added",
+          "video_id": "etl8IojStI8"
+        }
       },
       {
         "ticker": "KLIC",
@@ -98,7 +101,10 @@
         "previous_weight_pct": 1.7,
         "change_pct": 0.9,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "added",
+          "video_id": "etl8IojStI8"
+        }
       },
       {
         "ticker": "SMTC",
@@ -116,7 +122,10 @@
         "previous_weight_pct": 6.3,
         "change_pct": -3.9,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "trimmed_still_held",
+          "video_id": "etl8IojStI8"
+        }
       },
       {
         "ticker": "FORM",
@@ -125,7 +134,10 @@
         "previous_weight_pct": null,
         "change_pct": null,
         "slide_status": "new_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "new_position_added",
+          "video_id": "etl8IojStI8"
+        }
       },
       {
         "ticker": "COHU",
@@ -134,7 +146,10 @@
         "previous_weight_pct": 3.1,
         "change_pct": -1.0,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "trimmed_still_held",
+          "video_id": "etl8IojStI8"
+        }
       },
       {
         "ticker": "MKSI",
@@ -143,7 +158,10 @@
         "previous_weight_pct": null,
         "change_pct": null,
         "slide_status": "new_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "new_position_added",
+          "video_id": "etl8IojStI8"
+        }
       },
       {
         "ticker": "RDVT",
@@ -162,14 +180,20 @@
         "company_name": "Sandisk",
         "previous_weight_pct": 1.8,
         "slide_status": "not_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "sold_remaining_position",
+          "video_id": "etl8IojStI8"
+        }
       },
       {
         "ticker": "RELL",
         "company_name": "Richardson Electronics",
         "previous_weight_pct": 0.9,
         "slide_status": "not_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "sold",
+          "video_id": "etl8IojStI8"
+        }
       }
     ]
   },
@@ -1614,7 +1638,10 @@
           "previous_weight_pct": 1.5,
           "change_pct": 2.2,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "added",
+            "video_id": "etl8IojStI8"
+          }
         },
         {
           "ticker": "KLIC",
@@ -1632,7 +1659,10 @@
           "previous_weight_pct": 1.7,
           "change_pct": 0.9,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "added",
+            "video_id": "etl8IojStI8"
+          }
         },
         {
           "ticker": "SMTC",
@@ -1650,7 +1680,10 @@
           "previous_weight_pct": 6.3,
           "change_pct": -3.9,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "trimmed_still_held",
+            "video_id": "etl8IojStI8"
+          }
         },
         {
           "ticker": "FORM",
@@ -1659,7 +1692,10 @@
           "previous_weight_pct": null,
           "change_pct": null,
           "slide_status": "new_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "new_position_added",
+            "video_id": "etl8IojStI8"
+          }
         },
         {
           "ticker": "COHU",
@@ -1668,7 +1704,10 @@
           "previous_weight_pct": 3.1,
           "change_pct": -1.0,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "trimmed_still_held",
+            "video_id": "etl8IojStI8"
+          }
         },
         {
           "ticker": "MKSI",
@@ -1677,7 +1716,10 @@
           "previous_weight_pct": null,
           "change_pct": null,
           "slide_status": "new_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "new_position_added",
+            "video_id": "etl8IojStI8"
+          }
         },
         {
           "ticker": "RDVT",
@@ -1695,19 +1737,126 @@
           "company_name": "Sandisk",
           "previous_weight_pct": 1.8,
           "slide_status": "not_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "sold_remaining_position",
+            "video_id": "etl8IojStI8"
+          }
         },
         {
           "ticker": "RELL",
           "company_name": "Richardson Electronics",
           "previous_weight_pct": 0.9,
           "slide_status": "not_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "sold",
+            "video_id": "etl8IojStI8"
+          }
         }
       ]
     }
   ],
   "videos": [
+    {
+      "video_id": "etl8IojStI8",
+      "date": "2026-09-20",
+      "title": "WPR's new portfolio companies + growth stock ideas",
+      "url": "https://www.youtube.com/watch?v=etl8IojStI8",
+      "has_report": true,
+      "source_dir": "2026-09-20_etl8IojStI8",
+      "report_path": "transcripts/2026-09-20_etl8IojStI8/report.md",
+      "transcript_path": "transcripts/2026-09-20_etl8IojStI8/transcript.md",
+      "evidence_path": "transcripts/2026-09-20_etl8IojStI8/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "MKSI",
+          "company": "MKS Inc.",
+          "status": "new_position_added",
+          "weight_pct": 2.1,
+          "thesis": "Accelerating revenue and profit, memory factory investment, and 3.1x stated run-rate sales.",
+          "concern": "$4.19bn debt; over-40% total revenue growth is WPR expectation, not guidance."
+        },
+        {
+          "ticker": "FORM",
+          "company": "FormFactor",
+          "status": "new_position_added",
+          "weight_pct": 2.4,
+          "thesis": "HBM, CPO and ASIC testing, expanding margins, Texas capacity and relative valuation.",
+          "concern": "2030 target looks slow to WPR; margin discrepancy and garbled share price."
+        },
+        {
+          "ticker": "VIAV",
+          "company": "VIAVI Solutions",
+          "status": "added",
+          "weight_pct": 3.7,
+          "thesis": "Prefers relative valuation versus Lumentum; confidence increased.",
+          "concern": "No fresh detailed earnings review in this episode."
+        },
+        {
+          "ticker": "MTSI",
+          "company": "MACOM Technology Solutions",
+          "status": "added",
+          "weight_pct": 2.6,
+          "thesis": "Increased confidence warrants larger allocation.",
+          "concern": "No fresh detailed earnings review."
+        },
+        {
+          "ticker": "LITE",
+          "company": "Lumentum",
+          "status": "trimmed_still_held",
+          "weight_pct": 2.4,
+          "thesis": "Still held; optical trend exposure.",
+          "concern": "Higher valuation and Coherent OCS competition influence trims."
+        },
+        {
+          "ticker": "COHU",
+          "company": "Cohu",
+          "status": "trimmed_still_held",
+          "weight_pct": 2.1,
+          "thesis": "Still held at lower weight.",
+          "concern": "Less enthusiasm relative to newer names."
+        },
+        {
+          "ticker": "SNDK",
+          "company": "SanDisk",
+          "status": "sold_remaining_position",
+          "weight_pct": null,
+          "thesis": "Still considers it a good growth company.",
+          "concern": "Scale, Kioxia joint venture and supply dependencies; prefers smaller alternatives."
+        },
+        {
+          "ticker": "RELL",
+          "company": "Richardson Electronics",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": "Watch next earnings for stronger growth signal.",
+          "concern": "Only one quarter of outperformance; declining price in an up market."
+        },
+        {
+          "ticker": "COHR",
+          "company": "Coherent",
+          "status": "watch_earnings_calendar_possible_starter_no_purchase",
+          "weight_pct": null,
+          "thesis": "Growth acceleration and optical product ramps at valuation he sees as reasonable.",
+          "concern": "Gross and operating margins below his expectations for a company this size."
+        },
+        {
+          "ticker": "OCC",
+          "company": "Optical Cable Corporation",
+          "status": "passed",
+          "weight_pct": null,
+          "thesis": "Improving gross margin and demand.",
+          "concern": "No guidance, old revenue peak, limited analyst engagement and vague partnership answers."
+        },
+        {
+          "ticker": "KMT",
+          "company": "Kennametal",
+          "status": "passed_watch_earnings_calendar",
+          "weight_pct": null,
+          "thesis": "Reported growth and low sales multiple attract attention.",
+          "concern": "Unsure whether tungsten pricing explains results; business complexity."
+        }
+      ]
+    },
     {
       "video_id": "N_MDoqO79Z0",
       "date": "2026-09-17",
