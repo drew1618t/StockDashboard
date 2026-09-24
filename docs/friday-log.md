@@ -1,6 +1,6 @@
 # Friday Log
 
-The family-only `#friday-log` tab uses the Year Atlas calendar. Its colors represent
+The signed-in `#friday-log` tab uses the Year Atlas calendar. Its colors represent
 the combined portfolio's weekly return, including cash equivalents, rather than
 a single holding's performance. The browser calls `/api/friday-log` with a year
 and account filter. Every Friday remains selectable after 6 p.m. New York time;
@@ -82,8 +82,11 @@ shows holdings but withholds the return until complete exports arrive.
 
 The source code and private runtime directory are separate deployment inputs.
 Git alone does not transfer balances, imports or reconstructed snapshots.
-The HTTP routes enforce the existing family role and send `Cache-Control:
-no-store`. The runtime directory is outside the public static root.
+All signed-in dashboard users can read the history, including account activity.
+Imports and manual price refreshes require the family role; other users do not
+see those controls. Anonymous requests still require Cloudflare sign-in. The
+routes send `Cache-Control: no-store`, and the runtime directory is outside the
+public static root.
 
 ## Validation
 

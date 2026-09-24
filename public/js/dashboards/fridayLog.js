@@ -1,4 +1,4 @@
-/** Year Atlas: private Friday snapshots backed by the transaction ledger and historical closes. */
+/** Year Atlas: Friday snapshots for signed-in users, backed by transactions and historical closes. */
 const FridayLogDashboard = {
   root: null, data: null, selected: null, account: 'all', year: null, expanded: null, request: 0,
   months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -65,7 +65,7 @@ const FridayLogDashboard = {
       ${data.reconciliation ? `<p>Opening balance check: reconstructed ${this.money(data.reconciliation.openingValue, 2)}; dashboard starting value ${this.money(data.reconciliation.reportedOpeningValue, 2)}. Difference: ${this.money(data.reconciliation.difference, 2)}. These are reconstructed records, not reconciled brokerage statements.</p>` : ''}
       <p>Weekly return uses <a href="https://www.gipsstandards.org/standards/gips-standards-for-firms/gips-standards-handbook-for-firms/" target="_blank" rel="noopener">Modified Dietz</a> with day-end deposits and withdrawals. Cash, money-market funds, dividends and fees are included. Stock week % measures price change, adjusted for splits. A market holiday uses the last trading close; the first 2026 portfolio period starts December 31.</p>
       <p>Friday balances are captured after 6 p.m. New York time while the server is running. Missed weeks can be reconstructed once transaction exports cover them. Import each account’s full history since January 1, 2026; overlapping exports are deduplicated.</p>
-      <button data-action="refresh">Refresh closing prices</button><form class="fl-import"><label>Account<select name="account" required><option value="">Choose account</option>${Object.entries(data.accounts).map(([id, name]) => `<option value="${id}">${name}</option>`).join('')}</select></label><label>Export through<input name="through" type="date" min="2026-01-01" required></label><label>Schwab transactions<input name="file" type="file" accept=".csv,text/csv" required></label><button type="submit">Import CSV</button></form><p class="fl-update-message" role="status"></p></details>`;
+      ${data.canManage ? `<button data-action="refresh">Refresh closing prices</button><form class="fl-import"><label>Account<select name="account" required><option value="">Choose account</option>${Object.entries(data.accounts).map(([id, name]) => `<option value="${id}">${name}</option>`).join('')}</select></label><label>Export through<input name="through" type="date" min="2026-01-01" required></label><label>Schwab transactions<input name="file" type="file" accept=".csv,text/csv" required></label><button type="submit">Import CSV</button></form><p class="fl-update-message" role="status"></p>` : ''}</details>`;
   },
 
   /** Render the headline performance, allocation, positions and full weekly activity ledger. */

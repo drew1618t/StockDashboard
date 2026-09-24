@@ -4,6 +4,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const express = require('express');
+const vm = require('node:vm');
 const { createFridayLogStore, parseTransactions, effect, fridays, marketTime, ACCOUNTS } = require('../server/fridayLogStore');
 const { normalizeChart, createFridayLogService } = require('../server/fridayLogService');
 const { createFridayLogRoutes } = require('../server/routes/fridayLogRoutes');
@@ -243,19 +244,45 @@ test('Friday scheduler captures and refreshes even if the preceding refresh was 
   assert.equal(store.getPrices().symbols.SPY.finalThrough, '2026-01-09');
 });
 
-test('private routes deny general accounts, serve family snapshots, and validate imports', async t => {
+test('Friday view omits management controls for readers and retains them for family users', t => {
+  const { store } = fixture(t);
+  const context = { history: { replaceState() {} } };
+  const source = fs.readFileSync(path.join(__dirname, '../public/js/dashboards/fridayLog.js'), 'utf8');
+  vm.runInNewContext(source + '\nglobalThis.dashboard = FridayLogDashboard;', context);
+  const view = context.dashboard;
+  view.root = { innerHTML: '' }; view.year = 2026; view.account = 'all'; view.selected = '2026-01-09';
+  view.data = { ...store.getYear(2026), canManage: false };
+  view.draw();
+  assert.match(view.root.innerHTML, /PORTFOLIO YTD/);
+  assert.doesNotMatch(view.root.innerHTML, /class="fl-import"|data-action="refresh"/);
+  view.data.canManage = true; view.draw();
+  assert.match(view.root.innerHTML, /class="fl-import"/);
+  assert.match(view.root.innerHTML, /data-action="refresh"/);
+});
+
+test('signed-in users can read snapshots; only family users can import or refresh', async t => {
   const { store } = fixture(t);
   const app = express();
-  app.use((req, res, next) => { req.user = { role: req.headers['x-test-role'] || 'general' }; next(); });
+  app.use((req, res, next) => { if (req.headers['x-test-role'] !== 'anonymous') req.user = { role: req.headers['x-test-role'] || 'general' }; next(); });
   app.use(createFridayLogRoutes({ fridayLogService: { store, refresh: async () => ({}) } }));
   const server = app.listen(0, '127.0.0.1'); t.after(() => server.close());
   await new Promise(resolve => server.once('listening', resolve));
   const url = `http://127.0.0.1:${server.address().port}/api/friday-log`;
-  assert.equal((await fetch(`${url}?year=2026`)).status, 403);
+  assert.equal((await fetch(`${url}?year=2026`, { headers: { 'x-test-role': 'anonymous' } })).status, 401);
+  const general = await fetch(`${url}?year=2026`);
+  assert.equal(general.status, 200);
+  const generalData = await general.json();
+  assert.equal(generalData.canManage, false);
+  assert.equal(generalData.weeks.length, 52);
+  assert.equal((await fetch(`${url}?year=2026&account=drew-roth`)).status, 200);
   assert.equal((await fetch(`${url}/refresh`, { method: 'POST' })).status, 403);
+  assert.equal((await fetch(`${url}/import`, { method: 'POST' })).status, 403);
   const good = await fetch(`${url}?year=2026`, { headers: { 'x-test-role': 'family' } });
   assert.equal(good.status, 200); assert.equal(good.headers.get('cache-control'), 'no-store');
-  assert.equal((await good.json()).weeks.length, 52);
+  const familyData = await good.json();
+  assert.equal(familyData.weeks.length, 52);
+  assert.equal(familyData.canManage, true);
+  assert.equal((await fetch(`${url}/refresh`, { method: 'POST', headers: { 'x-test-role': 'family' } })).status, 200);
   assert.equal((await fetch(`${url}?year=2026&account=bad`, { headers: { 'x-test-role': 'family' } })).status, 400);
   assert.equal((await fetch(`${url}/import`, { method: 'POST', headers: { 'x-test-role': 'family' } })).status, 400);
   const form = new FormData();
