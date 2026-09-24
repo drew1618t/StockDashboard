@@ -16,6 +16,7 @@ const { createTodoRoutes } = require('./routes/family/todoRoutes');
 const defaultDataLoader = require('./dataLoader');
 const { getPortfolioPositionCount, renderHomePage } = require('./homePage');
 const { createPortfolioRoutes } = require('./routes/portfolioRoutes');
+const { createFridayLogRoutes } = require('./routes/fridayLogRoutes');
 const { createProjectRoutes, redirectLegacyFamilyProjectRoutes } = require('./routes/projectRoutes');
 const { createRequestRoutes } = require('./routes/requestRoutes');
 const { createStaticPageRoutes } = require('./routes/staticPageRoutes');
@@ -69,6 +70,7 @@ function createApp(options = {}) {
   });
 
   app.use(createPortfolioRoutes({ ...deps, requireFamily }));
+  app.use(createFridayLogRoutes({ ...deps, requireFamily }));
   app.use(createProjectRoutes({ ...deps, requireFamily }));
   app.get('/family/projects', redirectLegacyFamilyProjectRoutes);
   app.get('/family/projects/*', redirectLegacyFamilyProjectRoutes);

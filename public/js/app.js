@@ -17,6 +17,7 @@ const App = {
     valuation: ValuationDashboard,
     profitability: ProfitabilityDashboard,
     deepdive: DeepDiveDashboard,
+    'friday-log': FridayLogDashboard,
     taxes: TaxesDashboard,
     private: FamilyInvestingDashboard,
     family: FamilyInvestingDashboard,
@@ -117,7 +118,7 @@ const App = {
     }
 
     if (
-      ['taxes', 'private', 'family', 'private-tracker', 'private-study'].includes(name)
+      ['taxes', 'private', 'family', 'private-tracker', 'private-study', 'friday-log'].includes(name)
       && (!this.user || this.user.role !== 'family')
     ) {
       container.innerHTML = '<div class="error-state">Your account is authenticated, but this page is restricted to the family tier.</div>';
@@ -165,6 +166,8 @@ const App = {
     const userEl = document.getElementById('header-user');
     const privateLink = document.getElementById('private-nav-link');
     const familyHubLink = document.getElementById('family-hub-nav-link');
+    const fridayLogLink = document.getElementById('friday-log-nav-link');
+    if (fridayLogLink) fridayLogLink.hidden = !this.user || this.user.role !== 'family';
     if (userEl && this.user) {
       userEl.hidden = false;
       const masked = this.user.email ? this.user.email.slice(0, 4) + '••••' : '';

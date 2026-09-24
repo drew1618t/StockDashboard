@@ -1,5 +1,6 @@
 const dataLoader = require('./dataLoader');
 const sheetsPoller = require('./sheetsPoller');
+const { service: fridayLogService } = require('./fridayLogService');
 const { createApp } = require('./createApp');
 const { importExistingPigeonDataIfNeeded } = require('./pigeonImport');
 
@@ -11,6 +12,7 @@ function prepareData() {
 
   console.log('[server] Starting Google Sheets polling...');
   sheetsPoller.startPolling();
+  fridayLogService.start(sheetsPoller);
 
   console.log('[server] Preparing pigeon data...');
   try {

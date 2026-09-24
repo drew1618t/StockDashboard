@@ -1,0 +1,106 @@
+body.friday-active, body.friday-active #dashboard-content { background: #000; }
+.friday-log { color: #fff; background: #000; font: 12px 'Inter', system-ui, sans-serif; max-width: 1600px; margin: auto; padding: 8px 12px 30px; --fl-line: #252525; --fl-muted: #99999f; }
+.friday-log button, .friday-log select, .friday-log input { font: inherit; color: #fff; background: #000; border: 1px solid var(--fl-line); border-radius: 0; padding: 8px 10px; }
+.friday-log button { cursor: pointer; }
+.friday-log button:hover { background: #151515; }
+.friday-log button:disabled { opacity: .35; cursor: default; }
+.friday-log :focus-visible { outline: 2px solid #b6cddd; outline-offset: 3px; }
+.friday-log p { color: var(--fl-muted); font-size: 11px; line-height: 1.7; margin-top: 8px; }
+.friday-log h1, .friday-log h2, .friday-log h3 { font-weight: 400; }
+.friday-log h1 { font-size: 29px; letter-spacing: -.9px; line-height: 1.3; }
+.friday-log h2 { font-size: 20px; letter-spacing: -.4px; }
+.friday-log h3 { font-size: 13px; }
+.fl-heading { display: flex; justify-content: space-between; align-items: center; margin: 6px 0 32px; gap: 24px; }
+.fl-eyebrow { color: #a7bfd2; font-size: 10px; letter-spacing: .14em; margin-bottom: 9px; }
+.fl-filters { display: flex; gap: 18px; }
+.friday-log label { display: flex; flex-direction: column; gap: 7px; font-size: 10px; color: var(--fl-muted); }
+.friday-log select { min-width: 90px; padding-right: 22px; font-size: 12px; }
+.fl-layout { display: grid; grid-template-columns: 285px minmax(0, 1fr); gap: 32px; }
+.fl-calendar { border-right: 1px solid var(--fl-line); padding-right: 25px; }
+.fl-calendar-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; font-size: 13px; }
+.fl-calendar-title small { font-size: 10px; color: var(--fl-muted); }
+.fl-month { display: grid; grid-template-columns: 28px repeat(5, 1fr); gap: 4px; margin-bottom: 7px; align-items: center; }
+.fl-month > span { font-size: 10px; color: var(--fl-muted); }
+.friday-log .fl-day { height: 38px; padding: 0; position: relative; font-size: 11px; font-variant-numeric: tabular-nums; }
+.friday-log .fl-day.fl-up { background: #0b2118; color: #8ce4b3; border-color: #172e23; }
+.friday-log .fl-day.fl-down { background: #241111; color: #f6a1a1; border-color: #382020; }
+.friday-log .fl-day.selected { border: 2px solid #fff; color: white; }
+.fl-day.has-trades::after { content: ''; position: absolute; width: 3px; height: 3px; background: currentColor; bottom: 4px; left: calc(50% - 1px); }
+.friday-log .fl-calendar-key { font-size: 10px; margin-top: 20px; line-height: 2; }
+.fl-week { min-width: 0; scroll-margin-top: 85px; }
+.fl-week-title { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--fl-line); }
+.fl-week-title p { font-size: 10px; }
+.fl-arrows { display: flex; gap: 6px; }
+.fl-arrows button { width: 30px; height: 30px; padding: 0; }
+.fl-stats { display: grid; grid-template-columns: 1.5fr 1.2fr .8fr; padding: 21px 0; border-bottom: 1px solid var(--fl-line); }
+.fl-stats > div { border-left: 1px solid var(--fl-line); padding-left: 22px; }
+.fl-stats > div:first-child { border: 0; padding-left: 0; }
+.fl-stats small { color: var(--fl-muted); font-size: 9px; display: block; margin-bottom: 9px; }
+.fl-stats strong { font-size: 25px; font-weight: 400; font-variant-numeric: tabular-nums; letter-spacing: -.7px; }
+.fl-stats > div:first-child strong { font-size: 29px; }
+.fl-stats p { font-size: 10px; }
+.friday-log .fl-up { color: #68dba0; }
+.friday-log .fl-down { color: #f58484; }
+.friday-log .fl-muted { color: var(--fl-muted); }
+.fl-section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 23px 0 13px; }
+.fl-section-title > span { color: var(--fl-muted); font-size: 10px; }
+.fl-allocation { display: flex; height: 10px; gap: 3px; margin-bottom: 12px; overflow: hidden; }
+.fl-allocation-labels { display: flex; gap: 8px 15px; flex-wrap: wrap; font-size: 10px; color: var(--fl-muted); }
+.fl-allocation-labels i { display: inline-block; height: 6px; width: 6px; margin-right: 5px; }
+.fl-table-wrap { width: 100%; overflow: auto; }
+.friday-log table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+.friday-log th { text-align: right; padding: 10px 8px; color: var(--fl-muted); font-size: 9px; font-weight: 400; border-bottom: 1px solid var(--fl-line); }
+.friday-log td { text-align: right; padding: 12px 8px; border-bottom: 1px solid #1b1b1b; font-size: 11px; font-variant-numeric: tabular-nums; }
+.friday-log td:first-child, .friday-log th:first-child { text-align: left; padding-left: 0; }
+.friday-log td small { display: block; color: var(--fl-muted); font-size: 9px; margin-top: 4px; max-width: 185px; overflow: hidden; text-overflow: ellipsis; }
+.friday-log .fl-ticker { background: none; border: 0; padding: 0; font-size: 12px; }
+.fl-ticker span { color: var(--fl-muted); font-size: 10px; margin-left: 4px; }
+.friday-log .fl-activity-link { background: none; padding: 0; border: 0; font-size: 10px; color: #a7bfd2; }
+.fl-stock-detail > td { background: #0c0c0c; padding: 12px !important; text-align: left !important; white-space: normal; }
+.fl-stock-detail p { margin: 0 0 12px; }
+.fl-transactions td { font-size: 10px; }
+.friday-log .fl-notice { padding: 12px 0; color: #dfc493; border-bottom: 1px solid var(--fl-line); }
+.fl-empty { padding: 12px 0; }
+.fl-footnote { margin-top: 18px !important; }
+.fl-records { border-top: 1px solid var(--fl-line); margin-top: 26px; padding-top: 16px; }
+.fl-records summary { color: var(--fl-muted); cursor: pointer; font-size: 11px; }
+.fl-records p { max-width: 1000px; }
+.fl-records a { color: #a7bfd2; text-decoration: underline; }
+.fl-records > button { margin-top: 14px; }
+.fl-import { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; margin: 22px 0 12px; }
+.fl-import input[type=file] { max-width: 300px; }
+.fl-loading { padding: 25px 0; }
+@media (min-width:769px) and (max-width:1380px) {
+  #app-header .header-meta { display: none; }
+  #app-header .header-nav { min-width: 0; overflow-x: auto; }
+  #app-header .nav-link { padding-left: 10px; padding-right: 10px; white-space: nowrap; }
+  #app-header .app-title { white-space: nowrap; }
+  #app-header .header-left, #app-header .header-right { flex-shrink: 0; }
+}
+@media(max-width:1100px) {
+  .fl-layout { grid-template-columns: 245px minmax(0,1fr); gap: 24px; }
+  .fl-calendar { padding-right: 18px; }
+  .fl-stats > div { padding-left: 14px; }
+  .fl-stats strong { font-size: 22px; }
+  .fl-stats > div:first-child strong { font-size: 25px; }
+}
+@media(max-width:760px) {
+  .friday-log { padding: 8px 0 25px; }
+  .fl-heading { flex-direction: column; align-items: flex-start; gap: 18px; margin-bottom: 24px; }
+  .fl-filters { width: 100%; }
+  .fl-filters label:last-child { flex: 1; }
+  .fl-layout { display: block; }
+  .fl-calendar { border: 0; padding: 0 0 25px; }
+  .fl-month { grid-template-columns: 30px repeat(5,1fr); margin-bottom: 4px; }
+  .friday-log .fl-day { height: 32px; }
+  .friday-log .fl-calendar-key { margin-top: 12px; }
+  .fl-week-title h2 { font-size: 18px; }
+  .fl-stats { grid-template-columns: 1.3fr 1.1fr .7fr; }
+  .fl-stats > div { padding-left: 10px; }
+  .fl-stats strong, .fl-stats > div:first-child strong { font-size: 20px; }
+  .fl-stats small { font-size: 8px; }
+  .fl-stats p { font-size: 9px; }
+  .fl-section-title > span { text-align: right; }
+  .friday-log table { min-width: 650px; }
+  .fl-import { flex-direction: column; align-items: stretch; }
+}

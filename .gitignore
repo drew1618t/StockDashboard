@@ -15,6 +15,7 @@ data/taxes.json
 data/private-investments/
 data/live-portfolio-snapshot.json
 data/transactions/
+data/friday-log/
 
 # Local agent/browser workspaces and generated exports
 .codex-remote-attachments/
