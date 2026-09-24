@@ -47,6 +47,51 @@ test('cash withdrawals are excluded from profits and weighted by day in Modified
   assert.equal(week.externalFlows, -200);
   assert.equal(week.profit, 50);
   assert.ok(Math.abs(week.weekPct - 50 / (1000 - 200 * 2 / 7) * 100) < 1e-9);
+  assert.ok(Math.abs(week.ytdPct - week.weekPct) < 1e-9);
+});
+
+test('YTD compounds full-precision weekly returns rather than adding percentages', t => {
+  const { store } = fixture(t);
+  store.setAnchor('all', { date: '2026-01-09', cash: 0, positions: [{ symbol: 'ABC', shares: 100 }] });
+  const prices = store.getPrices();
+  prices.symbols.ABC.closes['2026-01-02'] = 11;
+  prices.symbols.ABC.closes['2026-01-09'] = 9.9;
+  store.savePrices(prices);
+  const weeks = store.getYear(2026).weeks;
+  assert.ok(Math.abs(weeks[0].ytdPct - 10) < 1e-9);
+  assert.ok(Math.abs(weeks[1].weekPct + 10) < 1e-9);
+  assert.ok(Math.abs(weeks[1].ytdPct + 1) < 1e-9);
+  assert.equal(weeks[2].ytdPct, null);
+});
+
+test('YTD remains pending after a missing historical period even when weekly returns recover', t => {
+  const { store } = fixture(t, '2026-01-17T12:00:00Z');
+  for (const account of Object.keys(ACCOUNTS)) store.importCsv(account, csv(['01/01/2026,Bank Interest,,,,,,0']), '2026-01-16');
+  const prices = store.getPrices();
+  delete prices.symbols.ABC.closes['2026-01-02'];
+  prices.symbols.ABC.closes['2026-01-16'] = 12;
+  prices.symbols.SPY.closes['2026-01-16'] = 12;
+  store.savePrices(prices);
+  const weeks = store.getYear(2026).weeks;
+  assert.equal(weeks[0].ytdPct, null);
+  assert.ok(Number.isFinite(weeks[2].weekPct));
+  assert.equal(weeks[2].ytdPct, null);
+  assert.equal(store.getYear(2026, 'kaili-roth').weeks[0].ytdPct, null);
+});
+
+test('YTD resets at December 31 while the first January weekly return can span December', t => {
+  const { store } = fixture(t, '2027-01-09T12:00:00Z');
+  for (const account of Object.keys(ACCOUNTS)) store.importCsv(account, csv(['01/01/2026,Bank Interest,,,,,,0']), '2027-01-08');
+  store.setAnchor('all', { date: '2027-01-08', cash: 0, positions: [{ symbol: 'ABC', shares: 10 }] });
+  const prices = store.getPrices();
+  for (const quote of Object.values(prices.symbols)) {
+    Object.assign(quote.closes, { '2026-12-25': 10, '2026-12-31': 20, '2027-01-08': 22 });
+  }
+  store.savePrices(prices);
+  const weeks = store.getYear(2027).weeks;
+  assert.equal(weeks[0].weekPct, 100);
+  assert.equal(weeks[0].ytdPct, 0);
+  assert.ok(Math.abs(weeks[1].ytdPct - 10) < 1e-9);
 });
 
 test('sweep trades preserve cash equivalents and reinvested income is counted once', () => {

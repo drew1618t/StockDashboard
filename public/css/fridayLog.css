@@ -32,7 +32,7 @@ body.friday-active, body.friday-active #dashboard-content { background: #000; }
 .fl-week-title p { font-size: 10px; }
 .fl-arrows { display: flex; gap: 6px; }
 .fl-arrows button { width: 30px; height: 30px; padding: 0; }
-.fl-stats { display: grid; grid-template-columns: 1.5fr 1.2fr .8fr; padding: 21px 0; border-bottom: 1px solid var(--fl-line); }
+.fl-stats { display: grid; grid-template-columns: 1.5fr 1.2fr 1.1fr .8fr; padding: 21px 0; border-bottom: 1px solid var(--fl-line); }
 .fl-stats > div { border-left: 1px solid var(--fl-line); padding-left: 22px; }
 .fl-stats > div:first-child { border: 0; padding-left: 0; }
 .fl-stats small { color: var(--fl-muted); font-size: 9px; display: block; margin-bottom: 9px; }
@@ -95,7 +95,8 @@ body.friday-active, body.friday-active #dashboard-content { background: #000; }
   .friday-log .fl-day { height: 32px; }
   .friday-log .fl-calendar-key { margin-top: 12px; }
   .fl-week-title h2 { font-size: 18px; }
-  .fl-stats { grid-template-columns: 1.3fr 1.1fr .7fr; }
+  .fl-stats { grid-template-columns: 1fr 1fr; gap: 18px 0; }
+  .fl-stats > div:nth-child(3) { border-left: 0; padding-left: 0; }
   .fl-stats > div { padding-left: 10px; }
   .fl-stats strong, .fl-stats > div:first-child strong { font-size: 20px; }
   .fl-stats small { font-size: 8px; }

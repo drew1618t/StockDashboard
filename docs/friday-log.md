@@ -63,6 +63,12 @@ The first 2026 portfolio period begins December 31; stock week % still compares
 the prior weekly close. See the
 [GIPS calculation guidance](https://www.gipsstandards.org/standards/gips-standards-for-firms/gips-standards-handbook-for-firms/).
 
+Each Friday also shows portfolio YTD return, geometrically linking the unrounded,
+flow-adjusted period returns from December 31 of the preceding year through that
+Friday. When the first week spans December, only the January portion contributes
+to YTD. Missing historical periods keep subsequent YTD figures pending; an
+unknown return is never treated as zero. Future Fridays do not show a YTD value.
+
 ## Automatic capture and deployment
 
 `prepareData()` starts an hourly job with an immediate startup catch-up. On

@@ -16,6 +16,16 @@ const ACTIONS = new Set(['Buy', 'Sell', 'Reinvest Shares', 'Reinvest Dividend', 
 /** Round calculation noise without discarding fractional shares. */
 function clean(n) { return Math.round(n * 1e8) / 1e8; }
 
+/** Estimate flow-adjusted period performance with day-end external-flow timing. */
+function periodPerformance(beginning, ending, flows, start, end) {
+  if (beginning === null || ending === null || flows.some(f => f.unknownFlow)) return { profit: null, percent: null };
+  const duration = (Date.parse(end) - Date.parse(start)) / DAY;
+  const external = flows.reduce((n, f) => n + f.external, 0);
+  const weighted = flows.reduce((n, f) => n + f.external * ((Date.parse(end) - Date.parse(f.date)) / DAY) / duration, 0);
+  const profit = clean(ending - beginning - external);
+  return { profit, percent: duration > 0 && beginning + weighted > 0 ? profit / (beginning + weighted) * 100 : null };
+}
+
 /** Shift an ISO date without depending on the server's timezone. */
 function shift(date, days) { return new Date(Date.parse(`${date}T00:00:00Z`) + days * DAY).toISOString().slice(0, 10); }
 
@@ -229,6 +239,18 @@ function createFridayLogStore(options = {}) {
     return { cash: clean(cash), positions: Object.entries(shares).map(([symbol, count]) => ({ symbol, shares: clean(count) })).filter(p => Math.abs(p.shares) > 1e-6) };
   }
 
+  /** Value a complete balance only when every held security has a usable closing price. */
+  function valueAt(balance, date, prices) {
+    if (!balance || balance.positions.some(p => p.shares < 0)) return null;
+    let value = balance.cash;
+    for (const position of balance.positions) {
+      const close = closeAt(prices, position.symbol, date);
+      if (!close) return null;
+      value += position.shares * close.price;
+    }
+    return value;
+  }
+
   /** Build the selected year's calendar, preserving missing-data states instead of zero returns. */
   function getYear(year, account = 'all') {
     if (!Number.isInteger(year) || year < 2026 || year > Number(marketTime(clock()).date.slice(0, 4))) throw new Error('Invalid year');
@@ -240,6 +262,8 @@ function createFridayLogStore(options = {}) {
       ? Object.keys(ACCOUNTS).map(a => data.coverage[a] || '').sort()[0] : data.coverage[account] || '';
     const names = Object.fromEntries(transactions.filter(t => t.symbol).map(t => [t.symbol, t.description]));
     const dates = fridays(year);
+    const yearStart = `${year - 1}-12-31`;
+    let ytdFactor = 1;
     const weeks = dates.map(date => {
       const periodStart = shift(date, -7) < START ? START : shift(date, -7);
       const activity = transactions.filter(t => t.date > periodStart && t.date <= date);
@@ -270,24 +294,28 @@ function createFridayLogStore(options = {}) {
       const missing = holdings.filter(p => p.value === null).map(p => p.symbol);
       if (missing.length) issues.push(`Closing prices unavailable: ${missing.join(', ')}.`);
       const total = balance && !negative && !missing.length ? clean(balance.cash + holdings.reduce((n, p) => n + p.value, 0)) : null;
-      let beginning = previous ? previous.cash : null;
-      for (const p of previous?.positions || []) {
-        const close = closeAt(prices, p.symbol, periodStart);
-        if (!close) { beginning = null; break; }
-        beginning += p.shares * close.price;
-      }
+      const beginning = valueAt(previous, periodStart, prices);
       const flows = activity.map(t => ({ date: t.date, ...effect(t) }));
       const external = flows.reduce((n, f) => n + f.external, 0);
-      const duration = (Date.parse(date) - Date.parse(periodStart)) / DAY;
-      const weighted = flows.reduce((n, f) => n + f.external * ((Date.parse(date) - Date.parse(f.date)) / DAY) / duration, 0);
       // Modified Dietz estimates time-weighted performance, assuming external flows occur at day-end.
-      const profit = total !== null && beginning !== null && covered && !negative && !captureMismatch && !flows.some(f => f.unknownFlow) ? clean(total - beginning - external) : null;
-      const weekPct = profit !== null && beginning + weighted > 0 ? profit / (beginning + weighted) * 100 : null;
+      const performance = periodPerformance(beginning, total, flows, periodStart, date);
+      const profit = covered && !negative && !captureMismatch ? performance.profit : null;
+      const weekPct = profit !== null ? performance.percent : null;
+      let ytdPeriodPct = weekPct;
+      // A January Friday can span December: YTD starts at Dec 31, while weekly return stays unchanged.
+      if (periodStart < yearStart && covered && !negative && !captureMismatch) {
+        const yearOpening = valueAt(balanceAt(anchor, yearStart, transactions, prices), yearStart, prices);
+        ytdPeriodPct = periodPerformance(yearOpening, total, flows.filter(f => f.date > yearStart), yearStart, date).percent;
+      }
+      // Do not skip an unknown historical return or compound rounded display percentages.
+      if (!upcoming) ytdFactor = ytdFactor !== null && Number.isFinite(ytdPeriodPct)
+        ? ytdFactor * (1 + ytdPeriodPct / 100) : null;
+      const ytdPct = !upcoming && ytdFactor !== null ? (ytdFactor - 1) * 100 : null;
       if (!upcoming && total !== null && weekPct === null && covered) issues.push('The prior closing value or transfer valuation is unavailable; weekly return is pending.');
       holdings.forEach(p => { p.weight = total > 0 && p.value !== null ? p.value / total * 100 : null; });
       return { date, periodStart, upcoming, status: upcoming ? 'upcoming' : weekPct !== null ? 'ready' : balance ? 'partial' : 'needs-data',
         source: captured ? 'captured' : 'reconstructed', total, cash: balance?.cash ?? null,
-        weekPct, profit, externalFlows: clean(external), holdings, transactions: upcoming ? [] : activity,
+        weekPct, ytdPct, profit, externalFlows: clean(external), holdings, transactions: upcoming ? [] : activity,
         tradeCount: activity.filter(t => ['Buy', 'Sell'].includes(t.action) && !CASH_SYMBOLS.has(t.symbol)).length, issues };
     });
     const opening = anchor ? balanceAt(anchor, START, transactions, prices) : null;
