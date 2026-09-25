@@ -114,7 +114,7 @@ function hydrateFromPersistedSnapshot(snapshotPath = SNAPSHOT_PATH) {
  *
  * Per-stock columns (0-indexed):
  *   0: Ticker   1: Shares   2: Weight%   3: Current price
- *   5: Position value   13: Avg buy price   15: Total gain/loss %
+ *   5/6: Position value   13/14: Avg buy price   15/16: Total gain/loss %
  *   17: Gain/loss $   21/22: Daily change %
  */
 function parseCSV(csvText) {
@@ -157,9 +157,12 @@ function parseCSV(csvText) {
     if (shares === null || shares <= 0) continue;
 
     const currentPrice = parseNum(cols[3]);
-    const avgBuyPrice = parseNum(cols[13]);
-    const positionValue = parseNum(cols[5]);
-    const totalGainPct = parseNum(cols[15]);
+    // An optional blank column before position value shifts the cost and gain
+    // fields one place to the right, while price and daily change stay put.
+    const shifted = parseNum(cols[5]) === null && parseNum(cols[6]) !== null;
+    const avgBuyPrice = parseNum(cols[shifted ? 14 : 13]);
+    const positionValue = parseNum(cols[shifted ? 6 : 5]);
+    const totalGainPct = parseNum(cols[shifted ? 16 : 15]);
     const dayChangePct = parseFirstNum(cols, [22, 21]);
 
     // Compute gain/loss % from price data if the sheet doesn't have it
@@ -173,10 +176,10 @@ function parseCSV(csvText) {
       shares,
       weightPct: parseNum(cols[2]) || 0,
       currentPrice: currentPrice || 0,
-      avgBuyPrice: avgBuyPrice || 0,
+      avgBuyPrice,
       dayChangePct: dayChangePct || 0,
       gainLossPct: gainLossPct !== null ? Math.round(gainLossPct * 100) / 100 : null,
-      positionValue: positionValue || 0,
+      positionValue: positionValue !== null ? positionValue : Math.round(shares * (currentPrice || 0) * 100) / 100,
     });
   }
 

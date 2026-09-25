@@ -30,6 +30,30 @@ test('parseCSV reads daily change from current Google Sheets column layout', () 
   assert.equal(data.stocks[0].dayChangePct, -7.35);
   assert.equal(data.stocks[1].dayChangePct, -1.72);
   assert.equal(data.portfolioMetrics.dayChangePct, -4.31);
+  assert.equal(data.stocks[0].positionValue, 199842.66);
+  assert.equal(data.stocks[0].avgBuyPrice, 55.82);
+  assert.equal(data.stocks[0].gainLossPct, 286.21);
+});
+
+test('parseCSV reads value, cost, and gain after an inserted sheet column', () => {
+  const row = Array(23).fill('');
+  row[0] = 'ALAB';
+  row[1] = '472';
+  row[2] = '15.81%';
+  row[3] = '371.33';
+  row[6] = '175267.76';
+  row[14] = '$130.39';
+  row[15] = '$61,542.43';
+  row[16] = '184.79%';
+  row[22] = '3';
+  const csv = ['"","total","$1,108,513.64"', row.map(value => `"${value}"`).join(',')].join('\n');
+
+  const data = parseCSV(csv);
+
+  assert.equal(data.stocks[0].positionValue, 175267.76);
+  assert.equal(data.stocks[0].avgBuyPrice, 130.39);
+  assert.equal(data.stocks[0].gainLossPct, 184.79);
+  assert.equal(data.stocks[0].dayChangePct, 3);
 });
 
 test('persisted portfolio snapshot round-trips for offline consumers', t => {
