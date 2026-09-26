@@ -21,12 +21,16 @@ body.friday-active, body.friday-active #dashboard-content { background: #000; }
 .fl-calendar-title small { font-size: 10px; color: var(--fl-muted); }
 .fl-month { display: grid; grid-template-columns: 28px repeat(5, 1fr); gap: 4px; margin-bottom: 7px; align-items: center; }
 .fl-month > span { font-size: 10px; color: var(--fl-muted); }
-.friday-log .fl-day { height: 38px; padding: 0; position: relative; font-size: 11px; font-variant-numeric: tabular-nums; }
-.friday-log .fl-day.fl-up { background: #0b2118; color: #8ce4b3; border-color: #172e23; }
-.friday-log .fl-day.fl-down { background: #241111; color: #f6a1a1; border-color: #382020; }
-.friday-log .fl-day.selected { border: 2px solid #fff; color: white; }
-.fl-day.has-trades::after { content: ''; position: absolute; width: 3px; height: 3px; background: currentColor; bottom: 4px; left: calc(50% - 1px); }
+.friday-log .fl-day { height: 38px; padding: 0 0 6px; position: relative; overflow: hidden; background: #080808; font-size: 11px; font-variant-numeric: tabular-nums; }
+.friday-log .fl-day.fl-up { background: #080808; color: #8ce4b3; border-color: #292929; }
+.friday-log .fl-day.fl-down { background: #080808; color: #f6a1a1; border-color: #292929; }
+.friday-log .fl-day.selected { border: 2px solid #fff; color: white; background: #141414; }
+.fl-day.has-trades::after { content: ''; position: absolute; width: 3px; height: 3px; background: currentColor; top: 4px; right: 4px; }
 .friday-log .fl-calendar-key { font-size: 10px; margin-top: 20px; line-height: 2; }
+.fl-move-bar { position: absolute; bottom: 0; left: 0; height: 6px; background: currentColor; pointer-events: none; }
+.fl-day.fl-up .fl-move-bar { background: #68dba0; }
+.fl-day.fl-down .fl-move-bar { background: #f58484; }
+.fl-calendar-key strong { color: #ddd; font-weight: 400; }
 .fl-week { min-width: 0; scroll-margin-top: 85px; }
 .fl-week-title { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--fl-line); }
 .fl-week-title p { font-size: 10px; }
