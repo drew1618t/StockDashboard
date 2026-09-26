@@ -77,8 +77,18 @@ persists the first acceptable after-close capture. It rejects stale, pre-close,
 future-dated or invalid balances. Prices are refreshed and yearly snapshots are
 persisted. Capture does not depend on opening the browser, but the Node process
 must be running and the live holdings sheet must be current. On restart, covered
-missed weeks can be reconstructed. A fresh capture beyond transaction coverage
-shows holdings but withholds the return until complete exports arrive.
+missed weeks can be reconstructed. Known transactions are also replayed beyond
+their export date and compared with each Friday's saved Google Sheet snapshot.
+Matching equity quantities and cash confirm the activity for that snapshot, so
+weekly and YTD returns can finalize without another export. Cash tolerates one
+cent of rounding difference; share quantities tolerate one millionth of a share.
+A mismatch keeps the return pending and identifies the cash or stock quantities
+that differ. The prior saved Friday balance is used when available. Missing
+prices or earlier gaps in performance history still leave affected figures
+pending. This comparison does not change the recorded CSV coverage dates or
+invent transaction records. A Friday without a sheet capture still needs exports
+covering that date for reconstruction; a combined capture does not verify an
+individual account's balances.
 
 The source code and private runtime directory are separate deployment inputs.
 Git alone does not transfer balances, imports or reconstructed snapshots.

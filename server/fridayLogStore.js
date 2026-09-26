@@ -270,18 +270,28 @@ function createFridayLogStore(options = {}) {
       const upcoming = date > now.date || (date === now.date && now.hour < 18);
       const covered = coverage >= date && coverage >= (anchor?.date || date);
       const captured = account === 'all' ? data.captures[date] : null;
-      const reconstructed = covered ? balanceAt(anchor, date, transactions, prices) : null;
-      const balance = upcoming ? null : captured || reconstructed;
-      const previous = covered ? balanceAt(anchor, periodStart, transactions, prices) : null;
-      const issues = [];
-      if (!upcoming && !anchor) issues.push('Add this account’s dated holdings and cash to reconstruct its history.');
-      if (!upcoming && !covered) issues.push(`Transaction coverage ${coverage ? `ends ${coverage}` : 'is missing'}. Import all accounts through this Friday to calculate returns.`);
-      // A live capture can reveal an unrecorded trade or cash movement even after files claim coverage.
+      // Compare known activity with the dated sheet capture even when exports end before Friday.
+      const reconstructed = balanceAt(anchor, date, transactions, prices);
       const capturedMap = new Map((captured?.positions || []).map(p => [p.symbol, p.shares]));
       const reconstructedMap = new Map((reconstructed?.positions || []).map(p => [p.symbol, p.shares]));
-      const captureMismatch = !!(captured && reconstructed && (Math.abs(captured.cash - reconstructed.cash) > 0.01
-        || [...new Set([...capturedMap.keys(), ...reconstructedMap.keys()])].some(symbol => Math.abs((capturedMap.get(symbol) || 0) - (reconstructedMap.get(symbol) || 0)) > 1e-6)));
-      if (captureMismatch) issues.push('Captured balances differ from the transaction reconstruction. Reconcile holdings and cash before using the return.');
+      const differences = [];
+      if (captured && reconstructed) {
+        if (Math.abs(Math.round(captured.cash * 100) - Math.round(reconstructed.cash * 100)) > 1) differences.push('cash');
+        for (const symbol of new Set([...capturedMap.keys(), ...reconstructedMap.keys()])) {
+          if (Math.abs((capturedMap.get(symbol) || 0) - (reconstructedMap.get(symbol) || 0)) > 1e-6) differences.push(`${symbol} shares`);
+        }
+      }
+      const balancesMatch = captured && reconstructed ? differences.length === 0 : null;
+      const captureMismatch = balancesMatch === false;
+      const activityConfirmed = covered || balancesMatch === true;
+      const balance = upcoming ? null : captured || (covered ? reconstructed : null);
+      // Prefer the actual prior Friday balance when it exists; its return may still be pending.
+      const previous = activityConfirmed
+        ? (account === 'all' && data.captures[periodStart]) || balanceAt(anchor, periodStart, transactions, prices) : null;
+      const issues = [];
+      if (!upcoming && !anchor) issues.push('Add this account’s dated holdings and cash to reconstruct its history.');
+      if (!upcoming && !covered && !captured) issues.push(`No Google Sheet snapshot is saved for this Friday, and transaction coverage ${coverage ? `ends ${coverage}` : 'is missing'}. Import activity through this Friday to reconstruct it.`);
+      if (captureMismatch) issues.push(`Recorded activity does not match the Google Sheet snapshot: ${differences.join(', ')}. Update transactions to reconcile the difference.`);
       const negative = balance?.positions.some(p => p.shares < 0) || previous?.positions.some(p => p.shares < 0);
       if (negative) issues.push('Reconstructed shares are negative. Reconcile the balance reference, transfers or corporate actions.');
       const holdings = (balance?.positions || []).map(p => {
@@ -299,11 +309,11 @@ function createFridayLogStore(options = {}) {
       const external = flows.reduce((n, f) => n + f.external, 0);
       // Modified Dietz estimates time-weighted performance, assuming external flows occur at day-end.
       const performance = periodPerformance(beginning, total, flows, periodStart, date);
-      const profit = covered && !negative && !captureMismatch ? performance.profit : null;
+      const profit = activityConfirmed && !negative && !captureMismatch ? performance.profit : null;
       const weekPct = profit !== null ? performance.percent : null;
       let ytdPeriodPct = weekPct;
       // A January Friday can span December: YTD starts at Dec 31, while weekly return stays unchanged.
-      if (periodStart < yearStart && covered && !negative && !captureMismatch) {
+      if (periodStart < yearStart && activityConfirmed && !negative && !captureMismatch) {
         const yearOpening = valueAt(balanceAt(anchor, yearStart, transactions, prices), yearStart, prices);
         ytdPeriodPct = periodPerformance(yearOpening, total, flows.filter(f => f.date > yearStart), yearStart, date).percent;
       }
@@ -311,10 +321,10 @@ function createFridayLogStore(options = {}) {
       if (!upcoming) ytdFactor = ytdFactor !== null && Number.isFinite(ytdPeriodPct)
         ? ytdFactor * (1 + ytdPeriodPct / 100) : null;
       const ytdPct = !upcoming && ytdFactor !== null ? (ytdFactor - 1) * 100 : null;
-      if (!upcoming && total !== null && weekPct === null && covered) issues.push('The prior closing value or transfer valuation is unavailable; weekly return is pending.');
+      if (!upcoming && total !== null && weekPct === null && activityConfirmed && !captureMismatch && !negative) issues.push('The prior closing value or transfer valuation is unavailable; weekly return is pending.');
       holdings.forEach(p => { p.weight = total > 0 && p.value !== null ? p.value / total * 100 : null; });
       return { date, periodStart, upcoming, status: upcoming ? 'upcoming' : weekPct !== null ? 'ready' : balance ? 'partial' : 'needs-data',
-        source: captured ? 'captured' : 'reconstructed', total, cash: balance?.cash ?? null,
+        source: captured ? 'captured' : 'reconstructed', balancesMatch, total, cash: balance?.cash ?? null,
         weekPct, ytdPct, profit, externalFlows: clean(external), holdings, transactions: upcoming ? [] : activity,
         tradeCount: activity.filter(t => ['Buy', 'Sell'].includes(t.action) && !CASH_SYMBOLS.has(t.symbol)).length, issues };
     });

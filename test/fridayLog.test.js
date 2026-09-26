@@ -185,7 +185,7 @@ test('negative reconstructed holdings block totals and return calculation', t =>
   assert.match(week.issues.join(' '), /negative/);
 });
 
-test('capture records fresh after-close holdings but withholds returns beyond transaction coverage', t => {
+test('capture records fresh after-close holdings but withholds returns for mismatched activity', t => {
   const { store } = fixture(t, '2026-01-16T23:30:00Z');
   const live = { stocks: [{ ticker: 'ABC', shares: 20 }], cash: { value: 230 }, stale: false, lastFetchTime: '2026-01-16T23:01:00Z' };
   assert.equal(store.captureLive({ ...live, stale: true }), false);
@@ -194,7 +194,59 @@ test('capture records fresh after-close holdings but withholds returns beyond tr
   assert.equal(store.captureLive(live), false);
   const week = store.getYear(2026).weeks[2];
   assert.equal(week.source, 'captured'); assert.equal(week.holdings[0].shares, 20);
-  assert.equal(week.weekPct, null); assert.match(week.issues.join(' '), /coverage/);
+  assert.equal(week.balancesMatch, false);
+  assert.equal(week.weekPct, null); assert.match(week.issues.join(' '), /cash, ABC shares/);
+});
+
+test('matching Friday capture confirms returns beyond export coverage without changing coverage', t => {
+  const { store } = fixture(t, '2026-01-16T23:30:00Z');
+  const prices = store.getPrices();
+  prices.symbols.ABC.closes['2026-01-16'] = 12;
+  prices.symbols.SPY.closes['2026-01-16'] = 12;
+  store.savePrices(prices);
+  store.captureLive({ stocks: [{ ticker: 'ABC', shares: 15 }], cash: { value: 450 }, stale: false, lastFetchTime: '2026-01-16T23:01:00Z' });
+  const result = store.getYear(2026), week = result.weeks[2];
+  assert.equal(result.coverage, '2026-01-09');
+  assert.equal(week.balancesMatch, true);
+  assert.equal(week.status, 'ready');
+  assert.equal(week.total, 630);
+  assert.ok(Math.abs(week.weekPct - 15 / 615 * 100) < 1e-9);
+  assert.ok(Math.abs(week.ytdPct - 5) < 1e-9);
+  assert.deepEqual(week.issues, []);
+  assert.equal(store.getYear(2026, 'drew-roth').weeks[2].weekPct, null);
+});
+
+test('cash mismatch stays pending until imported activity reconciles with the sheet', t => {
+  const { store } = fixture(t, '2026-01-16T23:30:00Z');
+  const prices = store.getPrices();
+  prices.symbols.ABC.closes['2026-01-16'] = 12;
+  prices.symbols.SPY.closes['2026-01-16'] = 12;
+  store.savePrices(prices);
+  store.captureLive({ stocks: [{ ticker: 'ABC', shares: 15 }], cash: { value: 400 }, stale: false, lastFetchTime: '2026-01-16T23:01:00Z' });
+  let week = store.getYear(2026).weeks[2];
+  assert.equal(week.balancesMatch, false);
+  assert.equal(week.weekPct, null);
+  assert.equal(week.ytdPct, null);
+  assert.match(week.issues.join(' '), /snapshot: cash/);
+  store.importCsv('drew-roth', csv(['01/15/2026,MoneyLink Transfer,,Withdrawal,,,,-50']), '2026-01-16');
+  week = store.getYear(2026).weeks[2];
+  assert.equal(store.getYear(2026).coverage, '2026-01-09');
+  assert.equal(week.balancesMatch, true);
+  assert.equal(week.profit, 15);
+  assert.ok(Math.abs(week.weekPct - 15 / (615 - 50 / 7) * 100) < 1e-9);
+});
+
+test('stale exports without a capture and matching captures without prices remain pending', t => {
+  const { store } = fixture(t, '2026-01-16T23:30:00Z');
+  let week = store.getYear(2026).weeks[2];
+  assert.equal(week.balancesMatch, null);
+  assert.equal(week.weekPct, null);
+  assert.match(week.issues.join(' '), /No Google Sheet snapshot/);
+  store.captureLive({ stocks: [{ ticker: 'ABC', shares: 15 }], cash: { value: 450 }, stale: false, lastFetchTime: '2026-01-16T23:01:00Z' });
+  week = store.getYear(2026).weeks[2];
+  assert.equal(week.balancesMatch, true);
+  assert.equal(week.weekPct, null);
+  assert.equal(week.ytdPct, null);
 });
 
 test('Friday capture waits until 6 p.m. New York and calendar supports 53 Fridays', t => {
@@ -212,7 +264,7 @@ test('a captured balance that contradicts covered transactions blocks the perfor
   const week = store.getYear(2026).weeks[1];
   assert.equal(week.holdings[0].shares, 18);
   assert.equal(week.weekPct, null);
-  assert.match(week.issues.join(' '), /Captured balances differ/);
+  assert.match(week.issues.join(' '), /snapshot: ABC shares/);
 });
 
 test('rebuild persists the real computed snapshot and subsequent reads match', t => {
