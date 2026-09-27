@@ -66,7 +66,7 @@
       var pv = p[key] == null ? '' : 'from ' + (plus && p[key] > 0 ? '+' : '') + p[key] + '%';
       return '<div class="stat"><span class="l">' + l + '</span><span class="v">' + v + '%</span><span class="d">' + pv + '</span></div>';
     }
-    return '<div class="stats">' + stat('YTD', 'ytd_return_pct', true) + stat('Top 4', 'top_4_pct') + stat('Top 5', 'top_5_pct') + stat('Top 10', 'top_10_pct') + stat('Foreign tech', 'foreign_listed_tech_pct') + stat('Cash', 'cash_pct') + '</div>';
+    return '<div class="stats">' + stat('YTD', 'ytd_return_pct', true) + stat('Top 4', 'top_4_pct') + stat('Top 5', 'top_5_pct') + stat('Top 8', 'top_8_pct') + stat('Top 10', 'top_10_pct') + stat('Foreign tech', 'foreign_listed_tech_pct') + stat('Cash', 'cash_pct') + '</div>';
   }
 
   function renderTable(cur) {
