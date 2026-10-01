@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-27T15:30:31.595811+00:00",
+  "generated_at": "2026-10-01T20:45:54.662028+00:00",
   "source_notes": {
     "holdings": "WPR YouTube membership allocation slides supplied by Andrew",
     "date_basis": "Snapshot dates are derived from Andrew's ordering on 2026-08-30: SIMO slide is two weeks old, FIGR slide is one week old, ALAB slide is current.",
@@ -1985,6 +1985,27 @@
     }
   ],
   "videos": [
+    {
+      "video_id": "bgt3XffXMxM",
+      "date": "2026-10-01",
+      "title": "Micron MU earnings report review - September 30, 2026",
+      "url": "https://www.youtube.com/watch?v=bgt3XffXMxM",
+      "has_report": true,
+      "source_dir": "2026-10-01_bgt3XffXMxM",
+      "report_path": "transcripts/2026-10-01_bgt3XffXMxM/report.md",
+      "transcript_path": "transcripts/2026-10-01_bgt3XffXMxM/transcript.md",
+      "evidence_path": "transcripts/2026-10-01_bgt3XffXMxM/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "MU",
+          "company": "Micron",
+          "status": "held_plan_to_maintain_medium_allocation_no_trade_disclosed",
+          "weight_pct": null,
+          "thesis": null,
+          "concern": null
+        }
+      ]
+    },
     {
       "video_id": "NnFfJfB7OIM",
       "date": "2026-09-27",
