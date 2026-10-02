@@ -201,7 +201,7 @@ const FridayLogDashboard = {
     const k = Math.min(4, Math.floor(m.weeks.length / 2));
     const group = (label, note, panels) => `<div class="fl-tape-group"><span>${label}</span><span>${note}</span></div><div class="fl-tape">${panels}</div>`;
     const exitNote = s => { const i = s.held.lastIndexOf(true); return i >= 0 ? `held ${this.date(m.weeks[i])}` : 'traded'; };
-    return `<section class="fl-momentum"><div class="fl-section-title"><div><p>Last ${k} weeks against the ${k} before. Weekly price moves, ${this.date(m.weeks[0])} to ${this.date(m.weeks[last])}.</p></div>
+    return `<section class="fl-momentum"><div class="fl-section-title"><div><p>Big number: price change over the last ${k} weeks. Bars: each week since ${this.date(m.weeks[0])}.</p></div>
       <div class="fl-toggle"><button data-momentum="held" aria-pressed="${!this.momentumAll}">Current holdings</button><button data-momentum="all" aria-pressed="${this.momentumAll}">Include exited</button></div></div>
       ${group('BENCHMARKS', '', this.panelHtml('Portfolio', this.account === 'all' ? 'all accounts' : this.data.accounts[this.account], m.portfolio, null, null, true) + this.panelHtml('SPY', 'S&P 500', m.spy))}
       ${current.length ? group('HOLDINGS · FASTEST FIRST', 'weight', current.map(s => this.panelHtml(s.symbol, s.weight[last] == null ? '' : s.weight[last].toFixed(1) + '%', s.pct, s.held, s.trades)).join('')) : ''}
@@ -211,7 +211,8 @@ const FridayLogDashboard = {
 
   /** Render one tape panel with its total, acceleration arrow, weekly bars and trade marks. */
   panelHtml(symbol, note, moves, held, trades, benchmark = false) {
-    const CAP = 25, m = this.momentum(moves), total = moves.some(Number.isFinite) ? this.compound(moves) : null;
+    // Headline is the recent window only; the bars carry the longer trend.
+    const CAP = 25, m = this.momentum(moves), recent = moves.some(Number.isFinite) ? m.recent : null, k = Math.min(4, Math.floor(moves.length / 2));
     const [arrow, tone] = m.score > 5 ? ['↗', 'fl-acc'] : m.score < -5 ? ['↘', 'fl-fade'] : ['→', 'fl-flat'];
     const bars = moves.map((v, i) => {
       const label = `${symbol} · week of ${this.date(this.data.momentum.weeks[i])}: ${this.percent(v)}${held && !held[i] ? ' (not held)' : ''}`;
@@ -223,7 +224,7 @@ const FridayLogDashboard = {
     const marks = moves.map((v, i) => { const t = trades?.[i]; return `<span class="${t || ''}">${t === 'B' ? '▲' : t === 'S' ? '▼' : t ? '◆' : ''}</span>`; }).join('');
     const columns = `grid-template-columns:repeat(${moves.length},1fr)`;
     return `<div class="fl-panel ${benchmark ? 'benchmark' : ''}"><div class="fl-panel-top"><b>${this.escape(symbol)}</b><small>${this.escape(note)}</small><span class="${tone}" title="Last weeks ${this.percent(m.recent)} vs prior ${this.percent(m.prior)}">${arrow}</span></div>
-      <strong class="${this.tone(total)}">${this.percent(total, 1)}</strong><p>${this.percent(m.recent, 1)} vs ${this.percent(m.prior, 1)}</p>
+      <strong class="${this.tone(recent)}">${this.percent(recent, 1)}</strong><p>last ${k} wk · prior ${k} wk ${this.percent(m.prior, 1)}</p>
       <div class="fl-bars" style="${columns};--split:${m.split * 100}%">${bars}</div><div class="fl-marks" style="${columns}">${marks}</div></div>`;
   },
 
