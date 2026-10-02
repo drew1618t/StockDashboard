@@ -332,8 +332,26 @@ test('momentum tape sorts by acceleration and hides exited stocks until requeste
   assert.doesNotMatch(html, />GONE</);
   view.momentumAll = true; html = view.momentumHtml();
   assert.match(html, />GONE</);
+  view.root = { innerHTML: '' }; view.view = 'momentum'; view.year = 2026;
+  Object.assign(view.data, { year: 2026, years: [2026], account: 'all' });
+  view.draw();
+  assert.match(view.root.innerHTML, /data-view="momentum" aria-selected="true"/);
+  assert.match(view.root.innerHTML, /class="fl-momentum"/);
   view.data.momentum.weeks = weeks.slice(0, 4);
   assert.equal(view.momentumHtml(), '');
+});
+
+test('Fridays view no longer carries the momentum tape', t => {
+  const { store } = fixture(t);
+  const context = { history: { replaceState() {} } };
+  const source = fs.readFileSync(path.join(__dirname, '../public/js/dashboards/fridayLog.js'), 'utf8');
+  vm.runInNewContext(source + '\nglobalThis.dashboard = FridayLogDashboard;', context);
+  const view = context.dashboard;
+  view.root = { innerHTML: '' }; view.year = 2026; view.account = 'all'; view.selected = '2026-01-09';
+  view.data = { ...store.getYear(2026), canManage: false };
+  view.draw();
+  assert.match(view.root.innerHTML, /data-view="momentum"/);
+  assert.doesNotMatch(view.root.innerHTML, /class="fl-momentum"/);
 });
 
 test('Friday view omits management controls for readers and retains them for family users', t => {

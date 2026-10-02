@@ -100,9 +100,9 @@ body.friday-active, body.friday-active #dashboard-content { background: #000; }
 .fl-import { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; margin: 22px 0 12px; }
 .fl-import input[type=file] { max-width: 300px; }
 .fl-loading { padding: 25px 0; }
-.fl-momentum { border-top: 1px solid var(--fl-line); margin-top: 30px; }
 .fl-momentum > .fl-section-title { align-items: flex-end; }
-.fl-momentum > .fl-section-title p { margin-top: 4px; }
+.fl-momentum > .fl-section-title { margin-top: 0; }
+.fl-momentum > .fl-section-title p { margin-top: 0; }
 .fl-toggle { display: flex; flex-shrink: 0; }
 .friday-log .fl-toggle button { font-size: 11px; color: var(--fl-muted); padding: 7px 12px; }
 .friday-log .fl-toggle button + button { border-left: 0; }

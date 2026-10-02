@@ -36,7 +36,7 @@ const FridayLogDashboard = {
     const params = new URLSearchParams(location.hash.split('?')[1] || '');
     this.year = Number(params.get('year')) || new Date().getFullYear();
     this.account = params.get('account') || 'all'; this.selected = params.get('week');
-    this.view = params.get('view') === 'trades' ? 'trades' : 'fridays';
+    this.view = ['trades', 'momentum'].includes(params.get('view')) ? params.get('view') : 'fridays';
     this.symbol = (params.get('symbol') || '').toUpperCase() || null; this.query = this.symbol || '';
     this.period = /^(all|\d{4})$/.test(params.get('period') || '') ? params.get('period') : 'ytd';
     this.type = ['stocks', 'options'].includes(params.get('type')) ? params.get('type') : 'all';
@@ -93,7 +93,7 @@ const FridayLogDashboard = {
 
   /** Shared heading: view tabs plus the filters that apply to the active view. */
   headingHtml(title, blurb, filters) {
-    return `<div class="fl-heading"><div><div class="fl-eyebrow">PERFORMANCE</div><h1>${title}</h1><p>${blurb}</p></div><div class="fl-controls"><div class="fl-tabs" role="tablist"><button role="tab" data-view="fridays" aria-selected="${this.view === 'fridays'}">Fridays</button><button role="tab" data-view="trades" aria-selected="${this.view === 'trades'}">Trades</button></div><div class="fl-filters">${filters}</div></div></div>`;
+    return `<div class="fl-heading"><div><div class="fl-eyebrow">PERFORMANCE</div><h1>${title}</h1><p>${blurb}</p></div><div class="fl-controls"><div class="fl-tabs" role="tablist"><button role="tab" data-view="fridays" aria-selected="${this.view === 'fridays'}">Fridays</button><button role="tab" data-view="trades" aria-selected="${this.view === 'trades'}">Trades</button><button role="tab" data-view="momentum" aria-selected="${this.view === 'momentum'}">Momentum</button></div><div class="fl-filters">${filters}</div></div></div>`;
   },
 
   /** Period filter for trade statistics: each year the ledger covers, plus everything on record. */
@@ -120,6 +120,7 @@ const FridayLogDashboard = {
   draw() {
     if (!this.root) return;
     if (this.view === 'trades') return this.drawTrades();
+    if (this.view === 'momentum') return this.drawMomentum();
     const data = this.data, week = data.weeks.find(w => w.date === this.selected);
     const count = data.weeks.filter(w => !w.upcoming).length;
     // One absolute-return scale makes gains and losses comparable across the selected year/account.
@@ -132,7 +133,6 @@ const FridayLogDashboard = {
       ${this.months.map((month, index) => `<div class="fl-month"><span>${month}</span>${data.weeks.filter(w => Number(w.date.slice(5, 7)) === index + 1).map(w => `<button class="fl-day ${this.tone(w.weekPct)} ${w.date === this.selected ? 'selected' : ''} ${w.tradeCount && !w.upcoming ? 'has-trades' : ''}" data-week="${w.date}" ${w.upcoming ? 'disabled' : ''} aria-pressed="${w.date === this.selected}" aria-label="${this.date(w.date, true)}, ${w.upcoming ? 'upcoming' : `portfolio ${this.percent(w.weekPct)}`}" title="${this.date(w.date)} · ${w.upcoming ? 'Upcoming' : this.percent(w.weekPct)}">${Number(w.date.slice(8))}${!w.upcoming && Number.isFinite(w.weekPct) ? `<span class="fl-move-bar" aria-hidden="true" style="width:${maxMove ? Math.abs(w.weekPct) / maxMove * 100 : 0}%"></span>` : ''}</button>`).join('')}</div>`).join('')}
       <p class="fl-calendar-key">Bar length = weekly move size<br><span class="fl-up">Green: gain</span> / <span class="fl-down">Red: loss</span>${largest ? `<br><strong>Full width: ${maxMove.toFixed(2)}%</strong> (${this.date(largest.date)})` : ''}<br>&bull; Stock trades &nbsp; &#9633; Selected Friday<br>Uncolored: return pending. Dimmed: upcoming.</p></aside>
       <section class="fl-week" aria-live="polite">${week ? this.weekHtml(week) : '<p class="fl-notice">The first Friday snapshot will appear after the week closes.</p>'}</section></div>
-      ${this.momentumHtml()}
       <details class="fl-records"><summary>Sources & updates</summary><p>${data.anchor ? `Reconstructed from ${this.escape(data.anchor.source)}.` : 'Account holdings are pending a dated account balance. The combined portfolio is available under All accounts.'} Transactions through ${this.escape(data.coverage || 'not imported')}. Closing prices: Yahoo Finance${data.pricesUpdatedAt ? `, refreshed ${this.date(data.pricesUpdatedAt.slice(0, 10))}` : ''}.</p>
       ${data.reconciliation ? `<p>Opening balance check: reconstructed ${this.money(data.reconciliation.openingValue, 2)}; dashboard starting value ${this.money(data.reconciliation.reportedOpeningValue, 2)}. Difference: ${this.money(data.reconciliation.difference, 2)}. These are reconstructed records, not reconciled brokerage statements.</p>` : ''}
       <p>Weekly return uses <a href="https://www.gipsstandards.org/standards/gips-standards-for-firms/gips-standards-handbook-for-firms/" target="_blank" rel="noopener">Modified Dietz</a> with day-end deposits and withdrawals. Cash, money-market funds, dividends and fees are included. Stock week % measures price change, adjusted for splits. A market holiday uses the last trading close; the first 2026 portfolio period starts December 31.</p>
@@ -182,6 +182,15 @@ const FridayLogDashboard = {
     return { recent, prior, score: recent - prior, split: (n - k) / n };
   },
 
+  /** Momentum view: shares the Fridays data (same year and account filters) and shows only the tape. */
+  drawMomentum() {
+    const data = this.data;
+    history.replaceState(null, '', `#friday-log?view=momentum&year=${data.year}&account=${encodeURIComponent(data.account)}`);
+    const years = `<label>Year<select data-filter="year" aria-label="Year">${data.years.map(y => `<option ${y === this.year ? 'selected' : ''}>${y}</option>`).join('')}</select></label>`;
+    this.root.innerHTML = this.headingHtml('Speeding up, or fading.', 'How each stock moved, week by week, over the last nine Fridays.', years + this.accountFilterHtml(data.accounts))
+      + (this.momentumHtml() || '<p class="fl-notice">Momentum needs at least five completed Fridays in the selected year.</p>');
+  },
+
   /** Render the momentum tape: one panel per stock, weekly bars on a shared scale, sorted by acceleration. */
   momentumHtml() {
     const m = this.data.momentum;
@@ -192,7 +201,7 @@ const FridayLogDashboard = {
     const k = Math.min(4, Math.floor(m.weeks.length / 2));
     const group = (label, note, panels) => `<div class="fl-tape-group"><span>${label}</span><span>${note}</span></div><div class="fl-tape">${panels}</div>`;
     const exitNote = s => { const i = s.held.lastIndexOf(true); return i >= 0 ? `held ${this.date(m.weeks[i])}` : 'traded'; };
-    return `<section class="fl-momentum"><div class="fl-section-title"><div><h3>Momentum</h3><p>Last ${k} weeks against the ${k} before. Weekly price moves, ${this.date(m.weeks[0])} to ${this.date(m.weeks[last])}.</p></div>
+    return `<section class="fl-momentum"><div class="fl-section-title"><div><p>Last ${k} weeks against the ${k} before. Weekly price moves, ${this.date(m.weeks[0])} to ${this.date(m.weeks[last])}.</p></div>
       <div class="fl-toggle"><button data-momentum="held" aria-pressed="${!this.momentumAll}">Current holdings</button><button data-momentum="all" aria-pressed="${this.momentumAll}">Include exited</button></div></div>
       ${group('BENCHMARKS', '', this.panelHtml('Portfolio', this.account === 'all' ? 'all accounts' : this.data.accounts[this.account], m.portfolio, null, null, true) + this.panelHtml('SPY', 'S&P 500', m.spy))}
       ${current.length ? group('HOLDINGS · FASTEST FIRST', 'weight', current.map(s => this.panelHtml(s.symbol, s.weight[last] == null ? '' : s.weight[last].toFixed(1) + '%', s.pct, s.held, s.trades)).join('')) : ''}

@@ -225,12 +225,32 @@ function createFridayLogStore(options = {}) {
   /** Persist downloaded quotes separately from the user's original transaction records. */
   function savePrices(prices) { writeJson(pricesPath, prices); }
 
+  // Sorted SPY session dates and per-date answers, cached per loaded price document (a fresh read gets a fresh cache).
+  const sessionCache = new WeakMap();
+
+  /** Find the last exchange session in the six days up to a date; one year of Fridays makes thousands of these lookups. */
+  function sessionAt(prices, date) {
+    let cache = sessionCache.get(prices);
+    if (!cache) {
+      cache = { dates: Object.keys(prices.symbols.SPY?.closes || {}).sort(), byDate: new Map() };
+      sessionCache.set(prices, cache);
+    }
+    if (!cache.byDate.has(date)) {
+      const floor = shift(date, -6);
+      let found;
+      for (let i = cache.dates.length - 1; i >= 0; i--) {
+        if (cache.dates[i] <= date) { if (cache.dates[i] >= floor) found = cache.dates[i]; break; }
+      }
+      cache.byDate.set(date, found);
+    }
+    return cache.byDate.get(date);
+  }
+
   /** Find the last actual exchange session, never substituting a stale quote for a missing close. */
   function closeAt(prices, symbol, date) {
     // A stale market calendar must not make a missing Friday look like an exchange holiday.
     if (prices.symbols.SPY?.finalThrough && prices.symbols.SPY.finalThrough < date) return null;
-    const sessions = Object.keys(prices.symbols.SPY?.closes || {}).filter(d => d <= date && d >= shift(date, -6)).sort();
-    const session = sessions.at(-1);
+    const session = sessionAt(prices, date);
     if (session && prices.symbols[symbol]?.finalThrough && prices.symbols[symbol].finalThrough < session) return null;
     const value = session && prices.symbols[symbol]?.closes?.[session];
     return Number.isFinite(value) && value > 0 ? { price: value, date: session } : null;
