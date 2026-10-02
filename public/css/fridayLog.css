@@ -74,6 +74,38 @@ body.friday-active, body.friday-active #dashboard-content { background: #000; }
 .fl-import { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; margin: 22px 0 12px; }
 .fl-import input[type=file] { max-width: 300px; }
 .fl-loading { padding: 25px 0; }
+.fl-momentum { border-top: 1px solid var(--fl-line); margin-top: 30px; }
+.fl-momentum > .fl-section-title { align-items: flex-end; }
+.fl-momentum > .fl-section-title p { margin-top: 4px; }
+.fl-toggle { display: flex; flex-shrink: 0; }
+.friday-log .fl-toggle button { font-size: 11px; color: var(--fl-muted); padding: 7px 12px; }
+.friday-log .fl-toggle button + button { border-left: 0; }
+.friday-log .fl-toggle button[aria-pressed="true"] { color: #fff; background: #141414; }
+.fl-tape-group { display: flex; justify-content: space-between; padding: 16px 0 8px; font-size: 10px; letter-spacing: .14em; color: var(--fl-muted); }
+.fl-tape { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--fl-line); border-left: 1px solid var(--fl-line); }
+.fl-panel { border-right: 1px solid var(--fl-line); border-bottom: 1px solid var(--fl-line); padding: 12px 14px 10px; min-width: 0; }
+.fl-panel.benchmark { background: #050709; }
+.fl-panel.benchmark b { color: #b6cddd; }
+.fl-panel-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.fl-panel-top b { font-size: 13px; font-weight: 500; }
+.fl-panel-top small { color: var(--fl-muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fl-panel-top > span { font-size: 15px; line-height: 1; }
+.fl-acc { color: #b6cddd; } .fl-fade { color: #8a6f6f; } .fl-flat { color: #555; }
+.fl-panel strong { display: block; font-size: 18px; font-weight: 400; letter-spacing: -.4px; margin: 6px 0 2px; font-variant-numeric: tabular-nums; }
+.friday-log .fl-panel p { font-size: 10px; margin: 0; font-variant-numeric: tabular-nums; }
+.fl-bars { display: grid; gap: 3px; height: 74px; margin-top: 10px; position: relative; }
+/* Zero line, and a dashed divider between the prior and recent comparison windows. */
+.fl-bars::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid #2a2a2a; }
+.fl-bars::after { content: ''; position: absolute; top: 0; bottom: 0; left: calc(var(--split) - 1.5px); border-left: 1px dashed #2a2a2a; }
+.fl-bars > span { position: relative; }
+.fl-bars i { position: absolute; left: 0; right: 0; }
+.fl-bars .pos i { background: #68dba0; } .fl-bars .neg i { background: #f58484; }
+.fl-bars .out i { opacity: .28; }
+.fl-bars .clip i::after { content: ''; position: absolute; left: 0; right: 0; height: 2px; background: #000; }
+.fl-bars .clip.pos i::after { top: 3px; } .fl-bars .clip.neg i::after { bottom: 3px; }
+.fl-marks { display: grid; gap: 3px; height: 8px; margin-top: 4px; font-size: 7px; line-height: 8px; text-align: center; }
+.fl-marks .B { color: #68dba0; } .fl-marks .S { color: #f58484; } .fl-marks .BS { color: #fff; }
+.friday-log .fl-tape-key { font-size: 10px; margin-top: 12px; }
 @media (min-width:769px) and (max-width:1380px) {
   #app-header .header-meta { display: none; }
   #app-header .header-nav { min-width: 0; overflow-x: auto; }
@@ -87,6 +119,7 @@ body.friday-active, body.friday-active #dashboard-content { background: #000; }
   .fl-stats > div { padding-left: 14px; }
   .fl-stats strong { font-size: 22px; }
   .fl-stats > div:first-child strong { font-size: 25px; }
+  .fl-tape { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media(max-width:760px) {
   .friday-log { padding: 8px 0 25px; }
@@ -108,4 +141,9 @@ body.friday-active, body.friday-active #dashboard-content { background: #000; }
   .fl-section-title > span { text-align: right; }
   .friday-log table { min-width: 650px; }
   .fl-import { flex-direction: column; align-items: stretch; }
+  .fl-momentum > .fl-section-title { flex-direction: column; align-items: flex-start; }
+  .fl-tape { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fl-panel { padding: 10px 10px 8px; }
+  .fl-panel strong { font-size: 16px; }
+  .fl-bars { height: 56px; gap: 2px; } .fl-marks { gap: 2px; }
 }

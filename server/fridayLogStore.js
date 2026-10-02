@@ -215,6 +215,32 @@ function createFridayLogStore(options = {}) {
     return Number.isFinite(value) && value > 0 ? { price: value, date: session } : null;
   }
 
+  /** Measure a security's split-adjusted price change from the prior Friday close; null when either close is missing. */
+  function weekMove(prices, symbol, date) {
+    const close = closeAt(prices, symbol, date), prior = closeAt(prices, symbol, shift(date, -7));
+    if (!close || !prior) return null;
+    const splitFactor = (prices.symbols[symbol]?.splits || []).filter(s => s.date > prior.date && s.date <= close.date).reduce((n, s) => n * s.ratio, 1);
+    return (close.price * splitFactor / prior.price - 1) * 100;
+  }
+
+  /** Summarize the last nine completed Fridays for every stock held or traded, including weeks it was not held. */
+  function momentumFor(weeks, prices) {
+    const recent = weeks.filter(w => !w.upcoming).slice(-9);
+    const trade = t => ['Buy', 'Sell'].includes(t.action) && t.symbol && !CASH_SYMBOLS.has(t.symbol);
+    const symbols = new Set();
+    recent.forEach(w => { w.holdings.forEach(h => symbols.add(h.symbol)); w.transactions.filter(trade).forEach(t => symbols.add(t.symbol)); });
+    return { weeks: recent.map(w => w.date), portfolio: recent.map(w => w.weekPct), spy: recent.map(w => weekMove(prices, 'SPY', w.date)),
+      stocks: [...symbols].map(symbol => ({ symbol,
+        pct: recent.map(w => weekMove(prices, symbol, w.date)),
+        held: recent.map(w => w.holdings.some(h => h.symbol === symbol)),
+        weight: recent.map(w => w.holdings.find(h => h.symbol === symbol)?.weight ?? null),
+        // 'B', 'S', 'BS' when both sides traded that week, or null.
+        trades: recent.map(w => {
+          const sides = new Set(w.transactions.filter(t => trade(t) && t.symbol === symbol).map(t => t.action[0]));
+          return sides.size ? [...sides].sort().join('') : null;
+        }) })) };
+  }
+
   /** Reconstruct dated balances by undoing or replaying trades and share splits around the anchor. */
   function balanceAt(anchor, date, transactions, prices) {
     if (!anchor) return null;
@@ -296,9 +322,8 @@ function createFridayLogStore(options = {}) {
       if (negative) issues.push('Reconstructed shares are negative. Reconcile the balance reference, transfers or corporate actions.');
       const holdings = (balance?.positions || []).map(p => {
         const close = closeAt(prices, p.symbol, date), prior = closeAt(prices, p.symbol, shift(date, -7));
-        const splitFactor = (prices.symbols[p.symbol]?.splits || []).filter(s => s.date > (prior?.date || date) && s.date <= (close?.date || date)).reduce((n, s) => n * s.ratio, 1);
         return { ...p, name: names[p.symbol] || p.symbol, close: close?.price ?? null, closeDate: close?.date || null,
-          previousClose: prior?.price ?? null, weekPct: close && prior ? (close.price * splitFactor / prior.price - 1) * 100 : null,
+          previousClose: prior?.price ?? null, weekPct: weekMove(prices, p.symbol, date),
           value: close ? clean(p.shares * close.price) : null };
       }).sort((a, b) => (b.value || 0) - (a.value || 0));
       const missing = holdings.filter(p => p.value === null).map(p => p.symbol);
@@ -336,7 +361,7 @@ function createFridayLogStore(options = {}) {
       ? { openingValue, reportedOpeningValue: anchor.referenceStartValue, difference: openingValue - anchor.referenceStartValue } : null;
     const result = { year, account, accounts: ACCOUNTS, years: Array.from({ length: Number(now.date.slice(0, 4)) - 2025 }, (_, i) => 2026 + i),
       coverage: coverage || null, anchor: anchor ? { date: anchor.date, source: anchor.source } : null,
-      pricesUpdatedAt: prices.updatedAt, reconciliation, weeks, method: 'Modified Dietz; day-end external flows; includes cash, dividends and fees.' };
+      pricesUpdatedAt: prices.updatedAt, reconciliation, weeks, momentum: momentumFor(weeks, prices), method: 'Modified Dietz; day-end external flows; includes cash, dividends and fees.' };
     return result;
   }
 

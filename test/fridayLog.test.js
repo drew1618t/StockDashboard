@@ -296,6 +296,46 @@ test('Friday scheduler captures and refreshes even if the preceding refresh was 
   assert.equal(store.getPrices().symbols.SPY.finalThrough, '2026-01-09');
 });
 
+test('momentum covers traded stocks in weeks they were not held, with trade sides', t => {
+  const { store } = fixture(t);
+  store.importCsv('drew-roth', csv(['01/05/2026,Buy,XYZ,Example,1,20,0,-20', '01/08/2026,Sell,XYZ,Example,1,22,0,22']), '2026-01-09');
+  const prices = store.getPrices();
+  prices.symbols.XYZ = { closes: { '2025-12-26': 20, '2026-01-02': 20, '2026-01-09': 25 }, splits: [] };
+  store.savePrices(prices);
+  const { momentum } = store.getYear(2026);
+  assert.deepEqual(momentum.weeks, ['2026-01-02', '2026-01-09']);
+  const xyz = momentum.stocks.find(s => s.symbol === 'XYZ'), abc = momentum.stocks.find(s => s.symbol === 'ABC');
+  assert.deepEqual(xyz.held, [false, false]);
+  assert.deepEqual(xyz.trades, [null, 'BS']);
+  assert.equal(xyz.pct[1], 25);
+  assert.deepEqual(abc.held, [true, true]);
+  assert.ok(Math.abs(abc.pct[1] - 10) < 1e-9);
+  assert.ok(Math.abs(momentum.spy[1] - 10) < 1e-9);
+});
+
+test('momentum tape sorts by acceleration and hides exited stocks until requested', () => {
+  const context = { history: { replaceState() {} } };
+  const source = fs.readFileSync(path.join(__dirname, '../public/js/dashboards/fridayLog.js'), 'utf8');
+  vm.runInNewContext(source + '\nglobalThis.dashboard = FridayLogDashboard;', context);
+  const view = context.dashboard;
+  const weeks = Array.from({ length: 9 }, (_, i) => `2026-03-${String(6 + i).padStart(2, '0')}`);
+  const flat = Array(9).fill(1), on = Array(9).fill(true);
+  view.account = 'all';
+  view.data = { accounts: {}, momentum: { weeks, portfolio: flat, spy: flat, stocks: [
+    { symbol: 'FADE', pct: [0, 9, 9, 9, 9, -2, -2, -2, -2], held: on, weight: Array(9).fill(5), trades: Array(9).fill(null) },
+    { symbol: 'FAST', pct: [0, -2, -2, -2, -2, 9, 9, 9, 9], held: on, weight: Array(9).fill(5), trades: [null, 'B', ...Array(7).fill(null)] },
+    { symbol: 'GONE', pct: flat, held: [true, ...Array(8).fill(false)], weight: [3, ...Array(8).fill(null)], trades: Array(9).fill(null) },
+  ] } };
+  let html = view.momentumHtml();
+  assert.ok(html.indexOf('>FAST<') < html.indexOf('>FADE<'));
+  assert.match(html, /fl-acc/); assert.match(html, /fl-fade/); assert.match(html, /▲/);
+  assert.doesNotMatch(html, />GONE</);
+  view.momentumAll = true; html = view.momentumHtml();
+  assert.match(html, />GONE</);
+  view.data.momentum.weeks = weeks.slice(0, 4);
+  assert.equal(view.momentumHtml(), '');
+});
+
 test('Friday view omits management controls for readers and retains them for family users', t => {
   const { store } = fixture(t);
   const context = { history: { replaceState() {} } };

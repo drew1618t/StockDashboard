@@ -1,6 +1,6 @@
 /** Year Atlas: Friday snapshots for signed-in users, backed by transactions and historical closes. */
 const FridayLogDashboard = {
-  root: null, data: null, selected: null, account: 'all', year: null, expanded: null, request: 0,
+  root: null, data: null, selected: null, account: 'all', year: null, expanded: null, request: 0, momentumAll: false,
   months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 
   /** Escape all source and API text before interpolating HTML. */
@@ -10,7 +10,7 @@ const FridayLogDashboard = {
   money(value, decimals = 0) { return value === null || value === undefined ? 'Pending' : value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: decimals, maximumFractionDigits: decimals }); },
 
   /** Format a signed portfolio or security return. */
-  percent(value) { return value === null || value === undefined ? 'Pending' : `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`; },
+  percent(value, decimals = 2) { return value === null || value === undefined ? 'Pending' : `${value >= 0 ? '+' : ''}${value.toFixed(decimals)}%`; },
 
   /** Keep Friday labels independent of the browser's timezone. */
   date(value, long = false) { return new Date(`${value}T12:00:00Z`).toLocaleDateString('en-US', { month: long ? 'long' : 'short', day: 'numeric', ...(long ? { year: 'numeric' } : {}), timeZone: 'UTC' }); },
@@ -65,6 +65,7 @@ const FridayLogDashboard = {
       ${this.months.map((month, index) => `<div class="fl-month"><span>${month}</span>${data.weeks.filter(w => Number(w.date.slice(5, 7)) === index + 1).map(w => `<button class="fl-day ${this.tone(w.weekPct)} ${w.date === this.selected ? 'selected' : ''} ${w.tradeCount && !w.upcoming ? 'has-trades' : ''}" data-week="${w.date}" ${w.upcoming ? 'disabled' : ''} aria-pressed="${w.date === this.selected}" aria-label="${this.date(w.date, true)}, ${w.upcoming ? 'upcoming' : `portfolio ${this.percent(w.weekPct)}`}" title="${this.date(w.date)} · ${w.upcoming ? 'Upcoming' : this.percent(w.weekPct)}">${Number(w.date.slice(8))}${!w.upcoming && Number.isFinite(w.weekPct) ? `<span class="fl-move-bar" aria-hidden="true" style="width:${maxMove ? Math.abs(w.weekPct) / maxMove * 100 : 0}%"></span>` : ''}</button>`).join('')}</div>`).join('')}
       <p class="fl-calendar-key">Bar length = weekly move size<br><span class="fl-up">Green: gain</span> / <span class="fl-down">Red: loss</span>${largest ? `<br><strong>Full width: ${maxMove.toFixed(2)}%</strong> (${this.date(largest.date)})` : ''}<br>&bull; Stock trades &nbsp; &#9633; Selected Friday<br>Uncolored: return pending. Dimmed: upcoming.</p></aside>
       <section class="fl-week" aria-live="polite">${week ? this.weekHtml(week) : '<p class="fl-notice">The first Friday snapshot will appear after the week closes.</p>'}</section></div>
+      ${this.momentumHtml()}
       <details class="fl-records"><summary>Sources & updates</summary><p>${data.anchor ? `Reconstructed from ${this.escape(data.anchor.source)}.` : 'Account holdings are pending a dated account balance. The combined portfolio is available under All accounts.'} Transactions through ${this.escape(data.coverage || 'not imported')}. Closing prices: Yahoo Finance${data.pricesUpdatedAt ? `, refreshed ${this.date(data.pricesUpdatedAt.slice(0, 10))}` : ''}.</p>
       ${data.reconciliation ? `<p>Opening balance check: reconstructed ${this.money(data.reconciliation.openingValue, 2)}; dashboard starting value ${this.money(data.reconciliation.reportedOpeningValue, 2)}. Difference: ${this.money(data.reconciliation.difference, 2)}. These are reconstructed records, not reconciled brokerage statements.</p>` : ''}
       <p>Weekly return uses <a href="https://www.gipsstandards.org/standards/gips-standards-for-firms/gips-standards-handbook-for-firms/" target="_blank" rel="noopener">Modified Dietz</a> with day-end deposits and withdrawals. Cash, money-market funds, dividends and fees are included. Stock week % measures price change, adjusted for splits. A market holiday uses the last trading close; the first 2026 portfolio period starts December 31.</p>
@@ -104,6 +105,52 @@ const FridayLogDashboard = {
       <p class="fl-footnote">${week.externalFlows ? `Net external flows: ${this.money(week.externalFlows)}. ` : ''}Closing prices use the final trading session on or before Friday.</p>`;
   },
 
+  /** Compound weekly moves into one period return; missing weeks count as flat. */
+  compound(moves) { return (moves.reduce((n, v) => n * (1 + (v || 0) / 100), 1) - 1) * 100; },
+
+  /** Compare the latest weeks with the same number of weeks before them (4 vs 4 once nine Fridays exist). */
+  momentum(moves) {
+    const n = moves.length, k = Math.min(4, Math.floor(n / 2));
+    const recent = this.compound(moves.slice(n - k)), prior = this.compound(moves.slice(n - 2 * k, n - k));
+    return { recent, prior, score: recent - prior, split: (n - k) / n };
+  },
+
+  /** Render the momentum tape: one panel per stock, weekly bars on a shared scale, sorted by acceleration. */
+  momentumHtml() {
+    const m = this.data.momentum;
+    if (!m || m.weeks.length < 5) return '';
+    const last = m.weeks.length - 1;
+    const stocks = m.stocks.map(s => ({ ...s, score: this.momentum(s.pct).score })).sort((a, b) => b.score - a.score);
+    const current = stocks.filter(s => s.held[last]), exited = stocks.filter(s => !s.held[last]);
+    const k = Math.min(4, Math.floor(m.weeks.length / 2));
+    const group = (label, note, panels) => `<div class="fl-tape-group"><span>${label}</span><span>${note}</span></div><div class="fl-tape">${panels}</div>`;
+    const exitNote = s => { const i = s.held.lastIndexOf(true); return i >= 0 ? `held ${this.date(m.weeks[i])}` : 'traded'; };
+    return `<section class="fl-momentum"><div class="fl-section-title"><div><h3>Momentum</h3><p>Last ${k} weeks against the ${k} before. Weekly price moves, ${this.date(m.weeks[0])} to ${this.date(m.weeks[last])}.</p></div>
+      <div class="fl-toggle"><button data-momentum="held" aria-pressed="${!this.momentumAll}">Current holdings</button><button data-momentum="all" aria-pressed="${this.momentumAll}">Include exited</button></div></div>
+      ${group('BENCHMARKS', '', this.panelHtml('Portfolio', this.account === 'all' ? 'all accounts' : this.data.accounts[this.account], m.portfolio, null, null, true) + this.panelHtml('SPY', 'S&P 500', m.spy))}
+      ${current.length ? group('HOLDINGS · FASTEST FIRST', 'weight', current.map(s => this.panelHtml(s.symbol, s.weight[last] == null ? '' : s.weight[last].toFixed(1) + '%', s.pct, s.held, s.trades)).join('')) : ''}
+      ${this.momentumAll && exited.length ? group('EXITED · FASTEST FIRST', 'last held', exited.map(s => this.panelHtml(s.symbol, exitNote(s), s.pct, s.held, s.trades)).join('')) : ''}
+      <p class="fl-tape-key"><span class="fl-acc">↗</span> speeding up by 5+ points. <span class="fl-fade">↘</span> fading by 5+. Faded bars: not held that week. Notched bars ran past ±25%. <span class="fl-up">▲</span> buy <span class="fl-down">▼</span> sell.</p></section>`;
+  },
+
+  /** Render one tape panel with its total, acceleration arrow, weekly bars and trade marks. */
+  panelHtml(symbol, note, moves, held, trades, benchmark = false) {
+    const CAP = 25, m = this.momentum(moves), total = moves.some(Number.isFinite) ? this.compound(moves) : null;
+    const [arrow, tone] = m.score > 5 ? ['↗', 'fl-acc'] : m.score < -5 ? ['↘', 'fl-fade'] : ['→', 'fl-flat'];
+    const bars = moves.map((v, i) => {
+      const label = `${symbol} · week of ${this.date(this.data.momentum.weeks[i])}: ${this.percent(v)}${held && !held[i] ? ' (not held)' : ''}`;
+      if (!Number.isFinite(v)) return `<span title="${this.escape(label)}"></span>`;
+      // Shared ±25% scale keeps panels comparable; bigger moves are clipped and notched.
+      const height = Math.max(Math.min(Math.abs(v), CAP) / CAP * 50, .8);
+      return `<span class="${held && !held[i] ? 'out' : ''} ${Math.abs(v) > CAP ? 'clip' : ''} ${v >= 0 ? 'pos' : 'neg'}" title="${this.escape(label)}"><i style="${v >= 0 ? 'bottom' : 'top'}:50%;height:${height}%"></i></span>`;
+    }).join('');
+    const marks = moves.map((v, i) => { const t = trades?.[i]; return `<span class="${t || ''}">${t === 'B' ? '▲' : t === 'S' ? '▼' : t ? '◆' : ''}</span>`; }).join('');
+    const columns = `grid-template-columns:repeat(${moves.length},1fr)`;
+    return `<div class="fl-panel ${benchmark ? 'benchmark' : ''}"><div class="fl-panel-top"><b>${this.escape(symbol)}</b><small>${this.escape(note)}</small><span class="${tone}" title="Last weeks ${this.percent(m.recent)} vs prior ${this.percent(m.prior)}">${arrow}</span></div>
+      <strong class="${this.tone(total)}">${this.percent(total, 1)}</strong><p>${this.percent(m.recent, 1)} vs ${this.percent(m.prior, 1)}</p>
+      <div class="fl-bars" style="${columns};--split:${m.split * 100}%">${bars}</div><div class="fl-marks" style="${columns}">${marks}</div></div>`;
+  },
+
   /** Keep a stock's position and its underlying weekly activity together. */
   holdingHtml(holding, week) {
     const h = holding, activity = week.transactions.filter(t => t.symbol === h.symbol);
@@ -128,6 +175,7 @@ const FridayLogDashboard = {
       const weeks = this.data.weeks.filter(w => !w.upcoming), i = weeks.findIndex(w => w.date === this.selected);
       this.selected = weeks[i + Number(button.dataset.step)]?.date || this.selected; this.expanded = null; this.draw();
     } else if (button.dataset.symbol) { this.expanded = this.expanded === button.dataset.symbol ? null : button.dataset.symbol; this.draw(); }
+    else if (button.dataset.momentum) { this.momentumAll = button.dataset.momentum === 'all'; this.draw(); }
     else if (button.dataset.action === 'retry') await this.load();
     else if (button.dataset.action === 'refresh') {
       const token = this.request; button.disabled = true; button.textContent = 'Refreshing…';
