@@ -1,6 +1,47 @@
-# Friday Log
+# Performance: Friday Log and Trades
 
-The signed-in `#friday-log` tab uses the Year Atlas calendar. Its colors represent
+The signed-in `#friday-log` tab is labeled Performance in the navigation. It has
+two views chosen by `view=fridays` (default) or `view=trades` in the hash.
+
+## Trades view
+
+`/api/friday-log/trades?account=&from=&to=` returns FIFO trade statistics built
+by `server/tradeStats.js` from the same ledger. Lots are built from every
+recorded trade, back to the first imported export (Schwab history reaches 2022),
+so a sale is judged against what the shares really cost. Shares held before the
+ledger's first day are opening lots priced at that day's close: the combined
+view unwinds the balance reference through every recorded trade to find them,
+while an individual account has no dated reference, so its excess sells are
+priced at that close as they occur. The period (default: the current year to
+date) decides which sells, buys, income and flows are reported and dates the
+valuation of open shares; `period=` in the hash selects a year or `all`.
+`type=stocks` or `type=options` reports stocks and option contracts apart;
+together, the view adds a stocks-versus-options breakdown.
+
+Lots are matched per account; journaled shares close a lot in the sending
+account and open one in the receiving account at the journal price, and never
+count as a buy or sell. Journals that net to zero within one account on one day
+are ignored. Splits from the price cache scale open lots; Schwab's own
+`Stock Split` rows are recorded but change nothing. Option trades
+(`Buy to Open`, `Sell to Close`) are tracked under the contract symbol with 100
+shares per contract; rollovers (`Funds Received`) and wires count as external
+flows, and margin interest, service fees and their waivers count as costs.
+
+The view shows realized and unrealized gains, win rate, average win and loss,
+profit factor and hold time (all judged per position, from first lot to the
+sale of the last share, so a trim is never a result on its own), income and costs, the best and worst fully sold
+positions and open holdings ranked by percentage, tables by stock, month and
+account, and a ticker lookup (`symbol=` in the hash) that shows one stock's
+averages, open lots and every ledger line. Looking up a ticker with no activity
+in the chosen period switches to all time.
+
+Quotes are downloaded from ten days before the first ledger day. A symbol last
+traded before December 2025 keeps its saved history instead of being downloaded
+again, and option symbols are never requested.
+
+## Fridays view
+
+The Fridays view uses the Year Atlas calendar. Its colors represent
 the combined portfolio's weekly return, including cash equivalents, rather than
 a single holding's performance. The browser calls `/api/friday-log` with a year
 and account filter. Every Friday remains selectable after 6 p.m. New York time;

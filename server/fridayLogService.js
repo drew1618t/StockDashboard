@@ -1,4 +1,7 @@
-const { createFridayLogStore, CASH_SYMBOLS, marketTime, shift } = require('./fridayLogStore');
+const { createFridayLogStore, CASH_SYMBOLS, START, marketTime, shift, isOption, earliestDate } = require('./fridayLogStore');
+
+/** Quotes are needed from just before the ledger's first day, or December 2025 for a ledger that starts later. */
+const DEFAULT_FROM = '2025-12-20';
 
 /** Convert Yahoo's split-adjusted closes back to prices in the share units traded on each date. */
 function normalizeChart(result, through) {
@@ -24,32 +27,37 @@ function createFridayLogService(options = {}) {
   const now = options.now || (() => new Date());
   let running = null, timer = null, lastAttempt = 0;
 
-  /** Download full daily history to keep post-split historical prices internally consistent. */
-  async function fetchSymbol(symbol) {
+  /** Download daily history from the requested day to keep post-split historical prices internally consistent. */
+  async function fetchSymbol(symbol, from = DEFAULT_FROM) {
     const end = Math.floor(+now() / 1000) + 86400;
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?period1=1766188800&period2=${end}&interval=1d&events=splits`;
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?period1=${Math.floor(Date.parse(`${from}T00:00:00Z`) / 1000)}&period2=${end}&interval=1d&events=splits`;
     const response = await fetcher(url, { headers: { 'User-Agent': 'StockDashboard/1.0' }, signal: AbortSignal.timeout(20000) });
     if (!response.ok) throw new Error(`Price provider HTTP ${response.status}`);
     const json = await response.json();
     if (json.chart?.error) throw new Error(json.chart.error.description || 'Price provider error');
     const time = marketTime(now());
-    return { ...normalizeChart(json.chart?.result?.[0], time.date),
+    return { ...normalizeChart(json.chart?.result?.[0], time.date), from,
       finalThrough: time.hour >= 18 ? time.date : shift(time.date, -1) };
   }
 
   /** Refresh quotes with three workers and preserve previous data when a provider request fails. */
   async function refreshPrices() {
     const state = store.state(), prices = store.getPrices();
-    const symbols = new Set(['SPY']);
-    state.transactions.forEach(t => { if (t.symbol && !CASH_SYMBOLS.has(t.symbol)) symbols.add(t.symbol); });
-    [...Object.values(state.anchors), ...Object.values(state.captures)].forEach(a => a.positions.forEach(p => symbols.add(p.symbol)));
-    const queue = [...symbols];
+    const symbols = new Set(['SPY']), latest = {};
+    state.transactions.forEach(t => {
+      if (!t.symbol || CASH_SYMBOLS.has(t.symbol) || isOption(t.symbol)) return;
+      symbols.add(t.symbol); latest[t.symbol] = [latest[t.symbol] || '', t.date].sort().pop();
+    });
+    [...Object.values(state.anchors), ...Object.values(state.captures)].forEach(a => a.positions.forEach(p => { symbols.add(p.symbol); latest[p.symbol] = START; }));
+    const from = [shift(earliestDate(state.transactions) || DEFAULT_FROM, -10), DEFAULT_FROM].sort()[0];
+    // A stock last touched before the quote window began keeps its saved history instead of being downloaded again.
+    const queue = [...symbols].filter(s => !(latest[s] < DEFAULT_FROM && prices.symbols[s]?.from && prices.symbols[s].from <= from));
     /** Consume a shared queue to limit outbound requests and server memory. */
     async function worker() {
       while (queue.length) {
         const symbol = queue.shift();
         try {
-          prices.symbols[symbol] = await fetchSymbol(symbol);
+          prices.symbols[symbol] = await fetchSymbol(symbol, from);
           delete prices.errors[symbol];
         } catch (err) { prices.errors[symbol] = err.message; }
       }

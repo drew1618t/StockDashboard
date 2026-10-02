@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+// Lazy require: tradeStats imports account constants from this module.
+const tradeStats = () => require('./tradeStats');
 
 const ACCOUNTS = {
   'drew-roth': 'Drew Roth', 'kaili-roth': 'Kaili Roth',
@@ -11,7 +13,18 @@ const DAY = 86400000;
 const CASH_SYMBOLS = new Set(['SWVXX']);
 const ACTIONS = new Set(['Buy', 'Sell', 'Reinvest Shares', 'Reinvest Dividend', 'Qualified Dividend',
   'Cash Dividend', 'Bank Interest', 'Credit Interest', 'ADR Mgmt Fee', 'Journal', 'Journaled Shares',
-  'MoneyLink Transfer']);
+  'MoneyLink Transfer', 'Buy to Open', 'Sell to Close', 'Funds Received', 'Wire Sent', 'Margin Interest',
+  'Service Fee', 'Misc Cash Entry', 'Stock Split', 'Stock Split Adj']);
+const TRADE_ACTIONS = new Set(['Buy', 'Sell', 'Reinvest Shares', 'Buy to Open', 'Sell to Close']);
+const EXTERNAL_ACTIONS = new Set(['MoneyLink Transfer', 'Funds Received', 'Wire Sent']);
+
+/** Option contracts carry their expiry and strike in the symbol; they have no quote to download. */
+function isOption(symbol) { return /^[A-Z.]+ \d{2}\/\d{2}\/\d{4} [\d.]+ [CP]$/.test(symbol || ''); }
+
+/** Earliest activity in a set of records, which bounds how far back history can be reconstructed. */
+function earliestDate(transactions) {
+  return transactions.reduce((min, t) => (!min || t.date < min ? t.date : min), null);
+}
 
 /** Round calculation noise without discarding fractional shares. */
 function clean(n) { return Math.round(n * 1e8) / 1e8; }
@@ -79,7 +92,7 @@ function parseTransactions(text, account) {
     throw new Error('Expected a Schwab transaction CSV with Date, Action, Symbol, Quantity, Price and Amount');
   }
   const occurrences = new Map();
-  return rows.map((cols, index) => {
+  const records = rows.map((cols, index) => {
     const row = Object.fromEntries(header.map((h, i) => [h, cols[i] || '']));
     const dateText = row.Date.split(' as of ').pop();
     const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(dateText);
@@ -90,9 +103,9 @@ function parseTransactions(text, account) {
       symbol: row.Symbol.trim().toUpperCase(), description: row.Description || '',
       quantity: number(row.Quantity), price: number(row.Price), amount: number(row.Amount),
       fees: number(row['Fees & Comm']) || 0 };
-    if (['Buy', 'Sell', 'Reinvest Shares', 'Journaled Shares'].includes(tx.action)
+    if ((TRADE_ACTIONS.has(tx.action) || ['Journaled Shares', 'Stock Split', 'Stock Split Adj'].includes(tx.action))
       && (!tx.symbol || tx.quantity === null)) throw new Error(`Missing security quantity on ${date}`);
-    if (['Buy', 'Sell', 'Reinvest Shares'].includes(tx.action) && (tx.amount === null || tx.quantity <= 0)) {
+    if (TRADE_ACTIONS.has(tx.action) && (tx.amount === null || tx.quantity <= 0)) {
       throw new Error(`Missing amount or invalid trade quantity on ${date}`);
     }
     // Multiplicity preserves two identical fills in one export while overlapping exports deduplicate.
@@ -101,16 +114,24 @@ function parseTransactions(text, account) {
     tx.id = crypto.createHash('sha256').update(`${key}:${count}`).digest('hex').slice(0, 24);
     return tx;
   });
+  // Schwab books the pre-split shares it removes under the CUSIP; file them with the ticker that received the split.
+  for (const tx of records) {
+    if (tx.action !== 'Stock Split Adj') continue;
+    const split = records.find(r => r.action === 'Stock Split' && r.date === tx.date && r.description && tx.description.startsWith(r.description));
+    if (split) tx.symbol = split.symbol;
+  }
+  return records;
 }
 
 /** Translate a record into changes to shares, cash equivalents, and external capital. */
 function effect(tx) {
-  const security = ['Buy', 'Sell', 'Reinvest Shares', 'Journaled Shares', 'Journal'].includes(tx.action);
-  const quantity = security ? (tx.quantity || 0) * (tx.action === 'Sell' ? -1 : 1) : 0;
+  // Split rows only restate share counts the price cache already scales, so they change nothing here.
+  const security = TRADE_ACTIONS.has(tx.action) || ['Journaled Shares', 'Journal'].includes(tx.action);
+  const quantity = security ? (tx.quantity || 0) * (['Sell', 'Sell to Close'].includes(tx.action) ? -1 : 1) : 0;
   const sweep = CASH_SYMBOLS.has(tx.symbol);
   const cash = (tx.amount || 0) + (sweep ? quantity : 0);
   const journal = ['Journaled Shares', 'Journal'].includes(tx.action);
-  const external = tx.action === 'MoneyLink Transfer' ? cash
+  const external = EXTERNAL_ACTIONS.has(tx.action) ? cash
     : journal ? (sweep ? quantity : quantity * (tx.price || 0)) + (tx.amount || 0) : 0;
   return { quantity: sweep ? 0 : quantity, cash, external,
     unknownFlow: journal && !sweep && quantity !== 0 && tx.price === null };
@@ -365,6 +386,30 @@ function createFridayLogStore(options = {}) {
     return result;
   }
 
+  /** Summarize every trade with FIFO lots, seeding Dec 31 holdings from the combined balance reference. */
+  /**
+   * Trade statistics for a date range. Lots are built from the whole ledger so realized gains use real
+   * purchase cost; the range only decides which sells, buys and valuations are reported.
+   */
+  function getTrades(account = 'all', range = {}) {
+    if (account !== 'all' && !ACCOUNTS[account]) throw new Error('Unknown account');
+    const data = state(), prices = getPrices(), now = marketTime(clock());
+    const records = account === 'all' ? data.transactions : data.transactions.filter(t => t.account === account);
+    // Holdings that predate the ledger are seeded on the day before its first record: the combined balance
+    // reference is unwound through every recorded trade to that day, and priced at its close.
+    const earliest = earliestDate(records);
+    const openingDate = [START, earliest ? shift(earliest, -1) : START].sort()[0];
+    const opening = account === 'all' ? balanceAt(data.anchors.all, openingDate, data.transactions, prices)?.positions || [] : [];
+    const to = range.to && validDate(range.to) ? [range.to, now.date].sort()[0] : now.date;
+    const from = range.from && validDate(range.from) ? range.from : `${to.slice(0, 4)}-01-01`;
+    if (from > to) throw new Error('The period start must not follow its end');
+    const coverage = account === 'all'
+      ? Object.keys(ACCOUNTS).map(a => data.coverage[a] || '').sort()[0] : data.coverage[account] || '';
+    const ledgerStart = earliestDate(data.transactions);
+    return { ...tradeStats().buildTradeStats({ transactions: data.transactions, prices, opening, openingDate, account, from, asOf: to, type: range.type || 'all' }),
+      today: now.date, ledgerStart, coverage: coverage || null, pricesUpdatedAt: prices.updatedAt };
+  }
+
   /** Persist reproducible yearly snapshots after refreshing prices or source records. */
   function rebuild() {
     const currentYear = Number(marketTime(clock()).date.slice(0, 4));
@@ -374,7 +419,7 @@ function createFridayLogStore(options = {}) {
     }
   }
 
-  return { state, importCsv, setAnchor, captureLive, getPrices, savePrices, getYear, rebuild, balanceAt, closeAt };
+  return { state, importCsv, setAnchor, captureLive, getPrices, savePrices, getYear, getTrades, rebuild, balanceAt, closeAt };
 }
 
-module.exports = { createFridayLogStore, ACCOUNTS, CASH_SYMBOLS, parseTransactions, effect, fridays, validDate, shift, marketTime };
+module.exports = { createFridayLogStore, ACCOUNTS, CASH_SYMBOLS, START, parseTransactions, effect, fridays, validDate, shift, marketTime, isOption, earliestDate };

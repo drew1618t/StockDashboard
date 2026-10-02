@@ -18,6 +18,10 @@ function createFridayLogRoutes(options = {}) {
         canManage: req.user.role === 'family' });
     } catch (err) { res.status(400).json({ error: err.message }); }
   });
+  router.get('/api/friday-log/trades', (req, res) => {
+    try { res.json(service.store.getTrades(req.query.account || 'all', { from: req.query.from, to: req.query.to, type: req.query.type })); }
+    catch (err) { res.status(400).json({ error: err.message }); }
+  });
   router.post('/api/friday-log/refresh', requireFamily, async (req, res) => {
     try { res.json(await service.refresh()); }
     catch (err) { res.status(500).json({ error: 'Could not refresh Friday closing prices. Saved data is preserved.' }); }
