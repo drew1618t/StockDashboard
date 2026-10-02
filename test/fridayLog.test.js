@@ -296,14 +296,17 @@ test('Friday scheduler captures and refreshes even if the preceding refresh was 
   assert.equal(store.getPrices().symbols.SPY.finalThrough, '2026-01-09');
 });
 
-test('first hourly run after the 4 PM close downloads final closes before the 6 PM sheet capture', async t => {
-  const { store } = fixture(t, '2026-01-09T21:36:00Z');
+test('the 5 PM run downloads final closes before the 6 PM sheet capture; 4 PM does not', async t => {
+  const { store } = fixture(t, '2026-01-09T22:00:05Z');
   const prices = store.getPrices(); prices.updatedAt = '2026-01-09T07:46:00Z'; store.savePrices(prices);
-  let requests = 0, polled = 0;
-  const service = createFridayLogService({ store, now: () => new Date('2026-01-09T21:36:00Z'), fetch: async () => {
+  let requests = 0, polled = 0, clock = '2026-01-09T21:00:05Z';
+  const service = createFridayLogService({ store, now: () => new Date(clock), fetch: async () => {
     requests++;
     return { ok: true, json: async () => ({ chart: { result: [{ timestamp: [Date.parse('2026-01-09T14:30:00Z') / 1000], indicators: { quote: [{ close: [11] }] } }] } }) };
   } });
+  await service.tick({ forceRefresh: async () => { polled++; return null; } });
+  assert.equal(requests, 0);
+  clock = '2026-01-09T22:00:05Z';
   await service.tick({ forceRefresh: async () => { polled++; return null; } });
   assert.equal(polled, 0);
   assert.equal(requests, 2);

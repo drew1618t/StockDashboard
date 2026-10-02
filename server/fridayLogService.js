@@ -3,8 +3,9 @@ const { createFridayLogStore, CASH_SYMBOLS, START, marketTime, shift, isOption, 
 /** Quotes are needed from just before the ledger's first day, or December 2025 for a ledger that starts later. */
 const DEFAULT_FROM = '2025-12-20';
 
-/** New York hour after which today's close is final; the first run after it downloads that close. */
-const CLOSE_HOUR = 16;
+/** New York hour when the scheduled run downloads today's final closes. */
+const CLOSE_HOUR = 17;
+const HOUR = 60 * 60 * 1000;
 
 /** Convert Yahoo's split-adjusted closes back to prices in the share units traded on each date. */
 function normalizeChart(result, through) {
@@ -99,16 +100,22 @@ function createFridayLogService(options = {}) {
     } else store.rebuild();
   }
 
-  /** Start an unref'ed hourly job; startup also repairs any covered Fridays missed while offline. */
+  /** Start an unref'ed job at the top of every hour; startup also repairs any covered Fridays missed while offline. */
   function start(sheetsPoller) {
     if (timer) return;
     /** Log background failures without bringing down the portfolio server. */
     const run = () => tick(sheetsPoller).catch(err => console.warn(`[friday-log] ${err.message}`));
-    run(); timer = setInterval(run, 60 * 60 * 1000); timer.unref();
+    /** Wait for the next top of the hour, so runs land at 5:00 and 6:00 PM New York time. */
+    const schedule = () => {
+      // Five seconds past the hour, so an early-firing timer cannot run at 4:59:59 and miss the 5 PM gate.
+      const wait = HOUR - (Date.now() % HOUR) + 5000;
+      timer = setTimeout(() => { run(); schedule(); }, wait); timer.unref();
+    };
+    run(); schedule();
   }
 
   /** Stop background work for tests or graceful shutdown. */
-  function stop() { if (timer) clearInterval(timer); timer = null; }
+  function stop() { if (timer) clearTimeout(timer); timer = null; }
   return { store, refresh, start, stop, tick };
 }
 
