@@ -115,8 +115,9 @@ unknown return is never treated as zero. Future Fridays do not show a YTD value.
 `prepareData()` starts an hourly job with an immediate startup catch-up. On
 Fridays after 18:00 America/New_York, it requests a fresh Sheets balance and
 persists the first acceptable after-close capture. It rejects stale, pre-close,
-future-dated or invalid balances. Prices are refreshed and yearly snapshots are
-persisted. Capture does not depend on opening the browser, but the Node process
+future-dated or invalid balances. Separately, the first run after 16:00 New York
+time each day downloads that day's final closes, so Friday prices do not wait for
+the 18:00 capture. Yearly snapshots are persisted. Capture does not depend on opening the browser, but the Node process
 must be running and the live holdings sheet must be current. On restart, covered
 missed weeks can be reconstructed. Known transactions are also replayed beyond
 their export date and compared with each Friday's saved Google Sheet snapshot.

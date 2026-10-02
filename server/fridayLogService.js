@@ -3,6 +3,9 @@ const { createFridayLogStore, CASH_SYMBOLS, START, marketTime, shift, isOption, 
 /** Quotes are needed from just before the ledger's first day, or December 2025 for a ledger that starts later. */
 const DEFAULT_FROM = '2025-12-20';
 
+/** New York hour after which today's close is final; the first run after it downloads that close. */
+const CLOSE_HOUR = 16;
+
 /** Convert Yahoo's split-adjusted closes back to prices in the share units traded on each date. */
 function normalizeChart(result, through) {
   if (!result?.timestamp || !result.indicators?.quote?.[0]?.close) throw new Error('No daily closing prices returned');
@@ -37,7 +40,7 @@ function createFridayLogService(options = {}) {
     if (json.chart?.error) throw new Error(json.chart.error.description || 'Price provider error');
     const time = marketTime(now());
     return { ...normalizeChart(json.chart?.result?.[0], time.date), from,
-      finalThrough: time.hour >= 18 ? time.date : shift(time.date, -1) };
+      finalThrough: time.hour >= CLOSE_HOUR ? time.date : shift(time.date, -1) };
   }
 
   /** Refresh quotes with three workers and preserve previous data when a provider request fails. */
@@ -91,7 +94,7 @@ function createFridayLogService(options = {}) {
     const last = store.getPrices().updatedAt;
     const lastTime = last ? marketTime(new Date(last)) : null;
     if (!last || (+now() - Date.parse(last) > 20 * 60 * 60 * 1000)
-      || (friday && time.hour >= 18 && (lastTime.date < time.date || lastTime.hour < 18))) {
+      || (time.hour >= CLOSE_HOUR && (lastTime.date < time.date || lastTime.hour < CLOSE_HOUR))) {
       if (+now() - lastAttempt > 30 * 60 * 1000) await refresh();
     } else store.rebuild();
   }

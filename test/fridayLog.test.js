@@ -296,6 +296,20 @@ test('Friday scheduler captures and refreshes even if the preceding refresh was 
   assert.equal(store.getPrices().symbols.SPY.finalThrough, '2026-01-09');
 });
 
+test('first hourly run after the 4 PM close downloads final closes before the 6 PM sheet capture', async t => {
+  const { store } = fixture(t, '2026-01-09T21:36:00Z');
+  const prices = store.getPrices(); prices.updatedAt = '2026-01-09T07:46:00Z'; store.savePrices(prices);
+  let requests = 0, polled = 0;
+  const service = createFridayLogService({ store, now: () => new Date('2026-01-09T21:36:00Z'), fetch: async () => {
+    requests++;
+    return { ok: true, json: async () => ({ chart: { result: [{ timestamp: [Date.parse('2026-01-09T14:30:00Z') / 1000], indicators: { quote: [{ close: [11] }] } }] } }) };
+  } });
+  await service.tick({ forceRefresh: async () => { polled++; return null; } });
+  assert.equal(polled, 0);
+  assert.equal(requests, 2);
+  assert.equal(store.getPrices().symbols.SPY.finalThrough, '2026-01-09');
+});
+
 test('momentum covers traded stocks in weeks they were not held, with trade sides', t => {
   const { store } = fixture(t);
   store.importCsv('drew-roth', csv(['01/05/2026,Buy,XYZ,Example,1,20,0,-20', '01/08/2026,Sell,XYZ,Example,1,22,0,22']), '2026-01-09');
