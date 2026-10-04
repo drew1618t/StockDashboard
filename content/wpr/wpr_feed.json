@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-01T20:45:54.662028+00:00",
+  "generated_at": "2026-10-04T14:25:57.928301+00:00",
   "source_notes": {
     "holdings": "WPR YouTube membership allocation slides supplied by Andrew",
     "date_basis": "Snapshot dates are derived from Andrew's ordering on 2026-08-30: SIMO slide is two weeks old, FIGR slide is one week old, ALAB slide is current.",
@@ -1985,6 +1985,75 @@
     }
   ],
   "videos": [
+    {
+      "video_id": "C8HKM_gFqT4",
+      "date": "2026-10-04",
+      "title": "WPR's Top 7 Growth Stocks - October 2026",
+      "url": "https://www.youtube.com/watch?v=C8HKM_gFqT4",
+      "has_report": true,
+      "source_dir": "2026-10-04_C8HKM_gFqT4",
+      "report_path": "transcripts/2026-10-04_C8HKM_gFqT4/report.md",
+      "transcript_path": "transcripts/2026-10-04_C8HKM_gFqT4/transcript.md",
+      "evidence_path": "transcripts/2026-10-04_C8HKM_gFqT4/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "ALAB",
+          "company": "Astera Labs",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "Scorpio content and customer design activity support his largest holding.",
+          "concern": "Product performance and customer claims are recounted from management."
+        },
+        {
+          "ticker": "SIMO",
+          "company": "Silicon Motion",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "High confidence in boot drives, enterprise content and retreating memory-maker competition.",
+          "concern": "Some customer identities and customization margin benefit are WPR inferences."
+        },
+        {
+          "ticker": "FIGR",
+          "company": "Figure Technology",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "Retains high allocation conviction despite expected loan volume near guidance midpoint; watches partner additions and next guide.",
+          "concern": "About $5bn volume is his estimate, not reported earnings; take-rate dilution and rate explanation need attribution."
+        },
+        {
+          "ticker": "LIFE",
+          "company": "Ethos Technologies",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "Platform growth and capital-light model; not persuaded to exit by the short report.",
+          "concern": "WPR questions report context; this does not independently refute its allegations."
+        },
+        {
+          "ticker": "ONTO",
+          "company": "Onto Innovation",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "Increasing confidence in advanced-packaging inspection, new products and outsourced manufacturing economics.",
+          "concern": "KLA competitor identification is AI-assisted inference; suppliers not identified."
+        },
+        {
+          "ticker": "MU",
+          "company": "Micron",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "Pricing tailwinds and cash-flow growth support the earnings narrative.",
+          "concern": "No new sizing plan or trade; custom memory name remains uncertain."
+        },
+        {
+          "ticker": "VIAV",
+          "company": "VIAVI Solutions",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "Increasing optical testing intensity and reasonable stated valuation; expects potential upside to guidance.",
+          "concern": "A $500m next revenue guide is WPR speculation, not issued guidance."
+        }
+      ]
+    },
     {
       "video_id": "bgt3XffXMxM",
       "date": "2026-10-01",
