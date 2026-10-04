@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-04T14:25:57.928301+00:00",
+  "generated_at": "2026-10-04T15:01:03.328413+00:00",
   "source_notes": {
     "holdings": "WPR YouTube membership allocation slides supplied by Andrew",
     "date_basis": "Snapshot dates are derived from Andrew's ordering on 2026-08-30: SIMO slide is two weeks old, FIGR slide is one week old, ALAB slide is current.",
@@ -1985,6 +1985,163 @@
     }
   ],
   "videos": [
+    {
+      "video_id": "ayqGpgN9lJY",
+      "date": "2026-10-04",
+      "title": "WPR's Extended Portfolio Review - October 4, 2026",
+      "url": "https://www.youtube.com/watch?v=ayqGpgN9lJY",
+      "has_report": true,
+      "source_dir": "2026-10-04_ayqGpgN9lJY",
+      "report_path": "transcripts/2026-10-04_ayqGpgN9lJY/report.md",
+      "transcript_path": "transcripts/2026-10-04_ayqGpgN9lJY/transcript.md",
+      "evidence_path": "transcripts/2026-10-04_ayqGpgN9lJY/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "ALAB",
+          "company": "Astera Labs",
+          "status": "trimmed",
+          "weight_pct": 16.9,
+          "thesis": "Trimmed 0.5% of portfolio value for sizing; confidence remains very high.",
+          "concern": null
+        },
+        {
+          "ticker": "SIMO",
+          "company": "Silicon Motion",
+          "status": "held_no_new_thesis",
+          "weight_pct": 16.2,
+          "thesis": "Holding weight disclosed; no new standalone thesis in this extended review.",
+          "concern": null
+        },
+        {
+          "ticker": "FIGR",
+          "company": "Figure Technology",
+          "status": "held_no_new_thesis",
+          "weight_pct": 12.3,
+          "thesis": "Holding weight disclosed; no new standalone thesis in this extended review.",
+          "concern": null
+        },
+        {
+          "ticker": "LIFE",
+          "company": "Ethos Technologies",
+          "status": "held_no_new_thesis",
+          "weight_pct": 11.8,
+          "thesis": "Holding weight disclosed; no new standalone thesis in this extended review.",
+          "concern": null
+        },
+        {
+          "ticker": "ONTO",
+          "company": "Onto Innovation",
+          "status": "held_no_new_thesis",
+          "weight_pct": 6.7,
+          "thesis": "Holding weight disclosed; no new standalone thesis in this extended review.",
+          "concern": null
+        },
+        {
+          "ticker": "VIAV",
+          "company": "VIAVI Solutions",
+          "status": "held_no_new_thesis",
+          "weight_pct": 5.9,
+          "thesis": "Holding weight disclosed; no new standalone thesis in this extended review.",
+          "concern": null
+        },
+        {
+          "ticker": "MU",
+          "company": "Micron",
+          "status": "trimmed",
+          "weight_pct": 5,
+          "thesis": "Trimmed 0.8% of portfolio value; smaller companies may triple sooner and report before Micron.",
+          "concern": null
+        },
+        {
+          "ticker": "FORM",
+          "company": "FormFactor",
+          "status": "held",
+          "weight_pct": 4.7,
+          "thesis": "Expects 2030 target to be reached earlier; likes rising testing intensity and early CPO revenue.",
+          "concern": null
+        },
+        {
+          "ticker": "MTSI",
+          "company": "MACOM",
+          "status": "added",
+          "weight_pct": 3.9,
+          "thesis": "Added 1% of portfolio value as product research raised confidence.",
+          "concern": null
+        },
+        {
+          "ticker": "KLIC",
+          "company": "Kulicke & Soffa",
+          "status": "added",
+          "weight_pct": 3.8,
+          "thesis": "Added 0.3% of portfolio value; considers it undervalued while giving new CEO a chance.",
+          "concern": null
+        },
+        {
+          "ticker": "COHU",
+          "company": "Cohu",
+          "status": "held",
+          "weight_pct": 2.6,
+          "thesis": "Reasonable stated valuation; expects possible next-guide upside, not confirmed guidance.",
+          "concern": null
+        },
+        {
+          "ticker": "LITE",
+          "company": "Lumentum",
+          "status": "trimmed",
+          "weight_pct": 2.1,
+          "thesis": "Trimmed 0.6% of portfolio value; likes business but favors Coherent/VIAVI relative valuations.",
+          "concern": null
+        },
+        {
+          "ticker": "MKSI",
+          "company": "MKS Inc.",
+          "status": "held",
+          "weight_pct": 2.1,
+          "thesis": "NAND upgrades, optical products and chemistry support operating leverage.",
+          "concern": null
+        },
+        {
+          "ticker": "RDVT",
+          "company": "Red Violet",
+          "status": "held",
+          "weight_pct": 2,
+          "thesis": "Plans to hold through next earnings to test whether management enthusiasm becomes faster growth.",
+          "concern": null
+        },
+        {
+          "ticker": "SMTC",
+          "company": "Semtech",
+          "status": "added",
+          "weight_pct": 1.9,
+          "thesis": "Added 0.6% of portfolio value; later discusses possible further additions, not another confirmed trade.",
+          "concern": null
+        },
+        {
+          "ticker": "BESI.AS",
+          "company": "BE Semiconductor Industries",
+          "status": "new_position",
+          "weight_pct": null,
+          "thesis": "Opened a starter; hybrid bonding tipped the choice over Technoprobe. Considering further funding from main portfolio.",
+          "concern": "Foreign basket is 2.2% of total; 1% refers to basket, not total. Financials source-reported."
+        },
+        {
+          "ticker": "TPRO.MI",
+          "company": "Technoprobe",
+          "status": "considering_not_bought",
+          "weight_pct": null,
+          "thesis": "Still interested; BESI chosen first for hybrid bonding.",
+          "concern": null
+        },
+        {
+          "ticker": "COHR",
+          "company": "Coherent",
+          "status": "comparison_no_purchase_disclosed",
+          "weight_pct": null,
+          "thesis": "More compelling valuation than Lumentum in WPR's comparison; no purchase disclosed.",
+          "concern": null
+        }
+      ]
+    },
     {
       "video_id": "C8HKM_gFqT4",
       "date": "2026-10-04",
