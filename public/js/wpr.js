@@ -36,7 +36,10 @@
 
   /** Movers strip: disclosed decisions first; Weight Up falls back to the largest gains. */
   function renderMovers(cur) {
-    var ins = cur.holdings.filter(function (h) { return /new/.test(decision(h) || ''); });
+    // Held statuses can contain "new" too, as in held_no_new_thesis.
+    var ins = cur.holdings.filter(function (h) {
+      return decision(h) === 'new_position' || decision(h) === 'new_starter_position';
+    });
     var outs = cur.departed.filter(function (d) { return /sold/.test(decision(d) || ''); });
     var trims = cur.holdings.filter(function (h) { return /trim/.test(decision(h) || ''); });
     var adds = cur.holdings.filter(function (h) { return /added/.test(decision(h) || ''); });
