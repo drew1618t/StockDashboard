@@ -6,6 +6,24 @@ const vm = require('node:vm');
 
 test('WPR In lists only new positions, while existing holdings remain visible', async () => {
   const feed = JSON.parse(fs.readFileSync(path.join(__dirname, '../content/wpr/wpr_feed.json'), 'utf8'));
+  // Pin the current slide so weekly feed publishes do not change what this test asserts.
+  const holding = (ticker, weight, previous, status) => ({
+    ticker, company_name: ticker, weight_pct: weight, previous_weight_pct: previous,
+    change_pct: previous == null ? null : Math.round((weight - previous) * 10) / 10,
+    slide_status: previous == null ? 'new_on_slide' : 'on_both_slides',
+    disclosed_decision: { status, video_id: 'fixture0001' },
+  });
+  feed.current = {
+    snapshot_date: '2026-10-11',
+    previous_snapshot_date: '2026-10-04',
+    reported_metrics: {},
+    holdings: [
+      holding('ALAB', 16.8, 16.9, 'held_no_new_thesis'),
+      holding('MTSI', 5.4, 3.9, 'added'),
+      holding('FPS', 1.1, null, 'new_position'),
+    ],
+    departed: [],
+  };
   const elements = { 'wpr-app': {}, 'wpr-sub': {} };
   // Render the actual browser script with the published feed and no live portfolio.
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../public/js/wpr.js'), 'utf8'), {
