@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-18T16:19:10.424964+00:00",
+  "generated_at": "2026-10-18T16:25:36.151891+00:00",
   "source_notes": {
     "holdings": "WPR YouTube membership allocation slides supplied by Andrew",
     "date_basis": "Snapshot dates are derived from Andrew's ordering on 2026-08-30: SIMO slide is two weeks old, FIGR slide is one week old, ALAB slide is current.",
@@ -26,7 +26,10 @@
         "previous_weight_pct": 16.8,
         "change_pct": -0.7,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "trimmed",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "LIFE",
@@ -35,7 +38,10 @@
         "previous_weight_pct": 13.0,
         "change_pct": 2.7,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "SIMO",
@@ -44,7 +50,10 @@
         "previous_weight_pct": 15.6,
         "change_pct": -0.8,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "FIGR",
@@ -53,7 +62,10 @@
         "previous_weight_pct": 12.1,
         "change_pct": 1.6,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "ONTO",
@@ -62,7 +74,10 @@
         "previous_weight_pct": 6.2,
         "change_pct": -0.7,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "VIAV",
@@ -71,7 +86,10 @@
         "previous_weight_pct": 5.9,
         "change_pct": -0.8,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "MTSI",
@@ -80,7 +98,10 @@
         "previous_weight_pct": 5.4,
         "change_pct": -0.3,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "FORM",
@@ -89,7 +110,10 @@
         "previous_weight_pct": 4.1,
         "change_pct": -0.5,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "KLIC",
@@ -98,7 +122,10 @@
         "previous_weight_pct": 3.5,
         "change_pct": 0.1,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "COHU",
@@ -107,7 +134,10 @@
         "previous_weight_pct": 2.4,
         "change_pct": -0.2,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "RDVT",
@@ -116,7 +146,10 @@
         "previous_weight_pct": 2.0,
         "change_pct": 0.2,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "MKSI",
@@ -125,7 +158,10 @@
         "previous_weight_pct": 2.1,
         "change_pct": -0.1,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "LITE",
@@ -134,7 +170,10 @@
         "previous_weight_pct": 2.2,
         "change_pct": -0.3,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "SMTC",
@@ -143,7 +182,10 @@
         "previous_weight_pct": 2.1,
         "change_pct": -0.3,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "DOCN",
@@ -152,7 +194,10 @@
         "previous_weight_pct": null,
         "change_pct": null,
         "slide_status": "new_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "new_position",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "PENG",
@@ -161,7 +206,10 @@
         "previous_weight_pct": null,
         "change_pct": null,
         "slide_status": "new_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "new_position",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "FPS",
@@ -170,7 +218,10 @@
         "previous_weight_pct": 1.1,
         "change_pct": -0.1,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "wzsOkiMNb5E"
+        }
       },
       {
         "ticker": "YOU",
@@ -179,7 +230,10 @@
         "previous_weight_pct": null,
         "change_pct": null,
         "slide_status": "new_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "new_position",
+          "video_id": "wzsOkiMNb5E"
+        }
       }
     ],
     "previous_snapshot_date": "2026-10-11",
@@ -189,7 +243,10 @@
         "company_name": "Micron",
         "previous_weight_pct": 3.0,
         "slide_status": "not_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "sold",
+          "video_id": "wzsOkiMNb5E"
+        }
       }
     ]
   },
@@ -2686,7 +2743,10 @@
           "previous_weight_pct": 16.8,
           "change_pct": -0.7,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "trimmed",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "LIFE",
@@ -2695,7 +2755,10 @@
           "previous_weight_pct": 13.0,
           "change_pct": 2.7,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "SIMO",
@@ -2704,7 +2767,10 @@
           "previous_weight_pct": 15.6,
           "change_pct": -0.8,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "FIGR",
@@ -2713,7 +2779,10 @@
           "previous_weight_pct": 12.1,
           "change_pct": 1.6,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "ONTO",
@@ -2722,7 +2791,10 @@
           "previous_weight_pct": 6.2,
           "change_pct": -0.7,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "VIAV",
@@ -2731,7 +2803,10 @@
           "previous_weight_pct": 5.9,
           "change_pct": -0.8,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "MTSI",
@@ -2740,7 +2815,10 @@
           "previous_weight_pct": 5.4,
           "change_pct": -0.3,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "FORM",
@@ -2749,7 +2827,10 @@
           "previous_weight_pct": 4.1,
           "change_pct": -0.5,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "KLIC",
@@ -2758,7 +2839,10 @@
           "previous_weight_pct": 3.5,
           "change_pct": 0.1,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "COHU",
@@ -2767,7 +2851,10 @@
           "previous_weight_pct": 2.4,
           "change_pct": -0.2,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "RDVT",
@@ -2776,7 +2863,10 @@
           "previous_weight_pct": 2.0,
           "change_pct": 0.2,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "MKSI",
@@ -2785,7 +2875,10 @@
           "previous_weight_pct": 2.1,
           "change_pct": -0.1,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "LITE",
@@ -2794,7 +2887,10 @@
           "previous_weight_pct": 2.2,
           "change_pct": -0.3,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "SMTC",
@@ -2803,7 +2899,10 @@
           "previous_weight_pct": 2.1,
           "change_pct": -0.3,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "DOCN",
@@ -2812,7 +2911,10 @@
           "previous_weight_pct": null,
           "change_pct": null,
           "slide_status": "new_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "new_position",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "PENG",
@@ -2821,7 +2923,10 @@
           "previous_weight_pct": null,
           "change_pct": null,
           "slide_status": "new_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "new_position",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "FPS",
@@ -2830,7 +2935,10 @@
           "previous_weight_pct": 1.1,
           "change_pct": -0.1,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "wzsOkiMNb5E"
+          }
         },
         {
           "ticker": "YOU",
@@ -2839,7 +2947,10 @@
           "previous_weight_pct": null,
           "change_pct": null,
           "slide_status": "new_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "new_position",
+            "video_id": "wzsOkiMNb5E"
+          }
         }
       ],
       "departed": [
@@ -2848,12 +2959,212 @@
           "company_name": "Micron",
           "previous_weight_pct": 3.0,
           "slide_status": "not_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "sold",
+            "video_id": "wzsOkiMNb5E"
+          }
         }
       ]
     }
   ],
   "videos": [
+    {
+      "video_id": "wzsOkiMNb5E",
+      "date": "2026-10-18",
+      "title": "WPR's Growth Stocks & New Portfolio Additions",
+      "url": "https://www.youtube.com/watch?v=wzsOkiMNb5E",
+      "has_report": true,
+      "source_dir": "2026-10-18_wzsOkiMNb5E",
+      "report_path": "transcripts/2026-10-18_wzsOkiMNb5E/report.md",
+      "transcript_path": "transcripts/2026-10-18_wzsOkiMNb5E/transcript.md",
+      "evidence_path": "transcripts/2026-10-18_wzsOkiMNb5E/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "ALAB",
+          "company": "Astera Labs",
+          "status": "trimmed",
+          "weight_pct": 16.1,
+          "thesis": "Trim was purely portfolio management; no lost confidence and expects a strong report.",
+          "concern": null
+        },
+        {
+          "ticker": "LIFE",
+          "company": "Ethos Technologies",
+          "status": "held_no_new_thesis",
+          "weight_pct": 15.7,
+          "thesis": "Spoken allocation only; share price held up well this week.",
+          "concern": null
+        },
+        {
+          "ticker": "SIMO",
+          "company": "Silicon Motion",
+          "status": "held_no_new_thesis",
+          "weight_pct": 14.8,
+          "thesis": "Spoken allocation only; no new standalone company thesis.",
+          "concern": null
+        },
+        {
+          "ticker": "FIGR",
+          "company": "Figure Technology",
+          "status": "held_no_new_thesis",
+          "weight_pct": 13.7,
+          "thesis": "Spoken allocation only; no new standalone company thesis.",
+          "concern": null
+        },
+        {
+          "ticker": "ONTO",
+          "company": "Onto Innovation",
+          "status": "held_no_new_thesis",
+          "weight_pct": 5.5,
+          "thesis": "Spoken allocation only; no new standalone company thesis.",
+          "concern": null
+        },
+        {
+          "ticker": "VIAV",
+          "company": "VIAVI Solutions",
+          "status": "held_no_new_thesis",
+          "weight_pct": 5.1,
+          "thesis": "Spoken allocation only; no new standalone company thesis.",
+          "concern": null
+        },
+        {
+          "ticker": "MTSI",
+          "company": "MACOM Technology Solutions",
+          "status": "held_no_new_thesis",
+          "weight_pct": 5.1,
+          "thesis": "Spoken allocation; named as a name that would be larger without so many other choices.",
+          "concern": null
+        },
+        {
+          "ticker": "FORM",
+          "company": "FormFactor",
+          "status": "held_no_new_thesis",
+          "weight_pct": 3.6,
+          "thesis": "Spoken allocation only; no new standalone company thesis.",
+          "concern": null
+        },
+        {
+          "ticker": "KLIC",
+          "company": "Kulicke & Soffa",
+          "status": "held_no_new_thesis",
+          "weight_pct": 3.6,
+          "thesis": "Spoken allocation; named as a name that would be larger without so many other choices.",
+          "concern": null
+        },
+        {
+          "ticker": "COHU",
+          "company": "Cohu",
+          "status": "held_no_new_thesis",
+          "weight_pct": 2.2,
+          "thesis": "Spoken allocation only; no new standalone company thesis.",
+          "concern": null
+        },
+        {
+          "ticker": "RDVT",
+          "company": "Red Violet",
+          "status": "held_no_new_thesis",
+          "weight_pct": 2.2,
+          "thesis": "Spoken allocation only; no new standalone company thesis.",
+          "concern": null
+        },
+        {
+          "ticker": "MKSI",
+          "company": "MKS Inc.",
+          "status": "held_no_new_thesis",
+          "weight_pct": 2.0,
+          "thesis": "Spoken allocation only; no new standalone company thesis.",
+          "concern": null
+        },
+        {
+          "ticker": "LITE",
+          "company": "Lumentum",
+          "status": "held_no_new_thesis",
+          "weight_pct": 1.9,
+          "thesis": "Spoken allocation only; no new standalone company thesis.",
+          "concern": null
+        },
+        {
+          "ticker": "SMTC",
+          "company": "Semtech",
+          "status": "held_no_new_thesis",
+          "weight_pct": 1.8,
+          "thesis": "Spoken allocation (captioned SEC); named as a name that would be larger without so many other choices.",
+          "concern": null
+        },
+        {
+          "ticker": "DOCN",
+          "company": "DigitalOcean",
+          "status": "new_position",
+          "weight_pct": 1.3,
+          "thesis": "Accelerating growth as it moves up market, with management projecting over 50% revenue growth in 2027 and describing further upside. Chosen over Cloudflare on long-term guidance and profitability.",
+          "concern": "1.98bn debt, gross margin down to 55%, and trading with CoreWeave."
+        },
+        {
+          "ticker": "PENG",
+          "company": "Penguin Solutions",
+          "status": "new_position",
+          "weight_pct": 1.2,
+          "thesis": "Executed reentry after the October 11 consideration, funded by the Micron sale rather than a disappointing holding. Price fall since purchase explains 1.2% versus 1.4% allocated.",
+          "concern": null
+        },
+        {
+          "ticker": "FPS",
+          "company": "Forgent Power Solutions",
+          "status": "held_no_new_thesis",
+          "weight_pct": 1.0,
+          "thesis": "Spoken allocation only; listed among newer starter positions.",
+          "concern": null
+        },
+        {
+          "ticker": "YOU",
+          "company": "Clear Secure",
+          "status": "new_position",
+          "weight_pct": 0.5,
+          "thesis": "Small diversification step outside AI: strong travel identity brand, government buy-in, Veterans Affairs pilot as possible TAM expansion and record margins.",
+          "concern": null
+        },
+        {
+          "ticker": "MU",
+          "company": "Micron",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": "Sold for 2.8% of portfolio value; absent from the end-of-week list. Still an extraordinary opportunity with high probability of tripling, but smaller names may triple more easily. May get back in later.",
+          "concern": null
+        },
+        {
+          "ticker": "NET",
+          "company": "Cloudflare",
+          "status": "watchlist_not_owned",
+          "weight_pct": null,
+          "thesis": "Former four-year holding. Long-term narrative extremely compelling; would consider buying if management mentions raising prices or the price falls.",
+          "concern": "Profitability seems an afterthought; 45x run-rate sales; adjusted metrics presented without the adjusted prefix."
+        },
+        {
+          "ticker": "BRUN",
+          "company": "Boost Run",
+          "status": "passed_not_owned",
+          "weight_pct": null,
+          "thesis": "Beaten-up neocloud worth following; would change his mind on GAAP profitability while scaling revenue.",
+          "concern": "Very small headcount and an 'essentially fully committed' Dell agreement."
+        },
+        {
+          "ticker": "MWH",
+          "company": "SOLV Energy",
+          "status": "passed_not_owned",
+          "weight_pct": null,
+          "thesis": "Backlog nearly double market cap is a big plus; private-equity control and low margins give pause. Caption ticker MW is truncated.",
+          "concern": null
+        },
+        {
+          "ticker": "FEIM",
+          "company": "Frequency Electronics",
+          "status": "passed_not_owned",
+          "weight_pct": null,
+          "thesis": "Sounds like it is growing faster than analysts and possibly management project. Caption ticker FEM is garbled.",
+          "concern": "No company guidance; analysts project a significant sequential decline."
+        }
+      ]
+    },
     {
       "video_id": "6_1nOtQ9CB4",
       "date": "2026-10-11",
