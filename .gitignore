@@ -28,3 +28,6 @@ outputs/
 # Private health records
 data/health-hub.json
 data/e919b8f1-e686-4234-a6c6-7ef82a9b7400.pdf
+
+# Family-only pages copied to the server, served by /projects routes
+data/private-pages/

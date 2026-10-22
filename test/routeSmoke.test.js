@@ -582,3 +582,22 @@ test('home page renders authenticated family links instead of static public inde
     assert.doesNotMatch(body, /id="access-role">General/);
   });
 });
+
+test('/projects/wow-forever is family-only and served outside public/', async () => {
+  const privatePagesDir = fs.mkdtempSync(path.join(os.tmpdir(), 'private-pages-'));
+  fs.writeFileSync(path.join(privatePagesDir, 'wow-forever-leveling.html'), '<!DOCTYPE html><title>WoW guide</title>');
+  const dependencies = { ...makeDeps(), privatePagesDir };
+
+  const generalApp = createApp({ accessAuth: makeAuth('general'), dependencies });
+  await withServer(generalApp, async baseUrl => {
+    const result = await request(baseUrl, '/projects/wow-forever', { headers: { Accept: 'application/json' } });
+    assert.equal(result.res.status, 403);
+  });
+
+  const familyApp = createApp({ accessAuth: makeAuth('family'), dependencies });
+  await withServer(familyApp, async baseUrl => {
+    const result = await request(baseUrl, '/projects/wow-forever');
+    assert.equal(result.res.status, 200);
+    assert.match(result.body, /WoW guide/);
+  });
+});

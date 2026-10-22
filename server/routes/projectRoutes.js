@@ -56,6 +56,21 @@ function createProjectRoutes(options = {}) {
     return res.sendFile(report.fullPath);
   });
 
+  // Family-only static pages copied onto the server (e.g. the WoW Forever leveling guide).
+  // They live outside public/ so the open static handler never serves them.
+  router.get('/projects/wow-forever', requireFamily, (req, res) => {
+    const privatePagesDir = options.privatePagesDir || path.join(__dirname, '..', '..', 'data', 'private-pages');
+    const filePath = path.join(privatePagesDir, 'wow-forever-leveling.html');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    return res.sendFile(filePath, err => {
+      if (err && !res.headersSent) {
+        res.status(404).type('html').send(
+          renderFamilySectionPage('Page Not Found', 'The WoW Forever guide has not been copied to this server.')
+        );
+      }
+    });
+  });
+
   return router;
 }
 
