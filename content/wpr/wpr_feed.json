@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-18T16:25:36.151891+00:00",
+  "generated_at": "2026-10-25T14:11:24.692056+00:00",
   "source_notes": {
     "holdings": "WPR YouTube membership allocation slides supplied by Andrew",
     "date_basis": "Snapshot dates are derived from Andrew's ordering on 2026-08-30: SIMO slide is two weeks old, FIGR slide is one week old, ALAB slide is current.",
@@ -2968,6 +2968,251 @@
     }
   ],
   "videos": [
+    {
+      "video_id": "ZE47NKuIX_c",
+      "date": "2026-10-25",
+      "title": "WPR's New Growth Stocks & Portfolio Update - EPISODE 8",
+      "url": "https://www.youtube.com/watch?v=ZE47NKuIX_c",
+      "has_report": true,
+      "source_dir": "2026-10-25_ZE47NKuIX_c",
+      "report_path": "transcripts/2026-10-25_ZE47NKuIX_c/report.md",
+      "transcript_path": "transcripts/2026-10-25_ZE47NKuIX_c/transcript.md",
+      "evidence_path": "transcripts/2026-10-25_ZE47NKuIX_c/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "LIFE",
+          "company": "Ethos Technologies",
+          "status": "trimmed",
+          "weight_pct": 18.3,
+          "thesis": "Trimmed 0.8% for sizing; confident in prospects but oversized versus enthusiasm.",
+          "concern": null
+        },
+        {
+          "ticker": "ALAB",
+          "company": "Astera Labs",
+          "status": "held_no_new_thesis",
+          "weight_pct": 15.4,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "SIMO",
+          "company": "Silicon Motion",
+          "status": "held_no_new_thesis",
+          "weight_pct": 13.9,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "FIGR",
+          "company": "Figure Technology",
+          "status": "held_waiting_for_earnings",
+          "weight_pct": 12.4,
+          "thesis": "Wait-and-see through earnings; plans same sizing. Weekly volume slowdown is not enough for trading; judge revenue, profitability, guidance and partner additions.",
+          "concern": null
+        },
+        {
+          "ticker": "ONTO",
+          "company": "Onto Innovation",
+          "status": "held_no_new_thesis",
+          "weight_pct": 5.3,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "VIAV",
+          "company": "VIAVI Solutions",
+          "status": "held_no_new_thesis",
+          "weight_pct": 4.9,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "MTSI",
+          "company": "MACOM Technology Solutions",
+          "status": "held_no_new_thesis",
+          "weight_pct": 4.9,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "FORM",
+          "company": "FormFactor",
+          "status": "held_no_new_thesis",
+          "weight_pct": 3.6,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "KLIC",
+          "company": "Kulicke & Soffa",
+          "status": "held_no_new_thesis",
+          "weight_pct": 3.5,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "RDVT",
+          "company": "Red Violet",
+          "status": "held_no_new_thesis",
+          "weight_pct": 2.6,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "COHU",
+          "company": "Cohu",
+          "status": "held_no_new_thesis",
+          "weight_pct": 2.2,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "MKSI",
+          "company": "MKS Inc.",
+          "status": "held_no_new_thesis",
+          "weight_pct": 2.0,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "LITE",
+          "company": "Lumentum",
+          "status": "held_no_new_thesis",
+          "weight_pct": 1.9,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "SMTC",
+          "company": "Semtech",
+          "status": "held_no_new_thesis",
+          "weight_pct": 1.8,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "DOCN",
+          "company": "DigitalOcean",
+          "status": "added",
+          "weight_pct": 1.5,
+          "thesis": "Added 0.2%; enthusiastic about guided 2027 acceleration.",
+          "concern": null
+        },
+        {
+          "ticker": "YOU",
+          "company": "Clear Secure",
+          "status": "added",
+          "weight_pct": 1.5,
+          "thesis": "Added 1.0% in two purchases, funded by FPS and LIFE. Diversification and enthusiasm, with slower guided bookings a watchpoint.",
+          "concern": null
+        },
+        {
+          "ticker": "PENG",
+          "company": "Penguin Solutions",
+          "status": "held_no_new_thesis",
+          "weight_pct": 1.2,
+          "thesis": "Spoken allocation only; earlier thesis not renewed.",
+          "concern": null
+        },
+        {
+          "ticker": "BE",
+          "company": "Bloom Energy",
+          "status": "new_tracker_position",
+          "weight_pct": 0.2,
+          "thesis": "Reentered with 0.2% after strong report and price decline. Scandium supply and CFO disclosure concerns; further purchase only considered.",
+          "concern": null
+        },
+        {
+          "ticker": "NET",
+          "company": "Cloudflare",
+          "status": "new_tracker_position",
+          "weight_pct": 0.2,
+          "thesis": "Bought 0.2% tracker; AI/security tailwinds and different trading behavior from hardware. Overvaluation and profitability concerns remain.",
+          "concern": null
+        },
+        {
+          "ticker": "FPS",
+          "company": "Forgent Power Solutions",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": "Initial 0.6% trim then remaining 0.2% exit. CFO departure plus private equity overhang. Possible revisit conditional, not current ownership.",
+          "concern": null
+        },
+        {
+          "ticker": "BESI",
+          "company": "BE Semiconductor Industries",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": "Sold after disappointing Q4 guide and customer despec concern. One-third funds already to Smartoptics; Macronix and Phison allocations remain plans.",
+          "concern": null
+        },
+        {
+          "ticker": "SMOP",
+          "company": "Smartoptics Group",
+          "status": "added_foreign_position",
+          "weight_pct": null,
+          "thesis": "Executed allocation of one third of BESI sale proceeds; no total-portfolio size disclosed.",
+          "concern": null
+        },
+        {
+          "ticker": "2337.TW",
+          "company": "Macronix",
+          "status": "planned_addition_not_executed",
+          "weight_pct": null,
+          "thesis": "Plans one third of BESI proceeds when Taiwan market reopens; not yet executed.",
+          "concern": null
+        },
+        {
+          "ticker": "8299.TWO",
+          "company": "Phison",
+          "status": "planned_addition_not_executed",
+          "weight_pct": null,
+          "thesis": "Plans one third of BESI proceeds when Taiwan market reopens; not yet executed.",
+          "concern": null
+        },
+        {
+          "ticker": "NVEC",
+          "company": "NVE Corporation",
+          "status": "passed_not_owned",
+          "weight_pct": null,
+          "thesis": "Revenue 5.83m versus his above-13m threshold; no further investigation.",
+          "concern": null
+        },
+        {
+          "ticker": "MXL",
+          "company": "MaxLinear",
+          "status": "passed_not_owned",
+          "weight_pct": null,
+          "thesis": "Reported metrics insufficiently outstanding for further research despite stronger guide.",
+          "concern": null
+        },
+        {
+          "ticker": "VICR",
+          "company": "Vicor",
+          "status": "watchlist_not_owned",
+          "weight_pct": null,
+          "thesis": "Added to Q4 earnings calendar; strong results and margin expansion, but one-time royalty element, less impressive informal guide and near-term capacity limits.",
+          "concern": null
+        },
+        {
+          "ticker": "PCYO",
+          "company": "Pure Cycle",
+          "status": "passed_not_owned",
+          "weight_pct": null,
+          "thesis": "Uncertain scale and Colorado expansion; wants quarterly revenue nearer 20m.",
+          "concern": null
+        },
+        {
+          "ticker": "PICS",
+          "company": "PicS N.V. / PicPay",
+          "status": "passed_not_owned",
+          "weight_pct": null,
+          "thesis": "Huge risk from controlling family. Still thinks fair value could exceed 5bn versus cited 1.85bn market cap; not a purchase.",
+          "concern": null
+        }
+      ]
+    },
     {
       "video_id": "wzsOkiMNb5E",
       "date": "2026-10-18",
