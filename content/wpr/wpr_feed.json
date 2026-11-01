@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T21:02:52.301294+00:00",
+  "generated_at": "2026-11-01T17:22:35.360552+00:00",
   "source_notes": {
     "holdings": "WPR YouTube membership allocation slides supplied by Andrew",
     "date_basis": "Snapshot dates are derived from Andrew's ordering on 2026-08-30: SIMO slide is two weeks old, FIGR slide is one week old, ALAB slide is current.",
@@ -3340,6 +3340,75 @@
     }
   ],
   "videos": [
+    {
+      "video_id": "ucnG2ZJSnq8",
+      "date": "2026-11-01",
+      "title": "WPR's Top 7 Growth Stocks - November 2026",
+      "url": "https://www.youtube.com/watch?v=ucnG2ZJSnq8",
+      "has_report": true,
+      "source_dir": "2026-11-01_ucnG2ZJSnq8",
+      "report_path": "transcripts/2026-11-01_ucnG2ZJSnq8/report.md",
+      "transcript_path": "transcripts/2026-11-01_ucnG2ZJSnq8/transcript.md",
+      "evidence_path": "transcripts/2026-11-01_ucnG2ZJSnq8/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "LIFE",
+          "company": "Ethos Technologies",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "Technology platform disrupting legacy life insurance with a data moat; direct-to-consumer growth of 131% and an expanded Liberty Mutual relationship. He expects another full-year guidance raise at the November 2 report.",
+          "concern": "No concern stated in this video. Growth figures and partnership terms are company claims recounted by WPR."
+        },
+        {
+          "ticker": "ALAB",
+          "company": "Astera Labs",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "Next-generation AI networking hardware growing across products: Scorpio X scaling with hyperscaler ASIC programs, PCIe 7 first to market, Aries copper and optical, PCIe-over-optics demonstration with Lumentum and Corning, and Orion reference designs due Q1 2027.",
+          "concern": "No concern stated. Product and validation claims are company press-release content relayed by WPR."
+        },
+        {
+          "ticker": "SIMO",
+          "company": "Silicon Motion",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "Controller share gains with fast-growing enterprise and AI end markets, Nvidia and Google boot-drive customers, and record margins. Recaps the October 29 earnings review without a new plan.",
+          "concern": "Consumer end market pressure as PC and smartphone makers struggle to pass on rising memory costs, explaining the 10% sequential Q4 guide."
+        },
+        {
+          "ticker": "FIGR",
+          "company": "Figure Technology",
+          "status": "held_plan_to_maintain_until_earnings",
+          "weight_pct": null,
+          "thesis": "Loan tokenization adds efficiency; expanding beyond HELOCs. Q3 consumer loan volume of $5.12bn landed near the top of the $4.8-5.2bn guide, the RWA.xyz chart shows no drop-off, and week 43 recovered to $373m, up 85% annually. Plans to maintain the position until the November 12 report, then re-evaluate.",
+          "concern": "Heavy share-price decline, which he attributes likely to HELOC concerns and the crypto downtrend; weekly volume ticked down before week 43, possibly seasonal. Watches partner additions and the consumer-loan-volume guide."
+        },
+        {
+          "ticker": "MTSI",
+          "company": "MACOM Technology Solutions",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "Photonics and communications semiconductor maker with 40% sequential data-center growth, owned and expanding fabs, a broad customer base, and its strongest guide ever (61% annual growth at the midpoint) while the stock sits near $235 versus a $418 June high. Profits grow faster than revenue; he expects MACOM to easily beat analysts' low-growth estimates and the market to possibly re-rate it as a higher-growth stock.",
+          "concern": "No concern stated. Financials are source-reported; the re-rating and analyst underestimation are his interpretations."
+        },
+        {
+          "ticker": "DOCN",
+          "company": "DigitalOcean",
+          "status": "held_rank_disclosed_no_trade",
+          "weight_pct": null,
+          "thesis": "Fast-growing agentic AI cloud moving up market, with guidance for over 50% revenue growth in 2027 and early inference-engine traction. New Agent Droplets, agent learning and data services, an inference router and a Bright Data partnership. Keen to hear management on inference growth at the next report.",
+          "concern": "Inference engine growth is off a small base; competes with hyperscalers, neoclouds and startups."
+        },
+        {
+          "ticker": "ONTO",
+          "company": "Onto Innovation",
+          "status": "held_plan_to_reevaluate_after_earnings",
+          "weight_pct": null,
+          "thesis": "Dragonfly inspection and metrology gaining traction and winning against larger incumbents like KLA; HBM inspection equipment; SK Hynix best partner award. Cites RBC's initiation ($400 target, 80% advanced-packaging growth).",
+          "concern": "Will re-evaluate based on the strength of the November 9 report. The RBC target and growth figure are an analyst's claims, not WPR's."
+        }
+      ]
+    },
     {
       "video_id": "5zGsnheZAkM",
       "date": "2026-10-29",
