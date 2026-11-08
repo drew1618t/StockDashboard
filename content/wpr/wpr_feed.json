@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-08T22:26:09.399838+00:00",
+  "generated_at": "2026-11-08T22:31:33.867598+00:00",
   "source_notes": {
     "holdings": "WPR YouTube membership allocation slides supplied by Andrew",
     "date_basis": "Snapshot dates are derived from Andrew's ordering on 2026-08-30: SIMO slide is two weeks old, FIGR slide is one week old, ALAB slide is current.",
@@ -29,7 +29,10 @@
         "previous_weight_pct": 15.4,
         "change_pct": 4.4,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "added",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "FIGR",
@@ -38,7 +41,10 @@
         "previous_weight_pct": 11.9,
         "change_pct": 5.5,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "added",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "SIMO",
@@ -47,7 +53,10 @@
         "previous_weight_pct": 15.3,
         "change_pct": -0.6,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "trimmed_then_added",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "LIFE",
@@ -56,7 +65,10 @@
         "previous_weight_pct": 17.9,
         "change_pct": -5.8,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "trimmed",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "DOCN",
@@ -65,7 +77,10 @@
         "previous_weight_pct": 5.7,
         "change_pct": 1.9,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "added",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "ONTO",
@@ -74,7 +89,10 @@
         "previous_weight_pct": 5.3,
         "change_pct": 0.0,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "YOU",
@@ -83,7 +101,10 @@
         "previous_weight_pct": 1.9,
         "change_pct": 2.1,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "added_then_trimmed",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "KLIC",
@@ -92,7 +113,10 @@
         "previous_weight_pct": 3.5,
         "change_pct": 0.1,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "held_no_new_thesis",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "APP",
@@ -101,7 +125,10 @@
         "previous_weight_pct": null,
         "change_pct": null,
         "slide_status": "new_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "new_position",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "VIAV",
@@ -110,7 +137,10 @@
         "previous_weight_pct": 4.8,
         "change_pct": -2.0,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "trimmed",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "MKSI",
@@ -119,7 +149,10 @@
         "previous_weight_pct": 2.4,
         "change_pct": 0.3,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "added_then_trimmed",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "NET",
@@ -128,7 +161,10 @@
         "previous_weight_pct": 0.2,
         "change_pct": 2.0,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "added",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "PENG",
@@ -137,7 +173,10 @@
         "previous_weight_pct": 1.1,
         "change_pct": 0.9,
         "slide_status": "on_both_slides",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "added",
+          "video_id": "Go2UN72-22Y"
+        }
       }
     ],
     "previous_snapshot_date": "2026-11-01",
@@ -147,35 +186,50 @@
         "company_name": "MACOM Technology",
         "previous_weight_pct": 5.7,
         "slide_status": "not_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "sold",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "RDVT",
         "company_name": "RedViolet",
         "previous_weight_pct": 2.5,
         "slide_status": "not_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "sold",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "SMTC",
         "company_name": "Semtech",
         "previous_weight_pct": 1.8,
         "slide_status": "not_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "sold",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "COHU",
         "company_name": "Cohu",
         "previous_weight_pct": 1.6,
         "slide_status": "not_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "sold",
+          "video_id": "Go2UN72-22Y"
+        }
       },
       {
         "ticker": "BE",
         "company_name": "Bloom Energy",
         "previous_weight_pct": 0.2,
         "slide_status": "not_on_slide",
-        "disclosed_decision": null
+        "disclosed_decision": {
+          "status": "sold",
+          "video_id": "Go2UN72-22Y"
+        }
       }
     ]
   },
@@ -3682,7 +3736,10 @@
           "previous_weight_pct": 15.4,
           "change_pct": 4.4,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "added",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "FIGR",
@@ -3691,7 +3748,10 @@
           "previous_weight_pct": 11.9,
           "change_pct": 5.5,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "added",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "SIMO",
@@ -3700,7 +3760,10 @@
           "previous_weight_pct": 15.3,
           "change_pct": -0.6,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "trimmed_then_added",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "LIFE",
@@ -3709,7 +3772,10 @@
           "previous_weight_pct": 17.9,
           "change_pct": -5.8,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "trimmed",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "DOCN",
@@ -3718,7 +3784,10 @@
           "previous_weight_pct": 5.7,
           "change_pct": 1.9,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "added",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "ONTO",
@@ -3727,7 +3796,10 @@
           "previous_weight_pct": 5.3,
           "change_pct": 0.0,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "YOU",
@@ -3736,7 +3808,10 @@
           "previous_weight_pct": 1.9,
           "change_pct": 2.1,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "added_then_trimmed",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "KLIC",
@@ -3745,7 +3820,10 @@
           "previous_weight_pct": 3.5,
           "change_pct": 0.1,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "held_no_new_thesis",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "APP",
@@ -3754,7 +3832,10 @@
           "previous_weight_pct": null,
           "change_pct": null,
           "slide_status": "new_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "new_position",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "VIAV",
@@ -3763,7 +3844,10 @@
           "previous_weight_pct": 4.8,
           "change_pct": -2.0,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "trimmed",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "MKSI",
@@ -3772,7 +3856,10 @@
           "previous_weight_pct": 2.4,
           "change_pct": 0.3,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "added_then_trimmed",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "NET",
@@ -3781,7 +3868,10 @@
           "previous_weight_pct": 0.2,
           "change_pct": 2.0,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "added",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "PENG",
@@ -3790,7 +3880,10 @@
           "previous_weight_pct": 1.1,
           "change_pct": 0.9,
           "slide_status": "on_both_slides",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "added",
+            "video_id": "Go2UN72-22Y"
+          }
         }
       ],
       "departed": [
@@ -3799,35 +3892,50 @@
           "company_name": "MACOM Technology",
           "previous_weight_pct": 5.7,
           "slide_status": "not_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "sold",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "RDVT",
           "company_name": "RedViolet",
           "previous_weight_pct": 2.5,
           "slide_status": "not_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "sold",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "SMTC",
           "company_name": "Semtech",
           "previous_weight_pct": 1.8,
           "slide_status": "not_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "sold",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "COHU",
           "company_name": "Cohu",
           "previous_weight_pct": 1.6,
           "slide_status": "not_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "sold",
+            "video_id": "Go2UN72-22Y"
+          }
         },
         {
           "ticker": "BE",
           "company_name": "Bloom Energy",
           "previous_weight_pct": 0.2,
           "slide_status": "not_on_slide",
-          "disclosed_decision": null
+          "disclosed_decision": {
+            "status": "sold",
+            "video_id": "Go2UN72-22Y"
+          }
         }
       ]
     }
@@ -3838,12 +3946,165 @@
       "date": "2026-11-08",
       "title": "Growth Stock Earnings Deep Dive - 9 Portfolio Reviewed In Depth",
       "url": "https://www.youtube.com/watch?v=Go2UN72-22Y",
-      "has_report": false,
-      "source_dir": null,
-      "report_path": null,
-      "transcript_path": null,
-      "evidence_path": null,
-      "disclosed_decisions": []
+      "has_report": true,
+      "source_dir": "2026-11-08_Go2UN72-22Y",
+      "report_path": "transcripts/2026-11-08_Go2UN72-22Y/report.md",
+      "transcript_path": "transcripts/2026-11-08_Go2UN72-22Y/transcript.md",
+      "evidence_path": "transcripts/2026-11-08_Go2UN72-22Y/evidence.md",
+      "disclosed_decisions": [
+        {
+          "ticker": "ALAB",
+          "company": "Astera Labs",
+          "status": "added",
+          "weight_pct": 19.8,
+          "thesis": "Added 0.6%, 0.8%, 4.6% and 0.4% across four steps; wants an oversized position after two incredible reports while the stock was hammered. Reads MACOM's call as Astera competing in TIAs with more complete solutions.",
+          "concern": "No Astera earnings review in this video."
+        },
+        {
+          "ticker": "FIGR",
+          "company": "Figure Technology",
+          "status": "added",
+          "weight_pct": 17.4,
+          "thesis": "Added 0.8%, 0.6% and 1.0%: non-AI diversification, low expectations into earnings, and a trailing P/E of 22 while growing rapidly; the largest allocation in the Thursday step partly for value.",
+          "concern": "Reports next week; membership video November 12."
+        },
+        {
+          "ticker": "SIMO",
+          "company": "Silicon Motion",
+          "status": "trimmed_then_added",
+          "weight_pct": 14.7,
+          "thesis": "Trimmed 3% because revenue guidance was below his expectation and no near-term catalyst remained; later added 0.6%, 0.8% and 2% after the price crashed, saying he is still really confident in its prospects.",
+          "concern": "Revenue guidance below expectation, though margins compensated."
+        },
+        {
+          "ticker": "LIFE",
+          "company": "Ethos Technologies",
+          "status": "trimmed",
+          "weight_pct": 12.1,
+          "thesis": "Revenue $235m, up 151%, beat guidance by 43% in seasonally weak quarters; platform disrupting a legacy industry. Trimmed 3% and 2% from over 18%, then added 0.6% back on Thursday.",
+          "concern": "GAAP net income $4.7m and falling margins; heavy sales and marketing; wants more focus on profitability and wonders about ad return on investment."
+        },
+        {
+          "ticker": "DOCN",
+          "company": "DigitalOcean",
+          "status": "added",
+          "weight_pct": 7.6,
+          "thesis": "Added 1.2% and 1%. Impressive report; guiding over 60% revenue growth in 2027 off a raised base; agentic app adoption; likes the $8.5bn valuation a lot; expects margins to recover with scale.",
+          "concern": "Market sold off after the report; GAAP loss from a one-time convertible repurchase; gross margin down on buildout; competition with Cloudflare."
+        },
+        {
+          "ticker": "ONTO",
+          "company": "Onto Innovation",
+          "status": "held_no_new_thesis",
+          "weight_pct": 5.3,
+          "thesis": "Allocation only; reports next week, quick take November 9 and full write-up November 10.",
+          "concern": "None stated."
+        },
+        {
+          "ticker": "YOU",
+          "company": "Clear Secure",
+          "status": "added_then_trimmed",
+          "weight_pct": 4.0,
+          "thesis": "Added 1%, 0.3%, 1%, 2.7% and 0.6% for identity trends, diversification and a strong narrative, then trimmed 4.9% after it rallied to over 8%. Profitability strong, healthcare TAM upside, reasonable valuation, trades counter to AI names.",
+          "concern": "Opinion keeps going back and forth; revenue guide and sequential growth not impressive; some parts of the report mixed."
+        },
+        {
+          "ticker": "KLIC",
+          "company": "Kulicke & Soffa",
+          "status": "held_no_new_thesis",
+          "weight_pct": 3.6,
+          "thesis": "Allocation only.",
+          "concern": "None stated."
+        },
+        {
+          "ticker": "APP",
+          "company": "AppLovin",
+          "status": "new_position",
+          "weight_pct": 2.9,
+          "thesis": "Started a 3% position after a comeback report: revenue $2.185bn, up 56%, adjusted EBITDA margin 84% and still expanding, free cash flow 77% of EBITDA, falling share count. Prospects differ from Q2 when management missed its standards.",
+          "concern": "Q4 guide implies growth slowing to 44%; carries debt."
+        },
+        {
+          "ticker": "VIAV",
+          "company": "VIAVI Solutions",
+          "status": "trimmed",
+          "weight_pct": 2.8,
+          "thesis": "Kept a smaller allocation: guide top end $515m versus analysts' $468m, operating leverage, $7bn market cap seems cheap.",
+          "concern": "Trimmed 2.5% on a tough comp and acquisition-based growth; wonders about growth after lapping acquisitions."
+        },
+        {
+          "ticker": "MKSI",
+          "company": "MKS Inc.",
+          "status": "added_then_trimmed",
+          "weight_pct": 2.7,
+          "thesis": "Added 1% and 1.1% before and on its report, then trimmed 2.3% as overallocated. Views it as dramatically undervalued: $13bn market cap versus an expected $30bn or more.",
+          "concern": "Supply-chain and capacity-constraint comments gave him pause."
+        },
+        {
+          "ticker": "NET",
+          "company": "Cloudflare",
+          "status": "added",
+          "weight_pct": 2.2,
+          "thesis": "Raised from a tiny tracker with 2.1%: metrics surprised, Workers agentic platform, and now guiding to GAAP profitability in Q4, addressing his earlier critique.",
+          "concern": "Still expensive at 31 times run-rate sales and not yet GAAP profitable; had considered selling on the GAAP loss."
+        },
+        {
+          "ticker": "PENG",
+          "company": "Penguin Solutions",
+          "status": "added",
+          "weight_pct": 2.0,
+          "thesis": "Added 1%; likes its prospects.",
+          "concern": "No earnings review in this video."
+        },
+        {
+          "ticker": "MTSI",
+          "company": "MACOM Technology Solutions",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": "Added 0.8%, trimmed 3.5% after an 8% sequential guide, then sold the remaining 3% after the call.",
+          "concern": "End-market guidance alarming, especially telecom; management said it is not in fully integrated solutions when asked about Astera's TIA. Says he misunderstood the business strength."
+        },
+        {
+          "ticker": "RDVT",
+          "company": "Red Violet",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": "Added 0.6%, 0.3% and 1% before earnings on identity trends; trimmed 2.7% and sold the remaining 1.4% after revenue grew only 20%.",
+          "concern": "4% sequential growth and fewer customer adds disconnect from management's strong commentary. On his Q4 earnings calendar; open to reconsidering above 30% growth."
+        },
+        {
+          "ticker": "SMTC",
+          "company": "Semtech",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": "Sold 1.6% during the Thursday crash to concentrate in top names.",
+          "concern": "Selling a portion of its business; year-over-year comps could look weak."
+        },
+        {
+          "ticker": "COHU",
+          "company": "Cohu",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": "Sold 1.4% during the Thursday crash to concentrate in top names.",
+          "concern": "Just okay guidance, though with a compelling 2027 narrative."
+        },
+        {
+          "ticker": "BE",
+          "company": "Bloom Energy",
+          "status": "sold",
+          "weight_pct": null,
+          "thesis": "Sold the 0.2% tracker.",
+          "concern": "May face headwinds on data center expansions in a changing regulatory environment."
+        },
+        {
+          "ticker": "AVT",
+          "company": "Avnet",
+          "status": "bought_and_sold_same_week",
+          "weight_pct": null,
+          "thesis": "Started 0.6% after seeing a press release with good numbers.",
+          "concern": "Sold when it fell because he had not yet read the report; plans to read the report and re-evaluate."
+        }
+      ]
     },
     {
       "video_id": "ucnG2ZJSnq8",
