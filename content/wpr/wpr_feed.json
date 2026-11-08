@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-01T19:51:39.719366+00:00",
+  "generated_at": "2026-11-08T22:26:09.399838+00:00",
   "source_notes": {
     "holdings": "WPR YouTube membership allocation slides supplied by Andrew",
     "date_basis": "Snapshot dates are derived from Andrew's ordering on 2026-08-30: SIMO slide is two weeks old, FIGR slide is one week old, ALAB slide is current.",
@@ -7,92 +7,65 @@
     "weight_change_rule": "change_pct compares consecutive slides and includes price moves; it is not a trade record."
   },
   "current": {
-    "snapshot_date": "2026-11-01",
-    "date_basis": "Dated November 1, 2026 from Andrew supplying the screenshot on that date; the screenshot itself has no visible calendar date.",
-    "source_image": "screenshots/2026-11-01_life.png",
-    "slide_title": "Portfolio Allocations",
+    "snapshot_date": "2026-11-08",
+    "date_basis": "Dated November 8, 2026 from Andrew supplying the screenshot on that date; the screenshot itself has no visible calendar date.",
+    "source_image": "screenshots/2026-11-08_alab.png",
+    "slide_title": "Portfolio Allocations & Returns",
     "reported_metrics": {
-      "ytd_return_pct": 5.0,
-      "foreign_listed_tech_pct": 2.8,
-      "top_4_pct": 60.5,
-      "top_9_pct": 85.5,
+      "ytd_return_pct": -11.0,
+      "foreign_listed_tech_pct": 2.6,
+      "top_4_pct": 64.0,
+      "top_7_pct": 80.9,
       "return_2024_pct": 146.0,
       "return_2025_pct": 112.0,
-      "cumulative_return_pct": 448.0
+      "cumulative_return_pct": 364.0
     },
     "slide_notes": [],
     "holdings": [
       {
-        "ticker": "LIFE",
-        "company_name": "Ethos Technologies",
-        "weight_pct": 17.9,
-        "previous_weight_pct": 18.3,
-        "change_pct": -0.4,
-        "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "trimmed",
-          "video_id": "fyBoDq2m2xc"
-        }
-      },
-      {
         "ticker": "ALAB",
         "company_name": "Astera Labs",
-        "weight_pct": 15.4,
+        "weight_pct": 19.8,
         "previous_weight_pct": 15.4,
-        "change_pct": 0.0,
+        "change_pct": 4.4,
         "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "held_no_new_thesis",
-          "video_id": "fyBoDq2m2xc"
-        }
-      },
-      {
-        "ticker": "SIMO",
-        "company_name": "Silicon Motion",
-        "weight_pct": 15.3,
-        "previous_weight_pct": 13.9,
-        "change_pct": 1.4,
-        "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "held_no_new_thesis",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "disclosed_decision": null
       },
       {
         "ticker": "FIGR",
         "company_name": "Figure Technology",
-        "weight_pct": 11.9,
-        "previous_weight_pct": 12.4,
-        "change_pct": -0.5,
+        "weight_pct": 17.4,
+        "previous_weight_pct": 11.9,
+        "change_pct": 5.5,
         "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "added",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "disclosed_decision": null
       },
       {
-        "ticker": "MTSI",
-        "company_name": "MACOM Technology",
-        "weight_pct": 5.7,
-        "previous_weight_pct": 4.9,
-        "change_pct": 0.8,
+        "ticker": "SIMO",
+        "company_name": "Silicon Motion",
+        "weight_pct": 14.7,
+        "previous_weight_pct": 15.3,
+        "change_pct": -0.6,
         "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "added",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "LIFE",
+        "company_name": "Ethos Technologies",
+        "weight_pct": 12.1,
+        "previous_weight_pct": 17.9,
+        "change_pct": -5.8,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
       },
       {
         "ticker": "DOCN",
         "company_name": "DigitalOcean",
-        "weight_pct": 5.7,
-        "previous_weight_pct": 1.5,
-        "change_pct": 4.2,
+        "weight_pct": 7.6,
+        "previous_weight_pct": 5.7,
+        "change_pct": 1.9,
         "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "added",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "disclosed_decision": null
       },
       {
         "ticker": "ONTO",
@@ -101,153 +74,108 @@
         "previous_weight_pct": 5.3,
         "change_pct": 0.0,
         "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "held_no_new_thesis",
-          "video_id": "fyBoDq2m2xc"
-        }
-      },
-      {
-        "ticker": "VIAV",
-        "company_name": "Viavi Solutions",
-        "weight_pct": 4.8,
-        "previous_weight_pct": 4.9,
-        "change_pct": -0.1,
-        "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "held_company_update",
-          "video_id": "fyBoDq2m2xc"
-        }
-      },
-      {
-        "ticker": "KLIC",
-        "company_name": "Kulicke & Soffa",
-        "weight_pct": 3.5,
-        "previous_weight_pct": 3.5,
-        "change_pct": 0.0,
-        "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "held_company_update",
-          "video_id": "fyBoDq2m2xc"
-        }
-      },
-      {
-        "ticker": "RDVT",
-        "company_name": "RedViolet",
-        "weight_pct": 2.5,
-        "previous_weight_pct": 2.6,
-        "change_pct": -0.1,
-        "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "held_company_update",
-          "video_id": "fyBoDq2m2xc"
-        }
-      },
-      {
-        "ticker": "MKSI",
-        "company_name": "MKS Inc",
-        "weight_pct": 2.4,
-        "previous_weight_pct": 2.0,
-        "change_pct": 0.4,
-        "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "added",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "disclosed_decision": null
       },
       {
         "ticker": "YOU",
         "company_name": "Clear Secure",
-        "weight_pct": 1.9,
-        "previous_weight_pct": 1.5,
-        "change_pct": 0.4,
+        "weight_pct": 4.0,
+        "previous_weight_pct": 1.9,
+        "change_pct": 2.1,
         "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "added",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "disclosed_decision": null
       },
       {
-        "ticker": "SMTC",
-        "company_name": "Semtech",
-        "weight_pct": 1.8,
-        "previous_weight_pct": 1.8,
-        "change_pct": 0.0,
+        "ticker": "KLIC",
+        "company_name": "Kulicke & Soffa",
+        "weight_pct": 3.6,
+        "previous_weight_pct": 3.5,
+        "change_pct": 0.1,
         "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "held_company_update",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "disclosed_decision": null
       },
       {
-        "ticker": "COHU",
-        "company_name": "Cohu",
-        "weight_pct": 1.6,
-        "previous_weight_pct": 2.2,
-        "change_pct": -0.6,
-        "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "trimmed",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "ticker": "APP",
+        "company_name": "AppLovin",
+        "weight_pct": 2.9,
+        "previous_weight_pct": null,
+        "change_pct": null,
+        "slide_status": "new_on_slide",
+        "disclosed_decision": null
       },
       {
-        "ticker": "PENG",
-        "company_name": "Penguin Solutions",
-        "weight_pct": 1.1,
-        "previous_weight_pct": 1.2,
-        "change_pct": -0.1,
+        "ticker": "VIAV",
+        "company_name": "Viavi Solutions",
+        "weight_pct": 2.8,
+        "previous_weight_pct": 4.8,
+        "change_pct": -2.0,
         "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "held_company_update",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "disclosed_decision": null
       },
       {
-        "ticker": "BE",
-        "company_name": "Bloom Energy",
-        "weight_pct": 0.2,
-        "previous_weight_pct": 0.2,
-        "change_pct": 0.0,
+        "ticker": "MKSI",
+        "company_name": "MKS Inc",
+        "weight_pct": 2.7,
+        "previous_weight_pct": 2.4,
+        "change_pct": 0.3,
         "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "tracker_position_held",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "disclosed_decision": null
       },
       {
         "ticker": "NET",
         "company_name": "Cloudflare",
-        "weight_pct": 0.2,
+        "weight_pct": 2.2,
         "previous_weight_pct": 0.2,
-        "change_pct": 0.0,
+        "change_pct": 2.0,
         "slide_status": "on_both_slides",
-        "disclosed_decision": {
-          "status": "tracker_position_held",
-          "video_id": "fyBoDq2m2xc"
-        }
-      }
-    ],
-    "previous_snapshot_date": "2026-10-25",
-    "departed": [
-      {
-        "ticker": "FORM",
-        "company_name": "FormFactor",
-        "previous_weight_pct": 3.6,
-        "slide_status": "not_on_slide",
-        "disclosed_decision": {
-          "status": "sold",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "disclosed_decision": null
       },
       {
-        "ticker": "LITE",
-        "company_name": "Lumentum",
-        "previous_weight_pct": 1.9,
+        "ticker": "PENG",
+        "company_name": "Penguin Solutions",
+        "weight_pct": 2.0,
+        "previous_weight_pct": 1.1,
+        "change_pct": 0.9,
+        "slide_status": "on_both_slides",
+        "disclosed_decision": null
+      }
+    ],
+    "previous_snapshot_date": "2026-11-01",
+    "departed": [
+      {
+        "ticker": "MTSI",
+        "company_name": "MACOM Technology",
+        "previous_weight_pct": 5.7,
         "slide_status": "not_on_slide",
-        "disclosed_decision": {
-          "status": "sold",
-          "video_id": "fyBoDq2m2xc"
-        }
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "RDVT",
+        "company_name": "RedViolet",
+        "previous_weight_pct": 2.5,
+        "slide_status": "not_on_slide",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "SMTC",
+        "company_name": "Semtech",
+        "previous_weight_pct": 1.8,
+        "slide_status": "not_on_slide",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "COHU",
+        "company_name": "Cohu",
+        "previous_weight_pct": 1.6,
+        "slide_status": "not_on_slide",
+        "disclosed_decision": null
+      },
+      {
+        "ticker": "BE",
+        "company_name": "Bloom Energy",
+        "previous_weight_pct": 0.2,
+        "slide_status": "not_on_slide",
+        "disclosed_decision": null
       }
     ]
   },
@@ -1392,6 +1320,89 @@
           "ticker": "NET",
           "company_name": "Cloudflare",
           "weight_pct": 0.2
+        }
+      ]
+    },
+    {
+      "snapshot_date": "2026-11-08",
+      "date_basis": "Dated November 8, 2026 from Andrew supplying the screenshot on that date; the screenshot itself has no visible calendar date.",
+      "source_image": "screenshots/2026-11-08_alab.png",
+      "slide_title": "Portfolio Allocations & Returns",
+      "reported_metrics": {
+        "ytd_return_pct": -11.0,
+        "foreign_listed_tech_pct": 2.6,
+        "top_4_pct": 64.0,
+        "top_7_pct": 80.9,
+        "return_2024_pct": 146.0,
+        "return_2025_pct": 112.0,
+        "cumulative_return_pct": 364.0
+      },
+      "slide_notes": [],
+      "holdings": [
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 19.8
+        },
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 17.4
+        },
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 14.7
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 12.1
+        },
+        {
+          "ticker": "DOCN",
+          "company_name": "DigitalOcean",
+          "weight_pct": 7.6
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 5.3
+        },
+        {
+          "ticker": "YOU",
+          "company_name": "Clear Secure",
+          "weight_pct": 4.0
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 3.6
+        },
+        {
+          "ticker": "APP",
+          "company_name": "AppLovin",
+          "weight_pct": 2.9
+        },
+        {
+          "ticker": "VIAV",
+          "company_name": "Viavi Solutions",
+          "weight_pct": 2.8
+        },
+        {
+          "ticker": "MKSI",
+          "company_name": "MKS Inc",
+          "weight_pct": 2.7
+        },
+        {
+          "ticker": "NET",
+          "company_name": "Cloudflare",
+          "weight_pct": 2.2
+        },
+        {
+          "ticker": "PENG",
+          "company_name": "Penguin Solutions",
+          "weight_pct": 2.0
         }
       ]
     }
@@ -3659,9 +3670,181 @@
           }
         }
       ]
+    },
+    {
+      "snapshot_date": "2026-11-08",
+      "previous_snapshot_date": "2026-11-01",
+      "holdings": [
+        {
+          "ticker": "ALAB",
+          "company_name": "Astera Labs",
+          "weight_pct": 19.8,
+          "previous_weight_pct": 15.4,
+          "change_pct": 4.4,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "FIGR",
+          "company_name": "Figure Technology",
+          "weight_pct": 17.4,
+          "previous_weight_pct": 11.9,
+          "change_pct": 5.5,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SIMO",
+          "company_name": "Silicon Motion",
+          "weight_pct": 14.7,
+          "previous_weight_pct": 15.3,
+          "change_pct": -0.6,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "LIFE",
+          "company_name": "Ethos Technologies",
+          "weight_pct": 12.1,
+          "previous_weight_pct": 17.9,
+          "change_pct": -5.8,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "DOCN",
+          "company_name": "DigitalOcean",
+          "weight_pct": 7.6,
+          "previous_weight_pct": 5.7,
+          "change_pct": 1.9,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "ONTO",
+          "company_name": "Onto Innovation",
+          "weight_pct": 5.3,
+          "previous_weight_pct": 5.3,
+          "change_pct": 0.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "YOU",
+          "company_name": "Clear Secure",
+          "weight_pct": 4.0,
+          "previous_weight_pct": 1.9,
+          "change_pct": 2.1,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "KLIC",
+          "company_name": "Kulicke & Soffa",
+          "weight_pct": 3.6,
+          "previous_weight_pct": 3.5,
+          "change_pct": 0.1,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "APP",
+          "company_name": "AppLovin",
+          "weight_pct": 2.9,
+          "previous_weight_pct": null,
+          "change_pct": null,
+          "slide_status": "new_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "VIAV",
+          "company_name": "Viavi Solutions",
+          "weight_pct": 2.8,
+          "previous_weight_pct": 4.8,
+          "change_pct": -2.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "MKSI",
+          "company_name": "MKS Inc",
+          "weight_pct": 2.7,
+          "previous_weight_pct": 2.4,
+          "change_pct": 0.3,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "NET",
+          "company_name": "Cloudflare",
+          "weight_pct": 2.2,
+          "previous_weight_pct": 0.2,
+          "change_pct": 2.0,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "PENG",
+          "company_name": "Penguin Solutions",
+          "weight_pct": 2.0,
+          "previous_weight_pct": 1.1,
+          "change_pct": 0.9,
+          "slide_status": "on_both_slides",
+          "disclosed_decision": null
+        }
+      ],
+      "departed": [
+        {
+          "ticker": "MTSI",
+          "company_name": "MACOM Technology",
+          "previous_weight_pct": 5.7,
+          "slide_status": "not_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "RDVT",
+          "company_name": "RedViolet",
+          "previous_weight_pct": 2.5,
+          "slide_status": "not_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "SMTC",
+          "company_name": "Semtech",
+          "previous_weight_pct": 1.8,
+          "slide_status": "not_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "COHU",
+          "company_name": "Cohu",
+          "previous_weight_pct": 1.6,
+          "slide_status": "not_on_slide",
+          "disclosed_decision": null
+        },
+        {
+          "ticker": "BE",
+          "company_name": "Bloom Energy",
+          "previous_weight_pct": 0.2,
+          "slide_status": "not_on_slide",
+          "disclosed_decision": null
+        }
+      ]
     }
   ],
   "videos": [
+    {
+      "video_id": "Go2UN72-22Y",
+      "date": "2026-11-08",
+      "title": "Growth Stock Earnings Deep Dive - 9 Portfolio Reviewed In Depth",
+      "url": "https://www.youtube.com/watch?v=Go2UN72-22Y",
+      "has_report": false,
+      "source_dir": null,
+      "report_path": null,
+      "transcript_path": null,
+      "evidence_path": null,
+      "disclosed_decisions": []
+    },
     {
       "video_id": "ucnG2ZJSnq8",
       "date": "2026-11-01",
